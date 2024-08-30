@@ -1,5 +1,5 @@
 # 기획 아이디어 - 현금챌린지
-[기획 아이디어 - 현금 챌린지 (Notion)] (https://ssafy-study-daejeon-class4.notion.site/5a64edef4ef24d53b7236660c8b9f8cd)
+[기획 아이디어 - 현금 챌린지 (Notion)](https://ssafy-study-daejeon-class4.notion.site/5a64edef4ef24d53b7236660c8b9f8cd)
 <br />
 
 ## 구체화 - 김태성
