@@ -11,8 +11,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import wontouch.api.dto.CreateRoomRequestDto;
+import wontouch.api.dto.JoinRoomRequest;
 import wontouch.api.dto.ResponseDto;
-import wontouch.api.dto.RoomResponseDto;
 import wontouch.api.exception.CustomException;
 import wontouch.api.exception.ExceptionResponse;
 
@@ -91,12 +91,13 @@ public class LobbyController {
     // 특정 게임방 입장
     @PostMapping("/rooms/{roomId}/join")
     public ResponseEntity<?> joinRoom(@PathVariable String roomId, @RequestBody JoinRoomRequest joinRoomRequest) {
-        String url = String.format("%s/rooms/%s/join", lobbyServerUrl, roomId);
+        String url = String.format("%s/api/rooms/%s/join", lobbyServerUrl, roomId);
         try {
             ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, joinRoomRequest, ResponseDto.class);
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         } catch (HttpClientErrorException e) {
 //          일단 뭉뚱그린 예외 처리
+            e.printStackTrace();
             throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
         }
     }

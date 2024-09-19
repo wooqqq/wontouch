@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wontouch.lobby.domain.Room;
 import wontouch.lobby.dto.CreateRoomRequestDto;
+import wontouch.lobby.dto.JoinRequestDto;
 import wontouch.lobby.dto.ResponseDto;
 import wontouch.lobby.dto.RoomResponseDto;
 import wontouch.lobby.service.RoomService;
@@ -52,5 +53,18 @@ public class RoomController {
                 .data(room)
                 .build();
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
+
+    // 방 입장
+    @PostMapping("/{roomId}/join")
+    public ResponseEntity<ResponseDto<RoomResponseDto>> joinGameRoom(@PathVariable String roomId, @RequestBody JoinRequestDto joinRequestDto) {
+        System.out.println(joinRequestDto);
+        RoomResponseDto roomResponseDto = roomService.joinRoom(roomId, joinRequestDto);
+        ResponseDto<RoomResponseDto> responseDto = ResponseDto.<RoomResponseDto>builder()
+                .status(HttpStatus.OK.value())
+                .message("방 입장 완료")
+                .data(roomResponseDto)
+                .build();
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

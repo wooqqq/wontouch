@@ -2,8 +2,8 @@ package wontouch.lobby.service;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import wontouch.lobby.domain.Room;
 import wontouch.lobby.dto.CreateRoomRequestDto;
+import wontouch.lobby.dto.JoinRequestDto;
 import wontouch.lobby.dto.RoomResponseDto;
 import wontouch.lobby.repository.RoomRepository;
 
@@ -26,5 +26,9 @@ public class RoomService {
 
     public RoomResponseDto createRoom(CreateRoomRequestDto room) {
         return roomRepository.saveRoom(room);
+    }
+
+    public RoomResponseDto joinRoom(String roomId, JoinRequestDto joinRequest) {
+        return roomRepository.joinRoom(roomId, joinRequest);
     }
 }
