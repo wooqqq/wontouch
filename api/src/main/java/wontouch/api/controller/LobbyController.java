@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import wontouch.api.dto.CreateRoomRequestDto;
@@ -24,19 +25,22 @@ public class LobbyController {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    // 로비서버 기본 주소
     @Value("${server.url}:${lobby.server.port}")
     private String lobbyServerUrl;
 
     public LobbyController() {
     }
 
+    // client에 전달하기 위한 random UUID 생성
     @GetMapping("/create/random-uuid")
     public ResponseEntity<String> createRandomUUID() {
         String uuid = UUID.randomUUID().toString();
         return ResponseEntity.ok(uuid);
     }
 
-    @GetMapping("/list")
+    // 게임방 목록 조회(페이지네이션)
+    @GetMapping("/rooms/list")
     public ResponseEntity<ResponseDto> getGameRoomList(Pageable pageable) {
         String targetUrl = lobbyServerUrl + "/api/rooms/list";
 
@@ -64,8 +68,9 @@ public class LobbyController {
         return sortParams;
     }
 
+    // 게임방 생성
     @PostMapping("/create/room")
-    public ResponseEntity<ResponseDto> createRoom(@RequestBody CreateRoomRequestDto createRoomRequestDto) {
+    public ResponseEntity<ResponseDto<?>> createRoom(@RequestBody CreateRoomRequestDto createRoomRequestDto) {
         String targetUrl = lobbyServerUrl + "/api/rooms/create"; // 로비 서버 URL
         try {
             // 로비 서버로 roomId를 POST 요청으로 전송
@@ -78,5 +83,17 @@ public class LobbyController {
         return ResponseEntity.created(URI.create(targetUrl)).body(
             null
         );
+    }
+
+    // 특정 게임방 입장
+    @PostMapping("/rooms/{roomId}/join")
+    public ResponseEntity<?> joinRoom(@PathVariable String roomId, @RequestBody JoinRoomRequest joinRoomRequest) {
+        String url = String.format("%s/rooms/%s/join", lobbyServerUrl, roomId);
+        try {
+            ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, joinRoomRequest, ResponseDto.class);
+            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+        } catch (HttpClientErrorException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        }
     }
 }

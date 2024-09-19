@@ -3,7 +3,8 @@ package wontouch.lobby.repository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.lobby.domain.Room;
-import wontouch.lobby.dto.CreateRoomRequest;
+import wontouch.lobby.dto.CreateRoomRequestDto;
+import wontouch.lobby.dto.RoomResponseDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public class RoomRepository {
     }
 
     // 방 목록 조회
-    public List<Room> getRooms(int pageNumber, int pageSize) {
+    public List<RoomResponseDto> getRooms(int pageNumber, int pageSize) {
         String roomListKey = "game_lobby:rooms";
 
         // 페이지 번호와 크기를 기반으로 시작과 종료 인덱스 계산
@@ -31,13 +32,13 @@ public class RoomRepository {
         // 최신 방부터 가져오기 위해 reverseRange 사용
         Set<Object> roomIds = redisTemplate.opsForZSet().reverseRange(roomListKey, start, end);
 
-        List<Room> rooms = new ArrayList<>();
+        List<RoomResponseDto> rooms = new ArrayList<>();
         if (roomIds != null && !roomIds.isEmpty()) {
             for (Object roomIdObj : roomIds) {
                 String roomId = roomIdObj.toString();
                 Room room = getRoomById(roomId);
                 if (room != null) {
-                    rooms.add(room);
+                    rooms.add(new RoomResponseDto(room));
                 }
             }
         }
@@ -46,7 +47,7 @@ public class RoomRepository {
 
 
     // 방을 만들고 레디스에 저장
-    public void saveRoom(CreateRoomRequest room) {
+    public void saveRoom(CreateRoomRequestDto room) {
         String key = "game_lobby:" + room.getRoomId() + ":info";
         redisTemplate.opsForHash().put(key, "roomId", room.getRoomId());
         redisTemplate.opsForHash().put(key, "roomName", room.getRoomName());

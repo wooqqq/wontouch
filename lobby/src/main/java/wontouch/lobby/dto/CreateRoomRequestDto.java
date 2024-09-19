@@ -5,7 +5,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class CreateRoomRequest {
+public class CreateRoomRequestDto {
     private String roomId;
     private String roomName;
     private long hostPlayerId;
