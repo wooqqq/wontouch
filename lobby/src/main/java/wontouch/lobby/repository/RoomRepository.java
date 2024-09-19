@@ -47,7 +47,7 @@ public class RoomRepository {
 
 
     // 방을 만들고 레디스에 저장
-    public void saveRoom(CreateRoomRequestDto room) {
+    public RoomResponseDto saveRoom(CreateRoomRequestDto room) {
         String key = "game_lobby:" + room.getRoomId() + ":info";
         redisTemplate.opsForHash().put(key, "roomId", room.getRoomId());
         redisTemplate.opsForHash().put(key, "roomName", room.getRoomName());
@@ -64,6 +64,7 @@ public class RoomRepository {
         // 참여자 목록에 방 생성자 삽입
         String participantsKey = "game_lobby:" + room.getRoomId() + ":participants";
         redisTemplate.opsForSet().add(participantsKey, Long.toString(room.getHostPlayerId()));
+        return new RoomResponseDto(getRoomById(room.getRoomId()));
     }
 
     // 방 정보 조회

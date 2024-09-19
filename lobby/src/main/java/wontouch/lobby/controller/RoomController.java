@@ -37,15 +37,20 @@ public class RoomController {
                 .message("게임방 목록 조회 완료")
                 .data(roomByPage)
                 .build();
-        return ResponseEntity.ok(responseDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     // 방 생성 요청 처리
     @PostMapping("/create")
-    public ResponseEntity<RoomResponseDto> createGameRoom(@RequestBody CreateRoomRequestDto request) {
+    public ResponseEntity<ResponseDto<RoomResponseDto>> createGameRoom(@RequestBody CreateRoomRequestDto request) {
         System.out.println("안녕하세요");
         System.out.println(request);
-        roomService.createRoom(request);
-        return null;
+        RoomResponseDto room = roomService.createRoom(request);
+        ResponseDto<RoomResponseDto> responseDto = ResponseDto.<RoomResponseDto>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("방 생성 완료")
+                .data(room)
+                .build();
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 }

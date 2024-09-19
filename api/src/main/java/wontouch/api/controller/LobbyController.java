@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -71,18 +72,17 @@ public class LobbyController {
     // 게임방 생성
     @PostMapping("/create/room")
     public ResponseEntity<ResponseDto<?>> createRoom(@RequestBody CreateRoomRequestDto createRoomRequestDto) {
+        ResponseDto responseDto = null;
         String targetUrl = lobbyServerUrl + "/api/rooms/create"; // 로비 서버 URL
         try {
             // 로비 서버로 roomId를 POST 요청으로 전송
-            restTemplate.postForObject(targetUrl, createRoomRequestDto, String.class);
+            responseDto = restTemplate.postForObject(targetUrl, createRoomRequestDto, ResponseDto.class);
             log.info("Room ID sent to Lobby Server: {}", createRoomRequestDto.getRoomId());
         } catch (Exception e) {
             log.error("Failed to send Room ID to Lobby Server: {}", e.getMessage());
         }
 
-        return ResponseEntity.created(URI.create(targetUrl)).body(
-            null
-        );
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     // 특정 게임방 입장

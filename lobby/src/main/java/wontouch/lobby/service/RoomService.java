@@ -24,7 +24,7 @@ public class RoomService {
         return roomRepository.getRooms(pageNumber, pageSize);
     }
 
-    public void createRoom(CreateRoomRequestDto room) {
-        roomRepository.saveRoom(room);
+    public RoomResponseDto createRoom(CreateRoomRequestDto room) {
+        return roomRepository.saveRoom(room);
     }
 }
