@@ -13,6 +13,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import wontouch.api.dto.CreateRoomRequestDto;
 import wontouch.api.dto.ResponseDto;
 import wontouch.api.dto.RoomResponseDto;
+import wontouch.api.exception.CustomException;
+import wontouch.api.exception.ExceptionResponse;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -80,6 +82,7 @@ public class LobbyController {
             log.info("Room ID sent to Lobby Server: {}", createRoomRequestDto.getRoomId());
         } catch (Exception e) {
             log.error("Failed to send Room ID to Lobby Server: {}", e.getMessage());
+            throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
         }
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -93,7 +96,8 @@ public class LobbyController {
             ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, joinRoomRequest, ResponseDto.class);
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         } catch (HttpClientErrorException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+//          일단 뭉뚱그린 예외 처리
+            throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
         }
     }
 }

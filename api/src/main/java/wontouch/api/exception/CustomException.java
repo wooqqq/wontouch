@@ -19,8 +19,8 @@ public enum CustomException {
     DUPLICATED_NAME_EXCEPTION(400,"DuplicateNameException","가입된 닉네임 또는 이름이 존재합니다."),
 
     // 잘못된 API 요청,
-    BAD_SSAFY_API_REQUEST(400,"BadSsafypiRequestException","잘못된 금융 API 요청입니다."),
-    EXPIRED_AUTH_CODE(403,"ExpriedAuthCode", "인증시간이 만료되었습니다."),
+    BAD_SSAFY_API_REQUEST(400,"BadSsafyapiRequestException","잘못된 금융 API 요청입니다."),
+    EXPIRED_AUTH_CODE(403,"ExpiredAuthCode", "인증시간이 만료되었습니다."),
     NOT_FOUND_AUTH_CODE(404,"NotFoundAuthCode","인증코드 발급 기록이 없습니다.(이미 인증한 코드입니다)"),
     MISMATCHED_AUTH_CODE_EXCEPTION(400,"MismatchedAuthCodeException","인증코드가 일치하지 않습니다."),
     INVALID_ACCOUNT_NUMBER_EXCEPTION(400, "InvalidAccountNumberException", "계좌번호가 유효하지 않습니다."),
