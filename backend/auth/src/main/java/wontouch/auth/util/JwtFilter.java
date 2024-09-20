@@ -6,7 +6,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import wontouch.auth.dto.CustomOAuth2User;
 import wontouch.auth.dto.UserDto;
 
 import java.io.IOException;
@@ -64,14 +68,16 @@ public class JwtFilter extends OncePerRequestFilter {
         String username = jwtUtil.getUsername(originToken);
         String role = jwtUtil.getRole(originToken);
 
-        // dto
         UserDto userDto = new UserDto();
-        userDto.setName(username);
+        userDto.setUsername(username);
         userDto.setRole(role);
 
         // CustomOAuth2User
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
 
         // Authentication
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }
