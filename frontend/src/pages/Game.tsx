@@ -1,6 +1,8 @@
+import PhaserGame from "../components/game/PhaserGame";
+
 function Game() {
   return (
-    <div>Game</div>
+    <PhaserGame />
   )
 }
 
