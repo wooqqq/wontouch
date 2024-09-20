@@ -6,10 +6,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import wontouch.auth.dto.CustomOAuth2User;
-import wontouch.auth.dto.GoogleResponse;
-import wontouch.auth.dto.OAuth2Response;
-import wontouch.auth.dto.UserDto;
+import wontouch.auth.dto.*;
 import wontouch.auth.entity.User;
 import wontouch.auth.repository.UserRepository;
 
@@ -32,7 +29,7 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
 
         // 제공자별 분기 처리
         if (registration.equals("kakao")) {
-
+            oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
         } else if (registration.equals("google")) {
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
         } else return null;
