@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.filter.OncePerRequestFilter;
+import wontouch.auth.dto.UserDto;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -64,6 +65,9 @@ public class JwtFilter extends OncePerRequestFilter {
         String role = jwtUtil.getRole(originToken);
 
         // dto
+        UserDto userDto = new UserDto();
+        userDto.setName(username);
+        userDto.setRole(role);
 
         // CustomOAuth2User
 
