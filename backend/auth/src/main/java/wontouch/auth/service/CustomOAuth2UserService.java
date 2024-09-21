@@ -12,7 +12,7 @@ import wontouch.auth.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2Service extends DefaultOAuth2UserService {
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
 
