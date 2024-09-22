@@ -5,8 +5,6 @@ import com.nimbusds.jose.shaded.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import wontouch.auth.dto.response.GoogleResponseDto;
 import wontouch.auth.dto.response.JwtResponseDto;
@@ -16,7 +14,6 @@ import wontouch.auth.global.exception.CustomException;
 import wontouch.auth.global.exception.ExceptionResponse;
 import wontouch.auth.repository.TokenRepository;
 import wontouch.auth.repository.UserRepository;
-import wontouch.auth.util.ResponseDto;
 import wontouch.auth.util.jwt.JwtProvider;
 
 import java.io.BufferedReader;
