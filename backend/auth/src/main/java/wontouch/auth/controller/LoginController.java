@@ -12,16 +12,16 @@ import wontouch.auth.util.ResponseDto;
 import wontouch.auth.util.jwt.JwtUtil;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/oauth")
 @RequiredArgsConstructor
 public class LoginController {
 
     private final JwtUtil jwtUtil;
     private final CustomOAuth2UserService customOAuth2UserService;
 
-    // 구글 소셜 로그인 엔드포인트
-    @GetMapping("/login/google")
-    public ResponseEntity<?> googleLogin(@RequestParam("code") String code) {
+    // 구글 소셜 로그인
+    @GetMapping("/google")
+    public ResponseEntity<?> googleLogin(@RequestParam("token") String token) {
 
         ResponseDto<String> responseDto = ResponseDto.<String>builder()
                 .status(HttpStatus.OK.value())
