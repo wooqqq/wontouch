@@ -1,4 +1,4 @@
-package wontouch.auth.util;
+package wontouch.auth.util.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;

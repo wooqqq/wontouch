@@ -10,7 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import wontouch.auth.dto.CustomOAuth2User;
-import wontouch.auth.util.JwtUtil;
+import wontouch.auth.util.jwt.JwtUtil;
 
 import java.util.Collection;
 import java.util.Iterator;

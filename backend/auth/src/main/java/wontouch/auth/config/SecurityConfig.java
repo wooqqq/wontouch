@@ -12,7 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import wontouch.auth.global.handler.CustomSuccessHandler;
 import wontouch.auth.service.CustomOAuth2UserService;
-import wontouch.auth.util.JwtUtil;
+import wontouch.auth.util.jwt.JwtUtil;
 
 @Configuration
 @EnableWebSecurity
