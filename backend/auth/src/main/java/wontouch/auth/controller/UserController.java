@@ -28,12 +28,6 @@ public class UserController {
 
         UserDto userDto = new UserDto(user.getId(), user.getUsername(), user.getEmail());
 
-        ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
-                .status(HttpStatus.OK.value())
-                .message("회원 정보 조회")
-                .data(userDto)
-                .build();
-
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 }

@@ -58,8 +58,8 @@ public class CustomOAuth2UserService {
 
         String email = googleResponseDto.getEmail();
         String username = googleResponseDto.getUsername();
-        User loginUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+        Optional<User> loginUser = userRepository.findByEmail(email);
+
         Token token;
         JwtResponseDto.TokenInfo tokenInfo;
 
@@ -69,16 +69,19 @@ public class CustomOAuth2UserService {
             googleUser.createUser(username, email);
             userRepository.save(googleUser);
             tokenInfo = jwtProvider.generateToken(googleUser.getId());
+            tokenInfo.updateFirstLogin();
+
             token = Token.builder()
                     .accessToken(tokenInfo.getAccessToken())
                     .refreshToken(tokenInfo.getRefreshToken())
                     .user(googleUser)
                     .build();
         } else {    // 기존 회원 로그인
-            tokenInfo = jwtProvider.generateToken(loginUser.getId());
+            User user = loginUser.get();
+            tokenInfo = jwtProvider.generateToken(user.getId());
             token = Token.builder()
                     .refreshToken(tokenInfo.getRefreshToken())
-                    .user(loginUser)
+                    .user(user)
                     .build();
         }
 
