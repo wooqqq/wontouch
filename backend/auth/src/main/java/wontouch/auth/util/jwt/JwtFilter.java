@@ -1,85 +1,44 @@
 package wontouch.auth.util.jwt;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import wontouch.auth.dto.CustomOAuth2User;
-import wontouch.auth.dto.UserDto;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.ArrayList;
 
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     // @RequiredArgsConstructor 통해 생성자 주입
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtProvider;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String token = getJwtFromRequest(request);
 
-        // 요청 헤더에 있는 access 라는 값 가져오기
-        String accessToken = request.getHeader("access");
-
-        // 요청 헤더에 access 가 없는 경우
-        if (accessToken == null) {
-            filterChain.doFilter(request, response);
-            return;
+        if (token != null && jwtProvider.validateToken(token)) {
+            Long userId = jwtProvider.getAuthentication(token);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-
-        // Bearer 제거 <- OAuth2를 이용했다고 명시적으로 붙여주는 타입. JWT 검증 혹은 정보 추출 시 제거해줘야 함
-        String originToken = accessToken.substring(7);
-
-        // 유효성 확인 후 클라이언트로 상태 코드 응답
-        try {
-            if (jwtUtil.isExpired(originToken)) {
-                PrintWriter writer = response.getWriter();
-                writer.println("access token expired");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
-            }
-        } catch (ExpiredJwtException e) {
-            PrintWriter writer = response.getWriter();
-            writer.println("access token expired");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        // accessToken 인지 refreshToken 인지
-        String category = jwtUtil.getCategory(originToken);
-
-        // JwtFilter 는 요청에 대해 accessToken 만 취급하므로 access 인지 확인
-        if (!category.equals("access")) {
-            PrintWriter writer = response.getWriter();
-            writer.println("invalid access token");
-
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        // 사용자명과 권한을 accessToken 에서 추출
-        String username = jwtUtil.getUsername(originToken);
-        String role = jwtUtil.getRole(originToken);
-
-        UserDto userDto = new UserDto();
-        userDto.setUsername(username);
-        userDto.setRole(role);
-
-        // CustomOAuth2User
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
-
-        // Authentication
-        Authentication authentication = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
+    }
+
+    private String getJwtFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
 }

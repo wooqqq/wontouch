@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import wontouch.auth.dto.response.JwtResponseDto;
 import wontouch.auth.service.CustomOAuth2UserService;
 import wontouch.auth.util.ResponseDto;
-import wontouch.auth.util.jwt.JwtUtil;
 
 @RestController
 @RequestMapping("/oauth")

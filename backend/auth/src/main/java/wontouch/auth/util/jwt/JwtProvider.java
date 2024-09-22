@@ -129,4 +129,8 @@ public class JwtProvider {
         Long now = System.currentTimeMillis();
         return (expiration.getTime() - now);
     }
+
+    public long getAccessTokenExpireTime() {
+        return ACCESS_TOKEN_EXPIRE_TIME;
+    }
 }

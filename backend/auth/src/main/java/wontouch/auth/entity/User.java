@@ -2,6 +2,7 @@ package wontouch.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import wontouch.auth.global.baseTimeEntity.BaseTimeEntity;
 
 @Entity
 @Getter
@@ -9,17 +10,11 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    @Column
-    private String role;
-
-    @Column
-    private String name;
 
     @Column
     private String username;

@@ -23,7 +23,6 @@ import wontouch.auth.repository.TokenRepository;
 import wontouch.auth.repository.UserRepository;
 import wontouch.auth.util.jwt.JwtProvider;
 
-import javax.swing.text.html.Option;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
