@@ -23,6 +23,7 @@ import wontouch.auth.repository.TokenRepository;
 import wontouch.auth.repository.UserRepository;
 import wontouch.auth.util.jwt.JwtProvider;
 
+import javax.swing.text.html.Option;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,6 +31,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -134,10 +136,41 @@ public class CustomOAuth2UserService {
      * 카카오 콜백 메서드
      */
     public JwtResponseDto.TokenInfo kakaoCallback(String accessToken) {
-//        KakaoResponseDto kakaoResponseDto =
+        KakaoResponseDto kakaoResponseDto = getKakaoUserInfo(accessToken);
+        String email = kakaoResponseDto.getEmail();
+        String username = kakaoResponseDto.getUsername();
+        Optional<User> loginUser = userRepository.findByEmail(email);
 
+        // 회원가입
+        if (!loginUser.isPresent()) {
+            User kakaoUser = new User();
+            kakaoUser.createUser(username, email);
+            userRepository.save(kakaoUser);
+            JwtResponseDto.TokenInfo tokenInfo = jwtProvider.generateToken(kakaoUser.getId());
+            Token token = Token.builder()
+                    .accessToken(tokenInfo.getAccessToken())
+                    .refreshToken(tokenInfo.getRefreshToken())
+                    .user(kakaoUser)
+                    .build();
+            tokenRepository.save(token);
+            if (kakaoUser.getEmail().equals("") || kakaoUser.getUsername().equals("")) {
+                String message = "마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
+                // 메시지 후처리 필요
+            }
 
-        return null;
+            return tokenInfo;
+        } else { // 기존 회원이 로그인하는 경우
+            User user = loginUser.get();
+            JwtResponseDto.TokenInfo tokenInfo = jwtProvider.generateToken(user.getId());
+            Token token = Token.builder()
+                    .accessToken(tokenInfo.getAccessToken())
+                    .refreshToken(tokenInfo.getRefreshToken())
+                    .user(user)
+                    .build();
+            tokenRepository.save(token);
+
+            return tokenInfo;
+        }
     }
 
     /**
