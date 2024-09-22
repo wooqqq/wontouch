@@ -11,5 +11,5 @@ public class GoogleResponseDto {
 
     private String email;
 
-    private String nickname;
+    private String username;
 }

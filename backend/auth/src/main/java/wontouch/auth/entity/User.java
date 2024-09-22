@@ -1,12 +1,14 @@
 package wontouch.auth.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -23,10 +25,13 @@ public class User {
     private String username;
 
     @Column
-    private String nickname;
-
-    @Column
     private String email;
 
+    public User createUser(String username, String email) {
+        this.username = username;
+        this.email = email;
+
+        return this;
+    }
 
 }

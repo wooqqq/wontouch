@@ -8,7 +8,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import wontouch.auth.dto.response.GoogleResponseDto;
+import wontouch.auth.dto.response.JwtResponseDto;
+import wontouch.auth.entity.Token;
+import wontouch.auth.entity.User;
+import wontouch.auth.global.exception.CustomException;
+import wontouch.auth.global.exception.ExceptionResponse;
 import wontouch.auth.repository.UserRepository;
+import wontouch.auth.util.jwt.JwtProvider;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,12 +35,34 @@ public class CustomOAuth2UserService {
     private String GOOGLE_CLIENT_SECRET;
 
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
     /**
      * 구글 콜백 메서드
      */
     public ResponseEntity<?> googleCallback(String accessToken) {
-        GoogleResponseDto googleResponseDto = new GoogleResponseDto();
+        GoogleResponseDto googleResponseDto = getGoogleUserInfo(accessToken);
+
+        if (googleResponseDto == null)
+            throw new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION);
+
+        String email = googleResponseDto.getEmail();
+        String username = googleResponseDto.getUsername();
+        User loginUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+        Token token;
+        JwtResponseDto.TokenInfo tokenInfo;
+
+        // 회원가입
+        if (loginUser == null) {
+            User googleUser = new User();
+            googleUser.createUser(username, email);
+            userRepository.save(googleUser);
+            tokenInfo = jwtProvider.generateToken(googleUser.getId());
+//            token =
+        }
+
+
 
         return null;
     }
