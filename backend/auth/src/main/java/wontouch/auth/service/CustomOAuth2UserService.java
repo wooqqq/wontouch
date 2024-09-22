@@ -5,6 +5,7 @@ import com.nimbusds.jose.shaded.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import wontouch.auth.dto.response.GoogleResponseDto;
@@ -13,7 +14,9 @@ import wontouch.auth.entity.Token;
 import wontouch.auth.entity.User;
 import wontouch.auth.global.exception.CustomException;
 import wontouch.auth.global.exception.ExceptionResponse;
+import wontouch.auth.repository.TokenRepository;
 import wontouch.auth.repository.UserRepository;
+import wontouch.auth.util.ResponseDto;
 import wontouch.auth.util.jwt.JwtProvider;
 
 import java.io.BufferedReader;
@@ -35,12 +38,13 @@ public class CustomOAuth2UserService {
     private String GOOGLE_CLIENT_SECRET;
 
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
 
     /**
      * 구글 콜백 메서드
      */
-    public ResponseEntity<?> googleCallback(String accessToken) {
+    public JwtResponseDto.TokenInfo googleCallback(String accessToken) {
         GoogleResponseDto googleResponseDto = getGoogleUserInfo(accessToken);
 
         if (googleResponseDto == null)
@@ -59,12 +63,21 @@ public class CustomOAuth2UserService {
             googleUser.createUser(username, email);
             userRepository.save(googleUser);
             tokenInfo = jwtProvider.generateToken(googleUser.getId());
-//            token =
+            token = Token.builder()
+                    .accessToken(tokenInfo.getAccessToken())
+                    .refreshToken(tokenInfo.getRefreshToken())
+                    .user(googleUser)
+                    .build();
+        } else {    // 기존 회원 로그인
+            tokenInfo = jwtProvider.generateToken(loginUser.getId());
+            token = Token.builder()
+                    .refreshToken(tokenInfo.getRefreshToken())
+                    .user(loginUser)
+                    .build();
         }
 
-
-
-        return null;
+        tokenRepository.save(token);
+        return tokenInfo;
     }
 
     /**

@@ -44,13 +44,13 @@ public class SecurityConfig {
 
                 // 세션 설정
                 .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
                 // oauth2
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler(customSuccessHandler)
-                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService)));
+//                .oauth2Login(oauth2 -> oauth2
+//                        .successHandler(customSuccessHandler)
+//                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+//                                .userService(customOAuth2UserService)));
 
         return http.build();
     }

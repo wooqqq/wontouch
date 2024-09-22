@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import wontouch.auth.dto.response.JwtResponseDto;
 import wontouch.auth.service.CustomOAuth2UserService;
 import wontouch.auth.util.ResponseDto;
 import wontouch.auth.util.jwt.JwtUtil;
@@ -16,17 +17,17 @@ import wontouch.auth.util.jwt.JwtUtil;
 @RequiredArgsConstructor
 public class LoginController {
 
-    private final JwtUtil jwtUtil;
     private final CustomOAuth2UserService customOAuth2UserService;
 
     // 구글 소셜 로그인
     @GetMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestParam("token") String token) {
+        JwtResponseDto.TokenInfo tokenInfo = customOAuth2UserService.googleCallback(token);
 
-        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+        ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())
                 .message("구글 소셜 로그인")
-                .data(null)
+                .data(tokenInfo)
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
