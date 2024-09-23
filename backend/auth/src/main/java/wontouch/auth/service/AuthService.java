@@ -58,22 +58,40 @@ public class AuthService {
                     .user(googleUser)
                     .build();
 
+            tokenRepository.save(token);
+
             // refresh token은 Redis 에 저장
             redisTemplate.opsForValue().set("refresh_token:" + googleUser.getEmail(), tokenInfo.getRefreshToken());
+
+            return tokenInfo;
         } else {    // 기존 회원 로그인
             User user = loginUser.get();
             tokenInfo = jwtProvider.generateToken(user.getId());
-            token = Token.builder()
-                    .refreshToken(tokenInfo.getRefreshToken())
-                    .user(user)
-                    .build();
+
+            // 기존 토큰 확인
+            Optional<Token> existingToken = tokenRepository.findTokenByUserId(user.getId());
+
+            if (existingToken.isPresent()) {
+                // 기존 토큰이 있으면 업데이트
+                token = existingToken.get();
+                token.updateAccessToken(tokenInfo.getAccessToken());
+                token.updateRefreshToken(tokenInfo.getRefreshToken());
+            } else {
+                // 새로운 토큰 생성
+                token = Token.builder()
+                        .accessToken(tokenInfo.getAccessToken())
+                        .refreshToken(tokenInfo.getRefreshToken())
+                        .user(user)
+                        .build();
+            }
+
+            tokenRepository.save(token);
 
             // refresh token은 Redis 에 저장
             redisTemplate.opsForValue().set("refresh_token:" + user.getEmail(), tokenInfo.getRefreshToken());
-        }
 
-        tokenRepository.save(token);
-        return tokenInfo;
+            return tokenInfo;
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package wontouch.auth.util.jwt;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,7 @@ public class JwtProvider {
 
     // application.properties 에 있는 평문 secret key 를 가져와 초기화
     public JwtProvider(@Value("${spring.jwt.secret}") String secret) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secret));
     }
 
     // 토큰 생성 메소드
