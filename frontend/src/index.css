@@ -70,3 +70,46 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* font */
+/* 던파 비트비트체 v2 */
+@font-face {
+  font-family: "DNFBitBitv2";
+  font-style: normal;
+  font-weight: 400;
+  src: url(./fonts/woff/DNFBitBitv2.woff) format("woff");
+}
+
+/* 갈무리 시리즈 (figma 기준 11, 14 사용) */
+@font-face {
+  font-family: "Galmuri11";
+  font-style: normal;
+  src: url(./fonts/woff/Galmuri11.woff) format("woff"),
+    url(./fonts/woff/GalmuriMono11.woff) format("woff");
+}
+
+@font-face {
+  font-family: "Galmuri11-Bold";
+  font-style: normal;
+  src: url(./fonts/woff/Galmuri11-Bold.woff) format("woff");
+}
+
+@font-face {
+  font-family: "Galmuri14";
+  font-style: normal;
+  src: url(./fonts/woff/Galmuri14.woff) format("woff");
+}
+
+@font-face {
+  font-family: "Galmuri7";
+  font-style: normal;
+  src: url(./fonts/woff/Galmuri7.woff) format("woff"),
+    url(./fonts/woff/GalmuriMono7.woff) format("woff");
+}
+
+@font-face {
+  font-family: "Galmuri9";
+  font-style: normal;
+  src: url(./fonts/woff/Galmuri9.woff) format("woff"),
+    url(./fonts/woff/GalmuriMono9.woff) format("woff");
+}
