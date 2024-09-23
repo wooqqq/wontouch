@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wontouch.auth.dto.request.GoogleRequestDto;
+import wontouch.auth.dto.request.KakaoRequestDto;
 import wontouch.auth.dto.response.JwtResponseDto;
 import wontouch.auth.service.AuthService;
 import wontouch.auth.util.ResponseDto;
@@ -33,9 +34,9 @@ public class AuthController {
 
     // 카카오 소셜 로그인
     @PostMapping("/kakao")
-    public ResponseEntity<?> kakaoLogin(@RequestParam("token") String accessToken) {
+    public ResponseEntity<?> kakaoLogin(@RequestBody KakaoRequestDto requestDto) {
 
-        JwtResponseDto.TokenInfo tokenInfo = authService.kakaoCallback(accessToken);
+        JwtResponseDto.TokenInfo tokenInfo = authService.kakaoCallback(requestDto.getToken());
 
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())
