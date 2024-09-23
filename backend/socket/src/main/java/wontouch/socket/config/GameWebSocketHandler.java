@@ -1,17 +1,23 @@
 package wontouch.socket.config;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+
+import wontouch.socket.dto.CreateRoomRequest;
+
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -58,7 +64,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             }
         }
     }
-
     private String getRoomIdFromSession(WebSocketSession session) {
         return Objects.requireNonNull(session.getUri()).getPath().split("/")[3];
     }

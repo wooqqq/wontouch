@@ -1,6 +1,7 @@
 package wontouch.api.controller;
 
 import lombok.extern.slf4j.Slf4j;
+<<<<<<< HEAD
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,6 +20,14 @@ import wontouch.api.exception.ExceptionResponse;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+=======
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import wontouch.api.dto.CreateRoomRequestDto;
+import wontouch.api.dto.RoomResponseDto;
+
+>>>>>>> 1208bf72810ddd7108d6a2a56d1a3b9e95685dc7
 import java.util.UUID;
 
 @RestController
@@ -28,6 +37,7 @@ public class LobbyController {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+<<<<<<< HEAD
     // 로비서버 기본 주소
     @Value("${server.url}:${lobby.server.port}")
     private String lobbyServerUrl;
@@ -36,12 +46,18 @@ public class LobbyController {
     }
 
     // client에 전달하기 위한 random UUID 생성
+=======
+    public LobbyController() {
+    }
+
+>>>>>>> 1208bf72810ddd7108d6a2a56d1a3b9e95685dc7
     @GetMapping("/create/random-uuid")
     public ResponseEntity<String> createRandomUUID() {
         String uuid = UUID.randomUUID().toString();
         return ResponseEntity.ok(uuid);
     }
 
+<<<<<<< HEAD
     // 게임방 목록 조회(페이지네이션)
     @GetMapping("/rooms/list")
     public ResponseEntity<ResponseDto> getGameRoomList(Pageable pageable) {
@@ -100,5 +116,19 @@ public class LobbyController {
             e.printStackTrace();
             throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
         }
+=======
+    @PostMapping("/create/room")
+    public ResponseEntity<RoomResponseDto> createRoom(@RequestBody CreateRoomRequestDto createRoomRequestDto) {
+        String lobbyServerUrl = "http://localhost:8083/api/rooms/create"; // 로비 서버 URL
+        try {
+            // 로비 서버로 roomId를 POST 요청으로 전송
+            restTemplate.postForObject(lobbyServerUrl, createRoomRequestDto, String.class);
+            log.info("Room ID sent to Lobby Server: {}", createRoomRequestDto.getRoomId());
+        } catch (Exception e) {
+            log.error("Failed to send Room ID to Lobby Server: {}", e.getMessage());
+        }
+
+        return null;
+>>>>>>> 1208bf72810ddd7108d6a2a56d1a3b9e95685dc7
     }
 }
