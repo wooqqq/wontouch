@@ -11,6 +11,8 @@ import wontouch.auth.global.handler.CustomSuccessHandler;
 import wontouch.auth.util.jwt.JwtFilter;
 import wontouch.auth.util.jwt.JwtProvider;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(withDefaults()) // CORS 설정 적용
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/auth/oauth/**").permitAll() // 해당 경로는 인증 없이 접근 가능
