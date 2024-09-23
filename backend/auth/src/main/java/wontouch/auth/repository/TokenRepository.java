@@ -14,11 +14,11 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     Optional<User> findUserByAccessToken(@Param("accessToken") String accessToken);
 
     @Query("select t from Token t JOIN User u ON u.id = t.user.id WHERE t.user.id= :userId")
-    Optional<Token> findTokenByUserId(@Param("userId") Long userId);
+    Optional<Token> findTokenByUserId(@Param("userId") int userId);
 
     @Modifying
     @Query("delete from Token t where t.user.id = :userId")
-    void deleteTokenByUserId(@Param("userId") Long userId);
+    void deleteTokenByUserId(@Param("userId") int userId);
 
     @Modifying
     @Query("delete from Token t where t.accessToken = :accessToken")

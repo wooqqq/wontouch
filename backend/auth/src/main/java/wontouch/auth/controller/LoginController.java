@@ -19,7 +19,10 @@ public class LoginController {
 
     // 구글 소셜 로그인
     @GetMapping("/google")
-    public ResponseEntity<?> googleLogin(@RequestParam("token") String token) {
+    public ResponseEntity<?> googleLogin(@RequestHeader("Authorization") String authorizationHeader) {
+        // Authorization 헤더에서 Bearer 토큰 추출
+        String token = authorizationHeader.substring(7); // "Bearer " 제거
+
         JwtResponseDto.TokenInfo tokenInfo = customOAuth2UserService.googleCallback(token);
 
         String profileSetupUrl = tokenInfo.isFirstLogin() ? "/api/user-profile" : null; // 프로필 설정 URL
@@ -40,10 +43,12 @@ public class LoginController {
     @PostMapping("/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestParam("token") String accessToken) {
 
+        JwtResponseDto.TokenInfo tokenInfo = customOAuth2UserService.kakaoCallback(accessToken);
+
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())
                 .message("카카오 소셜 로그인")
-                .data(null)
+                .data(tokenInfo)
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);

@@ -6,6 +6,7 @@ import com.nimbusds.jose.shaded.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -46,6 +47,7 @@ public class CustomOAuth2UserService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 구글 콜백 메서드
@@ -149,12 +151,18 @@ public class CustomOAuth2UserService {
             kakaoUser.createUser(username, email);
             userRepository.save(kakaoUser);
             JwtResponseDto.TokenInfo tokenInfo = jwtProvider.generateToken(kakaoUser.getId());
+            tokenInfo.updateFirstLogin();
+
             Token token = Token.builder()
                     .accessToken(tokenInfo.getAccessToken())
                     .refreshToken(tokenInfo.getRefreshToken())
                     .user(kakaoUser)
                     .build();
             tokenRepository.save(token);
+
+            // refresh token은 Redis 에 저장
+            redisTemplate.opsForValue().set("refresh_token:" + kakaoUser.getEmail(), tokenInfo.getRefreshToken());
+
             if (kakaoUser.getEmail().equals("") || kakaoUser.getUsername().equals("")) {
                 String message = "마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
                 // 메시지 후처리 필요
@@ -164,12 +172,29 @@ public class CustomOAuth2UserService {
         } else { // 기존 회원이 로그인하는 경우
             User user = loginUser.get();
             JwtResponseDto.TokenInfo tokenInfo = jwtProvider.generateToken(user.getId());
-            Token token = Token.builder()
-                    .accessToken(tokenInfo.getAccessToken())
-                    .refreshToken(tokenInfo.getRefreshToken())
-                    .user(user)
-                    .build();
+
+            // 기존 토큰 확인
+            Optional<Token> existingToken = tokenRepository.findTokenByUserId(user.getId());
+            Token token;
+
+            if (existingToken.isPresent()) {
+                // 기존 토큰이 있으면 업데이트
+                token = existingToken.get();
+                token.updateAccessToken(tokenInfo.getAccessToken());
+                token.updateRefreshToken(tokenInfo.getRefreshToken());
+            } else {
+                // 새로운 토큰 생성
+                token = Token.builder()
+                        .accessToken(tokenInfo.getAccessToken())
+                        .refreshToken(tokenInfo.getRefreshToken())
+                        .user(user)
+                        .build();
+            }
+
             tokenRepository.save(token);
+
+            // refresh token은 Redis 에 저장
+            redisTemplate.opsForValue().set("refresh_token:" + user.getEmail(), tokenInfo.getRefreshToken());
 
             return tokenInfo;
         }

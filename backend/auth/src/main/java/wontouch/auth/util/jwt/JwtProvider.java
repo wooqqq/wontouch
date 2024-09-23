@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import wontouch.auth.dto.response.JwtResponseDto;
 
 import javax.crypto.SecretKey;
+import java.security.Key;
 import java.util.Date;
 
 @Slf4j
@@ -21,6 +22,8 @@ public class JwtProvider {
     private static final String BEARER_TYPE = "Bearer";
 
     private final SecretKey secretKey;
+    private Key privateKey;
+    private Key publicKey;
 
     // application.properties 에 있는 평문 secret key 를 가져와 초기화
     public JwtProvider(@Value("${spring.jwt.secret}") String secret) {
@@ -52,13 +55,14 @@ public class JwtProvider {
                 .compact();
     }
 
-    // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
+    // Token 생성 메서드를 하나로 통일
     public JwtResponseDto.TokenInfo generateToken(int userId) {
         long now = (new Date()).getTime();
 
         // Access Token 생성
         String accessToken = Jwts.builder()
                 .claim("userId", userId)
+                .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + ACCESS_TOKEN_EXPIRE_TIME))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
@@ -66,6 +70,7 @@ public class JwtProvider {
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
                 .claim("userId", userId)
+                .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
@@ -98,7 +103,10 @@ public class JwtProvider {
     // 토큰 정보를 검증하는 메서드
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+            Jwts.parser()
+                    .verifyWith(secretKey) // secretKey를 설정
+                    .build()
+                    .parseSignedClaims(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
