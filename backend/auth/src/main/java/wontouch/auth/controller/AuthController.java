@@ -9,11 +9,10 @@ import wontouch.auth.dto.response.JwtResponseDto;
 import wontouch.auth.service.AuthService;
 import wontouch.auth.util.ResponseDto;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/oauth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
     private final AuthService authService;
