@@ -8,22 +8,17 @@ import org.springframework.stereotype.Component;
 import wontouch.auth.dto.response.JwtResponseDto;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.util.Date;
 
 @Slf4j
 @Component
 public class JwtProvider {
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 3 * 24 * 60 * 60 * 1000L; // refreshToken 유효기간 3일
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 7 * 24 * 60 * 60 * 1000L; // refreshToken 유효기간 7일
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 12 * 60 * 60 * 1000L; // accessToken 유효기간 12시간
 
-    // private static final long REFRESH_TOKEN_EXPIRE_TIME = 60 * 1000L; // refreshToken 유효기간 1분,  refrshToken 테스트를 위해 사용
-    // private static final long ACCESS_TOKEN_EXPIRE_TIME = 10 * 1000L; // 유효기간 10초, refrshToken 테스트를 위해 사용
     private static final String BEARER_TYPE = "Bearer";
 
     private final SecretKey secretKey;
-    private Key privateKey;
-    private Key publicKey;
 
     // application.properties 에 있는 평문 secret key 를 가져와 초기화
     public JwtProvider(@Value("${spring.jwt.secret}") String secret) {
