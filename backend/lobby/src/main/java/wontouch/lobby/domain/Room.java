@@ -1,10 +1,18 @@
 package wontouch.lobby.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 
-@Getter
+import java.util.Set;
+
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Room {
-
+    private String roomId;
+    private String roomName;
+    private boolean isPrivate;
+    private String password;
+    private Set<String> participants;
+    private int currentPlayersCount;
 }
