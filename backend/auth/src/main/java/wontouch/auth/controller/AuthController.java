@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wontouch.auth.dto.request.GoogleRequestDto;
 import wontouch.auth.dto.response.JwtResponseDto;
 import wontouch.auth.service.AuthService;
 import wontouch.auth.util.ResponseDto;
@@ -19,11 +20,8 @@ public class AuthController {
 
     // 구글 소셜 로그인
     @GetMapping("/google")
-    public ResponseEntity<?> googleLogin(@RequestHeader("Authorization") String authorizationHeader) {
-        // Authorization 헤더에서 Bearer 토큰 추출
-        String token = authorizationHeader.substring(7); // "Bearer " 제거
-
-        JwtResponseDto.TokenInfo tokenInfo = authService.googleCallback(token);
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleRequestDto requestDto) {
+        JwtResponseDto.TokenInfo tokenInfo = authService.googleCallback(requestDto);
 
         String profileSetupUrl = tokenInfo.isFirstLogin() ? "/api/user-profile" : null; // 프로필 설정 URL
 
