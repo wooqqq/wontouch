@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wontouch.auth.dto.response.JwtResponseDto;
-import wontouch.auth.service.CustomOAuth2UserService;
+import wontouch.auth.service.AuthService;
 import wontouch.auth.util.ResponseDto;
 
 import java.util.Map;
@@ -13,9 +13,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/oauth")
 @RequiredArgsConstructor
-public class LoginController {
+public class AuthController {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
+    private final AuthService authService;
 
     // 구글 소셜 로그인
     @GetMapping("/google")
@@ -23,7 +23,7 @@ public class LoginController {
         // Authorization 헤더에서 Bearer 토큰 추출
         String token = authorizationHeader.substring(7); // "Bearer " 제거
 
-        JwtResponseDto.TokenInfo tokenInfo = customOAuth2UserService.googleCallback(token);
+        JwtResponseDto.TokenInfo tokenInfo = authService.googleCallback(token);
 
         String profileSetupUrl = tokenInfo.isFirstLogin() ? "/api/user-profile" : null; // 프로필 설정 URL
 
@@ -43,7 +43,7 @@ public class LoginController {
     @PostMapping("/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestParam("token") String accessToken) {
 
-        JwtResponseDto.TokenInfo tokenInfo = customOAuth2UserService.kakaoCallback(accessToken);
+        JwtResponseDto.TokenInfo tokenInfo = authService.kakaoCallback(accessToken);
 
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())
