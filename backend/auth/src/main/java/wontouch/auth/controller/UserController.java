@@ -12,7 +12,6 @@ import wontouch.auth.entity.User;
 import wontouch.auth.global.exception.CustomException;
 import wontouch.auth.global.exception.ExceptionResponse;
 import wontouch.auth.repository.UserRepository;
-import wontouch.auth.util.ResponseDto;
 
 @RestController
 @RequestMapping("/user")

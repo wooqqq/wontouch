@@ -23,15 +23,10 @@ public class AuthController {
     public ResponseEntity<?> googleLogin(@RequestBody GoogleRequestDto requestDto) {
         JwtResponseDto.TokenInfo tokenInfo = authService.googleCallback(requestDto);
 
-        String profileSetupUrl = tokenInfo.isFirstLogin() ? "/api/user-profile" : null; // 프로필 설정 URL
-
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())
                 .message("구글 소셜 로그인")
-                .data(Map.of(
-                        "tokenInfo", tokenInfo,
-                        "profileSetupUrl", profileSetupUrl
-                ))
+                .data(tokenInfo)
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
