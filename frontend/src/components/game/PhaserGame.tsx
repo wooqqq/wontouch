@@ -38,7 +38,7 @@ const PhaserGame = () => {
     function preload(this: Phaser.Scene) {
         // 'player'라는 키로 스프라이트 시트를 로드함
         this.load.image('bg', './sky.png');
-        this.load.spritesheet('player', './player.png', { frameWidth: 16, frameHeight: 19});
+        this.load.spritesheet('player', './ninja_skeleton.png', { frameWidth: 16, frameHeight: 19});
     }
 
     function create(this: Phaser.Scene) {
@@ -50,6 +50,7 @@ const PhaserGame = () => {
         // 'player' 스프라이트 시트를 사용해 캐릭터를 생성
         player = this.physics.add.sprite(400, 300, 'player');
         player.setCollideWorldBounds(true);
+        player.setScale(2);
 
         this.cameras.main.setBounds(0, 0, 1600, 1200);
         this.cameras.main.startFollow(player, true, 0.1, 0.1); // 부드러운 카메라 이동
@@ -57,7 +58,7 @@ const PhaserGame = () => {
         // 'player' 키를 사용하여 애니메이션 생성
         this.anims.create({
             key: 'walk',
-            frames: this.anims.generateFrameNumbers('player', { start: 0, end: 7 }), // 'character'가 아닌 'player'로 변경
+            frames: this.anims.generateFrameNumbers('player', { start: 0, end: 7 }),
             frameRate: 10,
             repeat: -1
         });
@@ -75,14 +76,14 @@ const PhaserGame = () => {
             player.setVelocityX(-speed);
             player.flipX = true;
             moving = true;
-        } else if (cursors.right.isDown) {
+        } if (cursors.right.isDown) {
             player.setVelocityX(speed);
             player.flipX = false;
             moving = true;
-        } else if (cursors.up.isDown) {
+        } if (cursors.up.isDown) {
             player.setVelocityY(-speed);
             moving = true;
-        } else if (cursors.down.isDown) {
+        } if (cursors.down.isDown) {
             player.setVelocityY(speed);
             moving = true;
         }
@@ -93,6 +94,7 @@ const PhaserGame = () => {
             }
         } else {
             player.anims.stop();
+            player.setFrame(0);
         }
     }
 
