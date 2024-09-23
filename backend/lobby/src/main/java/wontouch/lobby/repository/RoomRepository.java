@@ -3,17 +3,14 @@ package wontouch.lobby.repository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.lobby.domain.Room;
-<<<<<<< HEAD
+
 import wontouch.lobby.dto.CreateRoomRequestDto;
 import wontouch.lobby.dto.JoinRequestDto;
 import wontouch.lobby.dto.RoomResponseDto;
 
 import java.util.ArrayList;
 import java.util.List;
-=======
-import wontouch.lobby.dto.CreateRoomRequest;
 
->>>>>>> 1208bf72810ddd7108d6a2a56d1a3b9e95685dc7
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,7 +25,6 @@ public class RoomRepository {
     }
 
     // 방을 만들고 레디스에 저장
-<<<<<<< HEAD
     public RoomResponseDto saveRoom(CreateRoomRequestDto room) {
         String key = "game_lobby:" + room.getRoomId() + ":info";
         redisTemplate.opsForHash().put(key, "roomId", room.getRoomId());
@@ -42,23 +38,13 @@ public class RoomRepository {
         String roomListKey = "game_lobby:rooms";
         double score = System.currentTimeMillis(); // 현재 시간을 밀리초로 가져옴
         redisTemplate.opsForZSet().add(roomListKey, room.getRoomId(), score);
-=======
-    public void saveRoom(CreateRoomRequest room) {
-        String key = "game_lobby:" + room.getRoomId() + ":info";
-        redisTemplate.opsForHash().put(key, "roomId", room.getRoomId());
-        redisTemplate.opsForHash().put(key, "roomName", room.getRoomName());
-        redisTemplate.opsForHash().put(key, "roomId", room.isPrivate());
-        if (room.isPrivate()) {
-            redisTemplate.opsForHash().put(key, "roomId", room.getPassword());
-        }
 
         // 추가 필드 작성
->>>>>>> 1208bf72810ddd7108d6a2a56d1a3b9e95685dc7
 
         // 참여자 목록에 방 생성자 삽입
         String participantsKey = "game_lobby:" + room.getRoomId() + ":participants";
         redisTemplate.opsForSet().add(participantsKey, Long.toString(room.getHostPlayerId()));
-<<<<<<< HEAD
+
         return new RoomResponseDto(getRoomById(room.getRoomId()));
     }
 
@@ -118,21 +104,7 @@ public class RoomRepository {
 
         return room;
     }
-
-    // 참가자 조회
-=======
-    }
-
-    // Redis에서 방 정보 조회 (필요 시)
-    public Room getRoomById(String roomId) {
-        String roomKey = "game_lobby:" + roomId + ":info";
-        Map<Object, Object> roomData = redisTemplate.opsForHash().entries(roomKey);
-        return new Room(
-        );
-    }
-
-
->>>>>>> 1208bf72810ddd7108d6a2a56d1a3b9e95685dc7
+    
     public Set<String> getParticipants(String roomId) {
         String participantsKey = "game_lobby:" + roomId + ":participants";
         Set<Object> participants = redisTemplate.opsForSet().members(participantsKey);

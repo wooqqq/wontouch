@@ -4,15 +4,10 @@ import lombok.Getter;
 
 @Getter
 public class CreateRoomRequestDto {
-<<<<<<< HEAD
     private final String roomId;
     private String roomName;
     private final long hostPlayerId;
-=======
-    private String roomId;
-    private String roomName;
-    private long hostPlayerId;
->>>>>>> 1208bf72810ddd7108d6a2a56d1a3b9e95685dc7
+
     private boolean isPrivate;
     private String password;
 

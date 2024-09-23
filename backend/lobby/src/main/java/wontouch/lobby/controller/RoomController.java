@@ -1,12 +1,10 @@
 package wontouch.lobby.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-<<<<<<< HEAD
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wontouch.lobby.domain.Room;
 import wontouch.lobby.dto.CreateRoomRequestDto;
 import wontouch.lobby.dto.JoinRequestDto;
 import wontouch.lobby.dto.ResponseDto;
@@ -15,17 +13,6 @@ import wontouch.lobby.service.RoomService;
 
 import java.util.List;
 
-=======
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import wontouch.lobby.dto.CreateRoomRequest;
-import wontouch.lobby.dto.RoomDto;
-import wontouch.lobby.service.RoomService;
-
->>>>>>> 1208bf72810ddd7108d6a2a56d1a3b9e95685dc7
 @RestController
 @RequestMapping("/api/rooms")
 public class RoomController {
@@ -37,7 +24,6 @@ public class RoomController {
         this.roomService = roomService;
     }
 
-<<<<<<< HEAD
     // 방 목록 조회
     @GetMapping("/list")
     public ResponseEntity<ResponseDto<List<RoomResponseDto>>> getGameRoomList(Pageable pageable) {
@@ -79,14 +65,5 @@ public class RoomController {
                 .data(roomResponseDto)
                 .build();
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
-=======
-    // 방 생성 요청 처리
-    @PostMapping("/create")
-    public ResponseEntity<RoomDto> createRoom(@RequestBody CreateRoomRequest request) {
-        System.out.println("안녕하세요");
-        System.out.println(request);
-        roomService.createRoom(request);
-        return null;
->>>>>>> 1208bf72810ddd7108d6a2a56d1a3b9e95685dc7
     }
 }
