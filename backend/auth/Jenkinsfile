@@ -70,7 +70,6 @@ pipeline {
                 dir("backend/auth") {
                     sh "chmod +x ./gradlew"
                     sh "./gradlew clean build --no-daemon"
-                    sh "ls -la build/test-results/test"
                 }
             }
             post {
