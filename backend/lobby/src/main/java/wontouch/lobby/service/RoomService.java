@@ -1,10 +1,10 @@
 package wontouch.lobby.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import wontouch.lobby.dto.CreateRoomRequestDto;
-import wontouch.lobby.dto.JoinRequestDto;
-import wontouch.lobby.dto.RoomResponseDto;
+import org.springframework.web.client.RestTemplate;
+import wontouch.lobby.dto.*;
 import wontouch.lobby.repository.RoomRepository;
 
 import java.util.List;
@@ -12,9 +12,13 @@ import java.util.List;
 @Service
 public class RoomService {
 
+    @Value("${server.url}:${socket.server.url}")
+    private String socketServerUrl;
+    private final RestTemplate restTemplate;
     private final RoomRepository roomRepository;
 
     public RoomService(RoomRepository roomRepository) {
+        this.restTemplate = new RestTemplate();
         this.roomRepository = roomRepository;
     }
 
@@ -28,7 +32,21 @@ public class RoomService {
         return roomRepository.saveRoom(room);
     }
 
-    public RoomResponseDto joinRoom(String roomId, JoinRequestDto joinRequest) {
+    public RoomResponseDto joinRoom(String roomId, RoomRequestDto joinRequest) {
         return roomRepository.joinRoom(roomId, joinRequest);
+    }
+
+    public RoomResponseDto exitRoom(String roomId, long playerId) {
+        return roomRepository.exitRoom(roomId, playerId);
+    }
+
+    public void addSession(SessionSaveDto sessionSaveDto) {
+        roomRepository.saveSession(sessionSaveDto);
+    }
+
+    private void notifyToSocketServer(NotifyMessageDto notifyMessageDto) {
+        String notifyUrl = socketServerUrl + "/notify";
+        restTemplate.postForObject(notifyUrl, notifyMessageDto, void.class);
+
     }
 }
