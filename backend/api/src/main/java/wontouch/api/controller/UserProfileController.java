@@ -18,7 +18,7 @@ public class UserProfileController {
 
     private final UserService userService;
 
-    @PostMapping
+    @PostMapping("/join")
     public ResponseEntity<?> createUserProfile(@RequestBody UserProfileCreateRequestDto createDto) {
         UserProfile createProfile = userService.createUserProfile(createDto);
         return new ResponseEntity<>(createProfile, HttpStatus.CREATED);
