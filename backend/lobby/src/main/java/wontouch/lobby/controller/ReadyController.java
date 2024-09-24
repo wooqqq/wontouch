@@ -12,7 +12,7 @@ import wontouch.lobby.service.ReadyService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/ready")
+@RequestMapping("/ready")
 @Slf4j
 public class ReadyController {
 
@@ -23,11 +23,17 @@ public class ReadyController {
         this.readyService = readyService;
     }
 
-    @PostMapping("/change")
+    @PostMapping("/toggle")
     public ReadyStateDto ready(@RequestBody Map<String, Object> preparationInfo) {
         System.out.println(preparationInfo);
         ReadyStateDto state = readyService.updateReadyState(preparationInfo);
         log.debug("ready: {}", state);
         return state;
+    }
+
+    @PostMapping("/kick")
+    public boolean kick(@RequestBody Map<String, Object> kickInfo) {
+        log.debug("kick: {}", kickInfo);
+        return readyService.kickUser(kickInfo);
     }
 }

@@ -36,15 +36,20 @@ public class LobbyController {
     }
 
     @GetMapping("/create/random-uuid")
-    public ResponseEntity<String> createRandomUUID() {
+    public ResponseEntity<ResponseDto<?>> createRandomUUID() {
         String uuid = UUID.randomUUID().toString();
-        return ResponseEntity.ok(uuid);
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("UUID 정상 발급 완료")
+                .data(uuid)
+                .build();
+        return ResponseEntity.ok(responseDto);
     }
 
     // 게임방 목록 조회(페이지네이션)
     @GetMapping("/rooms/list")
     public ResponseEntity<ResponseDto> getGameRoomList(Pageable pageable) {
-        String targetUrl = lobbyServerUrl + "/api/rooms/list";
+        String targetUrl = lobbyServerUrl + "/rooms/list";
 
         URI uri = UriComponentsBuilder.fromHttpUrl(targetUrl)
                 .queryParam("page", pageable.getPageNumber())
@@ -74,7 +79,7 @@ public class LobbyController {
     @PostMapping("/create/room")
     public ResponseEntity<ResponseDto<?>> createRoom(@RequestBody CreateRoomRequestDto createRoomRequestDto) {
         ResponseDto responseDto = null;
-        String targetUrl = lobbyServerUrl + "/api/rooms/create"; // 로비 서버 URL
+        String targetUrl = lobbyServerUrl + "/rooms/create"; // 로비 서버 URL
         try {
             // 로비 서버로 roomId를 POST 요청으로 전송
             responseDto = restTemplate.postForObject(targetUrl, createRoomRequestDto, ResponseDto.class);
@@ -90,7 +95,7 @@ public class LobbyController {
     // 특정 게임방 입장
     @PostMapping("/rooms/join/{roomId}")
     public ResponseEntity<?> joinRoom(@PathVariable String roomId, @RequestBody RoomRequestDto roomRequestDto) {
-        String url = String.format("%s/api/rooms/join/%s", lobbyServerUrl, roomId);
+        String url = String.format("%s/rooms/join/%s", lobbyServerUrl, roomId);
         try {
             ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, roomRequestDto, ResponseDto.class);
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
@@ -104,7 +109,7 @@ public class LobbyController {
     // 특정 게임방 퇴장
     @PostMapping("/rooms/exit/{roomId}")
     public ResponseEntity<?> exitRoom(@PathVariable String roomId, @RequestBody RoomRequestDto roomRequestDto) {
-        String url = String.format("%s/api/rooms/exit/%s", lobbyServerUrl, roomId);
+        String url = String.format("%s/rooms/exit/%s", lobbyServerUrl, roomId);
         try {
             ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, roomRequestDto, ResponseDto.class);
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());

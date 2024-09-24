@@ -6,7 +6,8 @@ public enum MessageType {
     CHAT("chat"),
     NOTIFY("notify"),
     READY("ready"),
-    START("start");
+    START("start"),
+    KICK("kick");
 
     private final String value;
 

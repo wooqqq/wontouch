@@ -15,7 +15,7 @@ import wontouch.lobby.service.RoomService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/rooms")
+@RequestMapping("/rooms")
 @Slf4j
 public class RoomController {
 
