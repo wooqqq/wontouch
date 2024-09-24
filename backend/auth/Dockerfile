@@ -1,9 +1,9 @@
 # runtime
-FROM amazoncorretto:17-alpine AS build
+FROM amazoncorretto:17-alpine
 
 WORKDIR /app
 
-COPY --from=build /build/libs/auth-0.0.1-SNAPSHOT.jar /app/wontouch-auth.jar
+COPY /build/libs/auth-0.0.1-SNAPSHOT.jar /app/wontouch-auth.jar
 
 EXPOSE 8082
 
