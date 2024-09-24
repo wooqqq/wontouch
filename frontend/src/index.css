@@ -3,27 +3,26 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
+  /* 사용자가 웹 페이지를 볼 때, 브라우저가 페이지의 밝은(light) 또는 어두운(dark) 테마를 지원하도록 지정하는 속성 */
   color-scheme: light dark;
+
+  /* 문서 전체의 텍스트 색상을 지정 */
   color: rgba(255, 255, 255, 0.87);
+
+  /* 문서의 배경 색상을 지정 */
   background-color: #242424;
 
+  /* 브라우저가 글꼴을 자동으로 굵게(bold)하거나 기울임(italic)으로 만드는 것을 방지 */
   font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  /* 텍스트를 더 잘 읽을 수 있도록 브라우저에게 텍스트 렌더링을 최적화하라는 지시 */
+  text-rendering: optimizeLegibility;
+
+  /* 웹킷(WebKit) 기반 브라우저(주로 Safari나 Chrome)에서 폰트의 가장자리를 부드럽게 처리하여 더 선명하고 깨끗하게 보이도록 설정 */
+  -webkit-font-smoothing: antialiased;
+
+  /* macOS 시스템에서 파이어폭스 브라우저가 폰트의 가장자리를 회색으로 처리하여 부드럽게 렌더링하도록 설정하는 속성 */
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -32,30 +31,20 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+
+  /* 드래그 방지 */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+/* 드래그 허용 CSS */
+.draggable {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 @media (prefers-color-scheme: light) {
@@ -68,5 +57,61 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+}
+
+@layer base {
+  /* font */
+  /* 던파 비트비트체 v2 */
+  @font-face {
+    font-family: "DNFBitBitv2";
+    font-style: normal;
+    font-weight: 400;
+    src: url(./fonts/woff/DNFBitBitv2.woff) format("woff");
+  }
+
+  /* 갈무리 시리즈 (목업 기준 11, 14 사용) */
+  @font-face {
+    font-family: "Galmuri11";
+    font-style: normal;
+    src: url(./fonts/woff/Galmuri11.woff) format("woff"),
+      url(./fonts/woff/GalmuriMono11.woff) format("woff");
+  }
+
+  @font-face {
+    font-family: "Galmuri11-Bold";
+    font-style: normal;
+    src: url(./fonts/woff/Galmuri11-Bold.woff) format("woff");
+  }
+
+  @font-face {
+    font-family: "Galmuri14";
+    font-style: normal;
+    src: url(./fonts/woff/Galmuri14.woff) format("woff");
+  }
+
+  @font-face {
+    font-family: "Galmuri7";
+    font-style: normal;
+    src: url(./fonts/woff/Galmuri7.woff) format("woff"),
+      url(./fonts/woff/GalmuriMono7.woff) format("woff");
+  }
+
+  @font-face {
+    font-family: "Galmuri9";
+    font-style: normal;
+    src: url(./fonts/woff/Galmuri9.woff) format("woff"),
+      url(./fonts/woff/GalmuriMono9.woff) format("woff");
+  }
+
+  html {
+    font-family: "Galmuri11";
+    font-size: 1rem;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }

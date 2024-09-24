@@ -6,6 +6,8 @@ import Game from "./pages/Game";
 import Login from "./pages/Login";
 import KakaoLoginHandler from "./components/Login/Kakao/KakaoLoginHandler";
 import SignupWithKakao from "./components/Login/Kakao/SignupWithKakao";
+import Setting from "./pages/Setting";
+import Notfound from "./pages/Notfound";
 
 function AppRouter() {
   return (
@@ -19,6 +21,8 @@ function AppRouter() {
         {/* 게임 시작 전 대기방 */}
         <Route path="/waiting-room" element={<WaitingRoom />} />
         <Route path="/game" element={<Game />} />
+        <Route path="/setting/*" element={<Setting />} />
+        <Route path="*" element={<Notfound />} />
       </Routes>
     </Router>
   );
