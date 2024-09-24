@@ -11,5 +11,4 @@ public class UserProfileCreateRequestDto {
 
     private int userId;
     private String nickname;
-    private String description;
 }

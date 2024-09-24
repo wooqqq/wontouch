@@ -17,7 +17,7 @@ public class UserProfile {
     @Column(nullable = false)
     private int userId;
 
-    @Column
+    @Column(nullable = false)
     private String nickname;
 
     @Column

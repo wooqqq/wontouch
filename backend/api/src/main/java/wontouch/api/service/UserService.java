@@ -25,7 +25,7 @@ public class UserService {
         UserProfile userProfile = UserProfile.builder()
                 .userId(profileCreateRequestDto.getUserId())
                 .nickname(profileCreateRequestDto.getNickname())
-                .description(profileCreateRequestDto.getDescription())
+                .description(null)
                 .build();
 
         return userProfileRepository.save(userProfile);
