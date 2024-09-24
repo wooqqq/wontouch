@@ -4,11 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.lobby.dto.ReadyStateDto;
-import wontouch.lobby.dto.ResponseDto;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 // 게임의 준비 시작을 담당하는 레포지토리 레이어
 @Repository
@@ -58,5 +55,16 @@ public class ReadyRepository {
                     Object value = entry.getValue();
                     return Boolean.parseBoolean(value.toString());
                 });
+    }
+
+    public void kickUser(String roomId, String requestId, String playerId) {
+        String participantsKey = "game_lobby:" + roomId + ":participants";
+        String infoKey = "game_lobby:" + roomId + ":info";
+
+        String hostId = (String) redisTemplate.opsForHash().get(infoKey, "hostId");
+        log.debug("playerId:{}, hostId: {}", playerId, hostId);
+        if (requestId.equals(hostId)) {
+            redisTemplate.opsForHash().delete(participantsKey, playerId);
+        }
     }
 }

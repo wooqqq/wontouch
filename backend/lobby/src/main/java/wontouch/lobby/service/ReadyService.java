@@ -23,4 +23,11 @@ public class ReadyService {
         long playerId = Long.parseLong(preparationInfo.get("playerId").toString());
         return readyRepository.readyStatusChange(roomId, playerId);
     }
+
+    public void kickUser(Map<String, Object> kickInfo) {
+        String roomId = kickInfo.get("roomId").toString();
+        String requestUserId = kickInfo.get("requestUserId").toString();
+        String playerId = kickInfo.get("playerId").toString();
+        readyRepository.kickUser(requestUserId, roomId, playerId);
+    }
 }
