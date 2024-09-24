@@ -32,8 +32,8 @@ public class ReadyController {
     }
 
     @PostMapping("/kick")
-    public void kick(@RequestBody Map<String, Object> kickInfo) {
+    public boolean kick(@RequestBody Map<String, Object> kickInfo) {
         log.debug("kick: {}", kickInfo);
-        readyService.kickUser(kickInfo);
+        return readyService.kickUser(kickInfo);
     }
 }

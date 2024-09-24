@@ -24,10 +24,10 @@ public class ReadyService {
         return readyRepository.readyStatusChange(roomId, playerId);
     }
 
-    public void kickUser(Map<String, Object> kickInfo) {
+    public boolean kickUser(Map<String, Object> kickInfo) {
         String roomId = kickInfo.get("roomId").toString();
         String requestUserId = kickInfo.get("requestUserId").toString();
         String playerId = kickInfo.get("playerId").toString();
-        readyRepository.kickUser(requestUserId, roomId, playerId);
+        return readyRepository.kickUser(roomId, requestUserId, playerId);
     }
 }

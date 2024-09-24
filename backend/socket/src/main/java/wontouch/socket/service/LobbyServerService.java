@@ -18,8 +18,6 @@ public class LobbyServerService {
     private static final Logger log = LoggerFactory.getLogger(LobbyServerService.class);
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final GameWebSocketHandler gameWebSocketHandler = new GameWebSocketHandler();
-
 
     public ReadyStateDto sendPreparationInfo(String lobbyServerUrl, String roomId,
                                              Map<String, Object> preparationInfo) {
@@ -31,9 +29,12 @@ public class LobbyServerService {
         return state;
     }
 
-    public void kickUser(String lobbyServerUrl, String roomId,
-                         Map<String, Object> msgMap) {
-        log.debug("kickInfo:{}", msgMap);
-
+    public boolean kickUser(String lobbyServerUrl, String roomId,
+                         Map<String, Object> kickInfo) {
+        String kickUrl = lobbyServerUrl + "/ready/kick";
+        kickInfo.put("roomId", roomId);
+        log.debug("kickInfo:{}", kickInfo);
+        Boolean isKicked = restTemplate.postForObject(kickUrl, kickInfo, boolean.class);
+        return isKicked;
     }
 }

@@ -21,8 +21,7 @@ public class MessageHandlerFactory {
                 break;
             case KICK:
                 // 유저 강퇴
-                lobbyServerService.kickUser(lobbyServerUrl, roomId, msgMap);
-                break;
+                return lobbyServerService.kickUser(lobbyServerUrl, roomId, msgMap);
             default:
                 System.out.println("Unknown message type: " + messageType);
                 return null;

@@ -57,14 +57,16 @@ public class ReadyRepository {
                 });
     }
 
-    public void kickUser(String roomId, String requestId, String playerId) {
+    public boolean kickUser(String roomId, String requestId, String playerId) {
         String participantsKey = "game_lobby:" + roomId + ":participants";
         String infoKey = "game_lobby:" + roomId + ":info";
-
+        log.debug("roomId:{}", roomId);
         String hostId = (String) redisTemplate.opsForHash().get(infoKey, "hostId");
         log.debug("playerId:{}, hostId: {}", playerId, hostId);
         if (requestId.equals(hostId)) {
             redisTemplate.opsForHash().delete(participantsKey, playerId);
+            return true;
         }
+        return false;
     }
 }

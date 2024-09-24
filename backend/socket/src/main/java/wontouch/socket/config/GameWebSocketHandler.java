@@ -10,7 +10,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.util.UriComponentsBuilder;
-import wontouch.socket.dto.MessageDto;
+import wontouch.socket.dto.MessageResponseDto;
 import wontouch.socket.dto.MessageType;
 
 import java.io.IOException;
@@ -88,9 +88,8 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 broadcastMessage(roomId, MessageType.NOTIFY, (String) msgMap.get("content"));
                 break;
             case KICK:
-                log.debug("I want a kick User {}", (String) msgMap.get("playerId"));
                 content = MessageHandlerFactory.handleMessage(lobbyServerUrl, roomId, messageType, msgMap);
-                kickUser(roomId, (String) msgMap.get("playerId"));
+                kickUser(roomId, (Boolean) content, (String) msgMap.get("playerId"));
                 break;
             default:
                 // 기타 메시지 처리
@@ -103,7 +102,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
         if (roomSessions.containsKey(roomId)) {
-            MessageDto message = new MessageDto(messageType, content);
+            MessageResponseDto message = new MessageResponseDto(messageType, content);
             String jsonMessage = mapper.writeValueAsString(message);
             for (WebSocketSession session : roomSessions.get(roomId).values()) {
                 session.sendMessage(new TextMessage(jsonMessage));
@@ -111,9 +110,9 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void kickUser(String roomId, String playerId) throws IOException {
+    public void kickUser(String roomId, boolean isKicked, String playerId) throws IOException {
         ConcurrentHashMap<String, WebSocketSession> sessions = roomSessions.get(roomId);
-
+        if (!isKicked) return;
         if (sessions != null) {
             for (Map.Entry<String, WebSocketSession> entry : sessions.entrySet()) {
                 WebSocketSession session = entry.getValue();
