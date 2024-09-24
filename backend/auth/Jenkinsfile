@@ -1,0 +1,141 @@
+pipeline {
+    agent any
+
+    environment {
+        TARGET_BRANCH = "develop/be"
+        REMOTE_USER = "ubuntu"
+        REMOTE_HOST = "j11b303.p.ssafy.io"
+        REMOTE_DIR = "/home/ubuntu/dontouch"
+        DOCKER_IMAGE = "backend-auth"
+    }
+
+    stages {
+        stage("Check Git Branch") {
+            when {
+                expression {
+                    return env.GIT_BRANCH == "origin/${TARGET_BRANCH}"
+                }
+            }
+            steps {
+                echo "Building branch: ${env.GIT_BRANCH}"
+            }
+            post {
+                success {
+                    echo "Check git branch success!"
+                }
+                failure {
+                    echo "Check git branch failure!"
+                }
+            }
+        }
+        stage("Clean Up Workspace") {
+            steps {
+                deleteDir()
+            }
+            post {
+                success {
+                    echo "Clean up workspace success!"
+                }
+                failure {
+                    echo "Clean up workspace failure!"
+                }
+            }
+        }
+        stage("Checkout Git Branch") {
+            steps {
+                script {
+                    checkout([
+                        $class: "GitSCM",
+                        branches: [[name: "*/${TARGET_BRANCH}"]],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [[$class: "CleanCheckout"]],
+                        userRemoteConfigs: [[
+                            url: "https://lab.ssafy.com/s11-fintech-finance-sub1/S11P21B303.git",
+                            credentialsId: "gitlab-token"
+                        ]]
+                    ])
+                }
+            }
+            post {
+                success {
+                    echo "Checkout git branch success!"
+                }
+                failure {
+                    echo "Checkout git branch failure!"
+                }
+            }
+        }
+        stage("Build with Gradle") {
+            steps {
+                dir("backend/auth") {
+                    sh "chmod +x ./gradlew"
+                    sh "./gradlew clean build --no-daemon"
+                    sh "ls -la build/test-results/test"
+                }
+            }
+            post {
+                success {
+                    echo "Build with gradle success!"
+                }
+                failure {
+                    echo "Build with gradle failure!"
+                }
+            }
+        }
+        stage("Build Docker Image") {
+            steps {
+                script {
+                    sh "docker build -t ${DOCKER_IMAGE}:latest -f backend/auth/Dockerfile backend/auth/."
+                }
+            }
+            post {
+                success {
+                    echo "Build docker image success!"
+                }
+                failure {
+                    echo "Build docker image failure!"
+                }
+            }
+        }
+        stage("Push Docker Image") {
+            steps {
+                script {
+                    sh "docker tag ${DOCKER_IMAGE}:latest ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest"
+                    sh "docker push ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest"
+                }
+                
+            }
+            post {
+                success {
+                    echo "Push docker image success!"
+                }
+                failure {
+                    echo "Push docker image failure!"
+                }
+            }
+        }
+        stage("Deploy Backend AUTH") {
+            steps {
+                script {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/.ssh/jenkins_rsa ${REMOTE_USER}@${REMOTE_HOST} "
+                    cd ${REMOTE_DIR} &&
+                    docker-compose stop ${DOCKER_IMAGE} &&
+                    docker rmi -f ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest &&
+                    docker pull ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest &&
+                    docker-compose up -d ${DOCKER_IMAGE}
+                    "
+                    """
+                }
+            }
+            post {
+                success {
+                    echo "Deploy Backend AUTH success!"
+                }
+                failure {
+                    echo "Deploy Backend AUTH failure!"
+                }
+            }
+        }
+    }
+}
