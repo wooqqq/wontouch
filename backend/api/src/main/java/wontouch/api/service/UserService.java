@@ -16,7 +16,7 @@ public class UserService {
     private final UserProfileRepository userProfileRepository;
 
     public UserDto getUserDto(int userId) {
-        String url = "http://localhost:8080/user/" + userId; // auth 서버 사용자 조회 URL
+        String url = "http://localhost:8080/auth/user/" + userId; // auth 서버 사용자 조회 URL
 
         return restTemplate.getForObject(url, UserDto.class);
     }
