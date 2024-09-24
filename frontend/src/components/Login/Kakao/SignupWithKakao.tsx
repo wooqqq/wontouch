@@ -1,15 +1,27 @@
 function SignupWithKakao() {
+  const handleSubmit = () => {
+    console.log("ㅎㅇㅎㅇ");
+  };
 
-    const handleSubmit = () => {
-        console.log("ㅎㅇㅎㅇ");
-    }
-    // 1. 폼형식으로 엮어서 한번에 보내기
-    <form onSubmit={handleSubmit}>
-        <label>gdgd</label>
-        <input id="nickname"/>
-    </form>
-    
-  return <div>카카오 회원가입</div>;
+  return (
+    <div>
+      <div>캐릭터생성</div>
+      <div>
+        <div>
+          <img src="src/assets/Login/basicCharacter.png" alt="" />
+        </div>
+        <div>
+          <form onSubmit={handleSubmit}>
+            <label>닉네임</label>
+            <input id="nickname" />
+          </form>
+        </div>
+        <div>
+          <button>생성</button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default SignupWithKakao;

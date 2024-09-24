@@ -9,8 +9,6 @@ function KakaoLoginHandler() {
   const getToken = async () => {
     const code = new URL(window.location.href).searchParams.get("code"); // 인가코드 추출
 
-    console.log(code);
-
     // 인가코드가 없다면 오류 처리
     if (!code) {
       console.error("인가코드 확인 불가");
@@ -19,7 +17,7 @@ function KakaoLoginHandler() {
 
     try {
       // 카카오 OAuth 서버에서 Access Token 발급 요청
-      const res = await axios.post(
+      const tokenRes = await axios.post(
         "https://kauth.kakao.com/oauth/token",
         new URLSearchParams({
           grant_type: "authorization_code",
@@ -34,35 +32,37 @@ function KakaoLoginHandler() {
           },
         },
       );
-      console.log(res);
+
       // Access Token을 로컬스토리지에 저장
-      localStorage.setItem("token", res.data.access_token);
+      localStorage.setItem("token", tokenRes.data.access_token);
 
       // 백엔드로 토큰을 보내어 회원가입 여부 확인
       // const userRes = await axios.post(
-      //   `${API_LINK}/auth/oauth/kakao?token=${res.data.access_token}`,
+      //   `${API_LINK}/auth/oauth/kakao?token=${tokenRes.data.access_token}`,
       // );
-
-      console.log(res.data.access_token);
 
       const userRes = await axios.post(
         `${API_LINK}/auth/oauth/kakao`,
-        res.data.access_token,
+        {
+          token: localStorage.getItem("token"),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
       );
 
-      console.log(userRes);
-
       // 회원가입이 필요한 경우
-      if (userRes.data.firstLogin !== undefined) {
-        navigate("/lobby"); // 이미 가입된 유저인 경우 로비로 이동
-        return;
-      } else {
-        navigate("/signupWithKakao"); // 회원가입 페이지로 이동
+      if (userRes.data.data.firstLogin === true) {
+        // 회원가입 페이지로 이동
+        navigate("/signupWithKakao");
         //유저 정보 넘어오는것들 state로 한번에 보내기
-        return;
+      } else {
+        navigate("/lobby"); // 이미 가입된 유저인 경우 로비로 이동
       }
     } catch (error) {
-      console.error("토큰 발급 실패", error);
+      console.error(error);
     }
   };
 
