@@ -13,6 +13,7 @@ public class Room {
     private String roomName;
     private boolean isPrivate;
     private String password;
+    private long hostId;
     private Set<String> participants;
     private int currentPlayersCount;
 }
