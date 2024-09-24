@@ -5,11 +5,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-<<<<<<< HEAD
-src/main/resources/application.properties
+### 프로젝트 설정 파일 ###
+application.properties
 
-=======
->>>>>>> 1208bf72810ddd7108d6a2a56d1a3b9e95685dc7
 ### STS ###
 .apt_generated
 .classpath
