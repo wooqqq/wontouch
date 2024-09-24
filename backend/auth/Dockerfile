@@ -5,6 +5,6 @@ WORKDIR /app
 
 COPY --from=build /build/libs/auth-0.0.1-SNAPSHOT.jar /app/wontouch-auth.jar
 
-EXPOSE 8081
+EXPOSE 8082
 
 CMD ["java", "-jar", "/app/wontouch-auth.jar"]
