@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import wontouch.api.domain.UserProfile;
-import wontouch.api.dto.UserProfileCreateRequestDto;
+import wontouch.api.dto.request.UserProfileCreateRequestDto;
 import wontouch.api.service.UserService;
 
 @RestController

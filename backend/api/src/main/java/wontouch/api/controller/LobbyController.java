@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import wontouch.api.dto.CreateRoomRequestDto;
-import wontouch.api.dto.RoomRequestDto;
-import wontouch.api.dto.ResponseDto;
+import wontouch.api.dto.request.CreateRoomRequestDto;
+import wontouch.api.dto.request.RoomRequestDto;
+import wontouch.api.util.ResponseDto;
 import wontouch.api.exception.CustomException;
 import wontouch.api.exception.ExceptionResponse;
 
