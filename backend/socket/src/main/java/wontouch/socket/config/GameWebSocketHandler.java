@@ -95,7 +95,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     }
 
     private String getRoomIdFromSession(WebSocketSession session) {
-        return Objects.requireNonNull(session.getUri()).getPath().split("/")[3];
+        return Objects.requireNonNull(session.getUri()).getPath().split("/")[4];
     }
 
     private String getPlayerNameFromQueryParams(WebSocketSession session) {

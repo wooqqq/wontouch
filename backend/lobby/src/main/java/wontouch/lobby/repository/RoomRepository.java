@@ -46,8 +46,7 @@ public class RoomRepository {
 
         // 참여자 목록에 방 생성자 삽입
         String participantsKey = "game_lobby:" + room.getRoomId() + ":participants";
-        redisTemplate.opsForSet().add(participantsKey, Long.toString(room.getHostPlayerId()));
-
+        redisTemplate.opsForHash().put(participantsKey, Long.toString(room.getHostPlayerId()), false);
         return new RoomResponseDto(getRoomById(room.getRoomId()));
     }
 
@@ -55,7 +54,7 @@ public class RoomRepository {
     public RoomResponseDto joinRoom(String roomId, RoomRequestDto roomRequestDto) {
         long playerId = roomRequestDto.getPlayerId();
         String participantsKey = "game_lobby:" + roomId + ":participants";
-        redisTemplate.opsForSet().add(participantsKey, Long.toString(playerId));
+        redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
         return new RoomResponseDto(getRoomById(roomId));
     }
 
@@ -64,14 +63,15 @@ public class RoomRepository {
         String participantsKey = "game_lobby:" + roomId + ":participants";
         log.debug("roomId: {}, playerId: {}", roomId, playerId);
         // 해당 플레이어를 방의 참가자 목록에서 제거
-        redisTemplate.opsForSet().remove(participantsKey, Long.toString(playerId));
+        redisTemplate.opsForHash().delete(participantsKey, Long.toString(playerId));
 
         // 남은 참가자 수 확인
-        Long remainingParticipants = redisTemplate.opsForSet().size(participantsKey);
-
+        Long remainingParticipants = redisTemplate.opsForHash().size(participantsKey);
+        log.debug("remainingParticipants: {}", remainingParticipants);
         // 참가자가 0명이면 방 정보 삭제
         if (remainingParticipants != null && remainingParticipants == 0) {
             deleteRoom(roomId);
+            return new RoomResponseDto();
         }
 
         return new RoomResponseDto(getRoomById(roomId)); // 방의 최신 정보 반환
@@ -79,12 +79,13 @@ public class RoomRepository {
 
     // 방 삭제 메서드
     private void deleteRoom(String roomId) {
-        String roomKey = "game_lobby:" + roomId + "info";
+        String roomKey = "game_lobby:" + roomId + ":info";
         String participantsKey = "game_lobby:" + roomId + ":participants";
-
+        String roomListKey = "game_lobby:rooms";
         // 방 정보와 참가자 목록을 삭제
         redisTemplate.delete(roomKey);
         redisTemplate.delete(participantsKey);
+        redisTemplate.opsForZSet().remove(roomListKey, roomId);
 
         log.debug("Room " + roomId + " has been deleted due to no participants.");
     }
@@ -150,10 +151,12 @@ public class RoomRepository {
 
     public Set<String> getParticipants(String roomId) {
         String participantsKey = "game_lobby:" + roomId + ":participants";
-        Set<Object> participants = redisTemplate.opsForSet().members(participantsKey);
 
-        // Set<Object>를 Set<String>으로 변환
-        Set<String> participantNames = participants.stream()
+        // Hash에서 참여자 목록 가져오기
+        Map<Object, Object> participantsMap = redisTemplate.opsForHash().entries(participantsKey);
+
+        // Map<Object, Object>를 Set<String>으로 변환 (Hash에서 참가자 ID만 추출)
+        Set<String> participantNames = participantsMap.keySet().stream()
                 .map(Object::toString) // Object를 String으로 변환
                 .collect(Collectors.toSet());
 
