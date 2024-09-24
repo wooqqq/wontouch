@@ -36,9 +36,14 @@ public class LobbyController {
     }
 
     @GetMapping("/create/random-uuid")
-    public ResponseEntity<String> createRandomUUID() {
+    public ResponseEntity<ResponseDto<?>> createRandomUUID() {
         String uuid = UUID.randomUUID().toString();
-        return ResponseEntity.ok(uuid);
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("UUID 정상 발급 완료")
+                .data(uuid)
+                .build();
+        return ResponseEntity.ok(responseDto);
     }
 
     // 게임방 목록 조회(페이지네이션)
