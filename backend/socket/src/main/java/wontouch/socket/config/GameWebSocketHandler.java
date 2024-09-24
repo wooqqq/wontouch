@@ -91,6 +91,8 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 content = MessageHandlerFactory.handleMessage(lobbyServerUrl, roomId, messageType, msgMap);
                 kickUser(roomId, (Boolean) content, (String) msgMap.get("playerId"));
                 break;
+            case MOVE:
+                broadcastMessage(roomId, MessageType.MOVE, (String) msgMap.get("content"));
             default:
                 // 기타 메시지 처리
                 content = MessageHandlerFactory.handleMessage(lobbyServerUrl, roomId, messageType, msgMap);
