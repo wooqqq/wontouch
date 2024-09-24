@@ -18,9 +18,18 @@ public class UserProfileController {
 
     private final UserService userService;
 
+    // 회원가입 시 닉네임 설정
     @PostMapping("/join")
     public ResponseEntity<?> createUserProfile(@RequestBody UserProfileCreateRequestDto createDto) {
         UserProfile createProfile = userService.createUserProfile(createDto);
         return new ResponseEntity<>(createProfile, HttpStatus.CREATED);
     }
+
+    // 닉네임 중복 확인
+
+    // 닉네임 수정
+
+    // 한줄소개 수정
+
+
 }
