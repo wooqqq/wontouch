@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class KakaoRequestDto {
 
-    private String token;
+    private String code;
 }

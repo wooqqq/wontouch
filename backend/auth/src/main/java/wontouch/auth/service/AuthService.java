@@ -3,12 +3,15 @@ package wontouch.auth.service;
 import com.nimbusds.jose.shaded.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import wontouch.auth.dto.request.GoogleRequestDto;
 import wontouch.auth.dto.response.JwtResponseDto;
@@ -31,6 +34,16 @@ public class AuthService {
     private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
     private final RedisTemplate<String, String> redisTemplate;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String kakaoClientId;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
+    private String kakaoClientSecret;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
+    private String kakaoRedirectUri;
+
 
     /**
      * 구글 콜백 메서드
@@ -97,7 +110,8 @@ public class AuthService {
     /**
      * 카카오 콜백 메서드
      */
-    public JwtResponseDto.TokenInfo kakaoCallback(String accessToken) {
+    public JwtResponseDto.TokenInfo kakaoCallback(String kakaoCode) {
+        String accessToken = getKakaoToken(kakaoCode);
         KakaoResponseDto kakaoResponseDto = getKakaoUserInfo(accessToken);
         String email = kakaoResponseDto.getEmail();
         String username = kakaoResponseDto.getUsername();
@@ -156,6 +170,47 @@ public class AuthService {
 
             return tokenInfo;
         }
+    }
+
+    /**
+     * 카카오 인가 코드를 통해 토큰 발급받기
+     */
+    public String getKakaoToken(String kakaoCode) {
+        // HttpHeader 생성
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8");
+
+        // body 생성
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", kakaoClientId);
+        params.add("client_secret", kakaoClientSecret);
+        params.add("redirect_uri", kakaoRedirectUri);
+        params.add("code", kakaoCode);
+
+        // header + body
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, httpHeaders);
+
+        System.out.println("kakaoCode: " + kakaoCode);
+
+        // http 요청
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://kauth.kakao.com/oauth/token",
+                HttpMethod.POST,
+                httpEntity,
+                String.class
+        );
+
+        // response 에서 access token 가져오기
+        String responseBody = response.getBody();
+        if (responseBody != null) {
+            Gson gsonObj = new Gson();
+            Map<?, ?> responseMap = gsonObj.fromJson(responseBody, Map.class);
+            return (String) responseMap.get("access_token");
+        }
+
+        return null;
     }
 
     /**

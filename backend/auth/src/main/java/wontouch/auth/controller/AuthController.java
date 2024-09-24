@@ -36,7 +36,7 @@ public class AuthController {
     @PostMapping("/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestBody KakaoRequestDto requestDto) {
 
-        JwtResponseDto.TokenInfo tokenInfo = authService.kakaoCallback(requestDto.getToken());
+        JwtResponseDto.TokenInfo tokenInfo = authService.kakaoCallback(requestDto.getCode());
 
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())
