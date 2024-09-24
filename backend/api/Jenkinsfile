@@ -68,7 +68,7 @@ pipeline {
         stage("Build with Gradle") {
             steps {
                 dir("backend/api") {
-                    sh "chmod +x ./gradle"
+                    sh "chmod +x ./gradlew"
                     sh "./gradlew clean build --no-daemon"
                     sh "ls -la build/test-results/test"
                 }
