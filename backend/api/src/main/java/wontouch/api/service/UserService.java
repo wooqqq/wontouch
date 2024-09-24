@@ -36,12 +36,12 @@ public class UserService {
     }
 
     // refresh token으로 이메일을 찾는 메서드
-    private String findEmailByRefreshToken(String refreshToken) {
+    private Integer findUserIdByRefreshToken(String refreshToken) {
         Map<Object, Object> tokensMap = redisTemplate6378.opsForHash().entries("refresh_token");
 
         for (Map.Entry<Object, Object> entry : tokensMap.entrySet()) {
             if (entry.getValue().equals(refreshToken)) {
-                return (String) entry.getKey();
+                return (Integer) entry.getKey();
             }
         }
 
