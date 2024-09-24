@@ -29,7 +29,7 @@ public class LobbyController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     // 로비서버 기본 주소
-    @Value("${server.url}:${lobby.server.url}")
+    @Value("${server.url}:${lobby.server.port}")
     private String lobbyServerUrl;
 
     public LobbyController() {
