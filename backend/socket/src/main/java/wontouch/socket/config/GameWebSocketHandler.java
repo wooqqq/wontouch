@@ -1,5 +1,6 @@
 package wontouch.socket.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -9,6 +10,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.util.UriComponentsBuilder;
+import wontouch.socket.dto.MessageDto;
+import wontouch.socket.dto.MessageType;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -25,7 +28,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final Map<String, ConcurrentHashMap<String, WebSocketSession>> roomSessions = new ConcurrentHashMap<>();
-
+    private final ObjectMapper mapper = new ObjectMapper();
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String roomId = getRoomIdFromSession(session);
@@ -40,7 +43,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         session.sendMessage(new TextMessage("Room ID Created: " + roomId));
 
         // 입장 메세지 전송
-        broadcastMessage(roomId, playerName + "이 입장하였습니다.");
+        broadcastMessage(roomId, MessageType.NOTIFY, playerName + "이 입장하였습니다.");
 
         // session 정보를 로비 서버로 전송
         String sessionUrl = lobbyServerUrl + "/api/session/save";
@@ -61,7 +64,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         if (roomSessions.get(roomId).isEmpty()) {
             roomSessions.remove(roomId);
         }
-        broadcastMessage(roomId, playerName + "이 퇴장하였습니다.");
+        broadcastMessage(roomId, MessageType.NOTIFY, playerName + "이 퇴장하였습니다.");
         log.debug("Session " + session.getId() + " left room " + roomId);
     }
 
@@ -73,17 +76,19 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
         String messageType = (String) msgMap.get("type");
         if (messageType.equals("CHAT")) {
-            broadcastMessage(roomId, payload);
+            broadcastMessage(roomId, MessageType.CHAT, payload);
         } else {
             MessageHandlerFactory.handleMessage(messageType, msgMap);
         }
         log.info("Received message from room " + roomId + ": " + messageType);
     }
 
-    private void broadcastMessage(String roomId, String message) throws IOException {
+    private void broadcastMessage(String roomId, MessageType messageType, String content) throws IOException {
         if (roomSessions.containsKey(roomId)) {
+            MessageDto message = new MessageDto(messageType, content);
+            String jsonMessage = mapper.writeValueAsString(message);
             for (WebSocketSession session : roomSessions.get(roomId).values()) {
-                session.sendMessage(new TextMessage(message));
+                session.sendMessage(new TextMessage(jsonMessage));
             }
         }
 
