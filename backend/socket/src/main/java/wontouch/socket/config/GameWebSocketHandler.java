@@ -1,43 +1,117 @@
 package wontouch.socket.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import wontouch.socket.dto.CreateRoomRequest;
+import org.springframework.web.util.UriComponentsBuilder;
+import wontouch.socket.dto.MessageDto;
+import wontouch.socket.dto.MessageType;
 
-import java.util.UUID;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
 public class GameWebSocketHandler extends TextWebSocketHandler {
 
-    private final RestTemplate restTemplate = new  RestTemplate();
+    @Value("${server.url}:${lobby.server.url}")
+    private String lobbyServerUrl;
 
-    @Override
-    public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String payload = message.getPayload();
-        log.info("Received message: " + payload);
-
-        session.sendMessage(new TextMessage("Server response: " + payload));
-    }
-
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final Map<String, ConcurrentHashMap<String, WebSocketSession>> roomSessions = new ConcurrentHashMap<>();
+    private final ObjectMapper mapper = new ObjectMapper();
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        String roomId = session.getId();
-        // client로 전송?
+        String roomId = getRoomIdFromSession(session);
+        String playerName = getPlayerNameFromQueryParams(session);
+
+        session.getAttributes().put("playerName", playerName);
+
+        roomSessions.putIfAbsent(roomId, new ConcurrentHashMap<>());
+        roomSessions.get(roomId).put(session.getId(), session);
+
+        // client로 접속되었음을 return
         session.sendMessage(new TextMessage("Room ID Created: " + roomId));
 
-        log.info("Connection established: " + roomId);
+        // 입장 메세지 전송
+        broadcastMessage(roomId, MessageType.NOTIFY, playerName + "이 입장하였습니다.");
+
+        // session 정보를 로비 서버로 전송
+        String sessionUrl = lobbyServerUrl + "/api/session/save";
+        Map<String, Object> sessionInfo = new ConcurrentHashMap<>();
+        sessionInfo.put("roomId", roomId);
+        sessionInfo.put("sessionId", session.getId());
+        restTemplate.postForObject(sessionUrl, sessionInfo, String.class);
+
+        log.debug("Session " + session.getId() + " joined room " + roomId);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        log.info("Connection closed: " + session.getId());
+        String roomId = getRoomIdFromSession(session);
+        String playerName = (String) session.getAttributes().get("playerName");
+
+        roomSessions.get(roomId).remove(session.getId());
+        if (roomSessions.get(roomId).isEmpty()) {
+            roomSessions.remove(roomId);
+        }
+        broadcastMessage(roomId, MessageType.NOTIFY, playerName + "이 퇴장하였습니다.");
+        log.debug("Session " + session.getId() + " left room " + roomId);
+    }
+
+    @Override
+    public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        String roomId = getRoomIdFromSession(session);
+        String payload = message.getPayload();
+        Map<String, Object> msgMap = WebSocketMessageParser.parseMessage(payload);
+
+        //String messageType = (String) msgMap.get("type");
+        MessageType messageType = MessageType.valueOf((String) msgMap.get("type"));
+        switch (messageType) {
+            case CHAT:
+                // 채팅 메시지 브로드캐스트
+                broadcastMessage(roomId, MessageType.CHAT, (String) msgMap.get("content"));
+                break;
+            case NOTIFY:
+                // 알림 메시지 처리
+                broadcastMessage(roomId, MessageType.NOTIFY, (String) msgMap.get("content"));
+                break;
+            default:
+                // 기타 메시지 처리
+                Object content = MessageHandlerFactory.handleMessage(roomId, messageType, msgMap);
+                broadcastMessage(roomId, messageType, content);
+                break;
+        }
+        log.info("Received message from room " + roomId + ": " + messageType);
+    }
+
+    private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
+        if (roomSessions.containsKey(roomId)) {
+            MessageDto message = new MessageDto(messageType, content);
+            String jsonMessage = mapper.writeValueAsString(message);
+            for (WebSocketSession session : roomSessions.get(roomId).values()) {
+                session.sendMessage(new TextMessage(jsonMessage));
+            }
+        }
+    }
+
+    private String getRoomIdFromSession(WebSocketSession session) {
+        return Objects.requireNonNull(session.getUri()).getPath().split("/")[4];
+    }
+
+    private String getPlayerNameFromQueryParams(WebSocketSession session) {
+        String query = session.getUri().getQuery();
+        Map<String, String> queryParams = UriComponentsBuilder.fromUriString("?" + query).build().
+                getQueryParams().toSingleValueMap();
+        return queryParams.get("playerName");
     }
 }

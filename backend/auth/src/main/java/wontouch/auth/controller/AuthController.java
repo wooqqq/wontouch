@@ -32,6 +32,12 @@ public class AuthController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    @GetMapping("/login/oauth2/code/kakao")
+    public String kakaoCallback() {
+        // 처리가 끝나면 프론트엔드로 리디렉션
+        return "redirect:http://localhost:3000/auth/kakao";
+    }
+
     // 카카오 소셜 로그인
     @PostMapping("/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestBody KakaoRequestDto requestDto) {
