@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class MessageDto {
     private MessageType type;
-    private String content;
+    private Object content;
 }

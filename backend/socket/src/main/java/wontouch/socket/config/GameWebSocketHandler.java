@@ -74,16 +74,27 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         Map<String, Object> msgMap = WebSocketMessageParser.parseMessage(payload);
 
-        String messageType = (String) msgMap.get("type");
-        if (messageType.equals("CHAT")) {
-            broadcastMessage(roomId, MessageType.CHAT, payload);
-        } else {
-            MessageHandlerFactory.handleMessage(messageType, msgMap);
+        //String messageType = (String) msgMap.get("type");
+        MessageType messageType = MessageType.valueOf((String) msgMap.get("type"));
+        switch (messageType) {
+            case CHAT:
+                // 채팅 메시지 브로드캐스트
+                broadcastMessage(roomId, MessageType.CHAT, (String) msgMap.get("content"));
+                break;
+            case NOTIFY:
+                // 알림 메시지 처리
+                broadcastMessage(roomId, MessageType.NOTIFY, (String) msgMap.get("content"));
+                break;
+            default:
+                // 기타 메시지 처리
+                Object content = MessageHandlerFactory.handleMessage(roomId, messageType, msgMap);
+                broadcastMessage(roomId, messageType, content);
+                break;
         }
         log.info("Received message from room " + roomId + ": " + messageType);
     }
 
-    private void broadcastMessage(String roomId, MessageType messageType, String content) throws IOException {
+    private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
         if (roomSessions.containsKey(roomId)) {
             MessageDto message = new MessageDto(messageType, content);
             String jsonMessage = mapper.writeValueAsString(message);
@@ -91,7 +102,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage(jsonMessage));
             }
         }
-
     }
 
     private String getRoomIdFromSession(WebSocketSession session) {

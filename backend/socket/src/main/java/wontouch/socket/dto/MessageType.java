@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum MessageType {
     CHAT("chat"),
-    NOTIFY("notify");
+    NOTIFY("notify"),
+    READY("ready"),
+    START("start");
 
     private final String value;
 

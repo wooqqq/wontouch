@@ -149,6 +149,7 @@ public class RoomRepository {
         return room;
     }
 
+    // 참여자 전체 정보 조회
     public Set<String> getParticipants(String roomId) {
         String participantsKey = "game_lobby:" + roomId + ":participants";
 
