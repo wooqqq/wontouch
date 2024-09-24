@@ -7,7 +7,6 @@ pipeline {
         REMOTE_HOST = "j11b303.p.ssafy.io"
         REMOTE_DIR = "/home/ubuntu/dontouch"
         DOCKER_IMAGE = "backend-auth"
-        PRIVATE_DOCKER_HUB = "private-registry:5000"
     }
 
     stages {
@@ -100,8 +99,8 @@ pipeline {
         stage("Push Docker Image") {
             steps {
                 script {
-                    sh "docker tag ${DOCKER_IMAGE}:latest ${PRIVATE_DOCKER_HUB}/${DOCKER_IMAGE}:latest"
-                    sh "docker push ${PRIVATE_DOCKER_HUB}/${DOCKER_IMAGE}:latest"
+                    sh "docker tag ${DOCKER_IMAGE}:latest ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest"
+                    sh "docker push ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest"
                 }
                 
             }
@@ -121,8 +120,8 @@ pipeline {
                     ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/.ssh/jenkins_rsa ${REMOTE_USER}@${REMOTE_HOST} "
                     cd ${REMOTE_DIR} &&
                     docker-compose stop ${DOCKER_IMAGE} &&
-                    docker rmi -f ${PRIVATE_DOCKER_HUB}/${DOCKER_IMAGE}:latest &&
-                    docker pull ${PRIVATE_DOCKER_HUB}/${DOCKER_IMAGE}:latest &&
+                    docker rmi -f ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest &&
+                    docker pull ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest &&
                     docker-compose up -d ${DOCKER_IMAGE}
                     "
                     """
