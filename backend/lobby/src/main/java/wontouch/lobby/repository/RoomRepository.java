@@ -10,13 +10,11 @@ import wontouch.lobby.dto.RoomRequestDto;
 import wontouch.lobby.dto.RoomResponseDto;
 import wontouch.lobby.dto.SessionSaveDto;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+// 방의 정보를 관리하는 레포지토리
 @Repository
 @Slf4j
 public class RoomRepository {
@@ -30,9 +28,11 @@ public class RoomRepository {
     // 방을 만들고 레디스에 저장
     public RoomResponseDto saveRoom(CreateRoomRequestDto room) {
         String key = "game_lobby:" + room.getRoomId() + ":info";
+        String playerId = Long.toString(room.getHostPlayerId());
         redisTemplate.opsForHash().put(key, "roomId", room.getRoomId());
         redisTemplate.opsForHash().put(key, "roomName", room.getRoomName());
         redisTemplate.opsForHash().put(key, "isPrivate", room.isPrivate());
+        redisTemplate.opsForHash().put(key, "hostId", playerId);
         if (room.isPrivate()) {
             redisTemplate.opsForHash().put(key, "password", room.getPassword());
         }
@@ -46,7 +46,7 @@ public class RoomRepository {
 
         // 참여자 목록에 방 생성자 삽입
         String participantsKey = "game_lobby:" + room.getRoomId() + ":participants";
-        redisTemplate.opsForHash().put(participantsKey, Long.toString(room.getHostPlayerId()), false);
+        redisTemplate.opsForHash().put(participantsKey, playerId, false);
         return new RoomResponseDto(getRoomById(room.getRoomId()));
     }
 
@@ -59,11 +59,12 @@ public class RoomRepository {
     }
 
     // 방 퇴장
-    public RoomResponseDto exitRoom(String roomId, long playerId) {
+    public RoomResponseDto exitRoom(String roomId, String playerId) {
         String participantsKey = "game_lobby:" + roomId + ":participants";
+        String infoKey = "game_lobby:" + roomId + ":info";
         log.debug("roomId: {}, playerId: {}", roomId, playerId);
         // 해당 플레이어를 방의 참가자 목록에서 제거
-        redisTemplate.opsForHash().delete(participantsKey, Long.toString(playerId));
+        redisTemplate.opsForHash().delete(participantsKey, playerId);
 
         // 남은 참가자 수 확인
         Long remainingParticipants = redisTemplate.opsForHash().size(participantsKey);
@@ -74,7 +75,40 @@ public class RoomRepository {
             return new RoomResponseDto();
         }
 
+        // 현재 퇴장하는 사람이 방장이라면 방장을 바꾼다.
+        String hostId = (String) redisTemplate.opsForHash().get(infoKey, "hostId");
+        log.debug("playerId:{}, hostId: {}", playerId, hostId);
+        if (playerId.equals(hostId)) {
+            log.debug("방장을 바꾸어야해욧!!");
+            changeHost(roomId);
+        }
         return new RoomResponseDto(getRoomById(roomId)); // 방의 최신 정보 반환
+    }
+
+    private void changeHost(String roomId) {
+        Set<String> participants = getParticipants(roomId);
+        // Set을 List로 변환하여 인덱스로 접근 가능하도록 함
+        List<String> participantList = new ArrayList<>(participants);
+
+        // 랜덤 인덱스 생성
+        Random random = new Random();
+        int randomIndex = random.nextInt(participantList.size());
+
+        // 새로운 방장 선택
+        String newHost = participantList.get(randomIndex);
+
+        // 새로운 방장을 Redis에 저장
+        saveNewHost(roomId, newHost);
+
+        // 로그 출력
+        log.info("방 ID '{}'의 새로운 방장은 '{}'입니다.", roomId, newHost);
+
+    }
+
+    private void saveNewHost(String roomId, String hostId) {
+        String roomKey = "game_lobby:" + roomId + ":info";
+        // 기존 방장 정보 업데이트
+        redisTemplate.opsForHash().put(roomKey, "hostId", hostId);
     }
 
     // 방 삭제 메서드
@@ -89,7 +123,6 @@ public class RoomRepository {
 
         log.debug("Room " + roomId + " has been deleted due to no participants.");
     }
-
 
     // 방에 해당하는 세션들 저장
     public void saveSession(SessionSaveDto sessionSaveDto) {
@@ -129,13 +162,14 @@ public class RoomRepository {
         String roomKey = "game_lobby:" + roomId + ":info";
         Map<Object, Object> roomData = redisTemplate.opsForHash().entries(roomKey);
 
-        if (roomData == null || roomData.isEmpty()) {
+        if (roomData.isEmpty()) {
             return null;
         }
 
         Room room = new Room();
         room.setRoomId((String) roomData.get("roomId"));
         room.setRoomName((String) roomData.get("roomName"));
+        room.setHostId(Long.parseLong((String) roomData.get("hostId")));
         room.setPrivate(Boolean.parseBoolean(String.valueOf(roomData.get("isPrivate"))));
         if (room.isPrivate()) {
             room.setPassword((String) roomData.get("password"));

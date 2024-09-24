@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+// 웹소켓 핸들러
+// 소켓으로 보내지는 데이터는 이곳을 모두 거침
 @Slf4j
 @Component
 public class GameWebSocketHandler extends TextWebSocketHandler {

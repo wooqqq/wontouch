@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import wontouch.lobby.dto.ReadyStateDto;
 import wontouch.lobby.service.ReadyService;
 
 import java.util.Map;
@@ -23,9 +24,9 @@ public class ReadyController {
     }
 
     @PostMapping("/change")
-    public Boolean ready(@RequestBody Map<String, Object> preparationInfo) {
+    public ReadyStateDto ready(@RequestBody Map<String, Object> preparationInfo) {
         System.out.println(preparationInfo);
-        boolean state = readyService.updateReadyState(preparationInfo);
+        ReadyStateDto state = readyService.updateReadyState(preparationInfo);
         log.debug("ready: {}", state);
         return state;
     }

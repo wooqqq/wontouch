@@ -2,6 +2,7 @@ package wontouch.lobby.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wontouch.lobby.dto.ReadyStateDto;
 import wontouch.lobby.repository.ReadyRepository;
 
 import java.util.Map;
@@ -17,7 +18,7 @@ public class ReadyService {
         this.readyRepository = readyRepository;
     }
 
-    public boolean updateReadyState(Map<String, Object> preparationInfo) {
+    public ReadyStateDto updateReadyState(Map<String, Object> preparationInfo) {
         String roomId = preparationInfo.get("roomId").toString();
         long playerId = Long.parseLong(preparationInfo.get("playerId").toString());
         return readyRepository.readyStatusChange(roomId, playerId);

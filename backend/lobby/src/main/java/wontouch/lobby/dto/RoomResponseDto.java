@@ -11,6 +11,7 @@ import java.util.Set;
 public class RoomResponseDto {
     private String roomId;
     private String roomName;
+    private long hostId;
     private boolean isPrivate;
     private Set<String> participants;
     private int maxPlayers;
@@ -19,6 +20,7 @@ public class RoomResponseDto {
     public RoomResponseDto(Room room) {
         this.roomId = room.getRoomId();
         this.roomName = room.getRoomName();
+        this.hostId = room.getHostId();
         this.isPrivate = room.isPrivate();
         this.participants = room.getParticipants();
         this.participants.addAll(room.getParticipants());
