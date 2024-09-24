@@ -1,7 +1,7 @@
 import React from "react";
 
 interface LoginButtonProps {
-  onClick: React.MouseEventHandler<HTMLButtonElement>; // 타입 정의
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 const LoginButton: React.FC<LoginButtonProps> = ({ onClick }) => {

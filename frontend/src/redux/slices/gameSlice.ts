@@ -1,5 +1,5 @@
 // src/redux/slices/gameSlice.ts
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 interface GameState {
   score: number;
@@ -10,7 +10,7 @@ const initialState: GameState = {
 };
 
 const gameSlice = createSlice({
-  name: 'game',
+  name: "game",
   initialState,
   reducers: {
     incrementScore: (state) => {
