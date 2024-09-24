@@ -5,7 +5,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class JoinRequestDto {
+public class RoomRequestDto {
     private long playerId;
     private String roomId;
 }

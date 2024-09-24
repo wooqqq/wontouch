@@ -11,7 +11,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import wontouch.api.dto.CreateRoomRequestDto;
-import wontouch.api.dto.JoinRoomRequest;
+import wontouch.api.dto.RoomRequestDto;
 import wontouch.api.dto.ResponseDto;
 import wontouch.api.exception.CustomException;
 import wontouch.api.exception.ExceptionResponse;
@@ -29,7 +29,7 @@ public class LobbyController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     // 로비서버 기본 주소
-    @Value("${server.url}:${lobby.server.port}")
+    @Value("${server.url}:${lobby.server.url}")
     private String lobbyServerUrl;
 
     public LobbyController() {
@@ -88,11 +88,25 @@ public class LobbyController {
     }
 
     // 특정 게임방 입장
-    @PostMapping("/rooms/{roomId}/join")
-    public ResponseEntity<?> joinRoom(@PathVariable String roomId, @RequestBody JoinRoomRequest joinRoomRequest) {
-        String url = String.format("%s/api/rooms/%s/join", lobbyServerUrl, roomId);
+    @PostMapping("/rooms/join/{roomId}")
+    public ResponseEntity<?> joinRoom(@PathVariable String roomId, @RequestBody RoomRequestDto roomRequestDto) {
+        String url = String.format("%s/api/rooms/join/%s", lobbyServerUrl, roomId);
         try {
-            ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, joinRoomRequest, ResponseDto.class);
+            ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, roomRequestDto, ResponseDto.class);
+            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+        } catch (HttpClientErrorException e) {
+//          일단 뭉뚱그린 예외 처리
+            e.printStackTrace();
+            throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
+        }
+    }
+
+    // 특정 게임방 퇴장
+    @PostMapping("/rooms/exit/{roomId}")
+    public ResponseEntity<?> exitRoom(@PathVariable String roomId, @RequestBody RoomRequestDto roomRequestDto) {
+        String url = String.format("%s/api/rooms/exit/%s", lobbyServerUrl, roomId);
+        try {
+            ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, roomRequestDto, ResponseDto.class);
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         } catch (HttpClientErrorException e) {
 //          일단 뭉뚱그린 예외 처리

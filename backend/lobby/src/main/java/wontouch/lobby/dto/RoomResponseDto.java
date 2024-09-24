@@ -1,11 +1,13 @@
 package wontouch.lobby.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import wontouch.lobby.domain.Room;
 
 import java.util.Set;
 
 @Getter
+@NoArgsConstructor
 public class RoomResponseDto {
     private String roomId;
     private String roomName;

@@ -1,12 +1,14 @@
 package wontouch.lobby.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.lobby.domain.Room;
 
 import wontouch.lobby.dto.CreateRoomRequestDto;
-import wontouch.lobby.dto.JoinRequestDto;
+import wontouch.lobby.dto.RoomRequestDto;
 import wontouch.lobby.dto.RoomResponseDto;
+import wontouch.lobby.dto.SessionSaveDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
+@Slf4j
 public class RoomRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -43,16 +46,57 @@ public class RoomRepository {
 
         // 참여자 목록에 방 생성자 삽입
         String participantsKey = "game_lobby:" + room.getRoomId() + ":participants";
-        redisTemplate.opsForSet().add(participantsKey, Long.toString(room.getHostPlayerId()));
-
+        redisTemplate.opsForHash().put(participantsKey, Long.toString(room.getHostPlayerId()), false);
         return new RoomResponseDto(getRoomById(room.getRoomId()));
     }
 
-    public RoomResponseDto joinRoom(String roomId, JoinRequestDto joinRequestDto) {
-        long playerId = joinRequestDto.getPlayerId();
+    // 방 입장
+    public RoomResponseDto joinRoom(String roomId, RoomRequestDto roomRequestDto) {
+        long playerId = roomRequestDto.getPlayerId();
         String participantsKey = "game_lobby:" + roomId + ":participants";
-        redisTemplate.opsForSet().add(participantsKey, Long.toString(playerId));
+        redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
         return new RoomResponseDto(getRoomById(roomId));
+    }
+
+    // 방 퇴장
+    public RoomResponseDto exitRoom(String roomId, long playerId) {
+        String participantsKey = "game_lobby:" + roomId + ":participants";
+        log.debug("roomId: {}, playerId: {}", roomId, playerId);
+        // 해당 플레이어를 방의 참가자 목록에서 제거
+        redisTemplate.opsForHash().delete(participantsKey, Long.toString(playerId));
+
+        // 남은 참가자 수 확인
+        Long remainingParticipants = redisTemplate.opsForHash().size(participantsKey);
+        log.debug("remainingParticipants: {}", remainingParticipants);
+        // 참가자가 0명이면 방 정보 삭제
+        if (remainingParticipants != null && remainingParticipants == 0) {
+            deleteRoom(roomId);
+            return new RoomResponseDto();
+        }
+
+        return new RoomResponseDto(getRoomById(roomId)); // 방의 최신 정보 반환
+    }
+
+    // 방 삭제 메서드
+    private void deleteRoom(String roomId) {
+        String roomKey = "game_lobby:" + roomId + ":info";
+        String participantsKey = "game_lobby:" + roomId + ":participants";
+        String roomListKey = "game_lobby:rooms";
+        // 방 정보와 참가자 목록을 삭제
+        redisTemplate.delete(roomKey);
+        redisTemplate.delete(participantsKey);
+        redisTemplate.opsForZSet().remove(roomListKey, roomId);
+
+        log.debug("Room " + roomId + " has been deleted due to no participants.");
+    }
+
+
+    // 방에 해당하는 세션들 저장
+    public void saveSession(SessionSaveDto sessionSaveDto) {
+        String sessionId = sessionSaveDto.getSessionId();
+        String roomId = sessionSaveDto.getRoomId();
+        String participantsKey = "game_lobby:" + roomId + ":sessions";
+        redisTemplate.opsForSet().add(participantsKey, sessionId);
     }
 
     // 방 목록 조회
@@ -104,13 +148,16 @@ public class RoomRepository {
 
         return room;
     }
-    
+
+    // 참여자 전체 정보 조회
     public Set<String> getParticipants(String roomId) {
         String participantsKey = "game_lobby:" + roomId + ":participants";
-        Set<Object> participants = redisTemplate.opsForSet().members(participantsKey);
 
-        // Set<Object>를 Set<String>으로 변환
-        Set<String> participantNames = participants.stream()
+        // Hash에서 참여자 목록 가져오기
+        Map<Object, Object> participantsMap = redisTemplate.opsForHash().entries(participantsKey);
+
+        // Map<Object, Object>를 Set<String>으로 변환 (Hash에서 참가자 ID만 추출)
+        Set<String> participantNames = participantsMap.keySet().stream()
                 .map(Object::toString) // Object를 String으로 변환
                 .collect(Collectors.toSet());
 
