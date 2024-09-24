@@ -37,7 +37,8 @@ public class RoomService {
     }
 
     public RoomResponseDto exitRoom(String roomId, long playerId) {
-        return roomRepository.exitRoom(roomId, playerId);
+        String id = Long.toString(playerId);
+        return roomRepository.exitRoom(roomId, id);
     }
 
     public void addSession(SessionSaveDto sessionSaveDto) {

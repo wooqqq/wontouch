@@ -18,7 +18,7 @@ public class ReadyRepository {
 
     public boolean readyStatusChange(String roomId, long playerId) {
         String participantsKey = "game_lobby:" + roomId + ":participants";
-        // 1. 기존 값 불러오기 (Optional)
+        // 1. 기존 값 불러오기
         String field = Long.toString(playerId);
         boolean existingValue = (boolean) redisTemplate.opsForHash()
                 .get(participantsKey, field);
