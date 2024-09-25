@@ -11,6 +11,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -23,8 +24,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 적용
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/","/user-profile/**").permitAll() // 해당 경로는 인증 없이 접근 가능
-                        .anyRequest().permitAll() // 모든 요청에 대해 인증 없이 접근 가능
+                                .requestMatchers("/", "/api/**", "user-profile/**").permitAll() // 해당 경로는 인증 없이 접근 가능
+//                        .requestMatchers("**/**").permitAll()
+                                .anyRequest().authenticated() // 모든 요청에 대해 인증 없이 접근 가능
                 );
 
         return http.build();
@@ -33,8 +35,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000/api"));  // 허용할 출처
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // 허용할 메서드
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));  // 허용할 출처
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));  // 허용할 메서드
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
         configuration.setAllowCredentials(true);  // 인증 정보를 허용할지 여부
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
