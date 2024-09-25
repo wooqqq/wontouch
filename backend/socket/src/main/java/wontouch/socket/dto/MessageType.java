@@ -1,14 +1,15 @@
 package wontouch.socket.dto;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.springframework.beans.factory.support.MethodOverride;
 
 public enum MessageType {
     CHAT("chat"),
     NOTIFY("notify"),
     READY("ready"),
     START("start"),
-    KICK("kick");
-
+    KICK("kick"),
+    MOVE("move");
     private final String value;
 
     MessageType(String value) {
