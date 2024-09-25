@@ -6,9 +6,6 @@ import { incrementScore, resetScore } from "./redux/slices/gameSlice";
 import AppRouter from "./AppRouter";
 
 const App: React.FC = () => {
-  const score = useSelector((state: RootState) => state.game.score);
-  const dispatch = useDispatch();
-
   return (
     <div>
       {/* <h1>Score: {score}</h1>
