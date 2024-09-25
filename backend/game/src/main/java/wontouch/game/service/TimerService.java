@@ -13,6 +13,8 @@ import java.util.concurrent.*;
 @Service
 @Slf4j
 public class TimerService {
+    private static final int ROUND_DURATION_SECONDS = 60;
+    private static final int FINAL_ROUND = 5;
 
     @Value("${socket.server.name}:${socket.server.path}")
     private String socketServerUrl;
@@ -21,7 +23,6 @@ public class TimerService {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
     private final GameRepository gameRepository;
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final int ROUND_DURATION_SECONDS = 60;
 
     public TimerService(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
@@ -30,8 +31,8 @@ public class TimerService {
     // 라운드 시작 시 타이머 설정
     public void startNewRound(String roomId) {
         // 방마다 개별적으로 타이머 설정
-        gameRepository.updateRound(roomId);
-        ScheduledFuture<?> roundTimer = scheduler.schedule(() -> endRound(roomId), ROUND_DURATION_SECONDS, TimeUnit.SECONDS);
+        int round = gameRepository.updateRound(roomId);
+        ScheduledFuture<?> roundTimer = scheduler.schedule(() -> endRound(roomId, round), ROUND_DURATION_SECONDS, TimeUnit.SECONDS);
         roundTimers.put(roomId, roundTimer);
 
         log.debug("start Timer For {}", roomId);
@@ -40,16 +41,24 @@ public class TimerService {
     }
 
     // 라운드 종료 시 처리 로직
-    public void endRound(String roomId) {
+    public void endRound(String roomId, int round) {
         // 라운드가 끝났을 때 필요한 로직 실행 (예: 점수 계산, 상태 업데이트)
         calculateRoundResults(roomId);
         log.debug("end Timer for {}", roomId);
         // WebSocket 서버로 라운드 종료 알림 전송
         notifyClientsOfRoundEnd(roomId);
 
-        // TODO 다음 라운드를 시작 기능.
-        startNewRound(roomId);
-        // TODO 특정 라운드라면 게임 종료 트리거
+        // 마지막 라운드라면 종료
+        if (round >= FINAL_ROUND) {
+            log.debug("게임 종료 호출: {}", roomId);
+            endGame(roomId);
+        } else {
+            startNewRound(roomId);
+        }
+    }
+
+    private void endGame(String roomId) {
+        log.debug("게임 종료 로직 실행: {}", roomId);
     }
 
     private void calculateRoundResults(String roomId) {
