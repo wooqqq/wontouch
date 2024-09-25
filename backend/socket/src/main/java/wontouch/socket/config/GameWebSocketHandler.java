@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class GameWebSocketHandler extends TextWebSocketHandler {
 
-    @Value("${server.url}:${lobby.server.url}")
+    @Value("${lobby.server.name}:${lobby.server.path}")
     private String lobbyServerUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
