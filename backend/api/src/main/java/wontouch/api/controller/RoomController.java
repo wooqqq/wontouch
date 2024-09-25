@@ -3,25 +3,20 @@ package wontouch.api.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 import wontouch.api.dto.CreateRoomRequestDto;
 import wontouch.api.dto.RoomRequestDto;
 import wontouch.api.dto.ResponseDto;
+import wontouch.api.dto.gameserver.PlayerRequestDto;
 import wontouch.api.exception.CustomException;
 import wontouch.api.exception.ExceptionResponse;
 
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -34,6 +29,10 @@ public class RoomController {
     // 로비서버 기본 주소
     @Value("${lobby.server.name}:${lobby.server.path}")
     private String lobbyServerUrl;
+
+    // 게임서버 기본 주소
+    @Value("${game.server.name}:${game.server.path}")
+    private String gameServerUrl;
 
     public RoomController() {
     }
@@ -106,5 +105,12 @@ public class RoomController {
                 new ParameterizedTypeReference<ResponseDto<?>>() {}
         );
         return response;
+    }
+
+    @PostMapping("/start")
+    public ResponseEntity<?> initializeGamePlayer(@RequestBody List<PlayerRequestDto> players) {
+        String targetUrl = String.format("%s/player/init", gameServerUrl);
+        restTemplate.postForEntity(targetUrl, players, ResponseDto.class);
+        return null;
     }
 }
