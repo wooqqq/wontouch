@@ -9,11 +9,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Crop {
 
     @Id
-    private String id;
-    private String type;
-    private String name;
+    private final String id;
+    private final String type;
+    private final String name;
     private int price;
-    private String imgUrl;
+    private final String imgUrl;
 
 
 }

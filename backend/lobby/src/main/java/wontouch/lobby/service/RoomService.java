@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public class RoomService {
 
-    @Value("${server.url}:${socket.server.url}")
+    @Value("${socket.server.name}:${socket.server.path}")
     private String socketServerUrl;
     private final RestTemplate restTemplate;
     private final RoomRepository roomRepository;
