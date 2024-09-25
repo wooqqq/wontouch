@@ -1,11 +1,9 @@
 package wontouch.api.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.UserProfile;
-import wontouch.api.dto.response.UserResponseDto;
 import wontouch.api.dto.request.UserProfileCreateRequestDto;
 import wontouch.api.repository.UserProfileRepository;
 
@@ -14,7 +12,6 @@ import wontouch.api.repository.UserProfileRepository;
 public class UserService {
 
     private final RestTemplate restTemplate;
-    private final RedisTemplate<String, String> redisTemplate6378;
     private final UserProfileRepository userProfileRepository;
 
 //    public UserResponseDto getUserDto(int userId) {
