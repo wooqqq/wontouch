@@ -16,6 +16,7 @@ import wontouch.api.util.ResponseDto;
 @RestController
 @RequestMapping("/user-profile")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserProfileController {
 
     private final UserService userService;
