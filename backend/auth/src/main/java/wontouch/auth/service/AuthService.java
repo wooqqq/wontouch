@@ -74,7 +74,7 @@ public class AuthService {
             tokenRepository.save(token);
 
             // refresh token은 Redis 에 저장
-            redisTemplate.opsForHash().put("refresh_token:", savedUser.getId(), tokenInfo.getRefreshToken());
+//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(savedUser.getId()), tokenInfo.getRefreshToken());
 
             return tokenInfo;
         } else {    // 기존 회원 로그인
@@ -101,7 +101,7 @@ public class AuthService {
             tokenRepository.save(token);
 
             // refresh token은 Redis 에 저장
-            redisTemplate.opsForHash().put("refresh_token:", user.getId(), tokenInfo.getRefreshToken());
+//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(user.getId()), tokenInfo.getRefreshToken());
 
             return tokenInfo;
         }
@@ -133,7 +133,7 @@ public class AuthService {
             tokenRepository.save(token);
 
             // refresh token은 Redis 에 저장
-            redisTemplate.opsForHash().put("refresh_token:", savedUser.getId(), tokenInfo.getRefreshToken());
+//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(savedUser.getId()), tokenInfo.getRefreshToken());
 
             if (savedUser.getEmail().equals("") || savedUser.getUsername().equals("")) {
                 String message = "마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
@@ -166,7 +166,7 @@ public class AuthService {
             tokenRepository.save(token);
 
             // refresh token은 Redis 에 저장
-            redisTemplate.opsForHash().put("refresh_token:", user.getId(), tokenInfo.getRefreshToken());
+//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(user.getId()), tokenInfo.getRefreshToken());
 
             return tokenInfo;
         }
