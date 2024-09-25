@@ -10,24 +10,6 @@ pipeline {
     }
 
     stages {
-        stage("Check Git Branch") {
-            when {
-                expression {
-                    return env.GIT_BRANCH == "origin/${TARGET_BRANCH}"
-                }
-            }
-            steps {
-                echo "Building branch: ${env.GIT_BRANCH}"
-            }
-            post {
-                success {
-                    echo "Check git branch success!"
-                }
-                failure {
-                    echo "Check git branch failure!"
-                }
-            }
-        }
         stage("Clean Up Workspace") {
             steps {
                 deleteDir()
@@ -96,32 +78,18 @@ pipeline {
                 }
             }
         }
-        stage("Push Docker Image") {
-            steps {
-                script {
-                    sh "docker tag ${DOCKER_IMAGE}:latest ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest"
-                    sh "docker push ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest"
-                }
-                
-            }
-            post {
-                success {
-                    echo "Push docker image success!"
-                }
-                failure {
-                    echo "Push docker image failure!"
-                }
-            }
-        }
         stage("Deploy Backend AUTH") {
             steps {
                 script {
                     sh """
                     ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/.ssh/jenkins_rsa ${REMOTE_USER}@${REMOTE_HOST} "
                     cd ${REMOTE_DIR} &&
-                    docker-compose stop ${DOCKER_IMAGE} &&
-                    docker rmi -f ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest &&
-                    docker pull ${REMOTE_HOST}/docker-hub/${DOCKER_IMAGE}:latest &&
+
+                    if docker-compose ps -q ${DOCKER_IMAGE}; then
+                        docker-compose stop ${DOCKER_IMAGE} &&
+                        docker-compose rm -f ${DOCKER_IMAGE}
+                    fi &&
+                    
                     docker-compose up -d ${DOCKER_IMAGE}
                     "
                     """
