@@ -3,15 +3,15 @@ import { useNavigate } from "react-router-dom";
 function KakaoToSignup() {
   const navigate = useNavigate();
 
-  const handleToSignup = async () => {
+  const goToSignup = async () => {
     navigate("/signup/kakao");
   };
 
   return (
     <div>
-      <div>아직 회원이 아니시군요?</div>
+      <div>캐릭터 생성하러 가볼까요?</div>
       <div>
-        <button onClick={handleToSignup}>회원가입 하러가기</button>
+        <button onClick={goToSignup}>캐릭터 생성</button>
       </div>
     </div>
   );

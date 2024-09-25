@@ -5,7 +5,7 @@ interface LoginButtonProps {
 }
 
 const LoginButton: React.FC<LoginButtonProps> = ({ onClick }) => {
-  return <button onClick={onClick}>로그인</button>;
+  return <button onClick={onClick}>게임 시작</button>;
 };
 
 export default LoginButton;

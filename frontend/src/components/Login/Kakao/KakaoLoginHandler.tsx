@@ -10,16 +10,17 @@ interface DecodedToken {
 }
 
 function KakaoLoginHandler() {
+  const AUTH_LINK = import.meta.env.VITE_AUTH_URL;
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const AUTH_LINK = import.meta.env.VITE_AUTH_URL;
 
   const getToken = async () => {
     const code = new URL(window.location.href).searchParams.get("code"); // 인가코드 추출
 
     try {
       // 백엔드로부터 access token을 받아옴
-      const userRes = await axios.post(`${AUTH_LINK}/auth/oauth/kakao`, {
+      const userRes = await axios.post(`${AUTH_LINK}/oauth/kakao`, {
         code: code,
       });
 
@@ -33,10 +34,14 @@ function KakaoLoginHandler() {
 
       // 회원가입이 필요한 경우
       if (userRes.data.data.firstLogin === true) {
-        // 회원가입 페이지로 이동
-        navigate("/signup");
+        setTimeout(() => {
+          // 회원가입 페이지로 이동
+          navigate("/signup");
+        }, 1500);
       } else {
-        navigate("/lobby"); // 이미 가입된 유저인 경우 로비로 이동
+        setTimeout(() => {
+          navigate("/lobby"); // 이미 가입된 유저인 경우 로비로 이동
+        }, 1500);
       }
     } catch (error) {
       console.log(error);
@@ -48,7 +53,7 @@ function KakaoLoginHandler() {
     getToken(); // 컴포넌트가 렌더링될 때 getToken 함수 호출
   }, []);
 
-  return <div>로그인 중!</div>;
+  return <div>유저 정보 확인 중 . . .</div>;
 }
 
 export default KakaoLoginHandler;
