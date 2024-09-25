@@ -1,6 +1,5 @@
 package wontouch.api.controller;
 
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
