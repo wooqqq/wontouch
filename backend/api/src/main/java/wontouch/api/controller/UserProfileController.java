@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import wontouch.api.domain.UserProfile;
+import wontouch.api.dto.request.DescriptionUpdateRequestDto;
 import wontouch.api.dto.request.NicknameCheckRequestDto;
 import wontouch.api.dto.request.UserProfileCreateRequestDto;
 import wontouch.api.repository.UserProfileRepository;
@@ -56,6 +57,18 @@ public class UserProfileController {
     // 닉네임 수정
 
     // 한줄소개 수정
+    @PostMapping("/description")
+    public ResponseEntity<?> updateDescription(@RequestBody DescriptionUpdateRequestDto requestDto) {
+        // 서비스 내 메서드 호출
+        userService.updateDescription(requestDto);
+        
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("한줄소개 수정 성공")
+                .data(null)
+                .build();
 
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
 
 }

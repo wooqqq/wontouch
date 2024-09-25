@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.UserProfile;
+import wontouch.api.dto.request.DescriptionUpdateRequestDto;
 import wontouch.api.dto.request.UserProfileCreateRequestDto;
+import wontouch.api.exception.CustomException;
+import wontouch.api.exception.ExceptionResponse;
 import wontouch.api.repository.UserProfileRepository;
 
 @Service
@@ -30,18 +33,11 @@ public class UserService {
         return userProfileRepository.save(userProfile);
     }
 
-    // refresh token으로 userId를 찾는 메서드
-    // auth 서버의 parseClaims를 통해 찾을 수 있어서 필요없음
-//    private Integer findUserIdByRefreshToken(String refreshToken) {
-//        Map<Object, Object> tokensMap = redisTemplate6378.opsForHash().entries("refresh_token");
-//
-//        for (Map.Entry<Object, Object> entry : tokensMap.entrySet()) {
-//            if (entry.getValue().equals(refreshToken)) {
-//                return (Integer) entry.getKey();
-//            }
-//        }
-//
-//        return null; // 해당 refresh token 이 없는 경우
-//    }
+    public void updateDescription(DescriptionUpdateRequestDto requestDto) {
+        UserProfile userProfile = userProfileRepository.findByUserId(requestDto.getUserId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
+
+        userProfile.updateDescription(requestDto.getDescription());
+    }
 
 }

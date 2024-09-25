@@ -81,7 +81,7 @@ public class LobbyController {
             log.info("Room ID sent to Lobby Server: {}", createRoomRequestDto.getRoomId());
         } catch (Exception e) {
             log.error("Failed to send Room ID to Lobby Server: {}", e.getMessage());
-            throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
         }
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -97,7 +97,7 @@ public class LobbyController {
         } catch (HttpClientErrorException e) {
 //          일단 뭉뚱그린 예외 처리
             e.printStackTrace();
-            throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
         }
     }
 
@@ -111,7 +111,7 @@ public class LobbyController {
         } catch (HttpClientErrorException e) {
 //          일단 뭉뚱그린 예외 처리
             e.printStackTrace();
-            throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
         }
     }
 }
