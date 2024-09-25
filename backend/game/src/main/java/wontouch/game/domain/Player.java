@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class Player {
-
     private long id;
-    private String username;
+    private String nickname;
 }
