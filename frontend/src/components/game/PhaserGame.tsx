@@ -52,7 +52,14 @@ const PhaserGame = () => {
   function preload(this: Phaser.Scene) {
     this.load.tilemapTiledJSON('map', '/testmap.json');
     this.load.image('tileset', '/spr_tileset_sunnysideworld_16px.png');
-
+    this.load.image('bird_image', '/animals/spr_deco_bird_01_strip4.png');
+    this.load.image('blinking_image', '/animals/spr_deco_blinking_strip12.png');
+    this.load.image('chicken_image', './animals/spr_deco_chicken_01_strip4.png');
+    this.load.image('cow_image', './animals/spr_deco_cow_strip4.png');
+    this.load.image('duck_image', './animals/spr_deco_duck_01_strip4.png');
+    this.load.image('pig_image', './animals/spr_deco_pig_01_strip4.png');
+    this.load.image('sheep_image', './animals/spr_deco_sheep_01_strip4.png');
+    this.load.image('collides', '/collides.png');
     this.load.spritesheet('player', './ninja_skeleton.png', {
       frameWidth: 16,
       frameHeight: 19,
@@ -67,8 +74,10 @@ const PhaserGame = () => {
       16,
       16,
     );
+    const birdTileset = map.addTilesetImage('bird_fast', 'bird_image', 16, 16);
+    const collidesTileset = map.addTilesetImage('collides', 'collides', 16, 16);
 
-    if (!tileset) {
+    if (!tileset || !birdTileset || !collidesTileset) {
       console.error('불러올 수 없음');
       return;
     }
@@ -83,33 +92,56 @@ const PhaserGame = () => {
     const fencesLayer = map.createLayer('fences', tileset);
     const plantLayer = map.createLayer('wheat, animal, tree, line', tileset);
     const othersssLayer = map.createLayer('othersss', tileset);
-    const animals_bottomLayer = map.createLayer('animals_bottom', tileset);
+    const animals_bottomLayer = map.createLayer('animals_bottom', birdTileset);
     const vegetableLayer = map.createLayer('fruits, vegetables', tileset);
+    const shadow_bottomLayer = map.createLayer('Shadow_bottom', tileset);
+    const house_bottom2Layer = map.createLayer('house_bottom2', tileset);
+    const house_bottomLayer = map.createLayer('house_bottom', tileset);
+    const house_topLayer = map.createLayer('house_top', tileset);
+    const shadow_topLayer = map.createLayer('shadow_top', tileset);
+    const animals_topLayer = map.createLayer('animals_top', tileset);
+    const collidesLayer = map.createLayer('collides/notpass', collidesTileset);
+    collidesLayer?.setCollisionByProperty({ collides: true });
 
     const tileAnimations = map.tilesets[0].tileData as TileData;
+    const birdAnimations = birdTileset.tileData[0].animation;
+    console.log(birdAnimations);
 
-    // 모든 애니메이션이 있는 타일을 순회하며 설정
+    if(birdAnimations && birdAnimations.length > 0){
+      const birdFrames = birdAnimations.map((frame) => ({
+        key: 'bird_image',
+        frame: frame.tileid,
+        duration: frame.duration,
+      }));
+
+      this.anims.create({
+        key: 'bird_fly',
+        frames: birdFrames,
+        frameRate: 10,
+        repeat: -1,
+      })
+      console.log("나 움직이는중임");
+    }
+
     Object.keys(tileAnimations).forEach((tileIdKey) => {
       const tileId = parseInt(tileIdKey, 10);
 
-      // 해당 타일의 애니메이션 프레임 정보 가져오기
       if (tileAnimations[tileId] && tileAnimations[tileId].animation) {
         const animationFrames = tileAnimations[tileId].animation.map(
           (frame) => frame.tileid,
         );
         let frameIndex = 0;
 
-        // 타일의 애니메이션 순서에 맞춰 프레임을 교체
         this.time.addEvent({
-          delay: tileAnimations[tileId].animation[0].duration, // 프레임 지속 시간 사용
+          delay: tileAnimations[tileId].animation[0].duration,
           callback: () => {
-            // 애니메이션 프레임 교체
-            seaLayer?.replaceByIndex(
-              animationFrames[frameIndex],
-              animationFrames[(frameIndex + 1) % animationFrames.length],
-            );
-            
-            frameIndex = (frameIndex + 1) % animationFrames.length; // 프레임 순환
+            [seaLayer, groundLayer].forEach((layer) => {
+              layer?.replaceByIndex(
+                animationFrames[frameIndex],
+                animationFrames[(frameIndex + 1) % animationFrames.length],
+              );
+            });
+            frameIndex = (frameIndex + 1) % animationFrames.length;
           },
           loop: true,
         });
@@ -128,10 +160,19 @@ const PhaserGame = () => {
     othersssLayer?.setDepth(0);
     animals_bottomLayer?.setDepth(0);
     vegetableLayer?.setDepth(0);
+    shadow_bottomLayer?.setDepth(0);
+    house_bottom2Layer?.setDepth(1);
+    house_bottomLayer?.setDepth(1);
+    house_topLayer?.setDepth(1);
+    shadow_topLayer?.setDepth(1);
+    animals_topLayer?.setDepth(1);
+    collidesLayer?.setDepth(-1);
 
-    player = this.physics.add.sprite(2240, 1280, 'player');
+    player = this.physics.add.sprite(2240, 1380, 'player');
     player.setCollideWorldBounds(true);
-    player.setScale(2);
+    player.setScale(1.5);
+
+    //this.physics.add.collider(player, collidesLayer as Phaser.Tilemaps.TilemapLayer);
 
     this.physics.world.setBounds(0, 0, 4480, 2560);
     this.cameras.main.setBounds(0, 0, 4480, 2560);
@@ -151,11 +192,10 @@ const PhaserGame = () => {
     player.setVelocity(0);
 
     let moving = false;
-    const speed = 350;  // 기본 속도
+    const speed = 350;
     let vx = 0;
     let vy = 0;
 
-    // 캐릭터 이동 구현
     if (cursors.left.isDown) {
       vx = -speed;
       player.flipX = true;
@@ -175,17 +215,13 @@ const PhaserGame = () => {
       moving = true;
     }
 
-    // 대각선 이동 시 속도 조정
     if (vx !== 0 && vy !== 0) {
-      // 대각선 이동이므로 속도를 조정 (피타고라스 정리 활용)
-      vx *= Math.SQRT1_2;  // 1 / sqrt(2)
+      vx *= Math.SQRT1_2;
       vy *= Math.SQRT1_2;
     }
 
-    // 속도 적용
     player.setVelocity(vx, vy);
 
-    // 애니메이션 처리
     if (moving) {
       if (!player.anims.isPlaying || player.anims.currentAnim?.key !== 'walk') {
         player.anims.play('walk', true);
@@ -194,7 +230,7 @@ const PhaserGame = () => {
       player.anims.stop();
       player.setFrame(0);
     }
-}
+  }
 
   return <div id="phaser-game-container" />;
 };
