@@ -5,6 +5,7 @@ import WaitingRoom from "./pages/WaitingRoom";
 import Game from "./pages/Game";
 import Login from "./pages/Login";
 import KakaoLoginHandler from "./components/Login/Kakao/KakaoLoginHandler";
+import KakaoToSignup from "./components/Login/Kakao/KakaoToSignup";
 import SignupWithKakao from "./components/Signup/Kakao/SignupWithKakao";
 import Setting from "./pages/Setting";
 import Notfound from "./pages/Notfound";
@@ -15,6 +16,7 @@ function AppRouter() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/auth/kakao" element={<KakaoLoginHandler />} />
+        <Route path="/signup" element={<KakaoToSignup />} />
         <Route path="/signup/kakao" element={<SignupWithKakao />} />
         {/* 게임방 입장 전 대기 (게임방 목록 페이지) */}
         <Route path="/lobby" element={<Lobby />} />
