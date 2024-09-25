@@ -9,6 +9,8 @@ function KakaoLoginHandler() {
   const getToken = async () => {
     const code = new URL(window.location.href).searchParams.get("code"); // 인가코드 추출
 
+    console.log(code);
+
     // 인가코드가 없다면 오류 처리
     if (!code) {
       console.error("인가코드 확인 불가");

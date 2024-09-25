@@ -5,7 +5,7 @@ import WaitingRoom from "./pages/WaitingRoom";
 import Game from "./pages/Game";
 import Login from "./pages/Login";
 import KakaoLoginHandler from "./components/Login/Kakao/KakaoLoginHandler";
-import SignupWithKakao from "./components/Login/Kakao/SignupWithKakao";
+import SignupWithKakao from "./components/Signup/Kakao/SignupWithKakao";
 import Setting from "./pages/Setting";
 import Notfound from "./pages/Notfound";
 
