@@ -4,10 +4,7 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import wontouch.api.domain.UserProfile;
 import wontouch.api.dto.request.DescriptionUpdateRequestDto;
 import wontouch.api.dto.request.NicknameCheckRequestDto;
@@ -57,7 +54,7 @@ public class UserProfileController {
     // 닉네임 수정
 
     // 한줄소개 수정
-    @PostMapping("/description")
+    @PatchMapping("/description")
     public ResponseEntity<?> updateDescription(@RequestBody DescriptionUpdateRequestDto requestDto) {
         // 서비스 내 메서드 호출
         userService.updateDescription(requestDto);

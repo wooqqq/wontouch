@@ -2,6 +2,7 @@ package wontouch.api.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.UserProfile;
 import wontouch.api.dto.request.DescriptionUpdateRequestDto;
@@ -23,6 +24,7 @@ public class UserService {
 //        return restTemplate.getForObject(url, UserResponseDto.class);
 //    }
 
+    @Transactional
     public UserProfile createUserProfile(UserProfileCreateRequestDto profileCreateRequestDto) {
         UserProfile userProfile = UserProfile.builder()
                 .userId(profileCreateRequestDto.getUserId())
@@ -33,6 +35,7 @@ public class UserService {
         return userProfileRepository.save(userProfile);
     }
 
+    @Transactional
     public void updateDescription(DescriptionUpdateRequestDto requestDto) {
         UserProfile userProfile = userProfileRepository.findByUserId(requestDto.getUserId())
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
