@@ -21,8 +21,8 @@ public class CropController {
     }
 
     // 게임 시작 전 타입마다 crop을 뽑아 redis에 저장할 예정
-    @PostMapping("/load")
-    public void loadCrop() {
-        cropService.loadRandomCropsFromEachTypeToRedis();
-    }
+//    @PostMapping("/load")
+//    public void loadCrop() {
+//        cropService.loadRandomCropsFromEachTypeToRedis();
+//    }
 }

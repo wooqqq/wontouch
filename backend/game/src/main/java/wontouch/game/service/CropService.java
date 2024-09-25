@@ -33,14 +33,14 @@ public class CropService {
     }
 
     // 게임 시작 시 mongoDB에서 타입마다 NUM_OF_CROPS_PER_TYPE 만큼의 작물을 뽑아 Redis에 저장
-    public void loadRandomCropsFromEachTypeToRedis() {
+    public void loadRandomCropsFromEachTypeToRedis(String roomId) {
         List<String> allTypes = cropRepository.findDistinctTypes();
         System.out.println(allTypes);
 
         for (String type : allTypes) {
             List<Crop> selectedRandomCrops = selectRandomCrops(type);
             // TODO roomId와 Mapping
-            initCropsInfoToRedis("test", type, selectedRandomCrops);
+            initCropsInfoToRedis(roomId, type, selectedRandomCrops);
             log.debug("saved " + type + " crops");
         }
     }

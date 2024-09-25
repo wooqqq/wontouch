@@ -109,7 +109,7 @@ public class RoomController {
 
     @PostMapping("/start/{roomId}")
     public ResponseEntity<?> initializeGamePlayer(@PathVariable String roomId, @RequestBody List<PlayerRequestDto> players) {
-        String targetUrl = String.format("%s/player/init/%s", gameServerUrl, roomId);
+        String targetUrl = String.format("%s/game/init/%s", gameServerUrl, roomId);
         log.debug("targetUrl:{}", targetUrl);
         restTemplate.postForEntity(targetUrl, players, ResponseDto.class);
         return null;

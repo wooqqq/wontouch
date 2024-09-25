@@ -23,7 +23,7 @@ public class GameRepository {
         redisTemplate.opsForHash().put(playerKey, "gold", 0);
     }
 
-    public void updateRound(String roomId) {
+    public int updateRound(String roomId) {
         String roomKey = ROOM_PREFIX + roomId;
 
         // Redis에서 round 값을 가져옴
@@ -38,6 +38,8 @@ public class GameRepository {
 
         // 로그 출력
         log.debug("Updated round for room {}: {}", roomId, round);
+
+        return round;
     }
 
 }
