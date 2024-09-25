@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.UserProfile;
 import wontouch.api.dto.request.DescriptionUpdateRequestDto;
+import wontouch.api.dto.request.NicknameUpdateRequestDto;
 import wontouch.api.dto.request.UserProfileCreateRequestDto;
 import wontouch.api.exception.CustomException;
 import wontouch.api.exception.ExceptionResponse;
@@ -33,6 +34,14 @@ public class UserService {
                 .build();
 
         return userProfileRepository.save(userProfile);
+    }
+
+    @Transactional
+    public void updateNickname(NicknameUpdateRequestDto requestDto) {
+        UserProfile userProfile = userProfileRepository.findByUserId(requestDto.getUserId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
+
+        userProfile.updateNickname(requestDto.getNickname());
     }
 
     @Transactional
