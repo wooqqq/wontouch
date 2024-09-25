@@ -46,6 +46,11 @@ function SignupWithKakao() {
   // store에 저장된 userId와 입력받은 nickname을 이용해서 회원가입 진행
   const userId = useSelector((state: RootState) => state.user.id);
   const signupWithKakao = async () => {
+    event?.preventDefault(); // 새로고침 방지
+
+    console.log("nickname: ", nickname);
+    console.log("userId: ", userId);
+
     if (!nickname) {
       alert("닉네임을 입력해주세요.");
       return;
@@ -55,13 +60,16 @@ function SignupWithKakao() {
       return;
     }
 
-    console.log(nickname);
-    console.log(userId);
-
-    const res = await axios.post(`${API_LINK}/user-profile/join`, {
-      userId: userId,
-      nickname: nickname,
-    });
+    try {
+      const res = await axios.post(`${API_LINK}/user-profile/join`, {
+        userId: userId,
+        nickname: nickname,
+      });
+      console.log(res.data);
+    } catch (error) {
+      console.error("회원가입 중 오류 발생:", error);
+      alert("회원가입 중 오류가 발생했습니다. 나중에 다시 시도해주세요.");
+    }
   };
 
   return (
