@@ -30,6 +30,6 @@ public class PlayerController {
     public void initPlayers(@PathVariable String roomId, @RequestBody List<Player> players) {
         log.debug("players:{}", players.toString());
         gameService.initializePlayers(players);
-        timerService.startNewRound(roomId, 60);
+        timerService.startNewRound(roomId);
     }
 }

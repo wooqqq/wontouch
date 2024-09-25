@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import wontouch.game.repository.GameRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,16 +19,24 @@ public class TimerService {
 
     private Map<String, ScheduledFuture<?>> roundTimers = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
+    private final GameRepository gameRepository;
     private final RestTemplate restTemplate = new RestTemplate();
+    private static final int ROUND_DURATION_SECONDS = 60;
+
+    public TimerService(GameRepository gameRepository) {
+        this.gameRepository = gameRepository;
+    }
 
     // 라운드 시작 시 타이머 설정
-    public void startNewRound(String roomId, int roundDurationSeconds) {
+    public void startNewRound(String roomId) {
         // 방마다 개별적으로 타이머 설정
-        ScheduledFuture<?> roundTimer = scheduler.schedule(() -> endRound(roomId), roundDurationSeconds, TimeUnit.SECONDS);
+        gameRepository.updateRound(roomId);
+        ScheduledFuture<?> roundTimer = scheduler.schedule(() -> endRound(roomId), ROUND_DURATION_SECONDS, TimeUnit.SECONDS);
         roundTimers.put(roomId, roundTimer);
+
         log.debug("start Timer For {}", roomId);
         // 클라이언트에게 라운드 시작 알림
-       notifyClientsOfRoundStart(roomId, roundDurationSeconds);
+        notifyClientsOfRoundStart(roomId, ROUND_DURATION_SECONDS);
     }
 
     // 라운드 종료 시 처리 로직
@@ -38,7 +47,9 @@ public class TimerService {
         // WebSocket 서버로 라운드 종료 알림 전송
         notifyClientsOfRoundEnd(roomId);
 
-        // 만약 게임이 계속된다면 다음 라운드를 시작할 수 있습니다.
+        // TODO 다음 라운드를 시작 기능.
+        startNewRound(roomId);
+        // TODO 특정 라운드라면 게임 종료 트리거
     }
 
     private void calculateRoundResults(String roomId) {
