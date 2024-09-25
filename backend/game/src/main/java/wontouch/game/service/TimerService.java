@@ -27,7 +27,7 @@ public class TimerService {
         roundTimers.put(roomId, roundTimer);
         log.debug("start Timer For {}", roomId);
         // 클라이언트에게 라운드 시작 알림
-       //notifyClientsOfRoundStart(roomId, roundDurationSeconds);
+       notifyClientsOfRoundStart(roomId, roundDurationSeconds);
     }
 
     // 라운드 종료 시 처리 로직
@@ -36,7 +36,7 @@ public class TimerService {
         calculateRoundResults(roomId);
         log.debug("end Timer for {}", roomId);
         // WebSocket 서버로 라운드 종료 알림 전송
-        //notifyClientsOfRoundEnd(roomId);
+        notifyClientsOfRoundEnd(roomId);
 
         // 만약 게임이 계속된다면 다음 라운드를 시작할 수 있습니다.
     }
@@ -48,16 +48,21 @@ public class TimerService {
 
     private void notifyClientsOfRoundStart(String roomId, int roundDurationSeconds) {
         // WebSocket 서버로 라운드 시작 메시지 전달 (WebSocket 서버가 클라이언트로 전달)
-        String targetUrl = socketServerUrl + "/api/socket/round-start";
+        String targetUrl = socketServerUrl + "/game/round-start";
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("roomId", roomId);
         messageData.put("duration", roundDurationSeconds);
-        restTemplate.postForObject(targetUrl, messageData, String.class);
+        log.debug("SEND TO SOKET SERVER: {}", targetUrl);
+        try {
+            restTemplate.postForObject(targetUrl, messageData, String.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void notifyClientsOfRoundEnd(String roomId) {
         // WebSocket 서버로 라운드 종료 메시지 전달 (WebSocket 서버가 클라이언트로 전달)
-        String targetUrl = socketServerUrl + "/api/socket/round-end";
+        String targetUrl = socketServerUrl + "/game/round-end";
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("roomId", roomId);
         restTemplate.postForObject(targetUrl, messageData, String.class);

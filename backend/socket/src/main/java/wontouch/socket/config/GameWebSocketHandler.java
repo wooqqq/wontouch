@@ -12,6 +12,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 import wontouch.socket.dto.MessageResponseDto;
 import wontouch.socket.dto.MessageType;
+import wontouch.socket.service.WebSocketSessionService;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,8 +29,14 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private String lobbyServerUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final Map<String, ConcurrentHashMap<String, WebSocketSession>> roomSessions = new ConcurrentHashMap<>();
     private final ObjectMapper mapper = new ObjectMapper();
+    private final WebSocketSessionService sessionService;
+
+    public GameWebSocketHandler(WebSocketSessionService sessionService) {
+        this.sessionService = sessionService;
+    }
+
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String roomId = getRoomIdFromSession(session);
@@ -37,8 +44,8 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
         session.getAttributes().put("playerId", playerId);
 
-        roomSessions.putIfAbsent(roomId, new ConcurrentHashMap<>());
-        roomSessions.get(roomId).put(session.getId(), session);
+        // session추가
+        sessionService.addSession(roomId, session);
 
         // client로 접속되었음을 return
         session.sendMessage(new TextMessage("Room ID Created: " + roomId));
@@ -61,10 +68,9 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         String roomId = getRoomIdFromSession(session);
         String playerId = (String) session.getAttributes().get("playerId");
 
-        roomSessions.get(roomId).remove(session.getId());
-        if (roomSessions.get(roomId).isEmpty()) {
-            roomSessions.remove(roomId);
-        }
+        // session 삭제
+        sessionService.removeSession(roomId, session);
+
         broadcastMessage(roomId, MessageType.NOTIFY, playerId + "이 퇴장하였습니다.");
         log.debug("Session " + session.getId() + " left room " + roomId);
     }
@@ -75,7 +81,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         Map<String, Object> msgMap = WebSocketMessageParser.parseMessage(payload);
         Object content = null;
-        //String messageType = (String) msgMap.get("type");
         MessageType messageType = MessageType.valueOf((String) msgMap.get("type"));
         log.debug(messageType.toString());
         switch (messageType) {
@@ -103,17 +108,14 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
-        if (roomSessions.containsKey(roomId)) {
-            MessageResponseDto message = new MessageResponseDto(messageType, content);
-            String jsonMessage = mapper.writeValueAsString(message);
-            for (WebSocketSession session : roomSessions.get(roomId).values()) {
-                session.sendMessage(new TextMessage(jsonMessage));
-            }
+        Map<String, WebSocketSession> roomSessions = sessionService.getSessions(roomId);
+        for (WebSocketSession session : roomSessions.values()) {
+            session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageResponseDto(messageType, content))));
         }
     }
 
     public void kickUser(String roomId, boolean isKicked, String playerId) throws IOException {
-        ConcurrentHashMap<String, WebSocketSession> sessions = roomSessions.get(roomId);
+        Map<String, WebSocketSession> sessions = sessionService.getSessions(roomId);
         if (!isKicked) return;
         if (sessions != null) {
             for (Map.Entry<String, WebSocketSession> entry : sessions.entrySet()) {
