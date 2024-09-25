@@ -1,5 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
+import basicCharacter from "../../../assets/Login/basicCharacter.png";
+import "./SignupWithKakao.css";
 
 function SignupWithKakao() {
   const [nickname, setNickname] = useState("");
@@ -41,15 +43,19 @@ function SignupWithKakao() {
 
   return (
     <div>
-      <div>캐릭터생성</div>
+      <div className="profile-create">캐릭터생성</div>
       <div>
-        <div>
-          <img src="/assets/Login/basicCharacter.png" alt="기본 캐릭터" />
+        <div className="profile-box">
+          <img className="profile-img" src={basicCharacter} alt="기본 캐릭터" />
         </div>
         <div>
           <form onSubmit={handleSubmit}>
-            <label htmlFor="nickname">닉네임</label>
+            <label htmlFor="nickname" style={{ marginRight: "30px" }}>
+              닉네임
+            </label>
             <input
+              className="font-['Galmuri11']"
+              style={{ width: "400px" }}
               id="nickname"
               placeholder="한글, 숫자, 영문 입력 가능 (한글 기준 최대 6자)"
               value={nickname}
@@ -58,13 +64,15 @@ function SignupWithKakao() {
             <button type="button" onClick={handleCheckNickname}>
               중복확인
             </button>
-            <div>
+            <div className="font-['Galmuri11']">
               {isNicknameAvailable === true && <p>사용 가능한 닉네임입니다.</p>}
               {isNicknameAvailable === false && (
                 <p>이미 사용 중인 닉네임입니다.</p>
               )}
             </div>
-            <button type="submit">생성</button>
+            <button type="submit" style={{ marginTop: "30px" }}>
+              생성
+            </button>
           </form>
         </div>
       </div>
