@@ -23,9 +23,15 @@ public class AvatarService {
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
 
         // ownedList 를 AvatarResponseDto로 변환하는 과정 필요
+        List<AvatarResponseDto> avatarResponseList = ownedList.stream()
+                .map(avatar -> AvatarResponseDto.builder()
+                        .id(avatar.getId())
+                        .characterName(avatar.getCharacterName())
+                        .isEquipped(avatar.isEquipped())
+                        .build())
+                .toList();
 
-
-        return null;
+        return avatarResponseList;
     }
 
     // 회원가입 시 초기 아바타 설정
