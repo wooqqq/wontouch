@@ -14,16 +14,18 @@ import wontouch.socket.service.WebSocketSessionService;
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final WebSocketSessionService sessionService;
-
-    public WebSocketConfig(WebSocketSessionService sessionService) {
+    private final MessageHandlerFactory messageHandlerFactory;
+    public WebSocketConfig(WebSocketSessionService sessionService, MessageHandlerFactory messageHandlerFactory) {
         this.sessionService = sessionService;
+        this.messageHandlerFactory = messageHandlerFactory;
     }
 
     @Bean
     public GameWebSocketHandler gameWebSocketHandler() {
         log.info("game handler register");
         return
-                new GameWebSocketHandler(sessionService); // Bean으로 직접 등록
+                new GameWebSocketHandler(sessionService,
+                        messageHandlerFactory); // Bean으로 직접 등록
     }
 
     @Override

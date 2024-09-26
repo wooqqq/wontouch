@@ -11,6 +11,7 @@ import java.util.Set;
 public class CropRedisRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private static final int DEFAULT_QUANTITY = 50;
 
     public CropRedisRepository(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -28,6 +29,8 @@ public class CropRedisRepository {
         redisTemplate.opsForHash().put(redisKey, "name", crop.getName());
         redisTemplate.opsForHash().put(redisKey, "price", crop.getPrice());
         redisTemplate.opsForHash().put(redisKey, "type", crop.getType());
+        redisTemplate.opsForHash().put(redisKey, "description", crop.getDescription());
+        redisTemplate.opsForHash().put(redisKey, "quantity", DEFAULT_QUANTITY);
     }
 
     // 특정 상점(타입)의 작물 ID 목록 조회

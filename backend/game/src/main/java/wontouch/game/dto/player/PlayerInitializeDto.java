@@ -1,4 +1,4 @@
-package wontouch.game.dto;
+package wontouch.game.dto.player;
 
 import lombok.Data;
 import wontouch.game.domain.Player;

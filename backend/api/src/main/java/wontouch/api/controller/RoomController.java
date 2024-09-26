@@ -39,6 +39,7 @@ public class RoomController {
 
     @GetMapping("/create/random-uuid")
     public ResponseEntity<ResponseDto<?>> createRandomUUID() {
+        log.debug("CREATE RANDOM UUID");
         String uuid = UUID.randomUUID().toString();
         ResponseDto<String> responseDto = ResponseDto.<String>builder()
                 .status(HttpStatus.OK.value())

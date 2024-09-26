@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.game.domain.Player;
+import wontouch.game.entity.Crop;
+
+import java.util.List;
 
 @Repository
 @Slf4j
@@ -17,10 +20,11 @@ public class GameRepository {
         this.redisTemplate = redisTemplate;
     }
 
-    public void savePlayer(Player player) {
+    public void savePlayer(String roomId, Player player) {
         String playerKey = PLAYER_PREFIX + player.getId();
         redisTemplate.opsForHash().put(playerKey, "nickname", player.getNickname());
         redisTemplate.opsForHash().put(playerKey, "gold", 0);
+        redisTemplate.opsForHash().put(playerKey, "roomId", roomId);
     }
 
     public int updateRound(String roomId) {
@@ -42,4 +46,11 @@ public class GameRepository {
         return round;
     }
 
+    public void initCrops(Player player, List<Crop> crops) {
+        String playersCropKey = PLAYER_PREFIX + player.getId() + ":crop";
+        log.debug("playersCropKey: {}", playersCropKey);
+        for (Crop crop : crops) {
+            redisTemplate.opsForHash().put(playersCropKey, crop.getId(), 0);
+        }
+    }
 }

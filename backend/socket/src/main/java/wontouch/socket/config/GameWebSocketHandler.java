@@ -1,5 +1,6 @@
 package wontouch.socket.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,15 +29,20 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     @Value("${lobby.server.name}:${lobby.server.path}")
     private String lobbyServerUrl;
 
+    @Value("${game.server.name}:${game.server.path}")
+    private String gameServerUrl;
+
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper mapper = new ObjectMapper();
     private final WebSocketSessionService sessionService;
+    private final MessageHandlerFactory messageHandlerFactory;
 
-    public GameWebSocketHandler(WebSocketSessionService sessionService) {
+    public GameWebSocketHandler(WebSocketSessionService sessionService, MessageHandlerFactory messageHandlerFactory) {
         this.sessionService = sessionService;
+        this.messageHandlerFactory = messageHandlerFactory;
     }
 
-
+    // 연결 시 실행되는 로직
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String roomId = getRoomIdFromSession(session);
@@ -63,6 +69,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         log.debug("Session " + session.getId() + " joined room " + roomId);
     }
 
+    // 연결 종료 시 실행되는 로직
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String roomId = getRoomIdFromSession(session);
@@ -75,58 +82,90 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         log.debug("Session " + session.getId() + " left room " + roomId);
     }
 
+    // 모든 메세지 처리 핸들링
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String roomId = getRoomIdFromSession(session);
         String payload = message.getPayload();
+        String playerId = (String) session.getAttributes().get("playerId");
         Map<String, Object> msgMap = WebSocketMessageParser.parseMessage(payload);
         Object content = null;
         MessageType messageType = MessageType.valueOf((String) msgMap.get("type"));
         log.debug(messageType.toString());
         switch (messageType) {
             case CHAT:
-                // 채팅 메시지 브로드캐스트
-                broadcastMessage(roomId, MessageType.CHAT, (String) msgMap.get("content"));
+                // 채팅 메시지 즉시 브로드캐스트
+                msgMap.put("playerId", playerId);
+                broadcastMessage(roomId, MessageType.CHAT, msgMap);
                 break;
             case NOTIFY:
                 // 알림 메시지 처리
                 broadcastMessage(roomId, MessageType.NOTIFY, (String) msgMap.get("content"));
                 break;
             case KICK:
-                content = MessageHandlerFactory.handleMessage(lobbyServerUrl, roomId, messageType, msgMap);
-                kickUser(roomId, (Boolean) content, (String) msgMap.get("playerId"));
+                // 강퇴 처리
+                content = messageHandlerFactory.handleMessage(roomId, messageType, msgMap);
+                kickUser(roomId, (Boolean) content, msgMap);
                 break;
             case MOVE:
                 broadcastMessage(roomId, MessageType.MOVE, (String) msgMap.get("content"));
+            case BUY:
+                content = messageHandlerFactory.handleMessage(roomId, messageType, msgMap);
+                unicastMessage(roomId, playerId, messageType, content);
+                break;
             default:
-                // 기타 메시지 처리
-                content = MessageHandlerFactory.handleMessage(lobbyServerUrl, roomId, messageType, msgMap);
+                // 기타 타 서버로 전송되는 메시지 처리
+                content = messageHandlerFactory.handleMessage(roomId, messageType, msgMap);
                 broadcastMessage(roomId, messageType, content);
                 break;
         }
         log.info("Received message from room " + roomId + ": " + messageType);
     }
 
+    // 메세지 브로드캐스트
     private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
+        log.debug("MessageBroadCast");
         Map<String, WebSocketSession> roomSessions = sessionService.getSessions(roomId);
         for (WebSocketSession session : roomSessions.values()) {
             session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageResponseDto(messageType, content))));
         }
     }
 
-    public void kickUser(String roomId, boolean isKicked, String playerId) throws IOException {
+    // 메세지 유니캐스트
+    private void unicastMessage(String roomId, String playerId, MessageType messageType, Object content) throws IOException {
+        log.debug("MessageUnicast");
+        Map<String, WebSocketSession> roomSessions = sessionService.getSessions(roomId);
+
+        for (WebSocketSession session : roomSessions.values()) {
+            // 세션에 저장된 플레이어 ID와 비교하여 특정 플레이어에게만 전송
+            String sessionPlayerId = (String) session.getAttributes().get("playerId");
+
+            if (playerId.equals(sessionPlayerId)) {
+                // 해당 플레이어에게만 메시지를 전송
+
+                session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageResponseDto(messageType, content))));
+                log.debug("Message sent to playerId {} in room {}", playerId, roomId);
+                break;  // 특정 플레이어에게만 전송 후 루프 종료
+            }
+        }
+    }
+
+    // 유저 강퇴
+    public void kickUser(String roomId, boolean isKicked, Map<String, Object> msgMap) throws IOException {
+        String playerId = (String) msgMap.get("playerId");
         Map<String, WebSocketSession> sessions = sessionService.getSessions(roomId);
         if (!isKicked) return;
         if (sessions != null) {
             for (Map.Entry<String, WebSocketSession> entry : sessions.entrySet()) {
                 WebSocketSession session = entry.getValue();
                 String sessionPlayerId = (String) session.getAttributes().get("playerId");
-                log.debug("session: {}, sessionPlayerId: {}",session.getId(), sessionPlayerId);
+                log.debug("session: {}, sessionPlayerId: {}", session.getId(), sessionPlayerId);
 
                 if (playerId.equals(sessionPlayerId)) {
                     session.close(CloseStatus.NORMAL);  // 소켓 연결 해제
                     sessions.remove(entry.getKey());  // roomSessions에서 세션 삭제
-                    broadcastMessage(roomId, MessageType.NOTIFY, playerId + " 이 방에서 강퇴되었습니다.");
+                    msgMap.put("message", playerId + " 이 방에서 강퇴되었습니다.");
+                    broadcastMessage(roomId, MessageType.NOTIFY, msgMap);
                     log.debug("Player {} has been kicked from room {}", playerId, roomId);
                     break;
                 }

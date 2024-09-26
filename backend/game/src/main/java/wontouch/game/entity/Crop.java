@@ -13,7 +13,6 @@ public class Crop {
     private final String type;
     private final String name;
     private int price;
+    private String description;
     private final String imgUrl;
-
-
 }

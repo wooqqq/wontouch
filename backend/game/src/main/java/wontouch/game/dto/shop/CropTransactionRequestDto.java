@@ -1,14 +1,13 @@
-package wontouch.game.dto;
+package wontouch.game.dto.shop;
 
 import lombok.Data;
 import wontouch.game.domain.Action;
 
 @Data
-public class CropTransactionDto {
-
+public class CropTransactionRequestDto {
     private String cropId;
     private String cropName;
     private int quantity;
-    private int price;
     private Action action;
+    private long playerId;
 }
