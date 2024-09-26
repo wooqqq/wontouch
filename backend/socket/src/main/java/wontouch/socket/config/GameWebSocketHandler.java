@@ -34,9 +34,11 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper mapper = new ObjectMapper();
     private final WebSocketSessionService sessionService;
+    private final MessageHandlerFactory messageHandlerFactory;
 
-    public GameWebSocketHandler(WebSocketSessionService sessionService) {
+    public GameWebSocketHandler(WebSocketSessionService sessionService, MessageHandlerFactory messageHandlerFactory) {
         this.sessionService = sessionService;
+        this.messageHandlerFactory = messageHandlerFactory;
     }
 
     // 연결 시 실행되는 로직
@@ -101,16 +103,14 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 break;
             case KICK:
                 // 강퇴 처리
-                content = MessageHandlerFactory.handleMessage(lobbyServerUrl, gameServerUrl,
-                        roomId, messageType, msgMap);
+                content = messageHandlerFactory.handleMessage(roomId, messageType, msgMap);
                 kickUser(roomId, (Boolean) content, msgMap);
                 break;
             case MOVE:
                 broadcastMessage(roomId, MessageType.MOVE, (String) msgMap.get("content"));
             default:
                 // 기타 타 서버로 전송되는 메시지 처리
-                content = MessageHandlerFactory.handleMessage(lobbyServerUrl, gameServerUrl,
-                        roomId, messageType, msgMap);
+                content = messageHandlerFactory.handleMessage(roomId, messageType, msgMap);
                 broadcastMessage(roomId, messageType, content);
                 break;
         }

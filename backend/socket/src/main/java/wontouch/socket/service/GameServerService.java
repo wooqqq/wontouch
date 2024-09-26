@@ -16,7 +16,7 @@ public class GameServerService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public void buyCropRequest(String gameServerUrl, String roomId, Map<String, Object> transactionInfo) {
-        String buyCropUrl = gameServerUrl + "/buy/rop/" + roomId;
+        String buyCropUrl = gameServerUrl + "/buy/crop/" + roomId;
         log.debug("buyCropUrl: {}", buyCropUrl);
         Objects state = restTemplate.postForObject(buyCropUrl, transactionInfo, Objects.class);
         log.debug("result: {}", state);

@@ -1,8 +1,7 @@
 package wontouch.socket.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.socket.dto.ReadyStateDto;
@@ -15,8 +14,10 @@ import java.util.Map;
 public class LobbyServerService {
 
     private final RestTemplate restTemplate = new RestTemplate();
+    @Value("${lobby.server.name}:${lobby.server.path}")
+    private String lobbyServerUrl;
 
-    public ReadyStateDto sendPreparationInfo(String lobbyServerUrl, String roomId,
+    public ReadyStateDto sendPreparationInfo(String roomId,
                                              Map<String, Object> preparationInfo) {
         String readyUrl = lobbyServerUrl + "/ready/toggle";
         log.debug("readyUrl:{}", readyUrl);
@@ -26,7 +27,7 @@ public class LobbyServerService {
         return state;
     }
 
-    public boolean kickUser(String lobbyServerUrl, String roomId,
+    public boolean kickUser(String roomId,
                             Map<String, Object> kickInfo) {
         String kickUrl = lobbyServerUrl + "/ready/kick";
         kickInfo.put("roomId", roomId);
