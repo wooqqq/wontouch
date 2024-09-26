@@ -32,7 +32,7 @@ public class UserController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/email/{userId}")
     public ResponseEntity<?> getUserEmail(@PathVariable int userId) {
         String userEmail = userService.getUserEmail(userId);
 
