@@ -53,7 +53,7 @@ public class GameServerService {
     public Object getTownCrops(String roomId, Map<String, Object> townInfo) {
         String townType = townInfo.get("townName").toString();
         String townCropsUrl = gameServerUrl + "/town/crop/list/" + roomId + "/" + townType;
-        Set<Object> townCrops = restTemplate.getForObject(townCropsUrl, Set.class);
+        Object townCrops = restTemplate.getForObject(townCropsUrl, Object.class);
         return townCrops;
     }
 }
