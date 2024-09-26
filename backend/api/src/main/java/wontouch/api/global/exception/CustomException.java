@@ -22,6 +22,10 @@ public enum CustomException {
     NOT_FOUND_PROFILE_EXCEPTION(400, "NotFoundProfileException", "사용자 프로필이 존재하지 않습니다"),
     NOT_FOUND_EMAIL_EXCEPTION(400, "NotFoundEmailException", "사용자 이메일을 찾을 수 없습니다."),
 
+    // 사용자 아바타
+    ALREADY_PURCHASED_AVATAR_EXCEPTION(400, "AlreadyPurchasedAvatarException", "이미 구매한 아바타가 존재합니다."),
+    ALREADY_EQUIPPED_AVATAR_EXCEPTION(400, "AlreadyEquippedAvatarException", "이미 장착된 아바타가 있습니다."),
+
     // 아직 처리하지 않은 예외사항
     UNHANDLED_ERROR_EXCEPTION(400, "UnhandledErrorException", "처리되지 않은 에러가 발생했습니다."),
 
