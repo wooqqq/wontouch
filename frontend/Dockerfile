@@ -1,12 +1,8 @@
-FROM nginx:apline
+FROM nginx:alpine
 
-WORKDIR /app
+COPY ./dist /usr/share/nginx/html
 
-COPY ./dist ./build
-
-RUN rm /etc/nginx/conf.d/default.conf
-
-COPY ./nginx.conf /etc/nginx/conf.d
+COPY ./nginx.template /etc/nginx/conf.d/default.conf.template
 
 EXPOSE 3000
 
