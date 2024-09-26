@@ -6,9 +6,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import wontouch.api.global.util.jwt.JwtFilter;
+import wontouch.api.global.util.jwt.JwtProvider;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +20,8 @@ import java.util.Collections;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtProvider jwtProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,7 +32,8 @@ public class SecurityConfig {
                                 .requestMatchers("/", "/api/**", "user-profile/**").permitAll() // 해당 경로는 인증 없이 접근 가능
 //                        .requestMatchers("**/**").permitAll()
                                 .anyRequest().authenticated() // 모든 요청에 대해 인증 없이 접근 가능
-                );
+                )
+                .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -43,5 +49,10 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public JwtFilter jwtFilter() {
+        return new JwtFilter(jwtProvider); // JwtFilter 생성 시 JwtProvider 주입
     }
 }
