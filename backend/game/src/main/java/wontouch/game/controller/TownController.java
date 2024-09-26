@@ -7,7 +7,7 @@ import wontouch.game.dto.town.CropTransactionResult;
 import wontouch.game.service.CropService;
 import wontouch.game.service.TownService;
 
-import java.util.Set;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/town")
@@ -40,7 +40,7 @@ public class TownController {
 
     // 마을의 작물 조회
     @GetMapping("/crop/list/{roomId}/{type}")
-    public Set<Object> getCrops(@PathVariable String roomId, @PathVariable String type) {
+    public Map<Object, Object> getCrops(@PathVariable String roomId, @PathVariable String type) {
         return cropService.getTownCropList(roomId, type);
     }
 }
