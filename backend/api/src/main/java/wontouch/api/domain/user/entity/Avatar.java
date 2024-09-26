@@ -2,14 +2,17 @@ package wontouch.api.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import wontouch.api.global.baseTimeEntity.BaseTimeEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Avatar {
+@Builder
+public class Avatar extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

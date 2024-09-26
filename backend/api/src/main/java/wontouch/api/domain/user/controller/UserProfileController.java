@@ -11,6 +11,7 @@ import wontouch.api.domain.user.dto.request.NicknameCheckRequestDto;
 import wontouch.api.domain.user.dto.request.NicknameUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.UserProfileCreateRequestDto;
 import wontouch.api.domain.user.model.repository.UserProfileRepository;
+import wontouch.api.domain.user.model.service.AvatarService;
 import wontouch.api.domain.user.model.service.UserService;
 import wontouch.api.global.dto.ResponseDto;
 
@@ -21,13 +22,22 @@ import wontouch.api.global.dto.ResponseDto;
 public class UserProfileController {
 
     private final UserService userService;
+    private final AvatarService avatarService;
     private final UserProfileRepository userProfileRepository;
 
-    // 회원가입 시 닉네임 설정
+    // 회원가입 시 기본 프로필 설정
     @PostMapping("/join")
     public ResponseEntity<?> createUserProfile(@Valid @RequestBody UserProfileCreateRequestDto createDto) {
         UserProfile createProfile = userService.createUserProfile(createDto);
-        return new ResponseEntity<>(createProfile, HttpStatus.CREATED);
+        avatarService.setInitialAvatar(createProfile.getUserId());
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("회원가입 프로필 설정 성공")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     // 닉네임 중복 확인
@@ -66,7 +76,6 @@ public class UserProfileController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
-
 
     // 한줄소개 수정
     @PatchMapping("/description")
