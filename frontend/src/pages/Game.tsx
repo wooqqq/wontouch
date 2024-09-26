@@ -1,4 +1,4 @@
-import PhaserGame from "../components/game/PhaserGame";
+import PhaserGame from "../components/Game/PhaserGame";
 
 function Game() {
   return (

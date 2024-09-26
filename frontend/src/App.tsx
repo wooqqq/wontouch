@@ -2,7 +2,7 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "./redux/store";
-import { incrementScore, resetScore } from "./redux/slices/gameSlice";
+// import { incrementScore, resetScore } from "./redux/slices/gameSlice";
 import AppRouter from "./AppRouter";
 
 const App: React.FC = () => {
