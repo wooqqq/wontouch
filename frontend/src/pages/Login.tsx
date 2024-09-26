@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import GoogleLogin from "../components/Login/Google/GoogleLogin";
-import KakaoLogin from "../components/Login/Kakao/KakaoLogin";
-import LoginButton from "../components/Login/LoginButton";
+import GoogleLogin from "../components/login/google/GoogleLogin";
+import KakaoLogin from "../components/login/kakao/KakaoLogin";
+import LoginButton from "../components/login/LoginButton";
 
 function Login() {
   // useState로 로그인 버튼을 숨기고 로그인 옵션 보여주기
