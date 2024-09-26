@@ -1,5 +1,6 @@
 package wontouch.api.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,14 +25,14 @@ public class UserProfileController {
 
     // 회원가입 시 닉네임 설정
     @PostMapping("/join")
-    public ResponseEntity<?> createUserProfile(@RequestBody UserProfileCreateRequestDto createDto) {
+    public ResponseEntity<?> createUserProfile(@Valid @RequestBody UserProfileCreateRequestDto createDto) {
         UserProfile createProfile = userService.createUserProfile(createDto);
         return new ResponseEntity<>(createProfile, HttpStatus.CREATED);
     }
 
     // 닉네임 중복 확인
     @PostMapping("/nickname/duplicate-check")
-    public ResponseEntity<?> checkNickname(@RequestBody NicknameCheckRequestDto requestDto) {
+    public ResponseEntity<?> checkNickname(@Valid @RequestBody NicknameCheckRequestDto requestDto) {
         boolean result = userProfileRepository.existsByNickname(requestDto.getNickname());
 
         ResponseDto<Boolean> responseDto;
@@ -54,7 +55,7 @@ public class UserProfileController {
 
     // 닉네임 수정
     @PatchMapping("/nickname/update")
-    public ResponseEntity<?> updateNickname(@RequestBody NicknameUpdateRequestDto requestDto) {
+    public ResponseEntity<?> updateNickname(@Valid @RequestBody NicknameUpdateRequestDto requestDto) {
         userService.updateNickname(requestDto);
 
         ResponseDto<String> responseDto = ResponseDto.<String>builder()
@@ -69,7 +70,7 @@ public class UserProfileController {
 
     // 한줄소개 수정
     @PatchMapping("/description")
-    public ResponseEntity<?> updateDescription(@RequestBody DescriptionUpdateRequestDto requestDto) {
+    public ResponseEntity<?> updateDescription(@Valid @RequestBody DescriptionUpdateRequestDto requestDto) {
         userService.updateDescription(requestDto);
         
         ResponseDto<String> responseDto = ResponseDto.<String>builder()
