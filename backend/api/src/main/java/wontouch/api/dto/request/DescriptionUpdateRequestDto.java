@@ -8,6 +8,6 @@ public class DescriptionUpdateRequestDto {
 
     private int userId;
 
-    @Size(max = 15, message = "한줄소개는 한글 기준 15자 이하로 설정해주세요.")
+    @Size(max = 20, message = "한줄소개는 한글 기준 20자 이하로 설정해주세요.")
     private String description;
 }
