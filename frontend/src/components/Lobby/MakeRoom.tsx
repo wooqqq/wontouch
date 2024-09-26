@@ -55,7 +55,7 @@ export default function MakeRoomModal({
         isPrivate: isPrivate,
         password: isPrivate ? password : "",
       });
-      console.log("방 생성 완료:", res.data);
+
       // 방 생성 후 생성한 방으로 바로 이동
       navigate(`/waiting-room/${UUID}`);
     } catch (error) {
