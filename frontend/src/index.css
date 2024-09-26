@@ -37,6 +37,16 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+
+  cursor: url("assets/Icon/cursor_02.png"), auto;
+}
+
+button :hover {
+  cursor: url("assets/Icon/cursor_hover.png"), auto;
+}
+
+button :active {
+  cursor: url("assets/Icon/cursor_focus.png"), auto;
 }
 
 /* 드래그 허용 CSS */
@@ -45,6 +55,17 @@ body {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #adadad;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-track {
+  background-color: #d9d9d9;
 }
 
 @media (prefers-color-scheme: light) {
@@ -179,13 +200,14 @@ body {
     font-size: 20px;
   }
 
-  /* 대기방 대기자 리스트 박스 */
+  /* 대기방 대기자 리스트 박스 / 채팅 박스 */
   .waitingroom-brown-box {
     border-radius: 20px;
     border: 5px solid #896a65;
     background: rgba(218, 194, 168, 0.9);
     box-shadow: 0px 4px 10px 5px rgba(0, 0, 0, 0.25);
     padding: 40px 0px 21px;
+    flex-shrink: 0;
     align-items: center;
   }
 
@@ -202,6 +224,7 @@ body {
   /* 준비 버튼 */
   .ready-button {
     display: flex;
+    flex-shrink: 0;
     height: 100px;
     padding: 26px 0px;
     justify-content: center;
@@ -226,5 +249,21 @@ body {
     border: 5px solid #fff;
     background: rgba(255, 254, 238, 0.9);
     box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.25);
+    flex-shrink: 0;
+  }
+
+  /* 친구 정보 (랭킹/초대/친구목록에 사용) */
+  .friend-box {
+    display: flex;
+    flex-shrink: 0;
+    width: 270px;
+    height: 42px;
+    padding: 5px 0px;
+    justify-content: space-around;
+    align-items: center;
+    border-radius: 10px;
+    border: 3px solid #896a65;
+
+    background: #dac2a8;
   }
 }

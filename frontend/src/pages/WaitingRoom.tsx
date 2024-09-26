@@ -1,3 +1,5 @@
+import Modal from "../components/common/Modal";
+import FriendInvite from "../components/waitingRoom/FriendInvite";
 import MapInfo from "../components/waitingRoom/MapInfo";
 import ReadyButton from "../components/waitingRoom/ReadyButton";
 import RoomChat from "../components/waitingRoom/RoomChat";
@@ -22,6 +24,9 @@ function WaitingRoom() {
         <RoomHowTo />
         <ReadyButton />
       </section>
+      <Modal>
+        <FriendInvite />
+      </Modal>
     </div>
   );
 }
