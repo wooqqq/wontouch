@@ -1,5 +1,5 @@
 import FriendInfo from "../common/FriendInfo";
-import CancelIcon from "../../assets/Icon/cancel.png";
+import CancelIcon from "../../assets/icon/cancel.png";
 
 function FriendInvite() {
   return (

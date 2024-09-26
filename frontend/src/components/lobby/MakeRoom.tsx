@@ -5,10 +5,10 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import cancel from "../../assets/Icon/cancel.png";
-import confirm from "../../assets/Icon/confirm.png";
-import lock from "../../assets/Icon/lock.png";
-import unLock from "../../assets/Icon/unlock.png";
+import cancel from "../../assets/icon/cancel.png";
+import confirm from "../../assets/icon/confirm.png";
+import lock from "../../assets/icon/lock.png";
+import unLock from "../../assets/icon/unlock.png";
 
 // api 주소
 const API_LINK = import.meta.env.VITE_API_URL;

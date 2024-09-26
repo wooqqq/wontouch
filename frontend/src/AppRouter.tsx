@@ -6,7 +6,7 @@ import Game from "./pages/Game";
 import Login from "./pages/Login";
 import KakaoLoginHandler from "./components/login/kakao/KakaoLoginHandler";
 import KakaoToSignup from "./components/login/kakao/KakaoToSignup";
-import SignupWithKakao from "./components/signup/Kakao/SignupWithKakao";
+import SignupWithKakao from "./components/signup/kakao/SignupWithKakao";
 import Setting from "./pages/Setting";
 // import Notfound from "./pages/Notfound";
 import CommonBG from "./components/common/CommonBG";

@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setUserNickname } from "../../../redux/slices/userSlice";
 import { RootState } from "../../../redux/store";
 
-import basicCharacter from "../../../assets/Login/basicCharacter.png";
+import basicCharacter from "../../../assets/login/basicCharacter.png";
 import "./SignupWithKakao.css";
 
 const API_LINK = import.meta.env.VITE_API_URL;

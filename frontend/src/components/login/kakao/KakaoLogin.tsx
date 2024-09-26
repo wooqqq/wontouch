@@ -1,4 +1,4 @@
-import kakao from "../../../assets/Login/kakao.png";
+import kakao from "../../../assets/login/kakao.png";
 
 const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${
   import.meta.env.VITE_API_KEY
