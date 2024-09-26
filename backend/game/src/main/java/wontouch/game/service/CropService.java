@@ -8,6 +8,7 @@ import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
@@ -32,11 +33,15 @@ public class CropService {
 
     // 작물 전체 조회
     public Map<Object, Object> getTownCropList(String roomId, String type) {
-        Map<Object, Object> cropList = new HashMap<>();
+        Map<Object, Object> cropList = new ConcurrentHashMap<>();
         List<Object> cropIdsFromTown = cropRedisRepository.getCropIdsFromTown(roomId, type).stream().toList();
         for (Object cropId : cropIdsFromTown) {
+            Map<String, Integer> cropInfo = new ConcurrentHashMap<>();
             int cropQuantity = cropRedisRepository.getCropQuantity(roomId, cropId);
-            cropList.put(cropId, cropQuantity);
+            int cropPrice = cropRedisRepository.getCropPrice(roomId, cropId);
+            cropInfo.put("cropQuantity", cropQuantity);
+            cropInfo.put("cropPrice", cropPrice);
+            cropList.put(cropId, cropInfo);
         }
         return cropList;
     }

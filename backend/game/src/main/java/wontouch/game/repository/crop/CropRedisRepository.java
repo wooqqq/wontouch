@@ -45,6 +45,11 @@ public class CropRedisRepository {
         return (Integer) redisTemplate.opsForHash().get(redisKey, "quantity");
     }
 
+    public int getCropPrice(String roomId, Object cropId) {
+        String redisKey = "game:" + roomId + ":crop:" + cropId;
+        return (Integer) redisTemplate.opsForHash().get(redisKey, "price");
+    }
+
     // 특정 작물의 세부 정보 조회
     public Map<Object, Object> getCropDetails(String roomId, String cropId) {
         String redisKey = "game:" + roomId + ":crop:" + cropId;
