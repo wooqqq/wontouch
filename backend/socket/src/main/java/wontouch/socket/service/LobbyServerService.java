@@ -8,6 +8,7 @@ import wontouch.socket.dto.ReadyStateDto;
 
 import java.util.Map;
 
+// 로비 서버로 이동하여 처리하는 로직들을 담는 서비스 레이어
 @Service
 public class LobbyServerService {
 

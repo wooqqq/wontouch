@@ -16,6 +16,8 @@ public class RedisConfig {
         redisTemplate.setConnectionFactory(connectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());  // Hash의 키도 문자열로 직렬화
+        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());  // Hash의 값은 JSON 직렬화
         return redisTemplate;
     }
 }

@@ -79,6 +79,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String roomId = getRoomIdFromSession(session);
         String payload = message.getPayload();
+        String playerId = (String) session.getAttributes().get("playerId");
         Map<String, Object> msgMap = WebSocketMessageParser.parseMessage(payload);
         Object content = null;
         MessageType messageType = MessageType.valueOf((String) msgMap.get("type"));
@@ -86,7 +87,8 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         switch (messageType) {
             case CHAT:
                 // 채팅 메시지 브로드캐스트
-                broadcastMessage(roomId, MessageType.CHAT, (String) msgMap.get("content"));
+                msgMap.put("playerId", playerId);
+                broadcastMessage(roomId, MessageType.CHAT, msgMap);
                 break;
             case NOTIFY:
                 // 알림 메시지 처리
@@ -94,7 +96,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 break;
             case KICK:
                 content = MessageHandlerFactory.handleMessage(lobbyServerUrl, roomId, messageType, msgMap);
-                kickUser(roomId, (Boolean) content, (String) msgMap.get("playerId"));
+                kickUser(roomId, (Boolean) content, msgMap);
                 break;
             case MOVE:
                 broadcastMessage(roomId, MessageType.MOVE, (String) msgMap.get("content"));
@@ -107,6 +109,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         log.info("Received message from room " + roomId + ": " + messageType);
     }
 
+    // 메세지 브로드캐스트
     private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
         Map<String, WebSocketSession> roomSessions = sessionService.getSessions(roomId);
         for (WebSocketSession session : roomSessions.values()) {
@@ -114,19 +117,22 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public void kickUser(String roomId, boolean isKicked, String playerId) throws IOException {
+    // 유저 강퇴
+    public void kickUser(String roomId, boolean isKicked, Map<String, Object> msgMap) throws IOException {
+        String playerId = (String) msgMap.get("playerId");
         Map<String, WebSocketSession> sessions = sessionService.getSessions(roomId);
         if (!isKicked) return;
         if (sessions != null) {
             for (Map.Entry<String, WebSocketSession> entry : sessions.entrySet()) {
                 WebSocketSession session = entry.getValue();
                 String sessionPlayerId = (String) session.getAttributes().get("playerId");
-                log.debug("session: {}, sessionPlayerId: {}",session.getId(), sessionPlayerId);
+                log.debug("session: {}, sessionPlayerId: {}", session.getId(), sessionPlayerId);
 
                 if (playerId.equals(sessionPlayerId)) {
                     session.close(CloseStatus.NORMAL);  // 소켓 연결 해제
                     sessions.remove(entry.getKey());  // roomSessions에서 세션 삭제
-                    broadcastMessage(roomId, MessageType.NOTIFY, playerId + " 이 방에서 강퇴되었습니다.");
+                    msgMap.put("message", playerId + " 이 방에서 강퇴되었습니다.");
+                    broadcastMessage(roomId, MessageType.NOTIFY, msgMap);
                     log.debug("Player {} has been kicked from room {}", playerId, roomId);
                     break;
                 }

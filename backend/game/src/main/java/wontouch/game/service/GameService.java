@@ -1,12 +1,15 @@
 package wontouch.game.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import wontouch.game.domain.Player;
+import wontouch.game.entity.Crop;
 import wontouch.game.repository.GameRepository;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class GameService {
 
     private final GameRepository gameRepository;
@@ -21,6 +24,14 @@ public class GameService {
         for (Player player : players) {
             // 비즈니스 로직 처리
             gameRepository.savePlayer(roomId, player);
+        }
+    }
+
+    // 이번 게임에 포함된 작물의 목록을 각 플레이어의 보유 작물에 세팅
+    public void initPlayersCrops(List<Player> players, List<Crop> crops) {
+        log.debug(crops.toString());
+        for (Player player : players) {
+            gameRepository.initCrops(player, crops);
         }
     }
 }

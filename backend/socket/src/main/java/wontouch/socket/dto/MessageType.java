@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import org.springframework.beans.factory.support.MethodOverride;
 
 public enum MessageType {
-    CHAT("chat"),
-    NOTIFY("notify"),
-    READY("ready"),
-    START("start"),
-    KICK("kick"),
-    MOVE("move");
+    CHAT("CHAT"),
+    NOTIFY("NOTIFY"),
+    READY("READY"),
+    START("START"),
+    KICK("KICK"),
+    MOVE("MOVE");
     private final String value;
 
     MessageType(String value) {
