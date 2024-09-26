@@ -27,4 +27,8 @@ public class Avatar extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean isEquipped;
 
+    public void setEquipped(boolean isEquipped) {
+        this.isEquipped = isEquipped;
+    }
+
 }

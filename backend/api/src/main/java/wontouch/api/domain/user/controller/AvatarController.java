@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wontouch.api.domain.user.dto.request.AvatarUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarRequestDto;
 import wontouch.api.domain.user.dto.response.AvatarResponseDto;
 import wontouch.api.domain.user.model.service.AvatarService;
@@ -59,4 +60,17 @@ public class AvatarController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
+    // 아바타 변경
+    @PatchMapping("/update")
+    public ResponseEntity<?> updateAvatar(@RequestBody AvatarUpdateRequestDto requestDto) {
+        avatarService.updateAvatar(requestDto);
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("아바타 변경 성공")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
 }

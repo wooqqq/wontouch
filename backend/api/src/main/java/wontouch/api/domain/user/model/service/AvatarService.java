@@ -3,6 +3,7 @@ package wontouch.api.domain.user.model.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import wontouch.api.domain.user.dto.request.AvatarUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarRequestDto;
 import wontouch.api.domain.user.dto.response.AvatarResponseDto;
 import wontouch.api.domain.user.entity.Avatar;
@@ -46,8 +47,6 @@ public class AvatarService {
         avatarRepository.save(initialAvatar);
     }
 
-    // 아바타 조회
-
     // 아바타 구매
     @Transactional
     public void purchaseAvatar(AvatarRequestDto requestDto) {
@@ -68,6 +67,20 @@ public class AvatarService {
     }
 
     // 아바타 설정
+    @Transactional
+    public void updateAvatar(AvatarUpdateRequestDto requestDto) {
+        List<Avatar> avatars = avatarRepository.findByUserId(requestDto.getUserId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
+
+        // 모든 아바타의 장착 상태를 false 로 설정
+        avatars.forEach(avatar -> avatar.setEquipped(false));
+
+        Avatar equipAvatar = avatarRepository.findById(requestDto.getAvatarId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
+        
+        // 해당 아바타의 장착 상태를 true 로 설정
+        equipAvatar.setEquipped(true);
+    }
 
 
 }
