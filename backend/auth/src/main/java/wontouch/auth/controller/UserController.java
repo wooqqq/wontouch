@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import wontouch.auth.dto.UserDto;
@@ -26,6 +27,19 @@ public class UserController {
                 .status(HttpStatus.OK.value())
                 .message("사용자 정보 조회 성공")
                 .data(userDto)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUserEmail(@PathVariable int userId) {
+        String userEmail = userService.getUserEmail(userId);
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("사용자 이메일 조회 성공")
+                .data(userEmail)
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
