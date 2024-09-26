@@ -61,20 +61,20 @@ public class AuthService {
         if (loginUser.isEmpty()) {
             User googleUser = new User();
             googleUser.createUser(username, email);
-            userRepository.save(googleUser);
-            tokenInfo = jwtProvider.generateToken(googleUser.getId());
+            User savedUser = userRepository.save(googleUser);
+            tokenInfo = jwtProvider.generateToken(savedUser.getId());
             tokenInfo.updateFirstLogin();
 
             token = Token.builder()
                     .accessToken(tokenInfo.getAccessToken())
                     .refreshToken(tokenInfo.getRefreshToken())
-                    .user(googleUser)
+                    .user(savedUser)
                     .build();
 
             tokenRepository.save(token);
 
             // refresh token은 Redis 에 저장
-            redisTemplate.opsForValue().set("refresh_token:" + googleUser.getEmail(), tokenInfo.getRefreshToken());
+//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(savedUser.getId()), tokenInfo.getRefreshToken());
 
             return tokenInfo;
         } else {    // 기존 회원 로그인
@@ -101,7 +101,7 @@ public class AuthService {
             tokenRepository.save(token);
 
             // refresh token은 Redis 에 저장
-            redisTemplate.opsForValue().set("refresh_token:" + user.getEmail(), tokenInfo.getRefreshToken());
+//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(user.getId()), tokenInfo.getRefreshToken());
 
             return tokenInfo;
         }
@@ -121,21 +121,21 @@ public class AuthService {
         if (loginUser.isEmpty()) {
             User kakaoUser = new User();
             kakaoUser.createUser(username, email);
-            userRepository.save(kakaoUser);
-            JwtResponseDto.TokenInfo tokenInfo = jwtProvider.generateToken(kakaoUser.getId());
+            User savedUser = userRepository.save(kakaoUser);
+            JwtResponseDto.TokenInfo tokenInfo = jwtProvider.generateToken(savedUser.getId());
             tokenInfo.updateFirstLogin();
 
             Token token = Token.builder()
                     .accessToken(tokenInfo.getAccessToken())
                     .refreshToken(tokenInfo.getRefreshToken())
-                    .user(kakaoUser)
+                    .user(savedUser)
                     .build();
             tokenRepository.save(token);
 
             // refresh token은 Redis 에 저장
-            redisTemplate.opsForValue().set("refresh_token:" + kakaoUser.getEmail(), tokenInfo.getRefreshToken());
+//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(savedUser.getId()), tokenInfo.getRefreshToken());
 
-            if (kakaoUser.getEmail().equals("") || kakaoUser.getUsername().equals("")) {
+            if (savedUser.getEmail().equals("") || savedUser.getUsername().equals("")) {
                 String message = "마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
                 // 메시지 후처리 필요
             }
@@ -166,7 +166,7 @@ public class AuthService {
             tokenRepository.save(token);
 
             // refresh token은 Redis 에 저장
-            redisTemplate.opsForValue().set("refresh_token:" + user.getEmail(), tokenInfo.getRefreshToken());
+//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(user.getId()), tokenInfo.getRefreshToken());
 
             return tokenInfo;
         }

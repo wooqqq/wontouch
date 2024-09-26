@@ -1,4 +1,4 @@
-package wontouch.api.dto;
+package wontouch.api.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,5 +11,4 @@ public class UserProfileCreateRequestDto {
 
     private int userId;
     private String nickname;
-    private String description;
 }

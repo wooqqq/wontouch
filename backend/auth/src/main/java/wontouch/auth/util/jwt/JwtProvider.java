@@ -77,6 +77,8 @@ public class JwtProvider {
                 .build();
     }
 
+    // access token 을 통해 claims 얻는 방법
+    // 여기에서 get("userId", String.class)를 통해 값 불러올 수 있음
     private Claims parseClaims(String accessToken) {
         try {
             return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(accessToken).getPayload();
@@ -86,13 +88,13 @@ public class JwtProvider {
     }
 
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
-    public Long getAuthentication(String accessToken) {
+    public Integer getAuthentication(String accessToken) {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
 
-        String memberId = claims.get("userId").toString();
+        String userId = claims.get("userId").toString();
 
-        return Long.valueOf(memberId);
+        return Integer.valueOf(userId);
 
     }
 
