@@ -1,0 +1,110 @@
+pipeline {
+    agent any
+    
+    environment {
+        TARGET_BRANCH = "develop/fe"
+        REMOTE_USER = "ubuntu"
+        REMOTE_HOST = "j11b303.p.ssafy.io"
+        REMOTE_DIR = "/home/ubuntu/dontouch"
+        DOCKER_IMAGE = "frontend"
+    }
+    
+    stages {
+        stage("Clean Up Workspace") {
+            steps {
+                deleteDir()
+            }
+            post {
+                success {
+                    echo "Clean up workspace success!"
+                }
+                failure {
+                    echo "Clean up worksapce failure!"
+                }
+            }
+        }
+        stage("Checkout Git Branch") {
+            steps {
+                script {
+                    checkout([
+                        $class: "GitSCM",
+                        branches: [[name: "*/${TARGET_BRANCH}"]],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [[$class: "CleanCheckout"]],
+                        userRemoteConfigs: [[
+                            url: "https://lab.ssafy.com/s11-fintech-finance-sub1/S11P21B303.git",
+                            credentialsId: "gitlab-token"
+                        ]]
+                    ])
+                }
+            }
+            post {
+                success {
+                    echo "Checkout git branch success!"
+                }
+                failure {
+                    echo "Checkout git branch failure!"
+                }
+            }
+        }
+        stage("Build with NPM") {
+            steps {
+                dir("frontend") {
+                    nodejs(nodeJSInstallationName: 'nodejs-20.16.0') {
+                        sh "npm install && npm run build"
+                    }
+                }
+            }
+            post {
+                success {
+                    echo "Build with npm success!"
+                }
+                failure {
+                    echo "Build with npm failure!"
+                }
+            }
+        }
+        stage("Build Docker Image") {
+            steps {
+                script {
+                    sh "docker build -t ${DOCKER_IMAGE}:latest -f frontend/Dockerfile frontend/."
+                }
+            }
+            post {
+                success {
+                    echo "Build docker image success!"
+                }
+                failure {
+                    echo "Build docker image failure!"
+                }
+            }
+        }
+        stage("Deploy Frontend") {
+            steps {
+                script {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/.ssh/jenkins_rsa ${REMOTE_USER}@${REMOTE_HOST} "
+                    cd ${REMOTE_DIR} &&
+
+                    if docker-compose ps -q ${DOCKER_IMAGE}; then
+                        docker-compose stop ${DOCKER_IMAGE} &&
+                        docker-compose rm -f ${DOCKER_IMAGE}
+                    fi &&
+                    
+                    docker-compose up -d ${DOCKER_IMAGE}
+                    "
+                    """
+                }
+
+            }
+            post {
+                success {
+                    echo "Deploy Frontend success!"
+                }
+                failure {
+                    echo "Deploy Frontend failure!"
+                }
+            }
+        }
+    }
+}
