@@ -23,4 +23,11 @@ public class ShopController {
         log.debug("거래 완료 {}", cropTransactionResult);
         return cropTransactionResult;
     }
+
+    @PostMapping("/sell/crop/{roomId}")
+    public CropTransactionResult sellCrops(@PathVariable String roomId, @RequestBody CropTransactionRequestDto requestDto) {
+        CropTransactionResult cropTransactionResult = shopService.sellCrop(roomId, requestDto);
+        log.debug("거래 완료 {}", cropTransactionResult);
+        return cropTransactionResult;
+    }
 }

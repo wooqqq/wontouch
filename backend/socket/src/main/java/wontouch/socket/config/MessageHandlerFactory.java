@@ -33,6 +33,8 @@ public class MessageHandlerFactory {
                 return lobbyServerService.kickUser(roomId, msgMap);
             case BUY:
                 return gameServerService.buyCropRequest(roomId, msgMap);
+            case SELL:
+                return gameServerService.sellCropRequest(roomId, msgMap);
             default:
                 System.out.println("Unknown message type: " + messageType);
                 return null;

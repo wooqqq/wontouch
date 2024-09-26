@@ -22,7 +22,17 @@ public class GameServerService {
     public CropTransactionResult buyCropRequest(String roomId, Map<String, Object> transactionInfo) {
         String buyCropUrl = gameServerUrl + "/shop/buy/crop/" + roomId;
         log.debug("buyCropUrl: {}", buyCropUrl);
+        transactionInfo.put("action", "BUY");
         CropTransactionResult result = restTemplate.postForObject(buyCropUrl, transactionInfo, CropTransactionResult.class);
+        log.debug("result: {}", result);
+        return result;
+    }
+
+    public CropTransactionResult sellCropRequest(String roomId, Map<String, Object> transactionInfo) {
+        String sellCropUrl = gameServerUrl + "/shop/sell/crop/" + roomId;
+        log.debug("sellCropUrl: {}", sellCropUrl);
+        transactionInfo.put("action", "SELL");
+        CropTransactionResult result = restTemplate.postForObject(sellCropUrl, transactionInfo, CropTransactionResult.class);
         log.debug("result: {}", result);
         return result;
     }
