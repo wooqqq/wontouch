@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import wontouch.api.domain.user.dto.request.AvatarUpdateRequestDto;
+import wontouch.api.domain.user.dto.request.AvatarRequestDto;
 import wontouch.api.global.dto.ResponseDto;
 
 @RestController
@@ -16,7 +16,7 @@ import wontouch.api.global.dto.ResponseDto;
 public class AvatarController {
 
     @PatchMapping
-    public ResponseEntity<?> updateAvatar(@RequestBody AvatarUpdateRequestDto requestDto) {
+    public ResponseEntity<?> updateAvatar(@RequestBody AvatarRequestDto requestDto) {
         // 서비스 내 메서드 호출
 
         ResponseDto<String> responseDto = ResponseDto.<String>builder()

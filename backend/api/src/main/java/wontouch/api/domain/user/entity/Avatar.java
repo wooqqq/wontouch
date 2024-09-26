@@ -21,4 +21,7 @@ public class Avatar {
     @Column(nullable = false)
     private String characterName;
 
+    @Column(nullable = false)
+    private boolean isEquipped;
+
 }
