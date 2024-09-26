@@ -5,8 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wontouch.api.domain.user.dto.request.AvatarRequestDto;
+import wontouch.api.domain.user.dto.response.AvatarResponseDto;
 import wontouch.api.domain.user.model.service.AvatarService;
 import wontouch.api.global.dto.ResponseDto;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/avatar")
@@ -14,6 +17,20 @@ import wontouch.api.global.dto.ResponseDto;
 public class AvatarController {
 
     private final AvatarService avatarService;
+
+    // 보유 아바타 리스트 조회
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getOwnedAvatar(@PathVariable int userId) {
+        List<AvatarResponseDto> avatarList = avatarService.getOwnedAvatar(userId);
+
+        ResponseDto<Object> responseDto = ResponseDto.builder()
+                .status(HttpStatus.OK.value())
+                .message("보유한 아바타 리스트 조회 성공")
+                .data(avatarList)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 
     @PatchMapping
     public ResponseEntity<?> updateAvatar(@RequestBody AvatarRequestDto requestDto) {
