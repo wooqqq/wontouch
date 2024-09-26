@@ -9,12 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import wontouch.api.dto.CreateRoomRequestDto;
-import wontouch.api.dto.RoomRequestDto;
-import wontouch.api.dto.ResponseDto;
 import wontouch.api.dto.gameserver.PlayerRequestDto;
+import wontouch.api.dto.request.CreateRoomRequestDto;
+import wontouch.api.dto.request.RoomRequestDto;
 import wontouch.api.exception.CustomException;
 import wontouch.api.exception.ExceptionResponse;
+import wontouch.api.util.ResponseDto;
 
 import java.util.List;
 import java.util.UUID;
@@ -59,7 +59,7 @@ public class RoomController {
             log.info("Room ID sent to Lobby Server: {}", createRoomRequestDto.getRoomId());
         } catch (Exception e) {
             log.error("Failed to send Room ID to Lobby Server: {}", e.getMessage());
-            throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
         }
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -75,7 +75,7 @@ public class RoomController {
         } catch (HttpClientErrorException e) {
 //          일단 뭉뚱그린 예외 처리
             e.printStackTrace();
-            throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
         }
     }
 
@@ -89,7 +89,7 @@ public class RoomController {
         } catch (HttpClientErrorException e) {
 //          일단 뭉뚱그린 예외 처리
             e.printStackTrace();
-            throw new ExceptionResponse(CustomException.TRANSFER_FAILURE_EXCEPTION);
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
         }
     }
 

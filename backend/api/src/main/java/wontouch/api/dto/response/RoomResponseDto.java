@@ -1,4 +1,4 @@
-package wontouch.api.dto;
+package wontouch.api.dto.response;
 
 
 import java.util.Set;

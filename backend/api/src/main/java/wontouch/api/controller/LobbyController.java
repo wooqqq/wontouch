@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import wontouch.api.dto.ResponseDto;
+import wontouch.api.util.ResponseDto;
 
 import java.net.URI;
 import java.util.ArrayList;

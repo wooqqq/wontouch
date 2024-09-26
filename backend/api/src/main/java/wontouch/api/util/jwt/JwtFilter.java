@@ -1,4 +1,4 @@
-package wontouch.auth.util.jwt;
+package wontouch.api.util.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,7 +16,6 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    // @RequiredArgsConstructor 통해 생성자 주입
     private final JwtProvider jwtProvider;
 
     @Override
@@ -40,5 +39,4 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
 }

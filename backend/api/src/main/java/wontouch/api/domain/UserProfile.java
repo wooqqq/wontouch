@@ -17,7 +17,7 @@ public class UserProfile {
     @Column(nullable = false)
     private int userId;
 
-    @Column
+    @Column(nullable = false)
     private String nickname;
 
     @Column
@@ -27,6 +27,14 @@ public class UserProfile {
     public UserProfile(int userId, String nickname, String description) {
         this.userId = userId;
         this.nickname = nickname;
+        this.description = description;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateDescription(String description) {
         this.description = description;
     }
 }
