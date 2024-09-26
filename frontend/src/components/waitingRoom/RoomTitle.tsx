@@ -6,8 +6,8 @@ function RoomTitle() {
     <>
       {/* 방번호-제목 */}
       <div className="flex w-[418px] h-[50px] items-center bg-[#896A65] rounded-[10px] gap-2 px-[8px]">
-        <div className="font-['DNFBitBitv2'] room-number">{roomId}</div>
-        <div className="text-white">빨리 게임해요</div>
+        <div className="room-number">{roomId}</div>
+        <div className="font-galmuri11 text-white">빨리 게임해요</div>
       </div>
     </>
   );
