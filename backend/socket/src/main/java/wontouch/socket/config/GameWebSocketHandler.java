@@ -28,6 +28,9 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     @Value("${lobby.server.name}:${lobby.server.path}")
     private String lobbyServerUrl;
 
+    @Value("${game.server.name}:${game.server.path}")
+    private String gameServerUrl;
+
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper mapper = new ObjectMapper();
     private final WebSocketSessionService sessionService;
@@ -36,7 +39,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         this.sessionService = sessionService;
     }
 
-
+    // 연결 시 실행되는 로직
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String roomId = getRoomIdFromSession(session);
@@ -63,6 +66,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         log.debug("Session " + session.getId() + " joined room " + roomId);
     }
 
+    // 연결 종료 시 실행되는 로직
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String roomId = getRoomIdFromSession(session);
@@ -75,6 +79,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         log.debug("Session " + session.getId() + " left room " + roomId);
     }
 
+    // 모든 메세지 처리 핸들링
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String roomId = getRoomIdFromSession(session);
@@ -86,7 +91,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         log.debug(messageType.toString());
         switch (messageType) {
             case CHAT:
-                // 채팅 메시지 브로드캐스트
+                // 채팅 메시지 즉시 브로드캐스트
                 msgMap.put("playerId", playerId);
                 broadcastMessage(roomId, MessageType.CHAT, msgMap);
                 break;
@@ -95,14 +100,17 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 broadcastMessage(roomId, MessageType.NOTIFY, (String) msgMap.get("content"));
                 break;
             case KICK:
-                content = MessageHandlerFactory.handleMessage(lobbyServerUrl, roomId, messageType, msgMap);
+                // 강퇴 처리
+                content = MessageHandlerFactory.handleMessage(lobbyServerUrl, gameServerUrl,
+                        roomId, messageType, msgMap);
                 kickUser(roomId, (Boolean) content, msgMap);
                 break;
             case MOVE:
                 broadcastMessage(roomId, MessageType.MOVE, (String) msgMap.get("content"));
             default:
-                // 기타 메시지 처리
-                content = MessageHandlerFactory.handleMessage(lobbyServerUrl, roomId, messageType, msgMap);
+                // 기타 타 서버로 전송되는 메시지 처리
+                content = MessageHandlerFactory.handleMessage(lobbyServerUrl, gameServerUrl,
+                        roomId, messageType, msgMap);
                 broadcastMessage(roomId, messageType, content);
                 break;
         }

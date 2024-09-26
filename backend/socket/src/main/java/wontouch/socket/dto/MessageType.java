@@ -9,7 +9,9 @@ public enum MessageType {
     READY("READY"),
     START("START"),
     KICK("KICK"),
-    MOVE("MOVE");
+    MOVE("MOVE"),
+    BUY("BUY"),
+    SELL("SELL");
     private final String value;
 
     MessageType(String value) {

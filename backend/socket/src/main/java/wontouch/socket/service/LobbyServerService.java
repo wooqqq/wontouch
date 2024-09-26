@@ -1,5 +1,6 @@
 package wontouch.socket.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -10,9 +11,8 @@ import java.util.Map;
 
 // 로비 서버로 이동하여 처리하는 로직들을 담는 서비스 레이어
 @Service
+@Slf4j
 public class LobbyServerService {
-
-    private static final Logger log = LoggerFactory.getLogger(LobbyServerService.class);
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -27,7 +27,7 @@ public class LobbyServerService {
     }
 
     public boolean kickUser(String lobbyServerUrl, String roomId,
-                         Map<String, Object> kickInfo) {
+                            Map<String, Object> kickInfo) {
         String kickUrl = lobbyServerUrl + "/ready/kick";
         kickInfo.put("roomId", roomId);
         log.debug("kickInfo:{}", kickInfo);
