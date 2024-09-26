@@ -1,4 +1,4 @@
-package wontouch.game.dto.shop;
+package wontouch.socket.dto.game;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class CropTransactionResult {
     private TransactionStatusType type;        // 거래 상태
-    private CropTransactionResponseDto info;    // 거래 정보
+    private CropTransactionDto info;    // 거래 정보
 }

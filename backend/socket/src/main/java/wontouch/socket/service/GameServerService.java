@@ -1,9 +1,11 @@
 package wontouch.socket.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.socket.dto.ReadyStateDto;
+import wontouch.socket.dto.game.CropTransactionResult;
 
 import java.util.Map;
 import java.util.Objects;
@@ -14,11 +16,14 @@ import java.util.Objects;
 public class GameServerService {
 
     private final RestTemplate restTemplate = new RestTemplate();
+    @Value("${game.server.name}:${game.server.path}")
+    private String gameServerUrl;
 
-    public void buyCropRequest(String gameServerUrl, String roomId, Map<String, Object> transactionInfo) {
-        String buyCropUrl = gameServerUrl + "/buy/crop/" + roomId;
+    public CropTransactionResult buyCropRequest(String roomId, Map<String, Object> transactionInfo) {
+        String buyCropUrl = gameServerUrl + "/shop/buy/crop/" + roomId;
         log.debug("buyCropUrl: {}", buyCropUrl);
-        Objects state = restTemplate.postForObject(buyCropUrl, transactionInfo, Objects.class);
-        log.debug("result: {}", state);
+        CropTransactionResult result = restTemplate.postForObject(buyCropUrl, transactionInfo, CropTransactionResult.class);
+        log.debug("result: {}", result);
+        return result;
     }
 }

@@ -1,5 +1,6 @@
 package wontouch.socket.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,6 +109,10 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 break;
             case MOVE:
                 broadcastMessage(roomId, MessageType.MOVE, (String) msgMap.get("content"));
+            case BUY:
+                content = messageHandlerFactory.handleMessage(roomId, messageType, msgMap);
+                unicastMessage(roomId, playerId, messageType, content);
+                break;
             default:
                 // 기타 타 서버로 전송되는 메시지 처리
                 content = messageHandlerFactory.handleMessage(roomId, messageType, msgMap);
@@ -119,9 +124,29 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     // 메세지 브로드캐스트
     private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
+        log.debug("MessageBroadCast");
         Map<String, WebSocketSession> roomSessions = sessionService.getSessions(roomId);
         for (WebSocketSession session : roomSessions.values()) {
             session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageResponseDto(messageType, content))));
+        }
+    }
+
+    // 메세지 유니캐스트
+    private void unicastMessage(String roomId, String playerId, MessageType messageType, Object content) throws IOException {
+        log.debug("MessageUnicast");
+        Map<String, WebSocketSession> roomSessions = sessionService.getSessions(roomId);
+
+        for (WebSocketSession session : roomSessions.values()) {
+            // 세션에 저장된 플레이어 ID와 비교하여 특정 플레이어에게만 전송
+            String sessionPlayerId = (String) session.getAttributes().get("playerId");
+
+            if (playerId.equals(sessionPlayerId)) {
+                // 해당 플레이어에게만 메시지를 전송
+
+                session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageResponseDto(messageType, content))));
+                log.debug("Message sent to playerId {} in room {}", playerId, roomId);
+                break;  // 특정 플레이어에게만 전송 후 루프 종료
+            }
         }
     }
 
