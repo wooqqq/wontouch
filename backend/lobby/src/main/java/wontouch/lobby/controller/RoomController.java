@@ -15,7 +15,7 @@ import wontouch.lobby.service.RoomService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/rooms")
+@RequestMapping("/rooms")
 @Slf4j
 public class RoomController {
 
@@ -24,22 +24,6 @@ public class RoomController {
     @Autowired
     public RoomController(RoomService roomService) {
         this.roomService = roomService;
-    }
-
-    // 방 목록 조회
-    @GetMapping("/list")
-    public ResponseEntity<ResponseDto<List<RoomResponseDto>>> getGameRoomList(Pageable pageable) {
-        System.out.println("HELLO LIST!!!");
-        System.out.println(pageable);
-        List<RoomResponseDto> roomByPage = roomService.findRoomByPage(pageable);
-//        Page<RoomResponseDto> response = rooms.map(RoomResponseDto::fromEntity);
-
-        ResponseDto<List<RoomResponseDto>> responseDto = ResponseDto.<List<RoomResponseDto>>builder()
-                .status(HttpStatus.OK.value())
-                .message("게임방 목록 조회 완료")
-                .data(roomByPage)
-                .build();
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     // 방 생성 요청 처리

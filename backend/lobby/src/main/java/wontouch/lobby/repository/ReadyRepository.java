@@ -7,6 +7,7 @@ import wontouch.lobby.dto.ReadyStateDto;
 import wontouch.lobby.dto.ResponseDto;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ public class ReadyRepository {
         String participantsKey = "game_lobby:" + roomId + ":participants";
         // 1. 기존 값 불러오기
         String field = Long.toString(playerId);
+        log.debug("roomId: " + roomId + ", participantsKey: " + participantsKey);
         boolean isReady = (boolean) redisTemplate.opsForHash()
                 .get(participantsKey, field);
 
@@ -58,5 +60,44 @@ public class ReadyRepository {
                     Object value = entry.getValue();
                     return Boolean.parseBoolean(value.toString());
                 });
+    }
+
+    public boolean kickUser(String roomId, String requestId, String playerId) {
+        String participantsKey = "game_lobby:" + roomId + ":participants";
+        String infoKey = "game_lobby:" + roomId + ":info";
+        log.debug("roomId:{}", roomId);
+        String hostId = (String) redisTemplate.opsForHash().get(infoKey, "hostId");
+        log.debug("playerId:{}, hostId: {}", playerId, hostId);
+        if (requestId.equals(hostId)) {
+            redisTemplate.opsForHash().delete(participantsKey, playerId);
+            return true;
+        }
+        return false;
+    }
+
+    public Optional<Set<String>> getPlayersForGame(String roomId) {
+        String participantsKey = "game_lobby:" + roomId + ":participants";
+
+        // Hash에서 참여자 목록 가져오기
+        Map<Object, Object> participantsMap = redisTemplate.opsForHash().entries(participantsKey);
+
+        // 참가자가 없는 경우 빈 Optional 반환
+        if (participantsMap.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // 모든 참가자의 readyState가 true인지 확인하고, 모두 true인 경우 해당 플레이어 목록을 반환
+        Set<String> readyPlayers = participantsMap.entrySet().stream()
+                .filter(entry -> Boolean.parseBoolean(entry.getValue().toString())) // 준비된 플레이어만 필터링
+                .map(entry -> entry.getKey().toString()) // Object를 String으로 변환
+                .collect(Collectors.toSet());
+
+        // 모든 플레이어가 ready 상태인 경우에만 Optional에 담아 반환
+        if (readyPlayers.size() == participantsMap.size()) {
+            return Optional.of(readyPlayers);
+        }
+
+        // 모든 플레이어가 준비되지 않은 경우 빈 Optional 반환
+        return Optional.empty();
     }
 }

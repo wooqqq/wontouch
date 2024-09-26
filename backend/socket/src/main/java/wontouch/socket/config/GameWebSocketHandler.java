@@ -10,11 +10,11 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.util.UriComponentsBuilder;
-import wontouch.socket.dto.MessageDto;
+import wontouch.socket.dto.MessageResponseDto;
 import wontouch.socket.dto.MessageType;
+import wontouch.socket.service.WebSocketSessionService;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,27 +25,33 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class GameWebSocketHandler extends TextWebSocketHandler {
 
-    @Value("${server.url}:${lobby.server.url}")
+    @Value("${lobby.server.name}:${lobby.server.path}")
     private String lobbyServerUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final Map<String, ConcurrentHashMap<String, WebSocketSession>> roomSessions = new ConcurrentHashMap<>();
     private final ObjectMapper mapper = new ObjectMapper();
+    private final WebSocketSessionService sessionService;
+
+    public GameWebSocketHandler(WebSocketSessionService sessionService) {
+        this.sessionService = sessionService;
+    }
+
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String roomId = getRoomIdFromSession(session);
-        String playerName = getPlayerNameFromQueryParams(session);
+        String playerId = getPlayerIdFromQueryParams(session);
 
-        session.getAttributes().put("playerName", playerName);
+        session.getAttributes().put("playerId", playerId);
 
-        roomSessions.putIfAbsent(roomId, new ConcurrentHashMap<>());
-        roomSessions.get(roomId).put(session.getId(), session);
+        // session추가
+        sessionService.addSession(roomId, session);
 
         // client로 접속되었음을 return
         session.sendMessage(new TextMessage("Room ID Created: " + roomId));
 
         // 입장 메세지 전송
-        broadcastMessage(roomId, MessageType.NOTIFY, playerName + "이 입장하였습니다.");
+        broadcastMessage(roomId, MessageType.NOTIFY, playerId + "이 입장하였습니다.");
 
         // session 정보를 로비 서버로 전송
         String sessionUrl = lobbyServerUrl + "/api/session/save";
@@ -60,13 +66,12 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String roomId = getRoomIdFromSession(session);
-        String playerName = (String) session.getAttributes().get("playerName");
+        String playerId = (String) session.getAttributes().get("playerId");
 
-        roomSessions.get(roomId).remove(session.getId());
-        if (roomSessions.get(roomId).isEmpty()) {
-            roomSessions.remove(roomId);
-        }
-        broadcastMessage(roomId, MessageType.NOTIFY, playerName + "이 퇴장하였습니다.");
+        // session 삭제
+        sessionService.removeSession(roomId, session);
+
+        broadcastMessage(roomId, MessageType.NOTIFY, playerId + "이 퇴장하였습니다.");
         log.debug("Session " + session.getId() + " left room " + roomId);
     }
 
@@ -75,9 +80,9 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         String roomId = getRoomIdFromSession(session);
         String payload = message.getPayload();
         Map<String, Object> msgMap = WebSocketMessageParser.parseMessage(payload);
-
-        //String messageType = (String) msgMap.get("type");
+        Object content = null;
         MessageType messageType = MessageType.valueOf((String) msgMap.get("type"));
+        log.debug(messageType.toString());
         switch (messageType) {
             case CHAT:
                 // 채팅 메시지 브로드캐스트
@@ -87,9 +92,15 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 // 알림 메시지 처리
                 broadcastMessage(roomId, MessageType.NOTIFY, (String) msgMap.get("content"));
                 break;
+            case KICK:
+                content = MessageHandlerFactory.handleMessage(lobbyServerUrl, roomId, messageType, msgMap);
+                kickUser(roomId, (Boolean) content, (String) msgMap.get("playerId"));
+                break;
+            case MOVE:
+                broadcastMessage(roomId, MessageType.MOVE, (String) msgMap.get("content"));
             default:
                 // 기타 메시지 처리
-                Object content = MessageHandlerFactory.handleMessage(roomId, messageType, msgMap);
+                content = MessageHandlerFactory.handleMessage(lobbyServerUrl, roomId, messageType, msgMap);
                 broadcastMessage(roomId, messageType, content);
                 break;
         }
@@ -97,23 +108,41 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
-        if (roomSessions.containsKey(roomId)) {
-            MessageDto message = new MessageDto(messageType, content);
-            String jsonMessage = mapper.writeValueAsString(message);
-            for (WebSocketSession session : roomSessions.get(roomId).values()) {
-                session.sendMessage(new TextMessage(jsonMessage));
+        Map<String, WebSocketSession> roomSessions = sessionService.getSessions(roomId);
+        for (WebSocketSession session : roomSessions.values()) {
+            session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageResponseDto(messageType, content))));
+        }
+    }
+
+    public void kickUser(String roomId, boolean isKicked, String playerId) throws IOException {
+        Map<String, WebSocketSession> sessions = sessionService.getSessions(roomId);
+        if (!isKicked) return;
+        if (sessions != null) {
+            for (Map.Entry<String, WebSocketSession> entry : sessions.entrySet()) {
+                WebSocketSession session = entry.getValue();
+                String sessionPlayerId = (String) session.getAttributes().get("playerId");
+                log.debug("session: {}, sessionPlayerId: {}",session.getId(), sessionPlayerId);
+
+                if (playerId.equals(sessionPlayerId)) {
+                    session.close(CloseStatus.NORMAL);  // 소켓 연결 해제
+                    sessions.remove(entry.getKey());  // roomSessions에서 세션 삭제
+                    broadcastMessage(roomId, MessageType.NOTIFY, playerId + " 이 방에서 강퇴되었습니다.");
+                    log.debug("Player {} has been kicked from room {}", playerId, roomId);
+                    break;
+                }
             }
         }
     }
+
 
     private String getRoomIdFromSession(WebSocketSession session) {
         return Objects.requireNonNull(session.getUri()).getPath().split("/")[4];
     }
 
-    private String getPlayerNameFromQueryParams(WebSocketSession session) {
+    private String getPlayerIdFromQueryParams(WebSocketSession session) {
         String query = session.getUri().getQuery();
         Map<String, String> queryParams = UriComponentsBuilder.fromUriString("?" + query).build().
                 getQueryParams().toSingleValueMap();
-        return queryParams.get("playerName");
+        return queryParams.get("playerId");
     }
 }
