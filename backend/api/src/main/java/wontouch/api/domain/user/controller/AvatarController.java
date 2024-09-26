@@ -33,6 +33,9 @@ public class AvatarController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    // 보유 아바타 상세 조회
+
+
     @PatchMapping
     public ResponseEntity<?> updateAvatar(@RequestBody AvatarRequestDto requestDto) {
         // 서비스 내 메서드 호출
