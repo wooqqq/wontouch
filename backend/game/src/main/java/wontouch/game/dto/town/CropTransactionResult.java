@@ -1,4 +1,4 @@
-package wontouch.game.dto.shop;
+package wontouch.game.dto.town;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

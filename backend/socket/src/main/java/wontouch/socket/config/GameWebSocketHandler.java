@@ -104,18 +104,21 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 break;
             case KICK:
                 // 강퇴 처리
-                content = messageHandlerFactory.handleMessage(roomId, messageType, msgMap);
+                content = messageHandlerFactory.handleMessage(roomId, playerId, messageType, msgMap);
                 kickUser(roomId, (Boolean) content, msgMap);
                 break;
             case MOVE:
                 broadcastMessage(roomId, MessageType.MOVE, (String) msgMap.get("content"));
             case BUY:
-                content = messageHandlerFactory.handleMessage(roomId, messageType, msgMap);
+            case SELL:
+            case PLAYER_CROP_LIST:
+            case TOWN_CROP_LIST:
+                content = messageHandlerFactory.handleMessage(roomId, playerId ,messageType, msgMap);
                 unicastMessage(roomId, playerId, messageType, content);
                 break;
             default:
                 // 기타 타 서버로 전송되는 메시지 처리
-                content = messageHandlerFactory.handleMessage(roomId, messageType, msgMap);
+                content = messageHandlerFactory.handleMessage(roomId, playerId, messageType, msgMap);
                 broadcastMessage(roomId, messageType, content);
                 break;
         }

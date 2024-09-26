@@ -10,6 +10,7 @@ import wontouch.game.repository.crop.CropRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -33,8 +34,8 @@ public class CropService {
     }
 
     // 작물 전체 조회
-    public List<Crop> getCropList(String type) {
-        return cropRepository.findByType(type);
+    public Set<Object> getTownCropList(String roomId, String type) {
+        return cropRedisRepository.getCropIdsFromTown(roomId, type);
     }
 
     // 게임 시작 시 mongoDB에서 타입마다 NUM_OF_CROPS_PER_TYPE 만큼의 작물을 뽑아 Redis에 저장
@@ -70,7 +71,7 @@ public class CropService {
     // 해당하는 작물을 Redis에 저장
     private void initCropsInfoToRedis(String roomId, String type, List<Crop> selectedCrops) {
         for (Crop crop : selectedCrops) {
-            cropRedisRepository.addCropToShop(roomId, type, crop.getId());
+            cropRedisRepository.addCropToTown(roomId, type, crop.getId());
             cropRedisRepository.addCropDetails(roomId, crop);
         }
     }

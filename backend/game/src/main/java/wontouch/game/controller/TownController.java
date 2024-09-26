@@ -2,31 +2,30 @@ package wontouch.game.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import wontouch.game.dto.shop.CropTransactionRequestDto;
-import wontouch.game.dto.shop.CropTransactionResult;
-import wontouch.game.entity.Crop;
+import wontouch.game.dto.town.CropTransactionRequestDto;
+import wontouch.game.dto.town.CropTransactionResult;
 import wontouch.game.service.CropService;
-import wontouch.game.service.ShopService;
+import wontouch.game.service.TownService;
 
-import java.util.List;
+import java.util.Set;
 
 @RestController
-@RequestMapping("/shop")
+@RequestMapping("/town")
 @Slf4j
-public class ShopController {
+public class TownController {
 
-    private final ShopService shopService;
+    private final TownService townService;
     private final CropService cropService;
 
-    public ShopController(ShopService shopService, CropService cropService) {
-        this.shopService = shopService;
+    public TownController(TownService townService, CropService cropService) {
+        this.townService = townService;
         this.cropService = cropService;
     }
 
     // 작물 구매
     @PostMapping("/buy/crop/{roomId}")
     public CropTransactionResult buyCrops(@PathVariable String roomId, @RequestBody CropTransactionRequestDto requestDto) {
-        CropTransactionResult cropTransactionResult = shopService.buyCrop(roomId, requestDto);
+        CropTransactionResult cropTransactionResult = townService.buyCrop(roomId, requestDto);
         log.debug("거래 완료 {}", cropTransactionResult);
         return cropTransactionResult;
     }
@@ -34,14 +33,14 @@ public class ShopController {
     // 작물 판매
     @PostMapping("/sell/crop/{roomId}")
     public CropTransactionResult sellCrops(@PathVariable String roomId, @RequestBody CropTransactionRequestDto requestDto) {
-        CropTransactionResult cropTransactionResult = shopService.sellCrop(roomId, requestDto);
+        CropTransactionResult cropTransactionResult = townService.sellCrop(roomId, requestDto);
         log.debug("거래 완료 {}", cropTransactionResult);
         return cropTransactionResult;
     }
 
     // 마을의 작물 조회
-    @GetMapping("/crop/list/{type}")
-    public List<Crop> getCrops(@PathVariable String type) {
-        return cropService.getCropList(type);
+    @GetMapping("/crop/list/{roomId}/{type}")
+    public Set<Object> getCrops(@PathVariable String roomId, @PathVariable String type) {
+        return cropService.getTownCropList(roomId, type);
     }
 }

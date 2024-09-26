@@ -11,7 +11,9 @@ public enum MessageType {
     KICK("KICK"),
     MOVE("MOVE"),
     BUY("BUY"),
-    SELL("SELL");
+    SELL("SELL"),
+    PLAYER_CROP_LIST("PLAYER_CROP_LIST"),
+    TOWN_CROP_LIST("TOWN_CROP_LIST");
     private final String value;
 
     MessageType(String value) {
