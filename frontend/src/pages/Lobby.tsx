@@ -2,7 +2,7 @@ import { RootState } from "../redux/store";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import axios from "axios";
-import MakeRoom from "../components/Lobby/MakeRoom";
+import MakeRoom from "../components/lobby/MakeRoom";
 import Modal from "../components/common/Modal";
 
 const API_LINK = import.meta.env.VITE_API_URL;
