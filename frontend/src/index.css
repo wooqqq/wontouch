@@ -68,19 +68,6 @@ button :active {
   background-color: #d9d9d9;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-
 @layer base {
   /* font */
   /* 던파 비트비트체 v2 */
@@ -266,7 +253,16 @@ button :active {
     align-items: center;
     border-radius: 10px;
     border: 3px solid #896a65;
-
     background: #dac2a8;
   }
+}
+
+/* 갈색 input 태그 */
+.input-tag {
+  border-radius: 20px;
+  background: #e6e2c2;
+  display: flex;
+  width: 468px;
+  padding: 19px 0px 19px 46px;
+  align-items: center;
 }
