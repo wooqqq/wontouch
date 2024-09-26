@@ -5,7 +5,8 @@ import WaitingRoom from "./pages/WaitingRoom";
 import Game from "./pages/Game";
 import Login from "./pages/Login";
 import KakaoLoginHandler from "./components/Login/Kakao/KakaoLoginHandler";
-import SignupWithKakao from "./components/Login/Kakao/SignupWithKakao";
+import KakaoToSignup from "./components/Login/Kakao/KakaoToSignup";
+import SignupWithKakao from "./components/Signup/Kakao/SignupWithKakao";
 import Setting from "./pages/Setting";
 // import Notfound from "./pages/Notfound";
 import CommonBG from "./components/common/CommonBG";
@@ -17,6 +18,7 @@ function AppRouter() {
         {/* 로그인과 회원가입 관련 라우트 */}
         <Route path="/login" element={<Login />} />
         <Route path="/auth/kakao" element={<KakaoLoginHandler />} />
+        <Route path="/signup" element={<KakaoToSignup />} />
         <Route path="/signup/kakao" element={<SignupWithKakao />} />
 
         {/* 공통 배경을 사용하는 라우트 */}

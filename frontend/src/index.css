@@ -95,7 +95,8 @@ button :active {
   @font-face {
     font-family: "Galmuri11";
     font-style: normal;
-    src: url(./fonts/woff/Galmuri11.woff) format("woff"),
+    src:
+      url(./fonts/woff/Galmuri11.woff) format("woff"),
       url(./fonts/woff/GalmuriMono11.woff) format("woff");
   }
 
@@ -114,19 +115,21 @@ button :active {
   @font-face {
     font-family: "Galmuri7";
     font-style: normal;
-    src: url(./fonts/woff/Galmuri7.woff) format("woff"),
+    src:
+      url(./fonts/woff/Galmuri7.woff) format("woff"),
       url(./fonts/woff/GalmuriMono7.woff) format("woff");
   }
 
   @font-face {
     font-family: "Galmuri9";
     font-style: normal;
-    src: url(./fonts/woff/Galmuri9.woff) format("woff"),
+    src:
+      url(./fonts/woff/Galmuri9.woff) format("woff"),
       url(./fonts/woff/GalmuriMono9.woff) format("woff");
   }
 
   html {
-    font-family: "Galmuri11";
+    font-family: "DNFBitBitv2";
     font-size: 1rem;
   }
 }
