@@ -27,9 +27,14 @@ public class CropService {
         this.cropRedisRepository = cropRedisRepository;
     }
 
-    // crop 저장
+    // 작물 저장
     public Crop saveCrop(Crop crop) {
         return cropRepository.save(crop);
+    }
+
+    // 작물 전체 조회
+    public List<Crop> getCropList(String type) {
+        return cropRepository.findByType(type);
     }
 
     // 게임 시작 시 mongoDB에서 타입마다 NUM_OF_CROPS_PER_TYPE 만큼의 작물을 뽑아 Redis에 저장

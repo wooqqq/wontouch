@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import wontouch.game.domain.Player;
 import wontouch.game.entity.Crop;
 import wontouch.game.repository.GameRepository;
+import wontouch.game.repository.player.PlayerRepository;
 
 import java.util.List;
 
@@ -13,9 +14,11 @@ import java.util.List;
 public class GameService {
 
     private final GameRepository gameRepository;
+    private final PlayerRepository playerRepository;
 
-    public GameService(GameRepository gameRepository) {
+    public GameService(GameRepository gameRepository, PlayerRepository playerRepository) {
         this.gameRepository = gameRepository;
+        this.playerRepository = playerRepository;
     }
 
     // 게임이 시작될 때 플레이어들의 초기 상태를 설정하는 메서드
@@ -23,7 +26,7 @@ public class GameService {
     public void initPlayers(String roomId, List<Player> players) {
         for (Player player : players) {
             // 비즈니스 로직 처리
-            gameRepository.savePlayer(roomId, player);
+            playerRepository.savePlayer(roomId, player);
         }
     }
 
