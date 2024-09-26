@@ -27,7 +27,7 @@ public class PlayerController {
     @PostMapping("/init/{roomId}")
     public void initPlayers(@PathVariable String roomId, @RequestBody List<Player> players) {
         log.debug("players:{}", players.toString());
-        gameService.initPlayers(players);
+        gameService.initPlayers(roomId, players);
         timerService.startNewRound(roomId);
     }
 }

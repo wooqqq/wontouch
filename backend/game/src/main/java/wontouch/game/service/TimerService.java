@@ -37,7 +37,7 @@ public class TimerService {
 
         log.debug("start Timer For {}", roomId);
         // 클라이언트에게 라운드 시작 알림
-        notifyClientsOfRoundStart(roomId, ROUND_DURATION_SECONDS);
+        notifyClientsOfRoundStart(roomId);
     }
 
     // 라운드 종료 시 처리 로직
@@ -66,12 +66,12 @@ public class TimerService {
         System.out.println("Calculating results for room: " + roomId);
     }
 
-    private void notifyClientsOfRoundStart(String roomId, int roundDurationSeconds) {
+    private void notifyClientsOfRoundStart(String roomId) {
         // WebSocket 서버로 라운드 시작 메시지 전달 (WebSocket 서버가 클라이언트로 전달)
         String targetUrl = socketServerUrl + "/game/round-start";
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("roomId", roomId);
-        messageData.put("duration", roundDurationSeconds);
+        messageData.put("duration", ROUND_DURATION_SECONDS);
         log.debug("SEND TO SOKET SERVER: {}", targetUrl);
         try {
             restTemplate.postForObject(targetUrl, messageData, String.class);

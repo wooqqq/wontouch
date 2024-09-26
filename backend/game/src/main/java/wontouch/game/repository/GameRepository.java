@@ -17,10 +17,11 @@ public class GameRepository {
         this.redisTemplate = redisTemplate;
     }
 
-    public void savePlayer(Player player) {
+    public void savePlayer(String roomId, Player player) {
         String playerKey = PLAYER_PREFIX + player.getId();
         redisTemplate.opsForHash().put(playerKey, "nickname", player.getNickname());
         redisTemplate.opsForHash().put(playerKey, "gold", 0);
+        redisTemplate.opsForHash().put(playerKey, "roomId", roomId);
     }
 
     public int updateRound(String roomId) {
