@@ -16,6 +16,7 @@ public class UserResponseDto {
     private String nickname;
     private String description;
     private String characterName;
+    private int tierPoint;
 
     public void updateEmail(String email) {
         this.email = email;

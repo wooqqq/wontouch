@@ -52,6 +52,7 @@ public class UserService {
                 .nickname(userProfile.getNickname())
                 .description(userProfile.getDescription())
                 .characterName(avatar.getCharacterName())
+                .tierPoint(1000) // 추후 tier_point log 구현 후 보내줄 예정
                 .build();
 
         // Auth 서버에서 사용자 이메일 불러오기
