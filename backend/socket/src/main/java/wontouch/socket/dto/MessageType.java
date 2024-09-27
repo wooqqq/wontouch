@@ -13,7 +13,9 @@ public enum MessageType {
     BUY("BUY"),
     SELL("SELL"),
     PLAYER_CROP_LIST("PLAYER_CROP_LIST"),
-    TOWN_CROP_LIST("TOWN_CROP_LIST");
+    TOWN_CROP_LIST("TOWN_CROP_LIST"),
+    ROUND_READY("ROUND_READY");
+
     private final String value;
 
     MessageType(String value) {

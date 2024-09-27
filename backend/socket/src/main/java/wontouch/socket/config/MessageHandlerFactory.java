@@ -23,14 +23,14 @@ public class MessageHandlerFactory {
         switch (messageType) {
             case READY:
                 // 로비 서버로 준비 정보 전송
-                return lobbyServerService.sendPreparationInfo(roomId, msgMap);
+                return lobbyServerService.sendPreparationInfo(roomId, playerId, msgMap);
             case START:
                 // TODO 시작하는 로직 구현
                 System.out.println("LET's START: " + msgMap);
                 break;
             case KICK:
                 // 유저 강퇴
-                return lobbyServerService.kickUser(roomId, msgMap);
+                return lobbyServerService.kickUser(roomId, playerId, msgMap);
             case BUY:
                 return gameServerService.buyCropRequest(roomId, msgMap);
             case SELL:
@@ -38,7 +38,9 @@ public class MessageHandlerFactory {
             case PLAYER_CROP_LIST:
                 return gameServerService.getPlayerCrops(playerId);
             case TOWN_CROP_LIST:
-            return gameServerService.getTownCrops(roomId, msgMap);
+                return gameServerService.getTownCrops(roomId, msgMap);
+            case ROUND_READY:
+                return gameServerService.sendPreparationInfo(roomId, playerId, msgMap);
             default:
                 System.out.println("Unknown message type: " + messageType);
                 return null;

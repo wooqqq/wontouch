@@ -3,9 +3,11 @@ package wontouch.socket.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 import wontouch.socket.dto.game.CropDto;
 import wontouch.socket.dto.game.CropTransactionResult;
+import wontouch.socket.dto.lobby.ReadyStateDto;
 
 import java.util.List;
 import java.util.Map;
@@ -55,5 +57,14 @@ public class GameServerService {
         String townCropsUrl = gameServerUrl + "/town/crop/list/" + roomId + "/" + townType;
         Object townCrops = restTemplate.getForObject(townCropsUrl, Object.class);
         return townCrops;
+    }
+
+    public Object sendPreparationInfo(String roomId, String playerId, Map<String, Object> readyInfo) {
+        String readyUrl = gameServerUrl + "/game/ready/" + roomId;
+        log.debug("readyUrl:{}", readyUrl);
+        readyInfo.put("playerId", playerId);
+        log.debug("preparationInfo:{}", readyInfo);
+        System.out.println("Sending preparation info to Game Server: " + readyInfo);
+        return restTemplate.postForObject(readyUrl, readyInfo, Object.class);
     }
 }

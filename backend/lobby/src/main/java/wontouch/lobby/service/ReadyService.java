@@ -25,7 +25,9 @@ public class ReadyService {
     public ReadyStateDto updateReadyState(Map<String, Object> preparationInfo) {
         String roomId = preparationInfo.get("roomId").toString();
         long playerId = Long.parseLong(preparationInfo.get("playerId").toString());
-        return readyRepository.readyStatusChange(roomId, playerId);
+        ReadyStateDto readyStateDto = readyRepository.readyStatusChange(roomId, playerId);
+        log.debug("ready: {}", readyStateDto);
+        return readyStateDto;
     }
 
     public boolean kickUser(Map<String, Object> kickInfo) {

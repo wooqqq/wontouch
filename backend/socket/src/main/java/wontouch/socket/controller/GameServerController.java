@@ -54,7 +54,32 @@ public class GameServerController {
         return ResponseEntity.ok("Timer ended successfully");
     }
 
+    @PostMapping("/preparation-start")
+    public ResponseEntity<?> preparationStart(@RequestBody Map<String, Object> messageData) {
+        String roomId = (String) messageData.get("roomId");
+        log.debug("START PREPARATION!!: {}", messageData);
+        try {
+            broadcastMessage(roomId, MessageType.NOTIFY, "Preparation Start successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok("preparation started successfully");
+    }
+
+    @PostMapping("/crop-list")
+    public ResponseEntity<?> cropList(@RequestBody Map<String, Object> messageData) {
+        String roomId = (String) messageData.get("roomId");
+        log.debug("CROP LIST!!: {}", messageData);
+        try {
+            broadcastMessage(roomId, MessageType.NOTIFY, messageData);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok("Timer ended successfully");
+    }
     private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
+
         Map<String, WebSocketSession> roomSessions = sessionService.getSessions(roomId);
         for (WebSocketSession session : roomSessions.values()) {
             session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageResponseDto(messageType, content))));

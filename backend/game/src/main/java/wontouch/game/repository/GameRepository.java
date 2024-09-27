@@ -13,7 +13,8 @@ import java.util.List;
 public class GameRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private static final String ROOM_PREFIX = "game:room:";
+    private static final String GAME_PREFIX = "game:";
+    private static final String ROOM_SUFFIX = ":room";
     private static final String PLAYER_PREFIX = "player:";
 
     public GameRepository(RedisTemplate<String, Object> redisTemplate) {
@@ -21,7 +22,7 @@ public class GameRepository {
     }
 
     public int updateRound(String roomId) {
-        String roomKey = ROOM_PREFIX + roomId;
+        String roomKey = GAME_PREFIX + roomId + ROOM_SUFFIX;
 
         // Redis에서 round 값을 가져옴
         String roundValue = (String) redisTemplate.opsForHash().get(roomKey, "round");
