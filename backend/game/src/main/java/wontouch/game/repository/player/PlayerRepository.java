@@ -41,19 +41,4 @@ public class PlayerRepository {
 
         return redisTemplate.opsForHash().entries(playerCropKey);
     }
-
-    // 플레이어의 다음 라운드 시작 준비 여부 확인
-    public boolean playerReady(String roomId, String playerId) {
-        setPlayerStatus(roomId, playerId, PlayerStatus.READY);
-        return checkAllPlayersReady(roomId);
-    }
-
-    // 모든 플레이어가 준비되었는지 확인
-    public boolean checkAllPlayersReady(String roomId) {
-        String playerStatusKey = GAME_PREFIX + roomId + PLAYER_SUFFIX;
-        Map<Object, Object> players = redisTemplate.opsForHash().entries(playerStatusKey);
-        return players.values().stream().
-                allMatch(status -> PlayerStatus.READY.toString().equals(status));
-
-    }
 }

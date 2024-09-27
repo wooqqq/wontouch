@@ -54,6 +54,18 @@ public class GameServerController {
         return ResponseEntity.ok("Timer ended successfully");
     }
 
+    @PostMapping("/preparation-start")
+    public ResponseEntity<?> preparationStart(@RequestBody Map<String, Object> messageData) {
+        String roomId = (String) messageData.get("roomId");
+        log.debug("START PREPARATION!!: {}", messageData);
+        try {
+            broadcastMessage(roomId, MessageType.NOTIFY, "Preparation Start successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok("preparation started successfully");
+    }
+
     @PostMapping("/crop-list")
     public ResponseEntity<?> cropList(@RequestBody Map<String, Object> messageData) {
         String roomId = (String) messageData.get("roomId");
