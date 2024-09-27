@@ -16,7 +16,6 @@ public class CropController {
         this.cropService = cropService;
     }
 
-
     @PostMapping
     public Crop addCrop(@RequestBody Crop crop) {
         log.debug("addCrop crop: {}", crop);
