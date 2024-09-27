@@ -31,12 +31,6 @@ public class UserService {
     @Value("${auth.server.name}:${auth.server.path}")
     private String authServerUrl;
 
-//    public UserResponseDto getUserDto(int userId) {
-//        String url = ":8080/auth/user/" + userId; // auth 서버 사용자 조회 URL
-//
-//        return restTemplate.getForObject(url, UserResponseDto.class);
-//    }
-
     /**
      * 사용자 정보 조회
      * 추후 characterName, mileage, level 등 넣어줄 예정
