@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AvatarResponseDto {
 
-    private int id;
+    private int avatarId;
     private String characterName;
     private boolean isEquipped;
 }

@@ -28,7 +28,7 @@ public class AvatarService {
         // ownedList 를 AvatarResponseDto로 변환하는 과정 필요
         List<AvatarResponseDto> avatarResponseList = ownedList.stream()
                 .map(avatar -> AvatarResponseDto.builder()
-                        .id(avatar.getId())
+                        .avatarId(avatar.getId())
                         .characterName(avatar.getCharacterName())
                         .isEquipped(avatar.isEquipped())
                         .build())
@@ -46,13 +46,13 @@ public class AvatarService {
 
         // 만약 avatar 엔티티에 없다면 아직 구매하지 않은 것
         if (!avatarRepository.existsByUserIdAndCharacterName(requestDto.getUserId(), requestDto.getCharacterName())) {
-            responseDto.updateOwned(false);
+            responseDto.updateOwned(null,false);
         } else {
-            responseDto.updateOwned(true);
-
             // 보유하고 있다면 avatar 엔티티에서 찾은 후 장착 유무 확인
             Avatar avatar = avatarRepository.findByUserIdAndCharacterName(requestDto.getUserId(), requestDto.getCharacterName())
                     .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
+
+            responseDto.updateOwned(avatar.getId(), true);
 
             if (avatar.isEquipped())
                 responseDto.updateEquipped(true);

@@ -16,6 +16,8 @@ public class AvatarDetailResponseDto {
     @NotNull
     private int userId;
 
+    private Integer avatarId;
+
     @NotBlank
     private String characterName;
 
@@ -27,7 +29,8 @@ public class AvatarDetailResponseDto {
         this.isEquipped = isEquipped;
     }
 
-    public void updateOwned(boolean isOwned) {
+    public void updateOwned(Integer avatarId,boolean isOwned) {
+        this.avatarId = avatarId;
         this.isOwned = isOwned;
     }
 }
