@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wontouch.api.domain.user.dto.request.UserSearchRequestDto;
 import wontouch.api.domain.user.dto.response.UserResponseDto;
-import wontouch.api.global.dto.ResponseDto;
 import wontouch.api.domain.user.model.service.UserService;
+import wontouch.api.global.dto.ResponseDto;
 
 @RestController
 @RequestMapping("/user")
@@ -44,6 +44,5 @@ public class UserController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
-
 
 }

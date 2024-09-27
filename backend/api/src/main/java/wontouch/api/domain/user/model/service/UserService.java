@@ -6,18 +6,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.user.dto.response.UserResponseDto;
 import wontouch.api.domain.user.entity.Avatar;
 import wontouch.api.domain.user.entity.UserProfile;
-import wontouch.api.domain.user.dto.request.DescriptionUpdateRequestDto;
-import wontouch.api.domain.user.dto.request.NicknameUpdateRequestDto;
-import wontouch.api.domain.user.dto.request.UserProfileCreateRequestDto;
 import wontouch.api.domain.user.model.repository.AvatarRepository;
+import wontouch.api.domain.user.model.repository.UserProfileRepository;
 import wontouch.api.global.exception.CustomException;
 import wontouch.api.global.exception.ExceptionResponse;
-import wontouch.api.domain.user.model.repository.UserProfileRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -68,32 +64,4 @@ public class UserService {
 
         return userResponseDto;
     }
-
-    @Transactional
-    public UserProfile createUserProfile(UserProfileCreateRequestDto profileCreateRequestDto) {
-        UserProfile userProfile = UserProfile.builder()
-                .userId(profileCreateRequestDto.getUserId())
-                .nickname(profileCreateRequestDto.getNickname())
-                .description(null)
-                .build();
-
-        return userProfileRepository.save(userProfile);
-    }
-
-    @Transactional
-    public void updateNickname(NicknameUpdateRequestDto requestDto) {
-        UserProfile userProfile = userProfileRepository.findByUserId(requestDto.getUserId())
-                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
-
-        userProfile.updateNickname(requestDto.getNickname());
-    }
-
-    @Transactional
-    public void updateDescription(DescriptionUpdateRequestDto requestDto) {
-        UserProfile userProfile = userProfileRepository.findByUserId(requestDto.getUserId())
-                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
-
-        userProfile.updateDescription(requestDto.getDescription());
-    }
-
 }
