@@ -33,4 +33,11 @@ public class UserService {
 
         return userId;
     }
+
+    public String getUserEmail(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        return user.getEmail();
+    }
 }
