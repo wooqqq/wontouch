@@ -17,20 +17,23 @@ public class LobbyServerService {
     @Value("${lobby.server.name}:${lobby.server.path}")
     private String lobbyServerUrl;
 
-    public ReadyStateDto sendPreparationInfo(String roomId,
+    public ReadyStateDto sendPreparationInfo(String roomId, String playerId,
                                              Map<String, Object> preparationInfo) {
         String readyUrl = lobbyServerUrl + "/ready/toggle";
         log.debug("readyUrl:{}", readyUrl);
+        preparationInfo.put("playerId", playerId);
         preparationInfo.put("roomId", roomId);
+        log.debug("preparationInfo:{}", preparationInfo);
         System.out.println("Sending preparation info to Lobby Server: " + preparationInfo);
         ReadyStateDto state = restTemplate.postForObject(readyUrl, preparationInfo, ReadyStateDto.class);
         return state;
     }
 
-    public boolean kickUser(String roomId,
+    public boolean kickUser(String roomId, String playerId,
                             Map<String, Object> kickInfo) {
         String kickUrl = lobbyServerUrl + "/ready/kick";
         kickInfo.put("roomId", roomId);
+        kickInfo.put("requestUserId", playerId);
         log.debug("kickInfo:{}", kickInfo);
         return Boolean.TRUE.equals(restTemplate.postForObject(kickUrl, kickInfo, boolean.class));
     }
