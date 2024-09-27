@@ -7,7 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import wontouch.api.domain.friend.model.repository.jpa.FriendRepository;
+import wontouch.api.domain.user.dto.request.UserSearchRequestDto;
 import wontouch.api.domain.user.dto.response.UserResponseDto;
+import wontouch.api.domain.user.dto.response.UserSearchResponseDto;
 import wontouch.api.domain.user.entity.Avatar;
 import wontouch.api.domain.user.entity.UserProfile;
 import wontouch.api.domain.user.model.repository.AvatarRepository;
@@ -20,9 +23,10 @@ import wontouch.api.global.exception.ExceptionResponse;
 public class UserService {
 
     private final RestTemplate restTemplate;
-    private final UserProfileRepository userProfileRepository;
     private final ObjectMapper objectMapper;
+    private final UserProfileRepository userProfileRepository;
     private final AvatarRepository avatarRepository;
+    private final FriendRepository friendRepository;
 
     @Value("${auth.server.name}:${auth.server.path}")
     private String authServerUrl;
@@ -64,4 +68,29 @@ public class UserService {
 
         return userResponseDto;
     }
+
+    /**
+     * 닉네임을 통한 사용자 검색
+     */
+    public UserSearchResponseDto getUserByNickname(UserSearchRequestDto requestDto) {
+
+        UserProfile userProfile = userProfileRepository.findByNickname(requestDto.getNickname())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
+
+        // 찾은 프로필이 자신의 닉네임인 경우
+        if (userProfile.getUserId() == requestDto.getUserId())
+            throw new ExceptionResponse(CustomException.NOT_OTHER_USER_PROFILE_EXCEPTION);
+
+        // 검색한 사용자가 이미 친구인지 확인
+        if (friendRepository.existsByFromUserIdAndToUserId(requestDto.getUserId(), userProfile.getUserId()))
+            throw new ExceptionResponse(CustomException.ALREADY_FRIEND_EXCEPTION);
+
+        UserSearchResponseDto responseDto = UserSearchResponseDto.builder()
+                .tier("아직 구현 X")
+                .nickname(userProfile.getNickname())
+                .build();
+
+        return responseDto;
+    }
+
 }

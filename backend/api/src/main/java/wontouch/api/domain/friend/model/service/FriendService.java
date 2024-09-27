@@ -2,8 +2,8 @@ package wontouch.api.domain.friend.model.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import wontouch.api.domain.friend.model.repository.FriendRepository;
-import wontouch.api.domain.friend.model.repository.FriendRequestRepository;
+import wontouch.api.domain.friend.model.repository.jpa.FriendRepository;
+import wontouch.api.domain.friend.model.repository.mongo.FriendRequestRepository;
 
 @Service
 @RequiredArgsConstructor

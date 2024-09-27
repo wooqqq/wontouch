@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wontouch.api.domain.user.dto.request.UserSearchRequestDto;
 import wontouch.api.domain.user.dto.response.UserResponseDto;
+import wontouch.api.domain.user.dto.response.UserSearchResponseDto;
 import wontouch.api.domain.user.model.service.UserService;
 import wontouch.api.global.dto.ResponseDto;
 
@@ -35,11 +36,12 @@ public class UserController {
     @GetMapping("/search")
     public ResponseEntity<?> getUserByNickname(@RequestBody UserSearchRequestDto requestDto) {
         // 서비스 내 메서드 호출
+        UserSearchResponseDto searchResponseDto = userService.getUserByNickname(requestDto);
         
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())
                 .message("사용자 닉네임 검색 성공")
-                .data(null)
+                .data(searchResponseDto)
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);

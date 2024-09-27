@@ -1,4 +1,4 @@
-package wontouch.api.domain.friend.model.repository;
+package wontouch.api.domain.friend.model.repository.jpa;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import wontouch.api.domain.friend.entity.Friend;
@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface FriendRepository extends JpaRepository<Friend, Integer> {
 
+    boolean existsByFromUserIdAndToUserId(int fromUserId, int toUserId);
     Optional<List<Friend>> findByFromUserId(int fromUserId);
 }
