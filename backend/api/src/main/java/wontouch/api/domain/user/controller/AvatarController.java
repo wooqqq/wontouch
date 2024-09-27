@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wontouch.api.domain.user.dto.request.AvatarPurchaseRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarRequestDto;
 import wontouch.api.domain.user.dto.response.AvatarDetailResponseDto;
@@ -51,7 +52,7 @@ public class AvatarController {
 
     // 아바타 구매
     @PostMapping("/purchase")
-    public ResponseEntity<?> purchaseAvatar(@RequestBody AvatarRequestDto requestDto) {
+    public ResponseEntity<?> purchaseAvatar(@RequestBody AvatarPurchaseRequestDto requestDto) {
         avatarService.purchaseAvatar(requestDto);
 
         ResponseDto<String> responseDto = ResponseDto.<String>builder()

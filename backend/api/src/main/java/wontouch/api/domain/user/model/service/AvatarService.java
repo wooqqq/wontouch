@@ -3,6 +3,7 @@ package wontouch.api.domain.user.model.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import wontouch.api.domain.user.dto.request.AvatarPurchaseRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarRequestDto;
 import wontouch.api.domain.user.dto.response.AvatarDetailResponseDto;
@@ -75,7 +76,7 @@ public class AvatarService {
 
     // 아바타 구매
     @Transactional
-    public void purchaseAvatar(AvatarRequestDto requestDto) {
+    public void purchaseAvatar(AvatarPurchaseRequestDto requestDto) {
         // 마일리지 조회 및 사용 구현 필요 => requestDto에 아바타 가격 포함되어야 함 (추후 구현사항)
 
         boolean isExistAvatar = avatarRepository.existsByUserIdAndCharacterName(requestDto.getUserId(), requestDto.getCharacterName());
