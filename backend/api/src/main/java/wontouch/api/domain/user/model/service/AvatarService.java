@@ -20,6 +20,7 @@ public class AvatarService {
 
     private final AvatarRepository avatarRepository;
 
+    // 보유한 아바타 리스트 조회
     public List<AvatarResponseDto> getOwnedAvatar(int userId) {
         List<Avatar> ownedList = avatarRepository.findByUserId(userId)
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
@@ -36,6 +37,7 @@ public class AvatarService {
         return avatarResponseList;
     }
 
+    // 아바타 상세 조회
     public AvatarDetailResponseDto getAvatarDetail(AvatarRequestDto requestDto) {
         AvatarDetailResponseDto responseDto = AvatarDetailResponseDto.builder()
                 .userId(requestDto.getUserId())
@@ -74,7 +76,7 @@ public class AvatarService {
     // 아바타 구매
     @Transactional
     public void purchaseAvatar(AvatarRequestDto requestDto) {
-        // 마일리지 조회 및 사용 구현 필요
+        // 마일리지 조회 및 사용 구현 필요 => requestDto에 아바타 가격 포함되어야 함 (추후 구현사항)
 
         boolean isExistAvatar = avatarRepository.existsByUserIdAndCharacterName(requestDto.getUserId(), requestDto.getCharacterName());
 
@@ -90,7 +92,7 @@ public class AvatarService {
         avatarRepository.save(purchaseAvatar);
     }
 
-    // 아바타 설정
+    // 아바타 변경 (장착)
     @Transactional
     public void updateAvatar(AvatarUpdateRequestDto requestDto) {
         List<Avatar> avatars = avatarRepository.findByUserId(requestDto.getUserId())
@@ -105,6 +107,5 @@ public class AvatarService {
         // 해당 아바타의 장착 상태를 true 로 설정
         equipAvatar.setEquipped(true);
     }
-
 
 }
