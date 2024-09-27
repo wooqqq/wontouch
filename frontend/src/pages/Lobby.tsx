@@ -1,9 +1,13 @@
-import { RootState } from "../redux/store";
-import { useSelector } from "react-redux";
-import { useState } from "react";
-import axios from "axios";
-import MakeRoom from "../components/lobby/MakeRoom";
-import Modal from "../components/common/Modal";
+import { RootState } from '../redux/store';
+import { useSelector } from 'react-redux';
+import { useState } from 'react';
+import axios from 'axios';
+import MakeRoom from '../components/lobby/MakeRoom';
+import Modal from '../components/common/Modal';
+import Nickname from '../components/common/Nickname';
+import ProfileImg from '../components/common/ProfileImg';
+import Mail from '../components/common/Mail';
+import Setting from '../components/common/Setting';
 
 const API_LINK = import.meta.env.VITE_API_URL;
 
@@ -30,7 +34,12 @@ function Lobby() {
 
   return (
     <div>
-      <div>로비입니당</div>
+      <div>
+        <ProfileImg />
+        <Nickname />
+        <Mail />
+        <Setting />
+      </div>
       <div>{nickname}님 반갑습니다!</div>
       <div>
         <button onClick={openMakeRoom}>방 만들기</button>
