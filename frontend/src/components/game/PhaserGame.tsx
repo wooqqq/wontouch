@@ -1,21 +1,7 @@
 import Phaser from 'phaser';
 import { useEffect } from 'react';
-
-// 애니메이션 프레임에 대한 타입 정의
-interface TileAnimationFrame {
-  duration: number;
-  tileid: number;
-}
-
-// 타일 애니메이션 정보에 대한 타입 정의
-interface TileAnimationData {
-  animation: TileAnimationFrame[];
-}
-
-// 전체 타일셋 데이터에 대한 타입 정의
-interface TileData {
-  [key: number]: TileAnimationData;
-}
+import { createGameMap } from './GameMap';
+import { createPlayerMovement } from './PlayerMovement';
 
 const PhaserGame = () => {
   useEffect(() => {
@@ -37,6 +23,11 @@ const PhaserGame = () => {
         create,
         update,
       },
+      render: {
+        antialias: false,
+        pixelArt: true,
+        roundPixels: true,
+      },
     };
 
     const game = new Phaser.Game(config);
@@ -48,135 +39,149 @@ const PhaserGame = () => {
 
   let player: Phaser.Physics.Arcade.Sprite;
   let cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  let spaceBar: Phaser.Input.Keyboard.Key;
+  let mapLayers: any;
 
   function preload(this: Phaser.Scene) {
-    this.load.tilemapTiledJSON('map', '/testmap.json');
-    this.load.image('tileset', '/spr_tileset_sunnysideworld_16px.png');
-    this.load.image('bird_image', '/animals/spr_deco_bird_01_strip4.png');
-    this.load.image('blinking_image', '/animals/spr_deco_blinking_strip12.png');
-    this.load.image('chicken_image', './animals/spr_deco_chicken_01_strip4.png');
-    this.load.image('cow_image', './animals/spr_deco_cow_strip4.png');
-    this.load.image('duck_image', './animals/spr_deco_duck_01_strip4.png');
-    this.load.image('pig_image', './animals/spr_deco_pig_01_strip4.png');
-    this.load.image('sheep_image', './animals/spr_deco_sheep_01_strip4.png');
-    this.load.image('collides', '/collides.png');
-    this.load.spritesheet('player', './ninja_skeleton.png', {
-      frameWidth: 16,
-      frameHeight: 19,
-    });
+    this.load.tilemapTiledJSON('map', '../src/assets/background/testmap.json');
+    this.load.image(
+      'tileset',
+      '../src/assets/background/spr_tileset_sunnysideworld_16px.png',
+    );
+
+    // 동물들 텍스처 로드
+    this.load.image(
+      'bird_image',
+      '../src/assets/background/animals/spr_deco_bird_01_strip4.png',
+    );
+    this.load.image(
+      'blinking_image',
+      '../src/assets/background/animals/spr_deco_blinking_strip12.png',
+    );
+    this.load.image(
+      'chicken_image',
+      '../src/assets/background/animals/spr_deco_chicken_01_strip4.png',
+    );
+    this.load.image(
+      'cow_image',
+      '../src/assets/background/animals/spr_deco_cow_strip4.png',
+    );
+    this.load.image(
+      'duck_image',
+      '../src/assets/background/animals/spr_deco_duck_01_strip4.png',
+    );
+    this.load.image(
+      'pig_image',
+      '../src/assets/background/animals/spr_deco_pig_01_strip4.png',
+    );
+    this.load.image(
+      'sheep_image',
+      '../src/assets/background/animals/spr_deco_sheep_01_strip4.png',
+    );
+
+    // 식물, 풍차 등
+    this.load.image(
+      'mushroom_blue_01_image',
+      '../src/assets/background/others/spr_deco_mushroom_blue_01_strip4.png',
+    );
+    this.load.image(
+      'mushroom_blue_02_image',
+      '../src/assets/background/others/spr_deco_mushroom_blue_02_strip4.png',
+    );
+    this.load.image(
+      'mushroom_blue_03_image',
+      '../src/assets/background/others/spr_deco_mushroom_blue_03_strip4.png',
+    );
+    this.load.image(
+      'mushroom_red_01_image',
+      '../src/assets/background/others/spr_deco_mushroom_red_01_strip4.png',
+    );
+    this.load.image(
+      'windmill_image',
+      '../src/assets/background/others/spr_deco_windmill_withshadow_strip9.png',
+    );
+
+    // 연기
+    this.load.image(
+      'chimneysmoke_01_01_image',
+      '../src/assets/background/others/chimneysmoke_01_strip30_01.png',
+    );
+    this.load.image(
+      'chimneysmoke_04_01_image',
+      '../src/assets/background/others/chimneysmoke_04_strip30_01.png',
+    );
+    this.load.image(
+      'chimneysmoke_05_01_image',
+      '../src/assets/background/others/chimneysmoke_05_strip30_01.png',
+    );
+
+    // 플레이어 텍스처 로드
+    this.load.spritesheet(
+      'player',
+      '../src/assets/background/characters/ninja_skeleton.png',
+      {
+        frameWidth: 16,
+        frameHeight: 19,
+      },
+    );
+
+    this.load.image('collides', '../src/assets/background/collides.png');
   }
 
   function create(this: Phaser.Scene) {
-    const map = this.make.tilemap({ key: 'map' });
-    const tileset = map.addTilesetImage(
-      'spr_tileset_sunnysideworld_16px',
-      'tileset',
-      16,
-      16,
-    );
-    const birdTileset = map.addTilesetImage('bird_fast', 'bird_image', 16, 16);
-    const collidesTileset = map.addTilesetImage('collides', 'collides', 16, 16);
+    mapLayers = createGameMap(this);
+    //mapLayer가 정의되지 않았면 빈 객체로 처리해준다.
+    const {
+      backgroundLayer,
+      groundLayer,
+      animals_topLayer,
+      animals_bottomLayer,
+      collidesLayer,
+      shadow_seaLayer,
+      river_lakeLayer,
+      dropfruitsLayer,
+      fencesLayer,
+      plantLayer,
+      vegetableLayer,
+      shadow_topLayer,
+      house_bottom2Layer,
+      house_bottomLayer,
+      house_topLayer,
+      shadow_bottomLayer,
+    } = mapLayers ?? {};
 
-    if (!tileset || !birdTileset || !collidesTileset) {
-      console.error('불러올 수 없음');
-      return;
-    }
-
-    //레이어 선언 부분
-    const backgroundLayer = map.createLayer('Background', tileset);
-    const groundLayer = map.createLayer('ground', tileset);
-    const seaLayer = map.createLayer('seasea', tileset);
-    const shadow_seaLayer = map.createLayer('Shadow_sea', tileset);
-    const river_lakeLayer = map.createLayer('river, lake', tileset);
-    const dropfruitsLayer = map.createLayer('dropfruits', tileset);
-    const fencesLayer = map.createLayer('fences', tileset);
-    const plantLayer = map.createLayer('wheat, animal, tree, line', tileset);
-    const othersssLayer = map.createLayer('othersss', tileset);
-    const animals_bottomLayer = map.createLayer('animals_bottom', birdTileset);
-    const vegetableLayer = map.createLayer('fruits, vegetables', tileset);
-    const shadow_bottomLayer = map.createLayer('Shadow_bottom', tileset);
-    const house_bottom2Layer = map.createLayer('house_bottom2', tileset);
-    const house_bottomLayer = map.createLayer('house_bottom', tileset);
-    const house_topLayer = map.createLayer('house_top', tileset);
-    const shadow_topLayer = map.createLayer('shadow_top', tileset);
-    const animals_topLayer = map.createLayer('animals_top', tileset);
-    const collidesLayer = map.createLayer('collides/notpass', collidesTileset);
-    collidesLayer?.setCollisionByProperty({ collides: true });
-
-    const tileAnimations = map.tilesets[0].tileData as TileData;
-    const birdAnimations = birdTileset.tileData[0].animation;
-    console.log(birdAnimations);
-
-    if(birdAnimations && birdAnimations.length > 0){
-      const birdFrames = birdAnimations.map((frame) => ({
-        key: 'bird_image',
-        frame: frame.tileid,
-        duration: frame.duration,
-      }));
-
-      this.anims.create({
-        key: 'bird_fly',
-        frames: birdFrames,
-        frameRate: 10,
-        repeat: -1,
-      })
-      console.log("나 움직이는중임");
-    }
-
-    Object.keys(tileAnimations).forEach((tileIdKey) => {
-      const tileId = parseInt(tileIdKey, 10);
-
-      if (tileAnimations[tileId] && tileAnimations[tileId].animation) {
-        const animationFrames = tileAnimations[tileId].animation.map(
-          (frame) => frame.tileid,
-        );
-        let frameIndex = 0;
-
-        this.time.addEvent({
-          delay: tileAnimations[tileId].animation[0].duration,
-          callback: () => {
-            [seaLayer, groundLayer].forEach((layer) => {
-              layer?.replaceByIndex(
-                animationFrames[frameIndex],
-                animationFrames[(frameIndex + 1) % animationFrames.length],
-              );
-            });
-            frameIndex = (frameIndex + 1) % animationFrames.length;
-          },
-          loop: true,
-        });
-      }
-    });
-
-    //레이어 층 결정하는 부분
-    backgroundLayer?.setDepth(-3);
-    seaLayer?.setDepth(-2);
-    shadow_seaLayer?.setDepth(-2);
-    groundLayer?.setDepth(-1);
-    river_lakeLayer?.setDepth(0);
-    dropfruitsLayer?.setDepth(0);
-    fencesLayer?.setDepth(0);
-    plantLayer?.setDepth(0);
-    othersssLayer?.setDepth(0);
-    animals_bottomLayer?.setDepth(0);
-    vegetableLayer?.setDepth(0);
-    shadow_bottomLayer?.setDepth(0);
-    house_bottom2Layer?.setDepth(1);
-    house_bottomLayer?.setDepth(1);
-    house_topLayer?.setDepth(1);
-    shadow_topLayer?.setDepth(1);
-    animals_topLayer?.setDepth(1);
-    collidesLayer?.setDepth(-1);
+    void backgroundLayer;
+    void groundLayer;
+    void animals_topLayer;
+    void animals_bottomLayer;
+    void collidesLayer;
+    void dropfruitsLayer;
+    void fencesLayer;
+    void plantLayer;
+    void vegetableLayer;
+    void shadow_bottomLayer;
+    void shadow_seaLayer;
+    void shadow_topLayer;
+    void house_bottom2Layer;
+    void house_bottomLayer;
+    void house_topLayer;
+    void river_lakeLayer;
 
     player = this.physics.add.sprite(2240, 1380, 'player');
     player.setCollideWorldBounds(true);
-    player.setScale(1.5);
+    player.setScale(1);
 
+    // 충돌 설정
     //this.physics.add.collider(player, collidesLayer as Phaser.Tilemaps.TilemapLayer);
 
     this.physics.world.setBounds(0, 0, 4480, 2560);
     this.cameras.main.setBounds(0, 0, 4480, 2560);
-    this.cameras.main.startFollow(player, true, 0.1, 0.1);
+    this.cameras.main.startFollow(player, true, 0.5, 0.5);
+
+    cursors = this.input.keyboard!.createCursorKeys();
+    spaceBar = this.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE,
+    );
 
     this.anims.create({
       key: 'walk',
@@ -184,51 +189,50 @@ const PhaserGame = () => {
       frameRate: 10,
       repeat: -1,
     });
-
-    cursors = this.input.keyboard!.createCursorKeys();
   }
 
   function update(this: Phaser.Scene) {
-    player.setVelocity(0);
+    createPlayerMovement(this, player, cursors);
+    //거래소 및 마을에서의 상호작용 기능
+    if (Phaser.Input.Keyboard.JustDown(spaceBar)) {
+      const {
+        house1Layer,
+        house2Layer,
+        house3Layer,
+        house4Layer,
+        house5Layer,
+        house6Layer,
+        exchangeLayer,
+      } = mapLayers;
 
-    let moving = false;
-    const speed = 350;
-    let vx = 0;
-    let vy = 0;
+      const playerTileX = Math.floor(player.x / 16);
+      const playerTileY = Math.floor(player.y / 16);
 
-    if (cursors.left.isDown) {
-      vx = -speed;
-      player.flipX = true;
-      moving = true;
-    }
-    if (cursors.right.isDown) {
-      vx = speed;
-      player.flipX = false;
-      moving = true;
-    }
-    if (cursors.up.isDown) {
-      vy = -speed;
-      moving = true;
-    }
-    if (cursors.down.isDown) {
-      vy = speed;
-      moving = true;
-    }
+      const house1Tile = house1Layer?.hasTileAt(playerTileX, playerTileY);
+      const house2Tile = house2Layer?.hasTileAt(playerTileX, playerTileY);
+      const house3Tile = house3Layer?.hasTileAt(playerTileX, playerTileY);
+      const house4Tile = house4Layer?.hasTileAt(playerTileX, playerTileY);
+      const house5Tile = house5Layer?.hasTileAt(playerTileX, playerTileY);
+      const house6Tile = house6Layer?.hasTileAt(playerTileX, playerTileY);
+      const exchangeTile = exchangeLayer?.hasTileAt(playerTileX, playerTileY);
 
-    if (vx !== 0 && vy !== 0) {
-      vx *= Math.SQRT1_2;
-      vy *= Math.SQRT1_2;
-    }
-
-    player.setVelocity(vx, vy);
-
-    if (moving) {
-      if (!player.anims.isPlaying || player.anims.currentAnim?.key !== 'walk') {
-        player.anims.play('walk', true);
+      if (house1Tile) {
+        console.log('1번집입니다.');
+      } else if (house2Tile) {
+        console.log('2번집입니다.');
+      } else if (house3Tile) {
+        console.log('3번집입니다.');
+      } else if (house4Tile) {
+        console.log('4번집입니다.');
+      } else if (house5Tile) {
+        console.log('5번집입니다.');
+      } else if (house6Tile) {
+        console.log('6번집입니다.');
+      } else if (exchangeTile) {
+        console.log('거래소입니다.');
+      } else {
+        console.log('상호작용이 불가능한 위치입니다.');
       }
-    } else {
-      player.anims.stop();
-      player.setFrame(0);
     }
   }
 
