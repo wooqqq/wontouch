@@ -2,7 +2,9 @@ FROM nginx:alpine
 
 COPY ./dist /usr/share/nginx/html
 
-COPY ./nginx.template /etc/nginx/conf.d/default.conf.template
+RUN rm /etc/nginx/conf.d/default.conf
+
+COPY ./nginx.conf /etc/nginx/conf.d
 
 EXPOSE 3000
 
