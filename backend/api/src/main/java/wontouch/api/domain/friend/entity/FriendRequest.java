@@ -1,11 +1,12 @@
 package wontouch.api.domain.friend.entity;
 
-import lombok.Data;
-import org.springframework.data.annotation.Id;
+import lombok.Builder;
+import lombok.Getter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import wontouch.api.global.baseTimeEntity.BaseTimeEntity;
 
-@Data
+@Getter
+@Builder
 @Document(collection = "friend_request")
 public class FriendRequest extends BaseTimeEntity {
 

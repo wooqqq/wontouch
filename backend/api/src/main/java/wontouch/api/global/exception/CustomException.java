@@ -31,6 +31,9 @@ public enum CustomException {
     NOT_OTHER_USER_PROFILE_EXCEPTION(400, "NotOtherUserProfileException", "타인의 프로필이 아닙니다."),
     ALREADY_FRIEND_EXCEPTION(400, "AlreadyFriendException", "이미 친구인 사용자입니다."),
 
+    // 친구 요청
+    ALREADY_EXIST_REQUEST_EXCEPTION(400, "AlreadyExistRequestException", "이미 친구 요청이 존재합니다."),
+
     // 아직 처리하지 않은 예외사항
     UNHANDLED_ERROR_EXCEPTION(400, "UnhandledErrorException", "처리되지 않은 에러가 발생했습니다."),
 
