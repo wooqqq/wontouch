@@ -32,8 +32,8 @@ public enum CustomException {
 
     // 인증 에러 401
     EXPIRED_JWT_EXCEPTION(401,"ExpiredJwtException","토큰이 만료했습니다."),
-    NOT_VALID_JWT_EXCEPTION(401,"NotValidJwtException","토큰이 유효하지 않습니다."),
-
+    NOT_VALID_JWT_EXCEPTION(401, "NotValidJwtException", "토큰이 유효하지 않습니다."),
+    INVALID_PASSWORD_EXCEPTION(401, "InvalidPasswordException", "비밀번호가 틀렸습니다."),
     // 403
     ACCESS_DENIEND_EXCEPTION(403,"AccessDeniendException","권한이 없습니다")
     ;

@@ -9,6 +9,6 @@ public class CreateRoomRequestDto {
     private String roomId;
     private String roomName;
     private long hostPlayerId;
-    private boolean isPrivate;
+    private boolean secret;
     private String password;
 }

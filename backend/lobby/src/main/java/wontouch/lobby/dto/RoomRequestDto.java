@@ -8,4 +8,5 @@ import lombok.ToString;
 public class RoomRequestDto {
     private long playerId;
     private String roomId;
+    private String password;
 }

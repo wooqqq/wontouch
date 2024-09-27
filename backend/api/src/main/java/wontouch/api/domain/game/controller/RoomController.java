@@ -52,6 +52,7 @@ public class RoomController {
     // 게임방 생성
     @PostMapping()
     public ResponseEntity<ResponseDto<?>> createRoom(@RequestBody CreateRoomRequestDto createRoomRequestDto) {
+        log.debug("create Room: {}", createRoomRequestDto);
         ResponseDto responseDto = null;
         String targetUrl = lobbyServerUrl + "/rooms/create"; // 로비 서버 URL
         try {
@@ -70,13 +71,14 @@ public class RoomController {
     @PostMapping("/join/{roomId}")
     public ResponseEntity<?> joinRoom(@PathVariable String roomId, @RequestBody RoomRequestDto roomRequestDto) {
         String url = String.format("%s/rooms/join/%s", lobbyServerUrl, roomId);
+        log.debug("roomRequestDto: {}", roomRequestDto);
         try {
             ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, roomRequestDto, ResponseDto.class);
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
-        } catch (HttpClientErrorException e) {
+        } catch (HttpClientErrorException.Unauthorized e) {
 //          일단 뭉뚱그린 예외 처리
             e.printStackTrace();
-            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
+            throw new ExceptionResponse(CustomException.INVALID_PASSWORD_EXCEPTION);
         }
     }
 
