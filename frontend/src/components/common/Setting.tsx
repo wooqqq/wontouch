@@ -1,5 +1,11 @@
 import React from 'react';
 
+import setting from '../../assets/icon/setting.png';
+
 export default function Setting() {
-  return <div>Setting</div>;
+  return (
+    <div>
+      <img src={setting} alt="" />
+    </div>
+  );
 }

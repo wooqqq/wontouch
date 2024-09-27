@@ -1,8 +1,12 @@
-import React from "react";
+import React from 'react';
 
 const API_LINK = import.meta.env.VITE_API_URL;
 
-export default function FindRoom() {
+export default function FindRoom({
+  closeFindRoom,
+}: {
+  closeFindRoom: () => void;
+}) {
   return (
     <div>
       <div>
