@@ -95,25 +95,44 @@ public class TimerService {
     }
 
     // 플레이어의 다음 라운드 시작 준비 여부 확인
-    public boolean playerReady(String roomId, String playerId) {
+    public Map<String, Object> playerReady(String roomId, String playerId) {
         playerRepository.setPlayerStatus(roomId, playerId, PlayerStatus.READY);
-        boolean isAllReady = checkAllPlayersReady(roomId);
-
-        if (isAllReady) {
+        Map<String, Object> readyInfo = checkAllPlayersReady(roomId);
+        boolean allReady = (boolean) readyInfo.get("allReady");
+        if (allReady) {
             cancelPreparationTimer(roomId);
             startNewRound(roomId);
         }
-        return isAllReady;
+        return readyInfo;
     }
 
     // 모든 플레이어가 준비되었는지 확인
-    public boolean checkAllPlayersReady(String roomId) {
+    public Map<String, Object> checkAllPlayersReady(String roomId) {
         String playerStatusKey = GAME_PREFIX + roomId + PLAYER_SUFFIX;
         Map<Object, Object> players = redisTemplate.opsForHash().entries(playerStatusKey);
-        return players.values().stream().
-                allMatch(status -> PlayerStatus.READY.toString().equals(status));
-    }
 
+        // 총 플레이어 수
+        int totalPlayers = players.size();
+
+        // 준비된 플레이어 수
+        long readyPlayers = players.values().stream()
+                .filter(status -> PlayerStatus.READY.toString().equals(status))
+                .count();
+
+        // 모두 준비되었는지 여부
+        boolean allReady = (totalPlayers == readyPlayers);
+
+        // 로그로 출력
+        log.debug("Total players: {}, Ready players: {}, All ready: {}", totalPlayers, readyPlayers, allReady);
+
+        // 결과를 맵에 담아서 반환 (원하면 boolean 대신 세부 정보도 반환 가능)
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalPlayers", totalPlayers);
+        result.put("readyPlayers", readyPlayers);
+        result.put("allReady", allReady);
+
+        return result;
+    }
     // 준비 타이머 취소 로직
     private void cancelPreparationTimer(String roomId) {
         ScheduledFuture<?> preparationTimer = roundTimers.get(roomId);

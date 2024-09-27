@@ -34,6 +34,7 @@ public class GameController {
         this.cropService = cropService;
     }
 
+    // 게임 시작 시에 기본 정보 세팅
     @PostMapping("/init/{roomId}")
     public List<Crop> initGame(@PathVariable String roomId, @RequestBody List<Player> players) {
         log.debug("players:{}", players.toString());
@@ -50,5 +51,14 @@ public class GameController {
         cropListResponse.put("cropList", cropList);
         restTemplate.postForObject(targetUrl, cropListResponse, String.class);
         return cropList;
+    }
+
+    // 라운드 종료 후 다음 라운드 준비
+    @PostMapping("/ready/{roomId}")
+    public Map<String, Object> readyForNextRound(@PathVariable String roomId, @RequestBody Map<String, Object> readyInfo) {
+        String playerId = (String) readyInfo.get("playerId");
+        Map<String, Object> readyInfoResponse = timerService.playerReady(roomId, playerId);
+        log.debug("readyInfoResponse:{}", readyInfoResponse.toString());
+        return readyInfoResponse;
     }
 }

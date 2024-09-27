@@ -38,7 +38,9 @@ public class MessageHandlerFactory {
             case PLAYER_CROP_LIST:
                 return gameServerService.getPlayerCrops(playerId);
             case TOWN_CROP_LIST:
-            return gameServerService.getTownCrops(roomId, msgMap);
+                return gameServerService.getTownCrops(roomId, msgMap);
+            case ROUND_READY:
+                return gameServerService.sendPreparationInfo(roomId, playerId, msgMap);
             default:
                 System.out.println("Unknown message type: " + messageType);
                 return null;
