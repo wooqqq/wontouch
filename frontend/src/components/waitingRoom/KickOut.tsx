@@ -1,5 +1,5 @@
-import CancelIcon from "../../assets/Icon/cancel.png";
-import ConfirmIcon from "../../assets/Icon/confirm.png";
+import CancelIcon from "../../assets/icon/cancel.png";
+import ConfirmIcon from "../../assets/icon/confirm.png";
 
 function KickOut() {
   return (
