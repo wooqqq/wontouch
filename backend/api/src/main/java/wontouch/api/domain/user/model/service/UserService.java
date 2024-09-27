@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.user.dto.response.UserResponseDto;
+import wontouch.api.domain.user.entity.Avatar;
 import wontouch.api.domain.user.entity.UserProfile;
 import wontouch.api.domain.user.dto.request.DescriptionUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.NicknameUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.UserProfileCreateRequestDto;
+import wontouch.api.domain.user.model.repository.AvatarRepository;
 import wontouch.api.global.exception.CustomException;
 import wontouch.api.global.exception.ExceptionResponse;
 import wontouch.api.domain.user.model.repository.UserProfileRepository;
@@ -24,6 +26,7 @@ public class UserService {
     private final RestTemplate restTemplate;
     private final UserProfileRepository userProfileRepository;
     private final ObjectMapper objectMapper;
+    private final AvatarRepository avatarRepository;
 
     @Value("${auth.server.name}:${auth.server.path}")
     private String authServerUrl;
@@ -45,11 +48,16 @@ public class UserService {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
 
+        // 아바타 정보 가져오기
+        Avatar avatar = avatarRepository.findByUserIdAndIsEquippedIsTrue(userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
+
         UserResponseDto userResponseDto = UserResponseDto.builder()
                 .userId(userId)
                 .email(null)
                 .nickname(userProfile.getNickname())
                 .description(userProfile.getDescription())
+                .characterName(avatar.getCharacterName())
                 .build();
 
         // Auth 서버에서 사용자 이메일 불러오기

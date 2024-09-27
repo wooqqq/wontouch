@@ -13,4 +13,5 @@ public interface AvatarRepository extends JpaRepository<Avatar, Integer> {
     boolean existsByUserIdAndCharacterName(int userId, String characterName);
     Optional<List<Avatar>> findByUserId(int userId);
     Optional<Avatar> findByUserIdAndCharacterName(int userId, String characterName);
+    Optional<Avatar> findByUserIdAndIsEquippedIsTrue(int userId);
 }
