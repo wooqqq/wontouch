@@ -3,6 +3,7 @@ package wontouch.socket.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 import wontouch.socket.dto.game.CropDto;
 import wontouch.socket.dto.game.CropTransactionResult;
@@ -56,4 +57,5 @@ public class GameServerService {
         Object townCrops = restTemplate.getForObject(townCropsUrl, Object.class);
         return townCrops;
     }
+
 }
