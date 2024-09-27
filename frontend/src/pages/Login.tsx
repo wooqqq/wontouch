@@ -14,9 +14,8 @@ function Login() {
 
   return (
     <div>
-      {/* <img src="src/assets/tmp.png" alt="임시 로그인 배경 화면" /> */}
       <div className="mb-20">
-        <img src="src/assets/Login/logo.gif" alt="로고" />
+        <img src="src/assets/login/logo.gif" alt="로고" />
       </div>
       {!showLoginOptions ? (
         <LoginButton onClick={handleLoginClick} />
