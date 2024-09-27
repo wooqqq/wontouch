@@ -1,9 +1,11 @@
 import Phaser from 'phaser';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createGameMap } from './GameMap';
 import { createPlayerMovement } from './PlayerMovement';
+import InteractionModal from './InteractionModal';
 
 const PhaserGame = () => {
+  const [houseNum, setHouseNum] = useState<number | null>(null);
   useEffect(() => {
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
@@ -177,6 +179,7 @@ const PhaserGame = () => {
     this.physics.world.setBounds(0, 0, 4480, 2560);
     this.cameras.main.setBounds(0, 0, 4480, 2560);
     this.cameras.main.startFollow(player, true, 0.5, 0.5);
+    this.cameras.main.setZoom(2, 2);
 
     cursors = this.input.keyboard!.createCursorKeys();
     spaceBar = this.input.keyboard!.addKey(
@@ -192,7 +195,7 @@ const PhaserGame = () => {
   }
 
   function update(this: Phaser.Scene) {
-    createPlayerMovement(this, player, cursors);
+    createPlayerMovement(this, player, cursors, 16);
     //거래소 및 마을에서의 상호작용 기능
     if (Phaser.Input.Keyboard.JustDown(spaceBar)) {
       const {
@@ -217,26 +220,43 @@ const PhaserGame = () => {
       const exchangeTile = exchangeLayer?.hasTileAt(playerTileX, playerTileY);
 
       if (house1Tile) {
+        setHouseNum(1);
         console.log('1번집입니다.');
       } else if (house2Tile) {
+        setHouseNum(2);
         console.log('2번집입니다.');
       } else if (house3Tile) {
+        setHouseNum(3);
         console.log('3번집입니다.');
       } else if (house4Tile) {
+        setHouseNum(4);
         console.log('4번집입니다.');
       } else if (house5Tile) {
+        setHouseNum(5);
         console.log('5번집입니다.');
       } else if (house6Tile) {
+        setHouseNum(6);
         console.log('6번집입니다.');
       } else if (exchangeTile) {
+        setHouseNum(0);
         console.log('거래소입니다.');
       } else {
+        setHouseNum(null);
         console.log('상호작용이 불가능한 위치입니다.');
       }
     }
   }
 
-  return <div id="phaser-game-container" />;
+  const closModal = () => {
+    setHouseNum(null);
+  }
+
+  return(
+  <div>
+    <div id="phaser-game-container" />
+    <InteractionModal houseNum={houseNum} closeModal={closModal}/>
+  </div>
+  );
 };
 
 export default PhaserGame;
