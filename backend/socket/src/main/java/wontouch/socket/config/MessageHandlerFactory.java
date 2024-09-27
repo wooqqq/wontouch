@@ -6,6 +6,7 @@ import wontouch.socket.service.GameServerService;
 import wontouch.socket.service.LobbyServerService;
 import wontouch.socket.service.SocketServerService;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Component
@@ -22,7 +23,7 @@ public class MessageHandlerFactory {
     }
 
     public Object handleMessage(String roomId, String playerId,
-                                       MessageType messageType, Map<String, Object> msgMap) {
+                                       MessageType messageType, Map<String, Object> msgMap) throws IOException {
         switch (messageType) {
             case READY:
                 // 로비 서버로 준비 정보 전송
@@ -35,7 +36,7 @@ public class MessageHandlerFactory {
                 // 유저 강퇴
                 return lobbyServerService.kickUser(roomId, playerId, msgMap);
             case MOVE:
-                return socketServerService.moveUser(playerId, msgMap);
+                return socketServerService.moveUser(roomId, playerId, msgMap);
             case BUY:
                 return gameServerService.buyCropRequest(roomId, msgMap);
             case SELL:

@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @Slf4j
 public class WebSocketSessionService {
+    // 소켓 세션과 메세지 전송을 전담하는 서비스 레이어
     private final Map<String, ConcurrentHashMap<String, WebSocketSession>> roomSessions = new ConcurrentHashMap<>();
     private final ObjectMapper mapper = new ObjectMapper();
 

@@ -10,8 +10,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.util.UriComponentsBuilder;
-import wontouch.socket.dto.MessageResponseDto;
 import wontouch.socket.dto.MessageType;
+import wontouch.socket.service.SocketServerService;
 import wontouch.socket.service.WebSocketSessionService;
 
 import java.io.IOException;
@@ -34,10 +34,12 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper mapper = new ObjectMapper();
     private final WebSocketSessionService sessionService;
+    private final SocketServerService socketServerService;
     private final MessageHandlerFactory messageHandlerFactory;
 
-    public GameWebSocketHandler(WebSocketSessionService sessionService, MessageHandlerFactory messageHandlerFactory) {
+    public GameWebSocketHandler(WebSocketSessionService sessionService, SocketServerService socketServerService, MessageHandlerFactory messageHandlerFactory) {
         this.sessionService = sessionService;
+        this.socketServerService = socketServerService;
         this.messageHandlerFactory = messageHandlerFactory;
     }
 
@@ -77,6 +79,9 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         // session 삭제
         sessionService.removeSession(roomId, session);
 
+        // player의 lock 해제
+        socketServerService.removePlayerLock(playerId);
+
         sessionService.broadcastMessage(roomId, MessageType.NOTIFY, playerId + "이 퇴장하였습니다.");
         log.debug("Session " + session.getId() + " left room " + roomId);
     }
@@ -112,6 +117,9 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             case TOWN_CROP_LIST:
                 content = messageHandlerFactory.handleMessage(roomId, playerId ,messageType, msgMap);
                 sessionService.unicastMessage(roomId, playerId, messageType, content);
+                break;
+            case MOVE:
+                content = messageHandlerFactory.handleMessage(roomId, playerId, messageType, msgMap);
                 break;
             default:
                 // 기타 타 서버로 전송되는 메시지 처리

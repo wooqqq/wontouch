@@ -3,9 +3,6 @@ package wontouch.socket.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-import wontouch.socket.dto.MessageResponseDto;
 import wontouch.socket.dto.MessageType;
 
 import java.io.IOException;
@@ -23,14 +20,13 @@ public class SocketServerService {
     private static final int MAP_HEIGHT = 2560;
 
     private final WebSocketSessionService sessionService;
-    private final ObjectMapper mapper = new ObjectMapper();
     private final Map<String, ReentrantLock> playerLocks = new ConcurrentHashMap<>();
 
     public SocketServerService(WebSocketSessionService sessionService) {
         this.sessionService = sessionService;
     }
 
-    public Object moveUser(String playerId, Map<String, Object> msgMap) {
+    public Object moveUser(String roomId, String playerId, Map<String, Object> msgMap) throws IOException {
         playerLocks.putIfAbsent(playerId, new ReentrantLock());
         ReentrantLock lock = playerLocks.get(playerId);
 
@@ -43,12 +39,12 @@ public class SocketServerService {
             if (isValidMove(newX, newY)) {
                 // 방에 있는 다른 플레이어들에게 브로드캐스트
                 Map<String, Object> moveMessage = new HashMap<>();
-                moveMessage.put("type", "MOVE");
                 moveMessage.put("playerId", playerId);
+                moveMessage.put("dir", newDir);
                 moveMessage.put("x", newX);
                 moveMessage.put("y", newY);
-
-                // 브로드캐스트 또는 좌표 업데이트 로직
+                sessionService.broadcastMessage(roomId, MessageType.MOVE, moveMessage);
+                return moveMessage;
             }
         } finally {
             lock.unlock();
@@ -60,12 +56,9 @@ public class SocketServerService {
         return (x >= 0 && y >= 0 && x <= MAP_WIDTH && y <= MAP_HEIGHT);
     }
 
-//      비상용
-    private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
-        log.debug("MessageBroadCast");
-        Map<String, WebSocketSession> roomSessions = sessionService.getSessions(roomId);
-        for (WebSocketSession session : roomSessions.values()) {
-            session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageResponseDto(messageType, content))));
-        }
+    // 플레이어가 방을 떠날 때 락 제거
+    public void removePlayerLock(String playerId) {
+        playerLocks.remove(playerId);
+        log.debug("Lock removed for playerId: {}", playerId);
     }
 }
