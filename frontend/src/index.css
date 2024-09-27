@@ -38,15 +38,15 @@ body {
   -ms-user-select: none;
   user-select: none;
 
-  cursor: url("assets/Icon/cursor_02.png"), auto;
+  cursor: url("assets/icon/cursor_02.png"), auto;
 }
 
 button :hover {
-  cursor: url("assets/Icon/cursor_hover.png"), auto;
+  cursor: url("assets/icon/cursor_hover.png"), auto;
 }
 
 button :active {
-  cursor: url("assets/Icon/cursor_focus.png"), auto;
+  cursor: url("assets/icon/cursor_focus.png"), auto;
 }
 
 /* 드래그 허용 CSS */
