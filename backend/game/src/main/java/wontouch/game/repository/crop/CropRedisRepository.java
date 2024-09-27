@@ -17,9 +17,9 @@ public class CropRedisRepository {
         this.redisTemplate = redisTemplate;
     }
 
-    // 특정 상점(타입)에 작물 ID를 SET으로 저장
-    public void addCropToShop(String roomId, String type, String cropId) {
-        String redisKey = "game:" + roomId + ":shop:" + type;
+    // 특정 마을(타입)에 작물 ID를 SET으로 저장
+    public void addCropToTown(String roomId, String type, String cropId) {
+        String redisKey = "game:" + roomId + ":town:" + type;
         redisTemplate.opsForSet().add(redisKey, cropId);
     }
 
@@ -34,9 +34,15 @@ public class CropRedisRepository {
     }
 
     // 특정 상점(타입)의 작물 ID 목록 조회
-    public Set<Object> getCropsFromShop(String roomId, String type) {
-        String redisKey = "game:" + roomId + ":shop:" + type;
+    public Set<Object> getCropIdsFromTown(String roomId, String type) {
+        String redisKey = "game:" + roomId + ":town:" + type;
         return redisTemplate.opsForSet().members(redisKey);
+    }
+
+    // 작물의 id를 통해 남은 재고 조회
+    public int getCropQuantity(String roomId, Object cropId) {
+        String redisKey = "game:" + roomId + ":crop:" + cropId;
+        return (Integer) redisTemplate.opsForHash().get(redisKey, "quantity");
     }
 
     // 특정 작물의 세부 정보 조회

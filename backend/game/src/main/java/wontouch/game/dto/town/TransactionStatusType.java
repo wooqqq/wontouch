@@ -1,4 +1,4 @@
-package wontouch.game.dto.shop;
+package wontouch.game.dto.town;
 
 public enum TransactionStatusType {
     SUCCESS,         // 거래 성공

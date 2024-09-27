@@ -18,7 +18,7 @@ public class MessageHandlerFactory {
         this.gameServerService = gameServerService;
     }
 
-    public Object handleMessage(String roomId,
+    public Object handleMessage(String roomId, String playerId,
                                        MessageType messageType, Map<String, Object> msgMap) {
         switch (messageType) {
             case READY:
@@ -35,6 +35,10 @@ public class MessageHandlerFactory {
                 return gameServerService.buyCropRequest(roomId, msgMap);
             case SELL:
                 return gameServerService.sellCropRequest(roomId, msgMap);
+            case PLAYER_CROP_LIST:
+                return gameServerService.getPlayerCrops(playerId);
+            case TOWN_CROP_LIST:
+            return gameServerService.getTownCrops(roomId, msgMap);
             default:
                 System.out.println("Unknown message type: " + messageType);
                 return null;

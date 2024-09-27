@@ -3,14 +3,14 @@ package wontouch.game.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import wontouch.game.dto.shop.CropTransactionRequestDto;
-import wontouch.game.dto.shop.CropTransactionResponseDto;
-import wontouch.game.dto.shop.CropTransactionResult;
-import wontouch.game.dto.shop.TransactionStatusType;
+import wontouch.game.dto.town.CropTransactionRequestDto;
+import wontouch.game.dto.town.CropTransactionResponseDto;
+import wontouch.game.dto.town.CropTransactionResult;
+import wontouch.game.dto.town.TransactionStatusType;
 
 @Service
 @Slf4j
-public class ShopService {
+public class TownService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String ROOM_PREFIX = "game:";
@@ -18,7 +18,7 @@ public class ShopService {
     private static final String CROP_SUFFIX = ":crop:";
     private static final String CROP_POSTFIX = ":crop";
 
-    public ShopService(RedisTemplate<String, Object> redisTemplate) {
+    public TownService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

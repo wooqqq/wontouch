@@ -1,4 +1,4 @@
-package wontouch.socket.dto;
+package wontouch.socket.dto.lobby;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
