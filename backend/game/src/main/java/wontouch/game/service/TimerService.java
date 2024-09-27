@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.game.domain.PlayerStatus;
 import wontouch.game.repository.GameRepository;
+import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.repository.player.PlayerRepository;
 
 import java.util.HashMap;
@@ -26,17 +27,19 @@ public class TimerService {
     private static final String PLAYER_SUFFIX = ":player";
 
     // 라운드를 관리하는 타이머
-    private Map<String, ScheduledFuture<?>> roundTimers = new ConcurrentHashMap<>();
+    private final Map<String, ScheduledFuture<?>> roundTimers = new ConcurrentHashMap<>();
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
+    private final ArticleRepository articleRepository;
     private final RestTemplate restTemplate = new RestTemplate();
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, RedisTemplate redisTemplate) {
+    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, RedisTemplate<String, Object> redisTemplate) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
+        this.articleRepository = articleRepository;
         this.redisTemplate = redisTemplate;
     }
 
@@ -65,6 +68,9 @@ public class TimerService {
             log.debug("게임 종료 호출: {}", roomId);
             endGame(roomId);
         } else {
+            // TODO 작물 가격 계산 -> Redis에 반영 -> 라운드 결과 출력
+            articleRepository.calculateArticleResult(roomId, round);
+            log.debug("작물 가격 계산 완료 후 반영: {}", roomId);
             startPreparationTimer(roomId);
         }
     }
@@ -76,8 +82,9 @@ public class TimerService {
         // 1분 후에 다음 라운드를 자동으로 시작하도록 타이머 설정
         ScheduledFuture<?> preparationTimer = scheduler.schedule(() -> startNewRound(roomId), PREPARATION_DURATION_SECONDS, TimeUnit.SECONDS);
         roundTimers.put(roomId, preparationTimer);
-
         notifyClientsOfPreparationStart(roomId);
+
+        // TODO 작물 가격 기록
     }
 
     private void notifyClientsOfPreparationStart(String roomId) {
