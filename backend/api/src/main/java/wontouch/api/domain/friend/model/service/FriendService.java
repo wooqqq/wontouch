@@ -2,12 +2,16 @@ package wontouch.api.domain.friend.model.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import wontouch.api.domain.friend.dto.request.FriendRequestDto;
 import wontouch.api.domain.friend.dto.request.SendFriendRequestDto;
 import wontouch.api.domain.friend.dto.response.ReceiveFriendRequestDto;
+import wontouch.api.domain.friend.entity.Friend;
 import wontouch.api.domain.friend.entity.FriendRequest;
 import wontouch.api.domain.friend.model.repository.jpa.FriendRepository;
 import wontouch.api.domain.friend.model.repository.mongo.FriendRequestRepository;
+import wontouch.api.domain.user.entity.Avatar;
 import wontouch.api.domain.user.entity.UserProfile;
+import wontouch.api.domain.user.model.repository.AvatarRepository;
 import wontouch.api.domain.user.model.repository.UserProfileRepository;
 import wontouch.api.global.exception.CustomException;
 import wontouch.api.global.exception.ExceptionResponse;
@@ -22,6 +26,7 @@ public class FriendService {
     private final FriendRepository friendRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final UserProfileRepository userProfileRepository;
+    private final AvatarRepository avatarRepository;
 
     // 친구 목록 조회
 
@@ -59,7 +64,26 @@ public class FriendService {
     }
 
     // 친구 신청 상세 조회
+    public ReceiveFriendRequestDto getFriendRequest(FriendRequestDto requestDto) {
 
+        FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(requestDto.getFromUserId(), requestDto.getToUserId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_FRIEND_REQUEST_EXCEPTION));
+
+        UserProfile userProfile = userProfileRepository.findByUserId(friendRequest.getFromUserId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        Avatar equippedAvatar = avatarRepository.findByUserIdAndIsEquippedIsTrue(friendRequest.getFromUserId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
+
+        ReceiveFriendRequestDto receiveFriendRequestDto = ReceiveFriendRequestDto.builder()
+                .fromUserId(friendRequest.getFromUserId())
+                .fromUserNickname(userProfile.getNickname())
+                .fromUserCharacterName(equippedAvatar.getCharacterName())
+                .fromUserTier("남작") // 임시 지정
+                .build();
+
+        return receiveFriendRequestDto;
+    }
 
     // 친구 신청 승인
 

@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface FriendRequestRepository extends MongoRepository<FriendRequest, Integer> {
 
-    boolean existsByFromUserIdAndToUserId(Integer fromUserId, Integer toUserId);
+    boolean existsByFromUserIdAndToUserId(int fromUserId, int toUserId);
     Optional<List<FriendRequest>> findByToUserId(int toUserId);
+    Optional<FriendRequest> findByFromUserIdAndToUserId(int fromUserId, int toUserId);
 }

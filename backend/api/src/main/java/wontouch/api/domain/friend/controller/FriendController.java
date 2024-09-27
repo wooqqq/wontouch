@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wontouch.api.domain.friend.dto.request.FriendRequestDto;
 import wontouch.api.domain.friend.dto.request.SendFriendRequestDto;
 import wontouch.api.domain.friend.dto.response.ReceiveFriendRequestDto;
 import wontouch.api.domain.friend.model.service.FriendService;
@@ -50,6 +51,18 @@ public class FriendController {
     }
 
     // 친구 신청 상세 조회
+    @GetMapping("/request/detail")
+    public ResponseEntity<?> getFriendRequestDetail(@RequestBody FriendRequestDto requestDto) {
+        ReceiveFriendRequestDto receiveFriendRequestDto = friendService.getFriendRequest(requestDto);
+
+        ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
+                .status(HttpStatus.OK.value())
+                .message("친구 신청 상세 조회 성공")
+                .data(receiveFriendRequestDto)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 
 
     // 친구 신청 승인
