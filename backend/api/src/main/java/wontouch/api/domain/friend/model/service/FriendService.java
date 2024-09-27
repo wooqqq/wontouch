@@ -3,11 +3,17 @@ package wontouch.api.domain.friend.model.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import wontouch.api.domain.friend.dto.request.SendFriendRequestDto;
+import wontouch.api.domain.friend.dto.response.ReceiveFriendRequestDto;
 import wontouch.api.domain.friend.entity.FriendRequest;
 import wontouch.api.domain.friend.model.repository.jpa.FriendRepository;
 import wontouch.api.domain.friend.model.repository.mongo.FriendRequestRepository;
+import wontouch.api.domain.user.entity.UserProfile;
+import wontouch.api.domain.user.model.repository.UserProfileRepository;
 import wontouch.api.global.exception.CustomException;
 import wontouch.api.global.exception.ExceptionResponse;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +21,7 @@ public class FriendService {
 
     private final FriendRepository friendRepository;
     private final FriendRequestRepository friendRequestRepository;
+    private final UserProfileRepository userProfileRepository;
 
     // 친구 목록 조회
 
@@ -29,10 +36,29 @@ public class FriendService {
         FriendRequest friendRequest = FriendRequest.builder()
                 .fromUserId(requestDto.getFromUserId())
                 .toUserId(requestDto.getToUserId())
+                .createAt(LocalDateTime.now())
                 .build();
 
         return friendRequestRepository.save(friendRequest);
     }
+
+    // 친구 신청 목록 조회
+    public List<ReceiveFriendRequestDto> getFriendRequestList(int userId) {
+
+        List<FriendRequest> friendRequestList = friendRequestRepository.findByToUserId(userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_FRIEND_REQUEST_EXCEPTION));
+
+        List<ReceiveFriendRequestDto> receiveRequestList = friendRequestList.stream()
+                .map(friendRequest -> ReceiveFriendRequestDto.builder()
+                        .fromUserId(friendRequest.getFromUserId())
+                        .fromUserNickname(getNicknameByUserId(friendRequest.getFromUserId()))
+                        .build())
+                .toList();
+
+        return receiveRequestList;
+    }
+
+    // 친구 신청 상세 조회
 
 
     // 친구 신청 승인
@@ -42,4 +68,13 @@ public class FriendService {
 
 
     // 친구 끊기
+
+
+    // userId를 통한 닉네임 불러오기
+    private String getNicknameByUserId(int userId) {
+        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        return userProfile.getNickname();
+    }
 }

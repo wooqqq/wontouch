@@ -3,13 +3,13 @@ package wontouch.api.domain.friend.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import wontouch.api.domain.friend.dto.request.SendFriendRequestDto;
+import wontouch.api.domain.friend.dto.response.ReceiveFriendRequestDto;
 import wontouch.api.domain.friend.model.service.FriendService;
 import wontouch.api.global.dto.ResponseDto;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/friend")
@@ -34,6 +34,23 @@ public class FriendController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
+
+    // 친구 신청 목록 조회
+    @GetMapping("/request-list/{userId}")
+    public ResponseEntity<?> getFriendRequestList(@PathVariable int userId) {
+        List<ReceiveFriendRequestDto> receiveRequestList = friendService.getFriendRequestList(userId);
+
+        ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
+                .status(HttpStatus.OK.value())
+                .message("친구 신청 목록 조회 성공")
+                .data(receiveRequestList)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    // 친구 신청 상세 조회
+
 
     // 친구 신청 승인
 

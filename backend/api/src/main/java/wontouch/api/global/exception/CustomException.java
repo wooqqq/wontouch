@@ -32,6 +32,7 @@ public enum CustomException {
     ALREADY_FRIEND_EXCEPTION(400, "AlreadyFriendException", "이미 친구인 사용자입니다."),
 
     // 친구 요청
+    NOT_FOUND_FRIEND_REQUEST_EXCEPTION(400, "NotFoundFriendRequestException", "친구 신청이 존재하지 않습니다."),
     ALREADY_EXIST_REQUEST_EXCEPTION(400, "AlreadyExistRequestException", "이미 친구 요청이 존재합니다."),
 
     // 아직 처리하지 않은 예외사항
