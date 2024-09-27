@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wontouch.api.domain.user.dto.request.AvatarUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarRequestDto;
+import wontouch.api.domain.user.dto.response.AvatarDetailResponseDto;
 import wontouch.api.domain.user.dto.response.AvatarResponseDto;
 import wontouch.api.domain.user.entity.Avatar;
 import wontouch.api.domain.user.model.repository.AvatarRepository;
@@ -33,6 +34,29 @@ public class AvatarService {
                 .toList();
 
         return avatarResponseList;
+    }
+
+    public AvatarDetailResponseDto getAvatarDetail(AvatarRequestDto requestDto) {
+        AvatarDetailResponseDto responseDto = AvatarDetailResponseDto.builder()
+                .userId(requestDto.getUserId())
+                .characterName(requestDto.getCharacterName())
+                .build();
+
+        // 만약 avatar 엔티티에 없다면 아직 구매하지 않은 것
+        if (!avatarRepository.existsByUserIdAndCharacterName(requestDto.getUserId(), requestDto.getCharacterName())) {
+            responseDto.updateOwned(false);
+        } else {
+            responseDto.updateOwned(true);
+
+            // 보유하고 있다면 avatar 엔티티에서 찾은 후 장착 유무 확인
+            Avatar avatar = avatarRepository.findByUserIdAndCharacterName(requestDto.getUserId(), requestDto.getCharacterName())
+                    .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
+
+            if (avatar.isEquipped())
+                responseDto.updateEquipped(true);
+        }
+
+        return responseDto;
     }
 
     // 회원가입 시 초기 아바타 설정
