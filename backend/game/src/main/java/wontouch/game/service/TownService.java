@@ -15,8 +15,8 @@ public class TownService {
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String ROOM_PREFIX = "game:";
     private static final String PLAYER_PREFIX = "player:";
-    private static final String CROP_SUFFIX = ":crop:";
-    private static final String CROP_POSTFIX = ":crop";
+    private static final String CROP_INFIX = ":crop:";
+    private static final String CROP_SUFFIX = ":crop";
 
     public TownService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -26,9 +26,9 @@ public class TownService {
     public synchronized CropTransactionResult buyCrop(String roomId, CropTransactionRequestDto cropTransactionRequestDto) {
         String cropId = cropTransactionRequestDto.getCropId();
         long playerId = cropTransactionRequestDto.getPlayerId();
-        String cropKey = ROOM_PREFIX + roomId + CROP_SUFFIX + cropId;
+        String cropKey = ROOM_PREFIX + roomId + CROP_INFIX + cropId;
         String playerKey = PLAYER_PREFIX + Long.toString(playerId);
-        String playerCropKey = PLAYER_PREFIX + Long.toString(playerId) + CROP_POSTFIX;
+        String playerCropKey = PLAYER_PREFIX + Long.toString(playerId) + CROP_SUFFIX;
 
         log.debug("cropId: {}, cropKey: {}, playerKey: {}", cropId, cropKey, playerKey);
         // 1. 플레이어의 보유 골드와 작물의 가격 및 상점에 남은 수량 가져오기
@@ -81,9 +81,9 @@ public class TownService {
     public synchronized CropTransactionResult sellCrop(String roomId, CropTransactionRequestDto cropTransactionRequestDto) {
         String cropId = cropTransactionRequestDto.getCropId();
         long playerId = cropTransactionRequestDto.getPlayerId();
-        String cropKey = ROOM_PREFIX + roomId + CROP_SUFFIX + cropId;  // 상점의 작물 키
+        String cropKey = ROOM_PREFIX + roomId + CROP_INFIX + cropId;  // 상점의 작물 키
         String playerKey = PLAYER_PREFIX + Long.toString(playerId);    // 플레이어의 기본 정보 (골드)
-        String playerCropKey = PLAYER_PREFIX + Long.toString(playerId) + CROP_POSTFIX;  // 플레이어의 작물 인벤토리 키
+        String playerCropKey = PLAYER_PREFIX + Long.toString(playerId) + CROP_SUFFIX;  // 플레이어의 작물 인벤토리 키
 
         log.debug("cropId: {}, cropKey: {}, playerKey: {}", cropId, cropKey, playerKey);
 
