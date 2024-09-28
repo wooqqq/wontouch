@@ -107,4 +107,21 @@ pipeline {
             }
         }
     }
+
+    post {
+        always {
+            script {
+                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+                def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+                def color = currentBuild.result == 'SUCCESS' ? 'good' : 'danger'
+                def message = "${env.JOB_NAME} #${env.BUILD_NUMBER} ${currentBuild.result == 'SUCCESS' ? '배포 성공 🥳' : '배포 실패 😱'}\nby ${Author_ID}(${Author_Name})\n(<${env.BUILD_URL}|Details>)"
+                
+                mattermostSend(color: color,
+                    message: message,
+                    endpoint: 'https://meeting.ssafy.com/hooks/b334peedj3f43xxt9pqr53f4or',
+                    channel: 'b303-jenkins-result'
+                )
+            }
+        }
+    }
 }
