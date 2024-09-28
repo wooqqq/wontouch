@@ -12,6 +12,7 @@ function GoogleLogin() {
   const navigate = useNavigate();
 
   const handleGoogleLogin = () => {
+    // 본인 구글 토큰 입력
     const accessToken =
       'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjMsImlhdCI6MTcyNzMyODg1OSwiZXhwIjoxNzI3MzcyMDU5fQ.VdLtlr6eGo2feDkTZ3noV6YQhZWvL5RlB0jWGvqoHtg';
 
