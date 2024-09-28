@@ -118,7 +118,7 @@ const PhaserGame = () => {
     // 플레이어 텍스처 로드
     this.load.spritesheet(
       'player',
-      '../src/assets/background/characters/ninja_skeleton.png',
+      '../src/assets/background/characters/move/ninja_skeleton.png',
       {
         frameWidth: 16,
         frameHeight: 19,
