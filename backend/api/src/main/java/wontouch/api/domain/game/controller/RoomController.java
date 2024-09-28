@@ -79,6 +79,9 @@ public class RoomController {
 //          일단 뭉뚱그린 예외 처리
             e.printStackTrace();
             throw new ExceptionResponse(CustomException.INVALID_PASSWORD_EXCEPTION);
+        } catch (HttpClientErrorException.Conflict exception) {
+            exception.printStackTrace();
+            throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
         }
     }
 

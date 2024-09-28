@@ -56,15 +56,19 @@ public class RoomRepository {
     public RoomResponseDto joinRoom(String roomId, RoomRequestDto roomRequestDto) {
         long playerId = roomRequestDto.getPlayerId();
         String participantsKey = "game_lobby:" + roomId + ":participants";
-        redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
         Room room = getRoomById(roomId);
+        if (room.getParticipants().size() >= room.getCurrentPlayersCount()) {
+            throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
+        }
         if (room.isSecret()) {
             if (room.getPassword().equals(roomRequestDto.getPassword())) {
+                redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
                 return new RoomResponseDto(room);
             } else {
                 throw new ExceptionResponse(CustomException.INVALID_PASSWORD_EXCEPTION);
             }
         }
+        redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
         return new RoomResponseDto(room);
     }
 
