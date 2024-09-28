@@ -54,6 +54,7 @@ public class FriendService {
 
                     // FriendResponseDto로 변환
                     return FriendResponseDto.builder()
+                            .friendId(friendId)
                             .nickname(friendProfile.getNickname())
                             .description(friendProfile.getDescription())
                             .characterName(getCharacterNameByUserId(friendProfile.getUserId())) // 캐릭터 이름을 가져오는 로직
@@ -61,6 +62,14 @@ public class FriendService {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    // 친구 상세 조회
+    public FriendResponseDto getFriend() {
+
+
+
+        return null;
     }
 
     // 친구 신청
