@@ -5,20 +5,27 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.game.domain.Player;
 import wontouch.game.entity.Crop;
+import wontouch.game.repository.player.PlayerRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Repository
 @Slf4j
 public class GameRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final PlayerRepository playerRepository;
     private static final String GAME_PREFIX = "game:";
     private static final String ROOM_SUFFIX = ":room";
     private static final String PLAYER_PREFIX = "player:";
+    private static final String PLAYER_SUFFIX = ":player";
 
-    public GameRepository(RedisTemplate<String, Object> redisTemplate) {
+    public GameRepository(RedisTemplate<String, Object> redisTemplate, PlayerRepository playerRepository) {
         this.redisTemplate = redisTemplate;
+        this.playerRepository = playerRepository;
     }
 
     public int updateRound(String roomId) {
@@ -46,5 +53,19 @@ public class GameRepository {
         for (Crop crop : crops) {
             redisTemplate.opsForHash().put(playersCropKey, crop.getId(), 0);
         }
+    }
+
+    // 최종 골드 계산
+    public Map<String, Integer> getTotalGold(String roomId) {
+        String playerStatusKey = GAME_PREFIX + roomId + PLAYER_SUFFIX;
+        Set<Object> playerIds = redisTemplate.opsForHash().keys(playerStatusKey);
+        Map<String, Integer> totalGoldResponse = new HashMap<>();
+
+        // 플레이어마다 골드 계산
+        for (Object playerId : playerIds) {
+            int totalGold = playerRepository.calculateTotalGold(roomId, (String) playerId);
+            totalGoldResponse.put(playerId.toString(), totalGold);
+        }
+        return totalGoldResponse;
     }
 }

@@ -68,7 +68,7 @@ public class CropRedisRepository {
     // 작물 가격 업데이트
     public int updateCropPrice(String roomId, Object cropId, int newCropPrice) {
         String redisKey = "game:" + roomId + ":crop:" + cropId + ":info";
-        redisTemplate.opsForHash().put(redisKey, cropId, newCropPrice);
+        redisTemplate.opsForHash().put(redisKey, "price", newCropPrice);
         return newCropPrice;
     }
 

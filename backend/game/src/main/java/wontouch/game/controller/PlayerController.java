@@ -33,6 +33,7 @@ public class PlayerController {
 //        timerService.startNewRound(roomId);
 //    }
 
+    // 플레이어의 보유 작물 조회
     @GetMapping("/crop/list/{playerId}")
     public Map<Object, Object> getCropList(@PathVariable int playerId) {
         return playerService.getAllCropsByPlayer(playerId);
