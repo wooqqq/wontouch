@@ -31,7 +31,7 @@ public class PlayerRepository {
     public void savePlayer(String roomId, Player player) {
         String playerKey = PLAYER_PREFIX + player.getId() + INFO_SUFFIX;
         redisTemplate.opsForHash().put(playerKey, "nickname", player.getNickname());
-        redisTemplate.opsForHash().put(playerKey, "gold", 0);
+        redisTemplate.opsForHash().put(playerKey, "gold", 15000);
         redisTemplate.opsForHash().put(playerKey, "roomId", roomId);
     }
 
@@ -49,7 +49,7 @@ public class PlayerRepository {
     }
 
     public int calculateTotalGold(String roomId, String playerId) {
-        int totalGold = 0;
+        int totalGold = getPlayerGold(playerId);
         Map<Object, Object> allCropsByPlayer = findAllCropsByPlayer(playerId);
         for (Object cropId : allCropsByPlayer.keySet()) {
             int cropPrice = cropRepository.getCropPrice(roomId, cropId);
@@ -58,5 +58,10 @@ public class PlayerRepository {
         }
 
         return totalGold;
+    }
+
+    private int getPlayerGold(String playerId) {
+        String playerKey = PLAYER_PREFIX + playerId + INFO_SUFFIX;
+        return (Integer) redisTemplate.opsForHash().get(playerKey, "gold");
     }
 }
