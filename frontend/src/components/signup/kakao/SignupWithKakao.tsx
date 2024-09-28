@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useSelector, useDispatch } from 'react-redux';
-import { setUserNickname } from '../../../redux/slices/userSlice';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 
 import basicCharacter from '../../../assets/login/basicCharacter.png';
@@ -12,7 +11,6 @@ const API_LINK = import.meta.env.VITE_API_URL;
 
 function SignupWithKakao() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const [nickname, setNickname] = useState('');
   const [isNicknameAvailable, setIsNicknameAvailable] = useState<
@@ -26,7 +24,6 @@ function SignupWithKakao() {
     }
 
     // 닉네임 중복 체크
-    // 임의로 넣은 true, false가 아닌 중복확인 요청으로 받은 값을 넣어야 함.
     try {
       const response = await axios.post(
         `${API_LINK}/user-profile/nickname/duplicate-check`,
@@ -42,15 +39,15 @@ function SignupWithKakao() {
         setIsNicknameAvailable(true);
       }
     } catch (error) {
-      console.log('중복 확인 불가', error);
+      console.log('닉네임 중복 확인 불가', error);
     }
   };
 
-  // store에 저장된 userId와 입력받은 nickname을 이용해서 회원가입 진행
-  const userId = useSelector((state: RootState) => state.user.id);
-
   const signupWithKakao = async () => {
     event?.preventDefault(); // 새로고침 방지
+
+    // store에 저장된 userId와 입력받은 nickname을 이용해서 회원가입 진행
+    const userId = useSelector((state: RootState) => state.user.id);
 
     if (!nickname) {
       alert('닉네임을 입력해주세요.');
