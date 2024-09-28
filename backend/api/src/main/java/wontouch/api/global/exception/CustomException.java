@@ -30,6 +30,7 @@ public enum CustomException {
     // 친구
     NOT_OTHER_USER_PROFILE_EXCEPTION(400, "NotOtherUserProfileException", "타인의 프로필이 아닙니다."),
     ALREADY_FRIEND_EXCEPTION(400, "AlreadyFriendException", "이미 친구인 사용자입니다."),
+    NOT_FOUND_FRIEND_EXCEPTION(400, "NotFoundFriendException", "친구를 찾을 수 없습니다."),
 
     // 친구 요청
     NOT_FOUND_FRIEND_REQUEST_EXCEPTION(400, "NotFoundFriendRequestException", "친구 신청이 존재하지 않습니다."),

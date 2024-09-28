@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import wontouch.api.domain.friend.dto.request.FriendRequestActionDto;
 import wontouch.api.domain.friend.dto.request.FriendRequestDto;
 import wontouch.api.domain.friend.dto.request.SendFriendRequestDto;
+import wontouch.api.domain.friend.dto.response.FriendResponseDto;
 import wontouch.api.domain.friend.dto.response.ReceiveFriendRequestDto;
 import wontouch.api.domain.friend.entity.Friend;
 import wontouch.api.domain.friend.entity.FriendRequest;
@@ -20,6 +21,7 @@ import wontouch.api.global.exception.ExceptionResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +33,35 @@ public class FriendService {
     private final AvatarRepository avatarRepository;
 
     // 친구 목록 조회
+    public List<FriendResponseDto> getFriendList(int userId) {
 
+        // 존재하는 사용자 ID인지 검사
+        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        List<Friend> friendList = friendRepository.findByFromUserIdOrToUserId(userId, userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_FRIEND_EXCEPTION));
+
+        // Friend를 FriendResponseDto로 변환
+        return friendList.stream()
+                .map(friend -> {
+                    // 친구의 ID가 자신인지 상대인지에 따라 처리
+                    int friendId = (friend.getFromUserId() == userId) ? friend.getToUserId() : friend.getFromUserId();
+
+                    // 친구의 UserProfile 조회
+                    UserProfile friendProfile = userProfileRepository.findByUserId(friendId)
+                            .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+                    // FriendResponseDto로 변환
+                    return FriendResponseDto.builder()
+                            .nickname(friendProfile.getNickname())
+                            .description(friendProfile.getDescription())
+                            .characterName(getCharacterNameByUserId(friendProfile.getUserId())) // 캐릭터 이름을 가져오는 로직
+                            .tier(getTierByUserId(friendProfile.getUserId())) // 티어를 가져오는 로직
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
 
     // 친구 신청
     public FriendRequest sendFriendRequest(SendFriendRequestDto requestDto) {
@@ -134,4 +164,19 @@ public class FriendService {
 
         return userProfile.getNickname();
     }
+
+    // 캐릭터 이름 불러오기
+    private String getCharacterNameByUserId(int userId) {
+        Avatar avatar = avatarRepository.findByUserIdAndIsEquippedIsTrue(userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
+
+        return avatar.getCharacterName();
+    }
+
+    // 티어 불러오기
+    private String getTierByUserId(int userId) {
+
+        return "티어 예시 (미구현)";
+    }
+
 }

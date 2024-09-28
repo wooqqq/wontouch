@@ -10,4 +10,5 @@ public interface FriendRepository extends JpaRepository<Friend, Integer> {
 
     boolean existsByFromUserIdAndToUserId(int fromUserId, int toUserId);
     Optional<List<Friend>> findByFromUserId(int fromUserId);
+    Optional<List<Friend>> findByFromUserIdOrToUserId(int fromUserId, int toUserId);
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import wontouch.api.domain.friend.dto.request.FriendRequestActionDto;
 import wontouch.api.domain.friend.dto.request.FriendRequestDto;
 import wontouch.api.domain.friend.dto.request.SendFriendRequestDto;
+import wontouch.api.domain.friend.dto.response.FriendResponseDto;
 import wontouch.api.domain.friend.dto.response.ReceiveFriendRequestDto;
 import wontouch.api.domain.friend.model.service.FriendService;
 import wontouch.api.global.dto.ResponseDto;
@@ -21,7 +22,18 @@ public class FriendController {
     private final FriendService friendService;
 
     // 친구 목록 조회
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getFriendList(@PathVariable int userId) {
+        List<FriendResponseDto> friendResponseDtoList = friendService.getFriendList(userId);
 
+        ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
+                .status(HttpStatus.OK.value())
+                .message("친구 목록 조회 성공")
+                .data(friendResponseDtoList)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 
     // 친구 신청
     @PostMapping("/request")
@@ -92,7 +104,6 @@ public class FriendController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
-
 
     // 친구 끊기
 
