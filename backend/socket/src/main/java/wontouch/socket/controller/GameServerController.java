@@ -75,4 +75,16 @@ public class GameServerController {
         }
         return ResponseEntity.ok("Timer ended successfully");
     }
+
+    @PostMapping("/game-result")
+    public ResponseEntity<?> getGameResult(@RequestBody Map<String, Object> messageData) {
+        String roomId = (String) messageData.get("roomId");
+        log.debug("GAME RESULT!!: {}", messageData);
+        try {
+            sessionService.broadcastMessage(roomId, MessageType.RESULT, messageData);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok("Game ended successfully");
+    }
 }

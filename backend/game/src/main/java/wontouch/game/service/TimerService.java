@@ -149,10 +149,16 @@ public class TimerService {
     }
 
     private void endGame(String roomId) {
+        String targetUrl = socketServerUrl + "/game/game-result";
         log.debug("게임 종료 로직 실행: {}", roomId);
-        Map<String, Map<String, Integer>> result = gameRepository.getTotalGold(roomId);
-        log.debug("최종 결과 테이블 출력: {}", result);
-        // TODO 잠시 다른거 하는 중
+        Map<String, Object> gameResult = new HashMap<>();
+        Map<String, Map<String, Integer>> resultTable = gameRepository.getTotalGold(roomId);
+        log.debug("최종 결과 테이블 출력: {}", resultTable);
+        gameResult.put("roomId", roomId);
+        gameResult.put("game-result", resultTable);
+        // TODO 결과 게임 서버에 브로드캐스트
+        restTemplate.postForObject(targetUrl, gameResult, Map.class);
+        // TODO 마일리지 부여를 위해 API 전송
     }
 
     // 라운드가 시작했음을 알리는 알림 로직

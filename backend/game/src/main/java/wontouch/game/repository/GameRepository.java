@@ -24,6 +24,7 @@ public class GameRepository {
     private static final String PLAYER_SUFFIX = ":player";
     private static final int TOTAL_EXPERIENCE = 1000;
     private static final int TOTAL_MILEAGE = 500;
+    private static final int MAX_PLAYER = 8;
 
     public GameRepository(RedisTemplate<String, Object> redisTemplate, PlayerRepository playerRepository) {
         this.redisTemplate = redisTemplate;
@@ -64,6 +65,13 @@ public class GameRepository {
         Map<String, Integer> totalGoldResponse = new HashMap<>();
         int totalGoldSum = 0;
 
+        // 총 인원이 8명으로 설정되어 있다고 가정
+        int actualPlayers = playerIds.size();  // 실제 참가 인원 수
+
+        // 실제 참가 인원이 총 인원보다 적을 경우, 경험치와 마일리지 비례 조정
+        int adjustedTotalExperience = TOTAL_EXPERIENCE * actualPlayers / MAX_PLAYER;
+        int adjustedTotalMileage = TOTAL_MILEAGE * actualPlayers / MAX_PLAYER;
+
         // 보상 결과를 저장할 Map
         Map<String, Map<String, Integer>> rewardDistribution = new HashMap<>();
 
@@ -81,8 +89,8 @@ public class GameRepository {
             double goldRatio = (double) totalGold / totalGoldSum;
 
             // 비율에 따라 경험치와 마일리지 계산
-            int experienceEarned = (int) (TOTAL_EXPERIENCE * goldRatio);
-            int mileageEarned = (int) (TOTAL_MILEAGE * goldRatio);
+            int experienceEarned = (int) (adjustedTotalExperience * goldRatio);
+            int mileageEarned = (int) (adjustedTotalMileage * goldRatio);
 
             // 플레이어에게 보상 분배
             Map<String, Integer> playerRewards = new HashMap<>();
