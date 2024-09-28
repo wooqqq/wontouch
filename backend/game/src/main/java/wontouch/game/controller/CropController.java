@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.*;
 import wontouch.game.entity.Crop;
 import wontouch.game.service.CropService;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/crop")
 @Slf4j
@@ -22,9 +25,10 @@ public class CropController {
         return cropService.saveCrop(crop);
     }
 
-    // 게임 시작 전 타입마다 crop을 뽑아 redis에 저장할 예정
-//    @PostMapping("/load")
-//    public void loadCrop() {
-//        cropService.loadRandomCropsFromEachTypeToRedis();
-//    }
+    @PostMapping("/chart/{roomId}")
+    public Map<Object, Object> getCropChart(@PathVariable String roomId, @RequestBody Map<String ,Object> cropInfo) {
+        log.debug("getCropChart");
+        Map<Object, Object> cropId = cropService.getCropChart(roomId, (String) cropInfo.get("cropId"));
+        return cropId;
+    }
 }

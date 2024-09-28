@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum CustomException {
 
+    NO_AVAILABLE_ROOM_EXCEPTION(409, "NO_AVAILABLE_ROOM_EXCEPTION", "방에 빈자리가 없습니다."),
     INVALID_PASSWORD_EXCEPTION(401, "InvalidPasswordException", "비밀번호가 틀렸습니다.");
 
     private int statusNum;

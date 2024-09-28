@@ -13,8 +13,6 @@ import java.util.*;
 @Slf4j
 public class CropService {
 
-    // TODO redis 저장 시 crop의 ID를 사용할지 crop의 Name을 사용할지 결정
-
     private static final int NUM_OF_CROPS_PER_TYPE = 3;
     private final CropRepository cropRepository;
     private final CropRedisRepository cropRedisRepository;
@@ -39,6 +37,11 @@ public class CropService {
             cropList.put(cropId, cropQuantity);
         }
         return cropList;
+    }
+
+    // 특정 작물 차트 조회
+    public Map<Object, Object> getCropChart(String roomId, String cropId) {
+        return cropRedisRepository.getCropChart(roomId, cropId);
     }
 
     // 게임 시작 시 mongoDB에서 타입마다 NUM_OF_CROPS_PER_TYPE 만큼의 작물을 뽑아 Redis에 저장
@@ -74,6 +77,7 @@ public class CropService {
     // 해당하는 작물을 Redis에 저장
     private void initCropsInfoToRedis(String roomId, String type, List<Crop> selectedCrops) {
         for (Crop crop : selectedCrops) {
+            cropRedisRepository.addCropToGame(roomId, crop.getId());
             cropRedisRepository.addCropToTown(roomId, type, crop.getId());
             cropRedisRepository.addCropDetails(roomId, crop);
         }
