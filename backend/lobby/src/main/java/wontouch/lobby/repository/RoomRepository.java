@@ -9,6 +9,8 @@ import wontouch.lobby.dto.CreateRoomRequestDto;
 import wontouch.lobby.dto.RoomRequestDto;
 import wontouch.lobby.dto.RoomResponseDto;
 import wontouch.lobby.dto.SessionSaveDto;
+import wontouch.lobby.exception.CustomException;
+import wontouch.lobby.exception.ExceptionResponse;
 
 import java.util.*;
 
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 public class RoomRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
-
+    private static final int MAX_PLAYER = 8;
     public RoomRepository(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
@@ -31,9 +33,9 @@ public class RoomRepository {
         String playerId = Long.toString(room.getHostPlayerId());
         redisTemplate.opsForHash().put(key, "roomId", room.getRoomId());
         redisTemplate.opsForHash().put(key, "roomName", room.getRoomName());
-        redisTemplate.opsForHash().put(key, "isPrivate", room.isPrivate());
+        redisTemplate.opsForHash().put(key, "secret", room.isSecret());
         redisTemplate.opsForHash().put(key, "hostId", playerId);
-        if (room.isPrivate()) {
+        if (room.isSecret()) {
             redisTemplate.opsForHash().put(key, "password", room.getPassword());
         }
 
@@ -54,8 +56,54 @@ public class RoomRepository {
     public RoomResponseDto joinRoom(String roomId, RoomRequestDto roomRequestDto) {
         long playerId = roomRequestDto.getPlayerId();
         String participantsKey = "game_lobby:" + roomId + ":participants";
+        Room room = getRoomById(roomId);
+        if (room.getCurrentPlayersCount() >= MAX_PLAYER) {
+            throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
+        }
+        if (room.isSecret()) {
+            if (room.getPassword().equals(roomRequestDto.getPassword())) {
+                redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
+                return new RoomResponseDto(room);
+            } else {
+                throw new ExceptionResponse(CustomException.INVALID_PASSWORD_EXCEPTION);
+            }
+        }
         redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
-        return new RoomResponseDto(getRoomById(roomId));
+        return new RoomResponseDto(room);
+    }
+
+    // 빠른 입장
+    public RoomResponseDto quickJoin(RoomRequestDto roomRequestDto) {
+        String quickJoinRoomId = findQuickJoinRoomId();
+        log.debug("quickJoinRoomId: {}", quickJoinRoomId);
+        if (quickJoinRoomId == null) {
+            // TODO Exception 처리
+            throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
+        }
+        return joinRoom(quickJoinRoomId, roomRequestDto);
+    }
+
+    // 빠른 입장 roomId 획득
+    public String findQuickJoinRoomId() {
+        Set<Object> availableRooms = redisTemplate.opsForZSet().range("game_lobby:rooms", 0, -1);
+        log.debug("rooms: {}", availableRooms);
+        if (availableRooms != null && !availableRooms.isEmpty()) {
+            List<Object> shuffledRooms = new ArrayList<>(availableRooms);
+            Collections.shuffle(shuffledRooms);  // 랜덤으로 섞음
+            for (Object roomId : shuffledRooms) {
+                // Redis에서 해당 방의 정보를 가져옴
+                Room room = getRoomById(roomId.toString());
+
+                boolean isSecret = room.isSecret();
+                int currentPlayers = room.getCurrentPlayersCount();
+
+                // 비밀방이 아니고 빈 자리가 있는지 확인
+                if (!isSecret && currentPlayers < MAX_PLAYER) {
+                    return (String) roomId;  // 빈 자리가 있는 비밀방이 아닌 방 리턴
+                }
+            }
+        }
+        return null;
     }
 
     // 방 퇴장
@@ -170,8 +218,8 @@ public class RoomRepository {
         room.setRoomId((String) roomData.get("roomId"));
         room.setRoomName((String) roomData.get("roomName"));
         room.setHostId(Long.parseLong((String) roomData.get("hostId")));
-        room.setPrivate(Boolean.parseBoolean(String.valueOf(roomData.get("isPrivate"))));
-        if (room.isPrivate()) {
+        room.setSecret(Boolean.parseBoolean(String.valueOf(roomData.get("secret"))));
+        if (room.isSecret()) {
             room.setPassword((String) roomData.get("password"));
         }
 

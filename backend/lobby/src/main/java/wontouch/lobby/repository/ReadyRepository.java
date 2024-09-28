@@ -39,7 +39,7 @@ public class ReadyRepository {
         log.info("Updated value for field '" + field + "' in hash '" + participantsKey + "': " + !isReady);
 
         boolean isAllReady = isAllReady(roomId);
-        return new ReadyStateDto(!isReady, isAllReady);
+        return new ReadyStateDto(playerId, !isReady, isAllReady);
     }
 
     public boolean isAllReady(String roomId) {

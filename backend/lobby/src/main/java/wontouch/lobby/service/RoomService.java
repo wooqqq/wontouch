@@ -36,6 +36,10 @@ public class RoomService {
         return roomRepository.joinRoom(roomId, joinRequest);
     }
 
+    public RoomResponseDto quickJoin(RoomRequestDto joinRequest) {
+        return roomRepository.quickJoin(joinRequest);
+    }
+
     public RoomResponseDto exitRoom(String roomId, long playerId) {
         String id = Long.toString(playerId);
         return roomRepository.exitRoom(roomId, id);

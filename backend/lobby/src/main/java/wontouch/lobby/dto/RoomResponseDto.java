@@ -12,7 +12,7 @@ public class RoomResponseDto {
     private String roomId;
     private String roomName;
     private long hostId;
-    private boolean isPrivate;
+    private boolean secret;
     private Set<String> participants;
     private int maxPlayers;
     private int currentPlayersCount;
@@ -21,7 +21,7 @@ public class RoomResponseDto {
         this.roomId = room.getRoomId();
         this.roomName = room.getRoomName();
         this.hostId = room.getHostId();
-        this.isPrivate = room.isPrivate();
+        this.secret = room.isSecret();
         this.participants = room.getParticipants();
         this.participants.addAll(room.getParticipants());
         this.maxPlayers = 8;

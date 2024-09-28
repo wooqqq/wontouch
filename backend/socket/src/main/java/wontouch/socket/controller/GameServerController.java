@@ -7,9 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-import wontouch.socket.dto.MessageResponseDto;
 import wontouch.socket.dto.MessageType;
 import wontouch.socket.service.WebSocketSessionService;
 
@@ -33,7 +30,7 @@ public class GameServerController {
         String roomId = (String) messageData.get("roomId");
         log.debug("START TIMER!!: {}", messageData);
         try {
-            broadcastMessage(roomId, MessageType.NOTIFY, "Timer started successfully");
+            sessionService.broadcastMessage(roomId, MessageType.NOTIFY, "Timer started successfully");
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -46,7 +43,7 @@ public class GameServerController {
         String roomId = (String) messageData.get("roomId");
         log.debug("END TIMER!!: {}", messageData);
         try {
-            broadcastMessage(roomId, MessageType.NOTIFY, "Timer ended successfully");
+            sessionService.broadcastMessage(roomId, MessageType.NOTIFY, "Timer ended successfully");
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -54,10 +51,40 @@ public class GameServerController {
         return ResponseEntity.ok("Timer ended successfully");
     }
 
-    private void broadcastMessage(String roomId, MessageType messageType, Object content) throws IOException {
-        Map<String, WebSocketSession> roomSessions = sessionService.getSessions(roomId);
-        for (WebSocketSession session : roomSessions.values()) {
-            session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageResponseDto(messageType, content))));
+    @PostMapping("/preparation-start")
+    public ResponseEntity<?> preparationStart(@RequestBody Map<String, Object> messageData) {
+        String roomId = (String) messageData.get("roomId");
+        log.debug("START PREPARATION!!: {}", messageData);
+        try {
+            sessionService.broadcastMessage(roomId, MessageType.NOTIFY, "Preparation Start successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return ResponseEntity.ok("preparation started successfully");
+    }
+
+    @PostMapping("/crop-list")
+    public ResponseEntity<?> cropList(@RequestBody Map<String, Object> messageData) {
+        String roomId = (String) messageData.get("roomId");
+        log.debug("CROP LIST!!: {}", messageData);
+        try {
+            sessionService.broadcastMessage(roomId, MessageType.NOTIFY, messageData);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok("Timer ended successfully");
+    }
+
+    @PostMapping("/game-result")
+    public ResponseEntity<?> getGameResult(@RequestBody Map<String, Object> messageData) {
+        String roomId = (String) messageData.get("roomId");
+        log.debug("GAME RESULT!!: {}", messageData);
+        try {
+            sessionService.broadcastMessage(roomId, MessageType.RESULT, messageData);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok("Game ended successfully");
     }
 }

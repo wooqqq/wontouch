@@ -3,6 +3,7 @@ package wontouch.game.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import wontouch.game.domain.Player;
+import wontouch.game.domain.PlayerStatus;
 import wontouch.game.entity.Crop;
 import wontouch.game.repository.GameRepository;
 import wontouch.game.repository.player.PlayerRepository;
@@ -22,11 +23,11 @@ public class GameService {
     }
 
     // 게임이 시작될 때 플레이어들의 초기 상태를 설정하는 메서드
-    // TODO 더 많은 필드가 필요한지 모두에게 묻고 추가하기
     public void initPlayers(String roomId, List<Player> players) {
         for (Player player : players) {
             // 비즈니스 로직 처리
             playerRepository.savePlayer(roomId, player);
+            playerRepository.setPlayerStatus(roomId, String.valueOf(player.getId()), PlayerStatus.WAITING);
         }
     }
 

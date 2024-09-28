@@ -53,6 +53,18 @@ public class RoomController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    @PostMapping("/quick-join")
+    public ResponseEntity<ResponseDto<RoomResponseDto>> quickJoinGameRoom(@RequestBody RoomRequestDto roomRequestDto) {
+        System.out.println(roomRequestDto);
+        RoomResponseDto roomResponseDto = roomService.quickJoin(roomRequestDto);
+        ResponseDto<RoomResponseDto> responseDto = ResponseDto.<RoomResponseDto>builder()
+                .status(HttpStatus.OK.value())
+                .message("방 입장 완료")
+                .data(roomResponseDto)
+                .build();
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
     @PostMapping("/exit/{roomId}")
     public ResponseEntity<ResponseDto<RoomResponseDto>> exitGameRoom(@PathVariable String roomId, @RequestBody RoomRequestDto roomRequestDto) {
         long playerId = roomRequestDto.getPlayerId();

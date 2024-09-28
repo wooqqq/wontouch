@@ -11,7 +11,7 @@ import java.util.Set;
 public class Room {
     private String roomId;
     private String roomName;
-    private boolean isPrivate;
+    private boolean secret;
     private String password;
     private long hostId;
     private Set<String> participants;
