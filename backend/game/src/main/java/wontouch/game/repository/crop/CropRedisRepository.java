@@ -41,6 +41,7 @@ public class CropRedisRepository {
         redisTemplate.opsForHash().put(redisKey, "quantity", DEFAULT_QUANTITY);
     }
 
+    // 모든 작물의 ID(이름) 조회
     public Set<Object> getAllCrops(String roomId) {
         String redisKey = "game:" + roomId + ":crop:list";
         return redisTemplate.opsForSet().members(redisKey);
@@ -74,6 +75,12 @@ public class CropRedisRepository {
     // 특정 작물의 세부 정보 조회
     public Map<Object, Object> getCropDetails(String roomId, String cropId) {
         String redisKey = "game:" + roomId + ":crop:" + cropId + ":info";
+        return redisTemplate.opsForHash().entries(redisKey);
+    }
+
+    // 특정 작물의 차트 조회
+    public Map<Object, Object> getCropChart(String roomId, String cropId) {
+        String redisKey = "game:" + roomId + ":crop:" + cropId + ":chart";
         return redisTemplate.opsForHash().entries(redisKey);
     }
 

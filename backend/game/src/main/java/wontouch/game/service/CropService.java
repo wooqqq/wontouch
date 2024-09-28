@@ -39,6 +39,11 @@ public class CropService {
         return cropList;
     }
 
+    // 특정 작물 차트 조회
+    public Map<Object, Object> getCropChart(String roomId, String cropId) {
+        return cropRedisRepository.getCropChart(roomId, cropId);
+    }
+
     // 게임 시작 시 mongoDB에서 타입마다 NUM_OF_CROPS_PER_TYPE 만큼의 작물을 뽑아 Redis에 저장
     public List<Crop> loadRandomCropsFromEachTypeToRedis(String roomId) {
         List<String> allTypes = cropRepository.findDistinctTypes();

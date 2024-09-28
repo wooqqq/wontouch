@@ -42,6 +42,14 @@ public class GameServerService {
         return result;
     }
 
+    // 특정 작물의 차트 요청
+    public Object getCropChart(String roomId, Map<String, Object> cropInfo) {
+        String cropChartUrl = gameServerUrl + "/crop/chart/" + roomId;
+        log.debug("cropChartUrl: {}", cropChartUrl);
+        Map<Object, Object> cropChart = restTemplate.postForObject(cropChartUrl, cropInfo, Map.class);
+        return cropChart;
+    }
+
     // 플레이어의 보유 작물 리스트 요청
     public Object getPlayerCrops(String playerId) {
         String playerCropsUrl = gameServerUrl + "/player/crop/list/" + playerId;

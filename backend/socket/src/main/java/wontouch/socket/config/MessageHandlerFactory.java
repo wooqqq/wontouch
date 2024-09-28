@@ -45,6 +45,8 @@ public class MessageHandlerFactory {
                 return gameServerService.getPlayerCrops(playerId);
             case TOWN_CROP_LIST:
                 return gameServerService.getTownCrops(roomId, msgMap);
+            case CROP_CHART:
+                return gameServerService.getCropChart(roomId, msgMap);
             case ROUND_READY:
                 return gameServerService.sendPreparationInfo(roomId, playerId, msgMap);
             default:
