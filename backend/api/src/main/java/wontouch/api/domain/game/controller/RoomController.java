@@ -85,6 +85,24 @@ public class RoomController {
         }
     }
 
+    // 게임방 빠른 입장
+    @PostMapping("/quick-join")
+    public ResponseEntity<?> quickJoin(@RequestBody RoomRequestDto roomRequestDto) {
+        String url = String.format("%s/rooms/quick-join", lobbyServerUrl);
+        log.debug("roomRequestDto: {}", roomRequestDto);
+        try {
+            ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, roomRequestDto, ResponseDto.class);
+            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+        } catch (HttpClientErrorException.Unauthorized e) {
+//          일단 뭉뚱그린 예외 처리
+            e.printStackTrace();
+            throw new ExceptionResponse(CustomException.INVALID_PASSWORD_EXCEPTION);
+        } catch (HttpClientErrorException.Conflict exception) {
+            exception.printStackTrace();
+            throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
+        }
+    }
+
     // 특정 게임방 퇴장
     @PostMapping("/exit/{roomId}")
     public ResponseEntity<?> exitRoom(@PathVariable String roomId, @RequestBody RoomRequestDto roomRequestDto) {

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class RoomRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
-
+    private static final int MAX_PLAYER = 8;
     public RoomRepository(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
@@ -57,7 +57,7 @@ public class RoomRepository {
         long playerId = roomRequestDto.getPlayerId();
         String participantsKey = "game_lobby:" + roomId + ":participants";
         Room room = getRoomById(roomId);
-        if (room.getParticipants().size() >= room.getCurrentPlayersCount()) {
+        if (room.getCurrentPlayersCount() >= MAX_PLAYER) {
             throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
         }
         if (room.isSecret()) {
@@ -70,6 +70,40 @@ public class RoomRepository {
         }
         redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
         return new RoomResponseDto(room);
+    }
+
+    // 빠른 입장
+    public RoomResponseDto quickJoin(RoomRequestDto roomRequestDto) {
+        String quickJoinRoomId = findQuickJoinRoomId();
+        log.debug("quickJoinRoomId: {}", quickJoinRoomId);
+        if (quickJoinRoomId == null) {
+            // TODO Exception 처리
+            throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
+        }
+        return joinRoom(quickJoinRoomId, roomRequestDto);
+    }
+
+    // 빠른 입장 roomId 획득
+    public String findQuickJoinRoomId() {
+        Set<Object> availableRooms = redisTemplate.opsForZSet().range("game_lobby:rooms", 0, -1);
+        log.debug("rooms: {}", availableRooms);
+        if (availableRooms != null && !availableRooms.isEmpty()) {
+            List<Object> shuffledRooms = new ArrayList<>(availableRooms);
+            Collections.shuffle(shuffledRooms);  // 랜덤으로 섞음
+            for (Object roomId : shuffledRooms) {
+                // Redis에서 해당 방의 정보를 가져옴
+                Room room = getRoomById(roomId.toString());
+
+                boolean isSecret = room.isSecret();
+                int currentPlayers = room.getCurrentPlayersCount();
+
+                // 비밀방이 아니고 빈 자리가 있는지 확인
+                if (!isSecret && currentPlayers < MAX_PLAYER) {
+                    return (String) roomId;  // 빈 자리가 있는 비밀방이 아닌 방 리턴
+                }
+            }
+        }
+        return null;
     }
 
     // 방 퇴장
