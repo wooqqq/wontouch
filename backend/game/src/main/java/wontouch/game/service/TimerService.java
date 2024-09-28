@@ -58,19 +58,18 @@ public class TimerService {
     // 라운드 종료 시 처리 로직
     public void endRound(String roomId, int round) {
         // 라운드가 끝났을 때 필요한 로직 실행 (예: 점수 계산, 상태 업데이트)
-        calculateRoundResults(roomId);
         log.debug("end Timer for {}", roomId);
         // WebSocket 서버로 라운드 종료 알림 전송
         notifyClientsOfRoundEnd(roomId);
 
+        // TODO 작물 가격 계산 -> Redis에 반영 -> 라운드 결과 출력
+        articleRepository.calculateArticleResult(roomId, round);
+        log.debug("작물 가격 계산 완료 후 반영: {}", roomId);
         // 마지막 라운드라면 종료
         if (round >= FINAL_ROUND) {
             log.debug("게임 종료 호출: {}", roomId);
             endGame(roomId);
         } else {
-            // TODO 작물 가격 계산 -> Redis에 반영 -> 라운드 결과 출력
-            articleRepository.calculateArticleResult(roomId, round);
-            log.debug("작물 가격 계산 완료 후 반영: {}", roomId);
             startPreparationTimer(roomId);
         }
     }
@@ -150,14 +149,17 @@ public class TimerService {
     }
 
     private void endGame(String roomId) {
+        String targetUrl = socketServerUrl + "/game/game-result";
         log.debug("게임 종료 로직 실행: {}", roomId);
+        Map<String, Object> gameResult = new HashMap<>();
+        Map<String, Map<String, Integer>> resultTable = gameRepository.getTotalGold(roomId);
+        log.debug("최종 결과 테이블 출력: {}", resultTable);
+        gameResult.put("roomId", roomId);
+        gameResult.put("game-result", resultTable);
+        // TODO 결과 게임 서버에 브로드캐스트
+        restTemplate.postForObject(targetUrl, gameResult, Map.class);
+        // TODO 마일리지 부여를 위해 API 전송
     }
-
-    private void calculateRoundResults(String roomId) {
-        // 각 방의 플레이어 상태 업데이트 로직
-        System.out.println("Calculating results for room: " + roomId);
-    }
-
 
     // 라운드가 시작했음을 알리는 알림 로직
     private void notifyClientsOfRoundStart(String roomId) {

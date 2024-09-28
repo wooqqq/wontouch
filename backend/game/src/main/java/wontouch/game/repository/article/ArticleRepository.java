@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import wontouch.game.repository.crop.CropRedisRepository;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 @Repository
@@ -28,8 +29,10 @@ public class ArticleRepository {
             log.debug("cropId:{} 갱신 중 ", cropId);
             int cropPrice = cropRepository.getCropPrice(roomId, cropId);
             log.debug("cropPrice:{}", cropPrice);
-            // TODO 기사를 통해 가격 갱신
-            int newCropPrice = cropPrice;
+            // TODO 기사를 통해 가격 갱신 (현재는 테스트를 위해 랜덤하게 결정)
+            Random random = new Random();
+            int randomNumber = random.nextInt(1001);
+            int newCropPrice = cropPrice + randomNumber;
             cropRepository.updateCropPrice(roomId, cropId, newCropPrice);
             log.debug("갱신 완료:{}", newCropPrice);
             cropRepository.updateCropChart(roomId, (String) cropId, round, newCropPrice);
