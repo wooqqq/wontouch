@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import wontouch.socket.service.SocketServerService;
 import wontouch.socket.service.WebSocketSessionService;
 
 @Configuration
@@ -14,9 +15,12 @@ import wontouch.socket.service.WebSocketSessionService;
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final WebSocketSessionService sessionService;
+    private final SocketServerService socketServerService;
     private final MessageHandlerFactory messageHandlerFactory;
-    public WebSocketConfig(WebSocketSessionService sessionService, MessageHandlerFactory messageHandlerFactory) {
+
+    public WebSocketConfig(WebSocketSessionService sessionService, MessageHandlerFactory messageHandlerFactory, SocketServerService socketServerService) {
         this.sessionService = sessionService;
+        this.socketServerService = socketServerService;
         this.messageHandlerFactory = messageHandlerFactory;
     }
 
@@ -25,7 +29,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         log.info("game handler register");
         return
                 new GameWebSocketHandler(sessionService,
-                        messageHandlerFactory); // Bean으로 직접 등록
+                        socketServerService, messageHandlerFactory); // Bean으로 직접 등록
     }
 
     @Override

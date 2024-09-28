@@ -4,7 +4,9 @@ import org.springframework.stereotype.Component;
 import wontouch.socket.dto.MessageType;
 import wontouch.socket.service.GameServerService;
 import wontouch.socket.service.LobbyServerService;
+import wontouch.socket.service.SocketServerService;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Component
@@ -12,14 +14,16 @@ public class MessageHandlerFactory {
 
     private final LobbyServerService lobbyServerService;
     private final GameServerService gameServerService;
+    private final SocketServerService socketServerService;
 
-    public MessageHandlerFactory(LobbyServerService lobbyServerService, GameServerService gameServerService) {
+    public MessageHandlerFactory(LobbyServerService lobbyServerService, GameServerService gameServerService, SocketServerService socketServerService) {
         this.lobbyServerService = lobbyServerService;
         this.gameServerService = gameServerService;
+        this.socketServerService = socketServerService;
     }
 
     public Object handleMessage(String roomId, String playerId,
-                                       MessageType messageType, Map<String, Object> msgMap) {
+                                       MessageType messageType, Map<String, Object> msgMap) throws IOException {
         switch (messageType) {
             case READY:
                 // 로비 서버로 준비 정보 전송
@@ -31,6 +35,8 @@ public class MessageHandlerFactory {
             case KICK:
                 // 유저 강퇴
                 return lobbyServerService.kickUser(roomId, playerId, msgMap);
+            case MOVE:
+                return socketServerService.moveUser(roomId, playerId, msgMap);
             case BUY:
                 return gameServerService.buyCropRequest(roomId, msgMap);
             case SELL:
