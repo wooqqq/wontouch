@@ -92,7 +92,7 @@ public class FriendService {
     public void acceptRequest(FriendRequestActionDto requestDto) {
         
         // 존재하는 친구 신청인지 확인
-        FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(requestDto.getFromUserId(), requestDto.getToUserId())
+        FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(requestDto.getFromUserId(), requestDto.getUserId())
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_FRIEND_REQUEST_EXCEPTION));
 
         // 현재 로그인한 유저가 toUser 인지 확인
@@ -103,7 +103,7 @@ public class FriendService {
 
         Friend friend = Friend.builder()
                 .fromUserId(requestDto.getFromUserId())
-                .toUserId(requestDto.getToUserId())
+                .toUserId(requestDto.getUserId())
                 .build();
 
         friendRepository.save(friend);
@@ -113,7 +113,7 @@ public class FriendService {
     public void rejectRequest(FriendRequestActionDto requestDto) {
 
         // 존재하는 친구 신청인지 확인
-        FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(requestDto.getFromUserId(), requestDto.getToUserId())
+        FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(requestDto.getFromUserId(), requestDto.getUserId())
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_FRIEND_REQUEST_EXCEPTION));
 
         // 현재 로그인한 유저가 toUser 인지 확인

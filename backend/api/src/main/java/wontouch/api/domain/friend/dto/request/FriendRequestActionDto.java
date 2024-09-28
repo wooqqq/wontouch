@@ -12,7 +12,4 @@ public class FriendRequestActionDto {
     @NotNull
     private int fromUserId;
 
-    @NotNull
-    private int toUserId;
-
 }
