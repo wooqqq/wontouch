@@ -150,8 +150,8 @@ public class TimerService {
 
     private void endGame(String roomId) {
         log.debug("게임 종료 로직 실행: {}", roomId);
-        Map<String, Integer> totalGold = gameRepository.getTotalGold(roomId);
-        log.debug("최종 결과 테이블 출력: {}", totalGold);
+        Map<String, Map<String, Integer>> result = gameRepository.getTotalGold(roomId);
+        log.debug("최종 결과 테이블 출력: {}", result);
         // TODO 잠시 다른거 하는 중
     }
 

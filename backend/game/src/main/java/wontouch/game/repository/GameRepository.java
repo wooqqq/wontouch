@@ -22,6 +22,8 @@ public class GameRepository {
     private static final String ROOM_SUFFIX = ":room";
     private static final String PLAYER_PREFIX = "player:";
     private static final String PLAYER_SUFFIX = ":player";
+    private static final int TOTAL_EXPERIENCE = 1000;
+    private static final int TOTAL_MILEAGE = 500;
 
     public GameRepository(RedisTemplate<String, Object> redisTemplate, PlayerRepository playerRepository) {
         this.redisTemplate = redisTemplate;
@@ -56,16 +58,39 @@ public class GameRepository {
     }
 
     // 최종 골드 계산
-    public Map<String, Integer> getTotalGold(String roomId) {
+    public Map<String, Map<String, Integer>> getTotalGold(String roomId) {
         String playerStatusKey = GAME_PREFIX + roomId + PLAYER_SUFFIX;
         Set<Object> playerIds = redisTemplate.opsForHash().keys(playerStatusKey);
         Map<String, Integer> totalGoldResponse = new HashMap<>();
+        int totalGoldSum = 0;
+
+        // 보상 결과를 저장할 Map
+        Map<String, Map<String, Integer>> rewardDistribution = new HashMap<>();
 
         // 플레이어마다 골드 계산
         for (Object playerId : playerIds) {
             int totalGold = playerRepository.calculateTotalGold(roomId, (String) playerId);
+            totalGoldSum += totalGold;
             totalGoldResponse.put(playerId.toString(), totalGold);
         }
-        return totalGoldResponse;
+
+        for (Object playerId : playerIds) {
+            int totalGold = totalGoldResponse.get(playerId.toString());
+
+            // 플레이어가 차지하는 골드 비율 계산
+            double goldRatio = (double) totalGold / totalGoldSum;
+
+            // 비율에 따라 경험치와 마일리지 계산
+            int experienceEarned = (int) (TOTAL_EXPERIENCE * goldRatio);
+            int mileageEarned = (int) (TOTAL_MILEAGE * goldRatio);
+
+            // 플레이어에게 보상 분배
+            Map<String, Integer> playerRewards = new HashMap<>();
+            playerRewards.put("totalGold", totalGold);
+            playerRewards.put("experience", experienceEarned);
+            playerRewards.put("mileage", mileageEarned);
+            rewardDistribution.put(playerId.toString(), playerRewards);
+        }
+        return rewardDistribution;
     }
 }
