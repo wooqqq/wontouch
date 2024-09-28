@@ -20,7 +20,6 @@ function KakaoLoginHandler() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [userData, setUserData] = useState<any>(null);
 
   const getToken = async () => {
     const code = new URL(window.location.href).searchParams.get('code'); // 인가코드 추출
@@ -35,15 +34,20 @@ function KakaoLoginHandler() {
       const accessToken = userRes.data.data.accessToken;
       localStorage.setItem('access_token', accessToken);
 
+      // access token을 디코딩해 userId 추출, store에 저장
+      const decodedToken = jwtDecode<DecodedToken>(accessToken);
+      const userId = decodedToken.userId;
+      dispatch(setUserId(userId));
+
       // 회원가입이 필요한 경우
       if (userRes.data.data.firstLogin === true) {
         setTimeout(() => {
-          // 회원가입 페이지로 이동
           navigate('/signup');
         }, 1500);
       } else {
         setTimeout(() => {
-          navigate('/lobby'); // 이미 가입된 유저인 경우 로비로 이동
+          // 이미 가입된 유저인 경우 사용자 정보 불러오고 로비로 이동
+          getUserData(userId, accessToken);
         }, 1500);
       }
     } catch (error) {
@@ -52,35 +56,31 @@ function KakaoLoginHandler() {
     }
   };
 
-  useEffect(() => {
-    // 컴포넌트가 렌더링될 때 getToken 함수 호출
-    getToken();
+  // 사용자 정보 가져오기
+  const getUserData = async (userId: number, accessToken: string) => {
+    try {
+      const response = await axios.get(`${API_LINK}/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-    const userId = localStorage.getItem('user_id');
-    const accessToken = localStorage.getItem('access_token');
+      // dispatch(setUserId(response.data.data.userId));
+      dispatch(setUserNickname(response.data.data.nickname));
+      dispatch(setUserDescription(response.data.data.description));
+      dispatch(setUserCharacterName(response.data.data.characterName));
 
-    // 만약 userId, access token이 모두 존재한다면 사용자의 정보를 store에 저장하자
-    if (userId && accessToken) {
-      const getUserInfo = async () => {
-        try {
-          const response = await axios.get(`${API_LINK}/user/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
-
-          dispatch(setUserId(response.data.data.userId));
-          dispatch(setUserNickname(response.data.data.nickname));
-          dispatch(setUserDescription(response.data.data.description));
-          dispatch(setUserCharacterName(response.data.data.characterName));
-        } catch (error) {
-          console.log('유저 정보 불러오기 실패', error);
-        }
-      };
-
-      getUserInfo();
+      // 사용자 정보가 확인되면 로비로 이동
+      navigate('/lobby');
+    } catch (error) {
+      console.log('유저 정보 불러오기 실패', error);
     }
-  }, [dispatch, API_LINK]);
+  };
+
+  // useEffect를 사용하여 getToken 함수 호출
+  useEffect(() => {
+    getToken();
+  }, []);
 
   return <div>유저 정보 확인 중 . . .</div>;
 }
