@@ -36,7 +36,7 @@ public class FriendService {
     public List<FriendResponseDto> getFriendList(int userId) {
 
         // 존재하는 사용자 ID인지 검사
-        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+        userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
 
         List<Friend> friendList = friendRepository.findByFromUserIdOrToUserId(userId, userId)
@@ -64,24 +64,23 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
-    // 친구 상세 조회
-    public FriendResponseDto getFriend() {
-
-
-
-        return null;
-    }
-
     // 친구 신청
     public FriendRequest sendFriendRequest(SendFriendRequestDto requestDto) {
 
+        int fromUserId = requestDto.getFromUserId();
+        int toUserId = requestDto.getToUserId();
+
+        // 이미 친구인지 확인
+        if (isAlreadyFriend(fromUserId, toUserId))
+            throw new ExceptionResponse(CustomException.ALREADY_FRIEND_EXCEPTION);
+
         // 이미 친구 요청이 있는지 확인
-        if (friendRequestRepository.existsByFromUserIdAndToUserId(requestDto.getFromUserId(), requestDto.getToUserId()))
+        if (friendRequestRepository.existsByFromUserIdAndToUserId(fromUserId, toUserId))
             throw new ExceptionResponse(CustomException.ALREADY_EXIST_REQUEST_EXCEPTION);
 
         FriendRequest friendRequest = FriendRequest.builder()
-                .fromUserId(requestDto.getFromUserId())
-                .toUserId(requestDto.getToUserId())
+                .fromUserId(fromUserId)
+                .toUserId(toUserId)
                 .createAt(LocalDateTime.now())
                 .build();
 
@@ -164,6 +163,14 @@ public class FriendService {
 
 
     // 친구 끊기
+
+
+    // 친구 관계 확인 유효성 검사
+    private boolean isAlreadyFriend(int userId, int friendId) {
+
+        return friendRepository.existsByFromUserIdAndToUserId(userId, friendId) ||
+                friendRepository.existsByFromUserIdAndToUserId(friendId, userId);
+    }
 
 
     // userId를 통한 닉네임 불러오기
