@@ -3,6 +3,7 @@ package wontouch.api.domain.friend.model.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import wontouch.api.domain.friend.dto.request.FriendDeleteRequestDto;
 import wontouch.api.domain.friend.dto.request.FriendRequestActionDto;
 import wontouch.api.domain.friend.dto.request.FriendRequestDto;
 import wontouch.api.domain.friend.dto.request.SendFriendRequestDto;
@@ -21,6 +22,7 @@ import wontouch.api.global.exception.ExceptionResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -163,6 +165,25 @@ public class FriendService {
 
 
     // 친구 끊기
+    public void deleteFriend(FriendDeleteRequestDto requestDto) {
+
+        // 친구 관계인지 확인
+        if (!isAlreadyFriend(requestDto.getUserId(), requestDto.getFriendId()))
+            throw new ExceptionResponse(CustomException.NOT_FOUND_FRIEND_EXCEPTION);
+
+        // 첫 번째 쿼리에서 찾으면 바로 해당 친구 삭제
+        Optional<Friend> friend = friendRepository.findByFromUserIdAndToUserId(requestDto.getUserId(), requestDto.getFriendId());
+
+        if (friend.isEmpty()) {
+            // 첫 번째에서 못 찾으면 두 번째 쿼리 실행
+            friend = friendRepository.findByFromUserIdAndToUserId(requestDto.getFriendId(), requestDto.getUserId());
+        }
+
+        // 친구가 없으면 예외 발생
+        Friend foundFriend = friend.orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_FRIEND_EXCEPTION));
+
+        friendRepository.delete(foundFriend);
+    }
 
 
     // 친구 관계 확인 유효성 검사

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wontouch.api.domain.friend.dto.request.FriendDeleteRequestDto;
 import wontouch.api.domain.friend.dto.request.FriendRequestActionDto;
 import wontouch.api.domain.friend.dto.request.FriendRequestDto;
 import wontouch.api.domain.friend.dto.request.SendFriendRequestDto;
@@ -106,6 +107,17 @@ public class FriendController {
     }
 
     // 친구 끊기
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteFriend(@RequestBody FriendDeleteRequestDto requestDto) {
+        friendService.deleteFriend(requestDto);
 
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("친구 끊기 성공")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 
 }
