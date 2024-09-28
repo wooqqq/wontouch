@@ -4,17 +4,17 @@ import {
   Route,
   Navigate,
   useNavigate,
-} from "react-router-dom";
-import { useEffect } from "react";
-import Lobby from "./pages/Lobby";
-import WaitingRoom from "./pages/WaitingRoom";
-import Game from "./pages/Game";
-import Login from "./pages/Login";
-import KakaoLoginHandler from "./components/login/kakao/KakaoLoginHandler";
-import KakaoToSignup from "./components/login/kakao/KakaoToSignup";
-import SignupWithKakao from "./components/signup/kakao/SignupWithKakao";
-import Setting from "./pages/Setting";
-import CommonBG from "./components/common/CommonBG";
+} from 'react-router-dom';
+import { useEffect } from 'react';
+import Lobby from './pages/Lobby';
+import WaitingRoom from './pages/WaitingRoom';
+import Game from './pages/Game';
+import Login from './pages/Login';
+import KakaoLoginHandler from './components/login/kakao/KakaoLoginHandler';
+import KakaoToSignup from './components/login/kakao/KakaoToSignup';
+import SignupWithKakao from './components/signup/kakao/SignupWithKakao';
+import Setting from './pages/Setting';
+import CommonBG from './components/common/CommonBG';
 
 // 로그인이 되어있지 않을 때, 다른 페이지로 이동하려고 하면 강제로 로그인 창으로 이동
 // children은 렌더링 될 컴포넌트
@@ -22,9 +22,9 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem('access_token');
     if (!token) {
-      navigate("/login");
+      navigate('/login');
     }
   }, [navigate]);
 

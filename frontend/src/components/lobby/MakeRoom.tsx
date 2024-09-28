@@ -56,8 +56,11 @@ export default function MakeRoomModal({
         password: isPrivate ? password : '',
       });
 
+      // 응답에서 받아온 roomId
+      const createdRoomId = res.data.data.roomId;
+
       // 방 생성 후 생성한 방으로 바로 이동
-      navigate(`/waiting-room/${UUID}`);
+      navigate(`/wait/${createdRoomId}`);
     } catch (error) {
       console.error('방 생성 중 에러 발생', error);
     }

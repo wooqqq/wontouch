@@ -6,7 +6,7 @@ function RoomHowTo() {
         6라운드 동안 가장 많이
         <br /> 자산을 불리는 사람이 승리!
       </p>
-      <p className="text-[14px]">
+      <p className="text-[14px] font-galmuri11">
         1. 라운드 마다 마을에 대한 기사가 작성돼요.
         <br /> 2.기사를 보고, 구매할 작물을 정해요.
         <br />
