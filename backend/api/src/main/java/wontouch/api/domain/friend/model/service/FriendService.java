@@ -3,7 +3,7 @@ package wontouch.api.domain.friend.model.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import wontouch.api.domain.friend.dto.request.AcceptFriendRequestDto;
+import wontouch.api.domain.friend.dto.request.FriendRequestActionDto;
 import wontouch.api.domain.friend.dto.request.FriendRequestDto;
 import wontouch.api.domain.friend.dto.request.SendFriendRequestDto;
 import wontouch.api.domain.friend.dto.response.ReceiveFriendRequestDto;
@@ -89,7 +89,7 @@ public class FriendService {
 
     // 친구 신청 승인
     @Transactional
-    public void acceptRequest(AcceptFriendRequestDto requestDto) {
+    public void acceptRequest(FriendRequestActionDto requestDto) {
         
         // 존재하는 친구 신청인지 확인
         FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(requestDto.getFromUserId(), requestDto.getToUserId())
@@ -109,8 +109,19 @@ public class FriendService {
         friendRepository.save(friend);
     }
 
-
     // 친구 신청 거절
+    public void rejectRequest(FriendRequestActionDto requestDto) {
+
+        // 존재하는 친구 신청인지 확인
+        FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(requestDto.getFromUserId(), requestDto.getToUserId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_FRIEND_REQUEST_EXCEPTION));
+
+        // 현재 로그인한 유저가 toUser 인지 확인
+        if (requestDto.getUserId() != friendRequest.getToUserId())
+            throw new ExceptionResponse(CustomException.NOT_AUTH_ACCEPT_REQUEST_EXCEPTION);
+
+        friendRequestRepository.delete(friendRequest);
+    }
 
 
     // 친구 끊기

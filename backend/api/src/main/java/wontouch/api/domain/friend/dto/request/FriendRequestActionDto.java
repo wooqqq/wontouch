@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class AcceptFriendRequestDto {
+public class FriendRequestActionDto {
 
     @NotNull
     private int userId;
