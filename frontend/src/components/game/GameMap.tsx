@@ -144,15 +144,15 @@ export const createGameMap = (scene: Phaser.Scene) => {
     return;
   }
 
-  const backgroundLayer = map.createLayer('Background', tileset);
-  const groundLayer = map.createLayer('ground', tileset);
-  const seaLayer = map.createLayer('seasea', tileset);
-  const shadow_seaLayer = map.createLayer('Shadow_sea', tileset);
-  const river_lakeLayer = map.createLayer('river, lake', tileset);
-  const dropfruitsLayer = map.createLayer('dropfruits', tileset);
-  const fencesLayer = map.createLayer('fences', tileset);
-  const plantLayer = map.createLayer('wheat, animal, tree, line', tileset);
-  const othersssLayer = map.createLayer('othersss', tileset);
+  const backgroundLayer = map.createLayer('Background', tileset) || null;
+  const groundLayer = map.createLayer('ground', tileset) || null;
+  const seaLayer = map.createLayer('seasea', tileset) || null;
+  const shadow_seaLayer = map.createLayer('Shadow_sea', tileset) || null;
+  const river_lakeLayer = map.createLayer('river, lake', tileset) || null;
+  const dropfruitsLayer = map.createLayer('dropfruits', tileset) || null;
+  const fencesLayer = map.createLayer('fences', tileset) || null;
+  const plantLayer = map.createLayer('wheat, animal, tree, line', tileset) || null;
+  const othersssLayer = map.createLayer('othersss', tileset) || null;
   const animals_bottomLayer = map.createLayer('animals_bottom', [
     birdTileset,
     birdTileset2,
@@ -165,18 +165,18 @@ export const createGameMap = (scene: Phaser.Scene) => {
     sheepTileset,
     sheepTileset2,
     blinkingTileset,
-  ]);
-  const vegetableLayer = map.createLayer('fruits, vegetables', tileset);
-  const shadow_bottomLayer = map.createLayer('Shadow_bottom', tileset);
-  const house_bottom2Layer = map.createLayer('house_bottom2', tileset);
-  const house_bottomLayer = map.createLayer('house_bottom', tileset);
+  ]) || null;
+  const vegetableLayer = map.createLayer('fruits, vegetables', tileset) || null;
+  const shadow_bottomLayer = map.createLayer('Shadow_bottom', tileset) || null;
+  const house_bottom2Layer = map.createLayer('house_bottom2', tileset) || null;
+  const house_bottomLayer = map.createLayer('house_bottom', tileset) || null;
   const house_topLayer = map.createLayer('house_top', [
     tileset,
     chimneysmokeTileset_01,
     chimneysmokeTileset4_01,
     chimneysmokeTileset5_01,
-  ]);
-  const shadow_topLayer = map.createLayer('Shadow_top', tileset);
+  ]) || null;
+  const shadow_topLayer = map.createLayer('Shadow_top', tileset) || null;
   const animals_topLayer = map.createLayer('animals_top', [
     birdTileset,
     birdTileset2,
@@ -191,15 +191,15 @@ export const createGameMap = (scene: Phaser.Scene) => {
     pigTilewset,
     pigTilewset2,
     windmillTileset,
-  ]);
-  const collidesLayer = map.createLayer('collides/notpass', collidesTileset);
-  const house1Layer = map.createLayer('collides/house_01', collidesTileset);
-  const house2Layer = map.createLayer('collides/house_02', collidesTileset);
-  const house3Layer = map.createLayer('collides/house_03', collidesTileset);
-  const house4Layer = map.createLayer('collides/house_04', collidesTileset);
-  const house5Layer = map.createLayer('collides/house_05', collidesTileset);
-  const house6Layer = map.createLayer('collides/house_06', collidesTileset);
-  const exchangeLayer = map.createLayer('collides/exchange', collidesTileset);
+  ]) || null;
+  const collidesLayer = map.createLayer('collides/notpass', collidesTileset) || null;
+  const house1Layer = map.createLayer('collides/house_01', collidesTileset) || null;
+  const house2Layer = map.createLayer('collides/house_02', collidesTileset) || null;
+  const house3Layer = map.createLayer('collides/house_03', collidesTileset) || null;
+  const house4Layer = map.createLayer('collides/house_04', collidesTileset) || null;
+  const house5Layer = map.createLayer('collides/house_05', collidesTileset) || null;
+  const house6Layer = map.createLayer('collides/house_06', collidesTileset) || null;
+  const exchangeLayer = map.createLayer('collides/exchange', collidesTileset) || null;
   collidesLayer?.setCollisionByProperty({ collides: true });
 
 

@@ -72,10 +72,10 @@ button :active {
   /* font */
   /* 던파 비트비트체 v2 */
   @font-face {
-    font-family: "DNFBitBitv2";
+    font-family: 'DNFBitBitv2';
+    src: url('./src/fonts/woff/DNFBitBitv2.woff') format('woff'); /* 폰트 경로 재확인 */
+    font-weight: normal;
     font-style: normal;
-    font-weight: 400;
-    src: url(./fonts/woff/DNFBitBitv2.woff) format("woff");
   }
 
   /* 갈무리 시리즈 (목업 기준 11, 14 사용) */

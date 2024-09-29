@@ -4,13 +4,40 @@ import { createGameMap } from './GameMap';
 import { createPlayerMovement } from './PlayerMovement';
 import InteractionModal from './InteractionModal';
 
+interface MapLayers {
+  backgroundLayer: Phaser.Tilemaps.TilemapLayer | null;
+  groundLayer: Phaser.Tilemaps.TilemapLayer | null;
+  animals_topLayer: Phaser.Tilemaps.TilemapLayer | null;
+  animals_bottomLayer: Phaser.Tilemaps.TilemapLayer | null;
+  collidesLayer: Phaser.Tilemaps.TilemapLayer | null;
+  shadow_seaLayer: Phaser.Tilemaps.TilemapLayer | null;
+  river_lakeLayer: Phaser.Tilemaps.TilemapLayer | null;
+  dropfruitsLayer: Phaser.Tilemaps.TilemapLayer | null;
+  fencesLayer: Phaser.Tilemaps.TilemapLayer | null;
+  plantLayer: Phaser.Tilemaps.TilemapLayer | null;
+  vegetableLayer: Phaser.Tilemaps.TilemapLayer | null;
+  shadow_topLayer: Phaser.Tilemaps.TilemapLayer | null;
+  house_bottom2Layer: Phaser.Tilemaps.TilemapLayer | null;
+  house_bottomLayer: Phaser.Tilemaps.TilemapLayer | null;
+  house_topLayer: Phaser.Tilemaps.TilemapLayer | null;
+  shadow_bottomLayer: Phaser.Tilemaps.TilemapLayer | null;
+
+  house1Layer: Phaser.Tilemaps.TilemapLayer | null;
+  house2Layer: Phaser.Tilemaps.TilemapLayer | null;
+  house3Layer: Phaser.Tilemaps.TilemapLayer | null;
+  house4Layer: Phaser.Tilemaps.TilemapLayer | null;
+  house5Layer: Phaser.Tilemaps.TilemapLayer | null;
+  house6Layer: Phaser.Tilemaps.TilemapLayer | null;
+  exchangeLayer: Phaser.Tilemaps.TilemapLayer | null;
+}
+
 const PhaserGame = () => {
   const [houseNum, setHouseNum] = useState<number | null>(null);
   useEffect(() => {
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
-      width: 1000,
-      height: 600,
+      width: window.innerWidth,
+      height: window.innerHeight,
       physics: {
         default: 'arcade',
         arcade: {
@@ -42,7 +69,7 @@ const PhaserGame = () => {
   let player: Phaser.Physics.Arcade.Sprite;
   let cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   let spaceBar: Phaser.Input.Keyboard.Key;
-  let mapLayers: any;
+  let mapLayers: MapLayers | undefined | null;
 
   function preload(this: Phaser.Scene) {
     this.load.tilemapTiledJSON('map', '../src/assets/background/testmap.json');
@@ -128,8 +155,13 @@ const PhaserGame = () => {
     );
 
     this.load.image('collides', '../src/assets/background/collides.png');
+    this.load.image(
+      'timerBackground',
+      '../src/assets/background/round/timerBackground.png',
+    );
   }
 
+  //생성
   function create(this: Phaser.Scene) {
     mapLayers = createGameMap(this);
     //mapLayer가 정의되지 않았면 빈 객체로 처리해준다.
@@ -192,12 +224,73 @@ const PhaserGame = () => {
       frameRate: 10,
       repeat: -1,
     });
+
+    const { width, height } = this.scale;
+
+    //이미지
+    const timerBackground = this.add.image(
+      width / 2,
+      height / 2,
+      'timerBackground',
+    );
+    timerBackground.setDisplaySize(80, 30);
+    timerBackground.setScrollFactor(0);
+    //라운드 텍스트 생성
+    const roundText = this.add.text(width / 2, height / 2, '1R', {
+      fontFamily: 'DNFBitBitv2',
+      color: '#FFEE00', // 텍스트 색상
+      fontSize: '14px',
+      stroke: '#000000', // 스토크 색상 (검정색)
+      strokeThickness: 4, // 스토크 두께
+    });
+
+    // 타이머 텍스트 생성 (화면 중앙에 배치)
+    const timeText = this.add.text(width / 2, height / 2, '5 : 00', {
+      fontFamily: 'DNFBitBitv2',
+      fontSize: '14px',
+      color: '#ffffff', // 텍스트 색상
+      stroke: '#000000', // 스토크 색상 (검정색)
+      strokeThickness: 2, // 스토크 두께
+    });
+
+    //이미지 위치설정
+    timerBackground.setOrigin(0.5, 5.9);
+    timerBackground.setDepth(9);
+
+    //라운드 위치 설정
+    roundText.setOrigin(0.5, 8.3);
+    roundText.setScrollFactor(0);
+    roundText.setDepth(10);
+    //타이머 위치설정
+    timeText.setOrigin(0.5, 8.25);
+
+    // 타이머 변수 초기화
+    let timer = 300;
+
+    // 타이머 텍스트를 화면에 고정
+    timeText.setScrollFactor(0);
+    timeText.setDepth(10); // 텍스트가 다른 객체 위에 표시되도록 설정
+
+    // 타이머 이벤트 설정 (1초마다 업데이트)
+    this.time.addEvent({
+      delay: 1000, // 1초마다 실행
+      callback: () => {
+        if (timer !== 0) {
+          timer--; // 1초마다 timer 값 감소
+        }
+        timeText.setText(
+          `${Math.floor(timer / 60)} : ${timer % 60 < 10 ? '0' : ''}${timer % 60}`,
+        ); // 타이머 값을 업데이트
+      },
+      loop: true, // 반복 실행
+    });
   }
 
+  //업데이트
   function update(this: Phaser.Scene) {
     createPlayerMovement(this, player, cursors, 16);
     //거래소 및 마을에서의 상호작용 기능
-    if (Phaser.Input.Keyboard.JustDown(spaceBar)) {
+    if (mapLayers && Phaser.Input.Keyboard.JustDown(spaceBar)) {
       const {
         house1Layer,
         house2Layer,
@@ -249,13 +342,13 @@ const PhaserGame = () => {
 
   const closModal = () => {
     setHouseNum(null);
-  }
+  };
 
-  return(
-  <div>
-    <div id="phaser-game-container" />
-    <InteractionModal houseNum={houseNum} closeModal={closModal}/>
-  </div>
+  return (
+    <div>
+      <div id="phaser-game-container" />
+      <InteractionModal houseNum={houseNum} closeModal={closModal} />
+    </div>
   );
 };
 
