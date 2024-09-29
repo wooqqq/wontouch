@@ -1,4 +1,4 @@
-package wontouch.mileage.entity;
+package wontouch.point.domain.entity;
 
 import jakarta.persistence.Id;
 import lombok.Builder;
@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-@Document(collection = "mileage_log")
-public class MileageLog {
+@Document(collection = "tier_point_log")
+public class TierPointLog {
 
     @Id
     private int id;
@@ -21,7 +21,7 @@ public class MileageLog {
 
     private String description;
 
-    private int totalMileage;
+    private String tier;
 
     private LocalDateTime createAt;
 }

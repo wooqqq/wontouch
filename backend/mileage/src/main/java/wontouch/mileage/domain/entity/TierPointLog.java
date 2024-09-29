@@ -1,4 +1,4 @@
-package wontouch.mileage.entity;
+package wontouch.mileage.domain.entity;
 
 import jakarta.persistence.Id;
 import lombok.Builder;
