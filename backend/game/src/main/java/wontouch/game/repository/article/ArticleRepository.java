@@ -19,6 +19,7 @@ public class ArticleRepository {
     private final CropRepository cropRepository;
     private final CropRedisRepository cropRedisRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+    private static final int ARTICLE_PRICE_INCREMENT = 200;
 
     public ArticleRepository(CropRepository cropRepository, CropRedisRepository cropRedisRepository, RedisTemplate<String, Object> redisTemplate) {
         this.cropRepository = cropRepository;
@@ -50,8 +51,15 @@ public class ArticleRepository {
         if (!articleIdList.isEmpty()) {
             // 랜덤 인덱스를 통해 랜덤한 값 선택
             Object articleId = articleIdList.get(random.nextInt(articleIdList.size()));
-//            redisTemplate.opsForHash().increment(playerArticleKey, "gold", -totalPrice); // 골드 차감
+            int articlePrice = (Integer) redisTemplate.opsForHash().get(playerInfoKey, "articlePrice");
+            log.debug("articlePrice: {}", articlePrice);
+            // 골드 차감
+            redisTemplate.opsForHash().increment(playerInfoKey, "gold", -articlePrice);
+            log.debug("article payed");
+            redisTemplate.opsForHash().increment(playerInfoKey, "articlePrice", ARTICLE_PRICE_INCREMENT);
+            log.debug("article Price is increased");
             redisTemplate.opsForSet().add(playerArticleKey, articleId);
+            log.debug("add article");
             // TODO 처리 로직
             return getArticle(cropId, (String)articleId);
         } else {
