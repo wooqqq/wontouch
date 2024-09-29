@@ -52,4 +52,12 @@ public class ArticleController {
 
         return ResponseEntity.ok(article);
     }
+
+    @PostMapping("/buy-random/{roomId}")
+    public ResponseEntity<?> buyRandomArticle(@PathVariable String roomId, @RequestBody Map<String, Object> buyInfo) {
+        String cropId = cropService.getRandomCropFromGame(roomId);
+        String playerId = buyInfo.get("playerId").toString();
+        Article article = articleRepository.buyRandomArticle(roomId, playerId, cropId);
+        return ResponseEntity.ok(article);
+    }
 }

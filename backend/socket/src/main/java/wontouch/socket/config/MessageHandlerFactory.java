@@ -37,9 +37,9 @@ public class MessageHandlerFactory {
                 return lobbyServerService.kickUser(roomId, playerId, msgMap);
             case MOVE:
                 return socketServerService.moveUser(roomId, playerId, msgMap);
-            case BUY:
+            case BUY_CROP:
                 return gameServerService.buyCropRequest(roomId, msgMap);
-            case SELL:
+            case SELL_CROP:
                 return gameServerService.sellCropRequest(roomId, msgMap);
             case PLAYER_CROP_LIST:
                 return gameServerService.getPlayerCrops(playerId);
@@ -49,6 +49,8 @@ public class MessageHandlerFactory {
                 return gameServerService.getCropChart(roomId, msgMap);
             case ROUND_READY:
                 return gameServerService.sendPreparationInfo(roomId, playerId, msgMap);
+            case BUY_RANDOM_ARTICLE:
+                return gameServerService.buyRandomArticle(roomId, playerId, msgMap);
             default:
                 System.out.println("Unknown message type: " + messageType);
                 return null;

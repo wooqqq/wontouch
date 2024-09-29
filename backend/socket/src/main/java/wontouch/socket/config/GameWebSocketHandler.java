@@ -111,11 +111,12 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                 content = messageHandlerFactory.handleMessage(roomId, playerId, messageType, msgMap);
                 kickMessageCast(roomId, content);
                 break;
-            case BUY:
-            case SELL:
+            case BUY_CROP:
+            case SELL_CROP:
             case PLAYER_CROP_LIST:
             case TOWN_CROP_LIST:
             case CROP_CHART:
+            case BUY_RANDOM_ARTICLE:
                 content = messageHandlerFactory.handleMessage(roomId, playerId ,messageType, msgMap);
                 sessionService.unicastMessage(roomId, playerId, messageType, content);
                 break;
