@@ -14,4 +14,9 @@ public interface CropRepository extends MongoRepository<Crop, String>, CropCusto
 
     @Query(value = "{ '_id': ?0 }", fields = "{ 'articleList.futureArticles': 0 }")
     Optional<Crop> findCropWithoutFutureArticles(String cropId);
+
+    // Article의 ID만 가져오는 쿼리
+    @Query(value = "{ '_id': ?0 }", fields = "{ 'articleList._id': 1, '_id': 1 }")
+    Optional<Crop> findCropWithArticleIdsOnly(String cropId);
+
 }
