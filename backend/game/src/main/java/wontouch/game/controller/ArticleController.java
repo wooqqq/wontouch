@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wontouch.game.entity.Article;
 import wontouch.game.entity.Crop;
+import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.service.ArticleService;
 import wontouch.game.service.CropService;
 
@@ -18,10 +19,13 @@ public class ArticleController {
 
     private final ArticleService articleService;
     private final CropService cropService;
+    // TODO 테스트용 추후 삭제 예정
+    private final ArticleRepository articleRepository;
 
-    public ArticleController(ArticleService articleService, CropService cropService) {
+    public ArticleController(ArticleService articleService, CropService cropService, ArticleRepository articleRepository) {
         this.articleService = articleService;
         this.cropService = cropService;
+        this.articleRepository = articleRepository;
     }
 
     @PostMapping("/{cropId}")
@@ -37,5 +41,15 @@ public class ArticleController {
     public ResponseEntity<?> getRandomArticles(@PathVariable String roomId) {
         articleService.saveArticles(roomId, 2);
         return ResponseEntity.ok("random articles");
+    }
+
+    @PostMapping("/buy/{roomId}")
+    public ResponseEntity<?> buyTest(@PathVariable String roomId, @RequestBody Map<String, Object> buyInfo) {
+        String cropId = cropService.getRandomCropFromGame(roomId);
+        cropId = "radish";
+        String playerId = buyInfo.get("playerId").toString();
+        Article article = articleRepository.buyRandomArticle(roomId, playerId, cropId);
+
+        return ResponseEntity.ok(article);
     }
 }

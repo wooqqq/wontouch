@@ -12,6 +12,14 @@ public interface CropRepository extends MongoRepository<Crop, String>, CropCusto
 
     List<Crop> findByType(String type);
 
+    @Query(value = "{ '_id': ?0, 'articleList._id': ?1 }", fields = "{ 'articleList.$': 1 }")
+    Optional<Crop> findCropByArticleId(String cropId, String articleId);
+
+    @Query(value = "{ '_id': ?0, 'articleList._id': ?1 }", fields = "{ 'articleList.$': 1, 'articleList.futureArticles': 0 }")
+    Optional<Crop> findCropByArticleIdWithoutFutureArticles(String cropId, String articleId);
+
+
+
     @Query(value = "{ '_id': ?0 }", fields = "{ 'articleList.futureArticles': 0 }")
     Optional<Crop> findCropWithoutFutureArticles(String cropId);
 

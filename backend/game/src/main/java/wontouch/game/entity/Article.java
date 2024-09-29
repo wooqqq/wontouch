@@ -8,7 +8,6 @@ import java.util.List;
 
 @Data
 public class Article {
-
     @Id
     private String id;
     private String crop;

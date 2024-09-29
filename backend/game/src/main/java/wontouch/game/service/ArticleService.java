@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.game.entity.Article;
 import wontouch.game.entity.Crop;
+import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
 
@@ -18,6 +19,7 @@ public class ArticleService {
 
     private final CropRepository cropRepository;
     private final CropRedisRepository cropRedisRepository;
+    private final ArticleRepository articleRepository;
     private final RestTemplate restTemplate = new RestTemplate();
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String ROOM_PREFIX = "game:";
@@ -26,13 +28,19 @@ public class ArticleService {
     private static final String CROP_SUFFIX = ":crop";
     private static final String ARTICLE_SUFFIX = ":article";
 
-    public ArticleService(CropRepository cropRepository, CropRedisRepository cropRedisRepository, RedisTemplate<String, Object> redisTemplate) {
+    public ArticleService(CropRepository cropRepository, CropRedisRepository cropRedisRepository, ArticleRepository articleRepository, RedisTemplate<String, Object> redisTemplate) {
         this.cropRepository = cropRepository;
         this.cropRedisRepository = cropRedisRepository;
+        this.articleRepository = articleRepository;
         this.redisTemplate = redisTemplate;
     }
 
-    // 작물의 기사 업데이트
+    // 기사 구매
+    public void buyArticle(String roomId, String playerId, String articleId) {
+
+    }
+
+    // 기사 업데이트
     public Crop updateArticleList(String cropId, List<Article> articleList) {
         Optional<Crop> findCrop = cropRepository.findById(cropId);
         Crop crop = findCropOrThrow(findCrop);
@@ -56,6 +64,8 @@ public class ArticleService {
         return cropRepository.save(crop);
     }
 
+    // 라운드 시작 시 상점 정보 세팅
+    // TODO 라운드 타이머와 연결
     public void saveArticles(String roomId, int numArticles) {
         Map<String, List<String>> randomArticleIds = loadRandomArticleIds(roomId, numArticles);
         String articleKey = ROOM_PREFIX + roomId + ARTICLE_SUFFIX;
