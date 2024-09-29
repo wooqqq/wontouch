@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import static wontouch.game.domain.RedisKeys.PLAYER_SUFFIX;
+import static wontouch.game.domain.RedisKeys.GAME_PREFIX;
+
 @Service
 @Slf4j
 public class TimerService {
@@ -23,8 +26,6 @@ public class TimerService {
 
     @Value("${socket.server.name}:${socket.server.path}")
     private String socketServerUrl;
-    private static final String GAME_PREFIX = "game:";
-    private static final String PLAYER_SUFFIX = ":player";
 
     // 라운드를 관리하는 타이머
     private final Map<String, ScheduledFuture<?>> roundTimers = new ConcurrentHashMap<>();
@@ -51,6 +52,10 @@ public class TimerService {
         roundTimers.put(roomId, roundTimer);
 
         log.debug("start Timer For {}", roomId);
+
+        // 각 플레이어의 기사 구입 가격 초기화
+        playerRepository.setPlayersArticlePrice(roomId);
+
         // 클라이언트에게 라운드 시작 알림
         notifyClientsOfRoundStart(roomId);
     }

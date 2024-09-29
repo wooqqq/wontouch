@@ -12,16 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static wontouch.game.domain.RedisKeys.*;
+
 @Repository
 @Slf4j
 public class GameRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final PlayerRepository playerRepository;
-    private static final String GAME_PREFIX = "game:";
-    private static final String ROOM_SUFFIX = ":room";
-    private static final String PLAYER_PREFIX = "player:";
-    private static final String PLAYER_SUFFIX = ":player";
     private static final int TOTAL_EXPERIENCE = 1000;
     private static final int TOTAL_MILEAGE = 500;
     private static final int MAX_PLAYER = 8;

@@ -10,6 +10,8 @@ import wontouch.game.repository.crop.CropRepository;
 
 import java.util.*;
 
+import static wontouch.game.domain.RedisKeys.*;
+
 @Repository
 @Slf4j
 public class ArticleRepository {
@@ -17,11 +19,6 @@ public class ArticleRepository {
     private final CropRepository cropRepository;
     private final CropRedisRepository cropRedisRepository;
     private final RedisTemplate<String, Object> redisTemplate;
-    private static final String ROOM_PREFIX = "game:";
-    private static final String PLAYER_PREFIX = "player:";
-    private static final String CROP_INFIX = ":crop:";
-    private static final String CROP_SUFFIX = ":crop";
-    private static final String ARTICLE_SUFFIX = ":article";
 
     public ArticleRepository(CropRepository cropRepository, CropRedisRepository cropRedisRepository, RedisTemplate<String, Object> redisTemplate) {
         this.cropRepository = cropRepository;
@@ -42,8 +39,9 @@ public class ArticleRepository {
     }
 
     public Article buyRandomArticle(String roomId, String playerId, String cropId) {
-        String articleKey = ROOM_PREFIX + roomId + ARTICLE_SUFFIX + ":" + cropId;
+        String articleKey = GAME_PREFIX + roomId + ARTICLE_SUFFIX + ":" + cropId;
         String playerArticleKey = PLAYER_PREFIX + playerId + ARTICLE_SUFFIX;
+        String playerInfoKey = PLAYER_PREFIX + playerId + INFO_SUFFIX;
         Set<Object> articleIds = redisTemplate.opsForSet().members(articleKey);
         log.debug("crop:{}, articleIds:{}", cropId, articleIds);
         List<Object> articleIdList = new ArrayList<>(Objects.requireNonNull(articleIds));
@@ -52,6 +50,7 @@ public class ArticleRepository {
         if (!articleIdList.isEmpty()) {
             // 랜덤 인덱스를 통해 랜덤한 값 선택
             Object articleId = articleIdList.get(random.nextInt(articleIdList.size()));
+//            redisTemplate.opsForHash().increment(playerArticleKey, "gold", -totalPrice); // 골드 차감
             redisTemplate.opsForSet().add(playerArticleKey, articleId);
             // TODO 처리 로직
             return getArticle(cropId, (String)articleId);

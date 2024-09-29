@@ -43,13 +43,15 @@ public class GameController {
         // 작물 정보 세팅
         List<Crop> cropList = cropService.loadRandomCropsFromEachTypeToRedis(roomId);
         gameService.initPlayersCrops(players, cropList);
-        timerService.startNewRound(roomId);
 
         String targetUrl = socketServerUrl + "/game/crop-list";
         Map<String, Object> cropListResponse = new ConcurrentHashMap<>();
         cropListResponse.put("roomId", roomId);
         cropListResponse.put("cropList", cropList);
         restTemplate.postForObject(targetUrl, cropListResponse, String.class);
+
+        // 게임 시작
+        timerService.startNewRound(roomId);
         return cropList;
     }
 

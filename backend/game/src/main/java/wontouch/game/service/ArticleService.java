@@ -12,6 +12,7 @@ import wontouch.game.repository.crop.CropRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import static wontouch.game.domain.RedisKeys.*;
 
 @Service
 @Slf4j
@@ -22,11 +23,6 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final RestTemplate restTemplate = new RestTemplate();
     private final RedisTemplate<String, Object> redisTemplate;
-    private static final String ROOM_PREFIX = "game:";
-    private static final String PLAYER_PREFIX = "player:";
-    private static final String CROP_INFIX = ":crop:";
-    private static final String CROP_SUFFIX = ":crop";
-    private static final String ARTICLE_SUFFIX = ":article";
 
     public ArticleService(CropRepository cropRepository, CropRedisRepository cropRedisRepository, ArticleRepository articleRepository, RedisTemplate<String, Object> redisTemplate) {
         this.cropRepository = cropRepository;
@@ -68,7 +64,7 @@ public class ArticleService {
     // TODO 라운드 타이머와 연결
     public void saveArticles(String roomId, int numArticles) {
         Map<String, List<String>> randomArticleIds = loadRandomArticleIds(roomId, numArticles);
-        String articleKey = ROOM_PREFIX + roomId + ARTICLE_SUFFIX;
+        String articleKey = GAME_PREFIX + roomId + ARTICLE_SUFFIX;
 
         for (String cropId : randomArticleIds.keySet()) {
             String articleCropKey = articleKey + ":" + cropId;

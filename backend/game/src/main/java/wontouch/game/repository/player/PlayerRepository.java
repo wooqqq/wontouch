@@ -7,24 +7,30 @@ import wontouch.game.domain.PlayerStatus;
 import wontouch.game.repository.crop.CropRedisRepository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static wontouch.game.domain.RedisKeys.*;
 
 @Repository
 public class PlayerRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final CropRedisRepository cropRepository;
-    private static final String GAME_PREFIX = "game:";
-    private static final String PLAYER_PREFIX = "player:";
-    private static final String PLAYER_SUFFIX = ":player";
-    private static final String PLAYER_INFIX = ":player:";
-    private static final String CROP_SUFFIX = ":crop";
-    private static final String INFO_SUFFIX = ":info";
+
+    private static final int ARTICLE_DEFAULT_PRICE = 5000;
 
     public PlayerRepository(RedisTemplate<String, Object> redisTemplate, CropRedisRepository cropRepository) {
         this.redisTemplate = redisTemplate;
         this.cropRepository = cropRepository;
+    }
+
+    // 현재 게임에 참여중인 플레이어 조회
+    public Set<Object> getPlayersFromGame(String roomId) {
+        String key = GAME_PREFIX + roomId + PLAYER_SUFFIX;
+        Set<Object> keys = redisTemplate.opsForHash().keys(key);
+        return keys;
     }
 
     // 플레이어 저장
@@ -48,6 +54,7 @@ public class PlayerRepository {
         return redisTemplate.opsForHash().entries(playerCropKey);
     }
 
+    // 플레이어의 최종 골드 계산
     public int calculateTotalGold(String roomId, String playerId) {
         int totalGold = getPlayerGold(playerId);
         Map<Object, Object> allCropsByPlayer = findAllCropsByPlayer(playerId);
@@ -60,8 +67,18 @@ public class PlayerRepository {
         return totalGold;
     }
 
+    // 플레이어의 골드 반환
     private int getPlayerGold(String playerId) {
         String playerKey = PLAYER_PREFIX + playerId + INFO_SUFFIX;
         return (Integer) redisTemplate.opsForHash().get(playerKey, "gold");
+    }
+
+    // 플레이어의 기사 구입 초기 가격 세팅
+    public void setPlayersArticlePrice(String roomId) {
+        Set<Object> players = getPlayersFromGame(roomId);
+        for (Object player : players) {
+            String key = PLAYER_PREFIX + player + INFO_SUFFIX;
+            redisTemplate.opsForHash().put(key, "articlePrice", ARTICLE_DEFAULT_PRICE);
+        }
     }
 }
