@@ -27,6 +27,16 @@ public enum CustomException {
     ALREADY_EQUIPPED_AVATAR_EXCEPTION(400, "AlreadyEquippedAvatarException", "이미 장착된 아바타가 있습니다."),
     NOT_FOUND_AVATAR_EXCEPTION(400, "NotFoundAvatarException", "아바타가 존재하지 않습니다."),
 
+    // 친구
+    NOT_OTHER_USER_PROFILE_EXCEPTION(400, "NotOtherUserProfileException", "타인의 프로필이 아닙니다."),
+    ALREADY_FRIEND_EXCEPTION(400, "AlreadyFriendException", "이미 친구인 사용자입니다."),
+    NOT_FOUND_FRIEND_EXCEPTION(400, "NotFoundFriendException", "친구를 찾을 수 없습니다."),
+
+    // 친구 요청
+    NOT_FOUND_FRIEND_REQUEST_EXCEPTION(400, "NotFoundFriendRequestException", "친구 신청이 존재하지 않습니다."),
+    ALREADY_EXIST_REQUEST_EXCEPTION(400, "AlreadyExistRequestException", "이미 친구 요청이 존재합니다."),
+    NOT_AUTH_ACCEPT_REQUEST_EXCEPTION(400, "NotAuthFriendAcceptException", "친구 요청 승인 권한이 없습니다."),
+
     // 아직 처리하지 않은 예외사항
     UNHANDLED_ERROR_EXCEPTION(400, "UnhandledErrorException", "처리되지 않은 에러가 발생했습니다."),
 

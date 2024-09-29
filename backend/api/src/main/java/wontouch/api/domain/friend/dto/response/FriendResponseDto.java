@@ -1,4 +1,4 @@
-package wontouch.api.domain.user.dto.response;
+package wontouch.api.domain.friend.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,16 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDto {
+public class FriendResponseDto {
 
-    private int userId;
-    private String email;
+    private int friendId;
     private String nickname;
     private String description;
     private String characterName;
-    private int tierPoint;
-
-    public void updateEmail(String email) {
-        this.email = email;
-    }
+    private String tier;
 }

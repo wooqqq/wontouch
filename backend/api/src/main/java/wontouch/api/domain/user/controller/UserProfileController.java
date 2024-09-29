@@ -12,7 +12,7 @@ import wontouch.api.domain.user.dto.request.NicknameUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.UserProfileCreateRequestDto;
 import wontouch.api.domain.user.model.repository.UserProfileRepository;
 import wontouch.api.domain.user.model.service.AvatarService;
-import wontouch.api.domain.user.model.service.UserService;
+import wontouch.api.domain.user.model.service.UserProfileService;
 import wontouch.api.global.dto.ResponseDto;
 
 @RestController
@@ -21,14 +21,14 @@ import wontouch.api.global.dto.ResponseDto;
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserProfileController {
 
-    private final UserService userService;
+    private final UserProfileService userProfileService;
     private final AvatarService avatarService;
     private final UserProfileRepository userProfileRepository;
 
     // 회원가입 시 기본 프로필 설정
     @PostMapping("/join")
     public ResponseEntity<?> createUserProfile(@Valid @RequestBody UserProfileCreateRequestDto createDto) {
-        UserProfile createProfile = userService.createUserProfile(createDto);
+        UserProfile createProfile = userProfileService.createUserProfile(createDto);
         avatarService.setInitialAvatar(createProfile.getUserId());
 
         ResponseDto<String> responseDto = ResponseDto.<String>builder()
@@ -66,7 +66,7 @@ public class UserProfileController {
     // 닉네임 수정
     @PatchMapping("/nickname/update")
     public ResponseEntity<?> updateNickname(@Valid @RequestBody NicknameUpdateRequestDto requestDto) {
-        userService.updateNickname(requestDto);
+        userProfileService.updateNickname(requestDto);
 
         ResponseDto<String> responseDto = ResponseDto.<String>builder()
                 .status(HttpStatus.CREATED.value())
@@ -80,7 +80,7 @@ public class UserProfileController {
     // 한줄소개 수정
     @PatchMapping("/description")
     public ResponseEntity<?> updateDescription(@Valid @RequestBody DescriptionUpdateRequestDto requestDto) {
-        userService.updateDescription(requestDto);
+        userProfileService.updateDescription(requestDto);
         
         ResponseDto<String> responseDto = ResponseDto.<String>builder()
                 .status(HttpStatus.CREATED.value())
