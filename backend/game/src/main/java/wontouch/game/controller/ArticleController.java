@@ -9,6 +9,7 @@ import wontouch.game.service.ArticleService;
 import wontouch.game.service.CropService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/article")
@@ -34,7 +35,7 @@ public class ArticleController {
 
     @GetMapping("/get-random/{roomId}")
     public ResponseEntity<?> getRandomArticles(@PathVariable String roomId) {
-        List<Article> articles = articleService.loadRandomArticleList(roomId, 2);
+        Map<String, List<Article>> articles = articleService.loadRandomArticleList(roomId, 2);
         return ResponseEntity.ok(articles);
     }
 }

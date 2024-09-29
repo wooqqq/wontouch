@@ -2,6 +2,7 @@ package wontouch.game.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import wontouch.game.entity.Article;
 import wontouch.game.entity.Crop;
 import wontouch.game.repository.crop.CropRedisRepository;
@@ -15,6 +16,11 @@ public class ArticleService {
 
     private final CropRepository cropRepository;
     private final CropRedisRepository cropRedisRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private static final String ROOM_PREFIX = "game:";
+    private static final String PLAYER_PREFIX = "player:";
+    private static final String CROP_INFIX = ":crop:";
+    private static final String CROP_SUFFIX = ":crop";
 
     public ArticleService(CropRepository cropRepository, CropRedisRepository cropRedisRepository) {
         this.cropRepository = cropRepository;
@@ -26,6 +32,14 @@ public class ArticleService {
         Optional<Crop> findCrop = cropRepository.findById(cropId);
         Crop crop = findCropOrThrow(findCrop);
         List<Article> currentArticleList = crop.getArticleList();
+
+        // ID 할
+        for (Article article : articleList) {
+            if (article.getId() == null || article.getId().isEmpty()) {
+                article.setId(UUID.randomUUID().toString()); // 새로운 ID 할당
+            }
+        }
+
         if (currentArticleList == null) {
             // 기존 Article 리스트가 없으면 새로운 리스트로 설정
             crop.setArticleList(articleList);
@@ -38,10 +52,10 @@ public class ArticleService {
     }
 
     // 랜덤한 기사 리스트 로드
-    public List<Article> loadRandomArticleList(String roomId, int numArticles) {
+    public Map<String, List<Article>> loadRandomArticleList(String roomId, int numArticles) {
         Set<Object> allCrops = cropRedisRepository.getAllCrops(roomId);
         log.debug("allCrops from loadRandomArticleList: {}", allCrops);
-        List<Article> randomArticles = new ArrayList<>();
+        Map<String, List<Article>> randomArticles = new HashMap<>();
         Random random = new Random();
 
         for (Object cropId : allCrops) {
@@ -51,7 +65,7 @@ public class ArticleService {
             if (articleList != null && !articleList.isEmpty()) {
                 // 랜덤하게 지정한 수의 기사를 뽑아냄
                 List<Article> randomSelection = getRandomArticles(articleList, numArticles, random);
-                randomArticles.addAll(randomSelection);
+                randomArticles.put((String) cropId, randomSelection);
             }
         }
         return randomArticles;
