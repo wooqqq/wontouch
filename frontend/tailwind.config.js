@@ -13,17 +13,21 @@ export default {
         2: '2px black',
         1: '1px black',
       },
+      textStroke: {
+        '2': '2px black',
+        '1': '1px black'
+      },
     },
   },
   plugins: [
-    function ({ addUtilities }) {
+    function({ addUtilities }){
       const newUtilities = {
         '.text-stroke': {
           '-webkit-text-stroke': '2px black',
         },
         '.text-stroke1': {
           '-webkit-text-stroke': '1px black',
-        },
+        }
       };
 
       addUtilities(newUtilities);
