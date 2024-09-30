@@ -39,7 +39,7 @@ public class ArticleController {
 
     @GetMapping("/get-random/{roomId}")
     public ResponseEntity<?> getRandomArticles(@PathVariable String roomId) {
-        articleService.saveArticles(roomId, 2);
+        articleService.saveNewArticlesForRound(roomId, 2);
         return ResponseEntity.ok("random articles");
     }
 

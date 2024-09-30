@@ -34,13 +34,15 @@ public class TimerService {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final ArticleRepository articleRepository;
+    private final ArticleService articleService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, RedisTemplate<String, Object> redisTemplate) {
+    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.articleRepository = articleRepository;
+        this.articleService = articleService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -67,8 +69,8 @@ public class TimerService {
         // WebSocket 서버로 라운드 종료 알림 전송
         notifyClientsOfRoundEnd(roomId);
 
-        // TODO 작물 가격 계산 -> Redis에 반영 -> 라운드 결과 출력
         articleRepository.calculateArticleResult(roomId, round);
+        // TODO 이번 라운드 결과 각자에게 유니캐스트?
         log.debug("작물 가격 계산 완료 후 반영: {}", roomId);
         // 마지막 라운드라면 종료
         if (round >= FINAL_ROUND) {
@@ -89,6 +91,8 @@ public class TimerService {
         notifyClientsOfPreparationStart(roomId);
 
         // TODO 작물 가격 기록
+        // TODO 다음 라운드 기사 세팅
+        articleService.saveNewArticlesForRound(roomId, 2);
     }
 
     private void notifyClientsOfPreparationStart(String roomId) {
@@ -161,7 +165,7 @@ public class TimerService {
         log.debug("최종 결과 테이블 출력: {}", resultTable);
         gameResult.put("roomId", roomId);
         gameResult.put("game-result", resultTable);
-        // TODO 결과 게임 서버에 브로드캐스트
+
         restTemplate.postForObject(targetUrl, gameResult, Map.class);
         // TODO 마일리지 부여를 위해 API 전송
     }

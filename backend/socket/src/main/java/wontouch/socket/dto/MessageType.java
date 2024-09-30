@@ -16,7 +16,7 @@ public enum MessageType {
     TOWN_CROP_LIST("TOWN_CROP_LIST"),
     CROP_CHART("CROP_CHART"),
     ROUND_READY("ROUND_READY"),
-    RESULT("RESULT"),
+    GAME_RESULT("GAME_RESULT"),
     ERROR("ERROR");
 
     private final String value;

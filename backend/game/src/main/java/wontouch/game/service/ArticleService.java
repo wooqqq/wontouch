@@ -62,12 +62,17 @@ public class ArticleService {
 
     // 라운드 시작 시 상점 정보 세팅
     // TODO 라운드 타이머와 연결
-    public void saveArticles(String roomId, int numArticles) {
+    public void saveNewArticlesForRound(String roomId, int numArticles) {
         Map<String, List<String>> randomArticleIds = loadRandomArticleIds(roomId, numArticles);
         String articleKey = GAME_PREFIX + roomId + ARTICLE_SUFFIX;
 
         for (String cropId : randomArticleIds.keySet()) {
             String articleCropKey = articleKey + ":" + cropId;
+
+            // 기존 기사 정보를 삭제
+            redisTemplate.delete(articleCropKey);
+
+            // 새로운 기사 세팅
             List<String> ids = randomArticleIds.get(cropId);
             for (String id : ids) {
                 redisTemplate.opsForSet().add(articleCropKey, id);
