@@ -6,7 +6,7 @@ export const createPlayerMovement = (
   cursors: Phaser.Types.Input.Keyboard.CursorKeys,
   delta: number //델타 타임 추가
 ) => {
-  const baseSpeed = 30000;
+  const baseSpeed = 15000;
   const speed = baseSpeed * (delta / 10);
   let vx = 0;
   let vy = 0;
@@ -24,12 +24,13 @@ export const createPlayerMovement = (
     player.flipX = false;
     moving = true;
   }
+  //위아래는 조금더 느리게..
   if (cursors.up.isDown) {
-    vy = -speed;
+    vy = -speed + 5;
     moving = true;
   }
   if (cursors.down.isDown) {
-    vy = speed;
+    vy = speed - 5;
     moving = true;
   }
 

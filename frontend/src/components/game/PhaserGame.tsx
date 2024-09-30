@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createGameMap } from './GameMap';
 import { createPlayerMovement } from './PlayerMovement';
 import InteractionModal from './InteractionModal';
+import MapModal from './MapModal';
+import ResultModal from './ResultModal';
 
 interface MapLayers {
   backgroundLayer: Phaser.Tilemaps.TilemapLayer | null;
@@ -33,6 +35,33 @@ interface MapLayers {
 
 const PhaserGame = () => {
   const [houseNum, setHouseNum] = useState<number | null>(null);
+  const [openMap, setOpenMap] = useState<boolean>(false);
+  const houseNumRef = useRef<number | null>(houseNum);
+
+  const [round, setRound] = useState(1); // 라운드 상태
+  const [timer, setTimer] = useState(30); // 타이머 상태
+  const [showModal, setShowModal] = useState(false); // 모달 상태
+
+  // houseNum이 변경될 때마다 houseNumRef를 업데이트
+  useEffect(() => {
+    houseNumRef.current = houseNum;
+  }, [houseNum]);
+
+   // 타이머 로직 - React에서 관리
+   useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+        console.log(timer);
+      }, 1000);
+
+      return () => clearInterval(interval); // 타이머 클리어
+    } else {
+      setShowModal(true); // 타이머가 0이 되면 모달을 띄움
+    }
+  }, [timer]);
+
+
   useEffect(() => {
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
@@ -61,8 +90,15 @@ const PhaserGame = () => {
 
     const game = new Phaser.Game(config);
 
+    const resize = () => {
+      game.scale.resize(window.innerWidth, window.innerHeight);
+    };
+
+    window.addEventListener('resize', resize);
+
     return () => {
       game.destroy(true);
+      window.removeEventListener('resize', resize);
     };
   }, []);
 
@@ -70,6 +106,7 @@ const PhaserGame = () => {
   let cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   let spaceBar: Phaser.Input.Keyboard.Key;
   let mapLayers: MapLayers | undefined | null;
+  let mKey: Phaser.Input.Keyboard.Key | undefined | null;
 
   function preload(this: Phaser.Scene) {
     this.load.tilemapTiledJSON('map', '../src/assets/background/testmap.json');
@@ -164,7 +201,7 @@ const PhaserGame = () => {
   //생성
   function create(this: Phaser.Scene) {
     mapLayers = createGameMap(this);
-    //mapLayer가 정의되지 않았면 빈 객체로 처리해준다.
+    //mapLayer가 정의되지 않았으면 빈 객체로 처리해준다.
     const {
       backgroundLayer,
       groundLayer,
@@ -201,7 +238,7 @@ const PhaserGame = () => {
     void house_topLayer;
     void river_lakeLayer;
 
-    player = this.physics.add.sprite(2240, 1380, 'player');
+    player = this.physics.add.sprite(4000, 300, 'player');
     player.setCollideWorldBounds(true);
     player.setScale(1);
 
@@ -236,7 +273,7 @@ const PhaserGame = () => {
     timerBackground.setDisplaySize(80, 30);
     timerBackground.setScrollFactor(0);
     //라운드 텍스트 생성
-    const roundText = this.add.text(width / 2, height / 2, '1R', {
+    const roundText = this.add.text(width / 2, height / 2, `${round}R`, {
       fontFamily: 'DNFBitBitv2',
       color: '#FFEE00', // 텍스트 색상
       fontSize: '14px',
@@ -245,13 +282,18 @@ const PhaserGame = () => {
     });
 
     // 타이머 텍스트 생성 (화면 중앙에 배치)
-    const timeText = this.add.text(width / 2, height / 2, '5 : 00', {
-      fontFamily: 'DNFBitBitv2',
-      fontSize: '14px',
-      color: '#ffffff', // 텍스트 색상
-      stroke: '#000000', // 스토크 색상 (검정색)
-      strokeThickness: 2, // 스토크 두께
-    });
+    const timeText = this.add.text(
+      width / 2,
+      height / 2,
+      `${Math.floor(timer / 60)} : ${timer % 60 < 10 ? '0' : ''}${timer % 60}`,
+      {
+        fontFamily: 'DNFBitBitv2',
+        fontSize: '14px',
+        color: '#ffffff', // 텍스트 색상
+        stroke: '#000000', // 스토크 색상 (검정색)
+        strokeThickness: 2, // 스토크 두께
+      },
+    );
 
     //이미지 위치설정
     timerBackground.setOrigin(0.5, 5.9);
@@ -264,31 +306,42 @@ const PhaserGame = () => {
     //타이머 위치설정
     timeText.setOrigin(0.5, 8.25);
 
-    // 타이머 변수 초기화
-    let timer = 300;
-
     // 타이머 텍스트를 화면에 고정
     timeText.setScrollFactor(0);
     timeText.setDepth(10); // 텍스트가 다른 객체 위에 표시되도록 설정
 
-    // 타이머 이벤트 설정 (1초마다 업데이트)
+    // 타이머 값이 변경될 때마다 React 상태와 동기화된 값을 업데이트
     this.time.addEvent({
-      delay: 1000, // 1초마다 실행
+      delay: 1000,
       callback: () => {
-        if (timer !== 0) {
-          timer--; // 1초마다 timer 값 감소
-        }
-        timeText.setText(
-          `${Math.floor(timer / 60)} : ${timer % 60 < 10 ? '0' : ''}${timer % 60}`,
-        ); // 타이머 값을 업데이트
+        timeText.setText(`${Math.floor(timer / 60)}:${timer % 60 < 10 ? '0' : ''}${timer % 60}`);
       },
-      loop: true, // 반복 실행
+      loop: true,
+    });
+
+    //지도열기 설정
+    mKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.M);
+
+    this.scale.on('resize', (gameSize: { width: number; height: number }) => {
+      const { width, height } = gameSize;
+      // 예시로 타이머와 라운드 텍스트 위치 조정
+      timerBackground.setPosition(width / 2, height / 2);
+      roundText.setPosition(width / 2, height / 2);
+      timeText.setPosition(width / 2, height / 2);
     });
   }
 
   //업데이트
   function update(this: Phaser.Scene) {
-    createPlayerMovement(this, player, cursors, 16);
+    if (houseNumRef.current === null) {
+      createPlayerMovement(this, player, cursors, 16);
+    }
+
+    //지도 열기 기능
+    if (mKey && Phaser.Input.Keyboard.JustDown(mKey)) {
+      setOpenMap(!openMap);
+    }
+
     //거래소 및 마을에서의 상호작용 기능
     if (mapLayers && Phaser.Input.Keyboard.JustDown(spaceBar)) {
       const {
@@ -340,14 +393,26 @@ const PhaserGame = () => {
     }
   }
 
-  const closModal = () => {
+  const handleNextRound = () => {
+    setRound((prevRound) => prevRound + 1);
+    setTimer(30);
+    setShowModal(false);
+  }
+
+  const closeModal = () => {
     setHouseNum(null);
+  };
+
+  const closeMapModal = () => {
+    setOpenMap(!openMap);
   };
 
   return (
     <div>
       <div id="phaser-game-container" />
-      <InteractionModal houseNum={houseNum} closeModal={closModal} />
+      {<InteractionModal houseNum={houseNum} closeModal={closeModal} />}
+      {openMap && <MapModal closeMapModal={closeMapModal} />}
+      {showModal && <ResultModal round={round} onNextRound={handleNextRound} />}
     </div>
   );
 };
