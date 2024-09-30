@@ -65,7 +65,6 @@ function KakaoLoginHandler() {
         },
       });
 
-      // dispatch(setUserId(response.data.data.userId));
       dispatch(setUserNickname(response.data.data.nickname));
       dispatch(setUserDescription(response.data.data.description));
       dispatch(setUserCharacterName(response.data.data.characterName));

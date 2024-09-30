@@ -37,7 +37,7 @@ export default function ProfileImg() {
   return (
     <div>
       {profileImgSrc ? (
-        <img src={profileImgSrc} />
+        <img src={profileImgSrc} className="p-1" />
       ) : (
         <div>캐릭터 이미지를 찾을 수 없습니다.</div>
       )}
