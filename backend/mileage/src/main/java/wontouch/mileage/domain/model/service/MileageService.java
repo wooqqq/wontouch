@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import wontouch.mileage.domain.dto.request.MileageCreateRequestDto;
+import wontouch.mileage.domain.dto.response.MileageResponseDto;
 import wontouch.mileage.domain.entity.MileageLog;
 import wontouch.mileage.domain.entity.MileageLogType;
 import wontouch.mileage.domain.model.repository.MileageLogRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,6 +39,21 @@ public class MileageService {
     }
 
     // 마일리지 적립 목록 조회
+    public List<MileageResponseDto> getMileageLogList(int userId) {
+        List<MileageLog> mileageLogList = mileageLogRepository.findByUserId(userId);
+
+        List<MileageResponseDto> responseDtoList = mileageLogList.stream()
+                .map(mileageLog -> MileageResponseDto.builder()
+                        .amount(mileageLog.getAmount())
+                        .description(mileageLog.getDescription())
+                        .totalMileage(mileageLog.getTotalMileage())
+                        .createAt(mileageLog.getCreateAt().toString())
+                        .mileageLogType(mileageLog.getMileageLogType().toString())
+                        .build())
+                .toList();
+
+        return responseDtoList;
+    }
 
     // 총 마일리지 조회
     public int getTotalMileageByUserId(int userId) {
