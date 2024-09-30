@@ -38,28 +38,23 @@ const PhaserGame = () => {
   const [openMap, setOpenMap] = useState<boolean>(false);
   const houseNumRef = useRef<number | null>(houseNum);
 
-  const [round, setRound] = useState(1); // 라운드 상태
-  const [timer, setTimer] = useState(30); // 타이머 상태
-  const [showModal, setShowModal] = useState(false); // 모달 상태
+  const [showModal, setShowModal] = useState(false);
+  const [round, setRound] = useState(1);
+  const timerRef = useRef(30); // 타이머 값을 useRef로 관리
+  const timeTextRef = useRef<Phaser.GameObjects.Text | null>(null);
+  const roundTextRef = useRef<Phaser.GameObjects.Text | null>(null);
 
   // houseNum이 변경될 때마다 houseNumRef를 업데이트
   useEffect(() => {
     houseNumRef.current = houseNum;
   }, [houseNum]);
 
-   // 타이머 로직 - React에서 관리
-   useEffect(() => {
-    if (timer > 0) {
-      const interval = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
-        console.log(timer);
-      }, 1000);
-
-      return () => clearInterval(interval); // 타이머 클리어
-    } else {
-      setShowModal(true); // 타이머가 0이 되면 모달을 띄움
+  // round가 변경되면 Phaser 내의 round 텍스트 업데이트
+  useEffect(() => {
+    if (roundTextRef.current) {
+      roundTextRef.current.setText(`${round}R`);
     }
-  }, [timer]);
+  }, [round]);
 
 
   useEffect(() => {
@@ -281,11 +276,13 @@ const PhaserGame = () => {
       strokeThickness: 4, // 스토크 두께
     });
 
+    roundTextRef.current = roundText;
+
     // 타이머 텍스트 생성 (화면 중앙에 배치)
     const timeText = this.add.text(
       width / 2,
       height / 2,
-      `${Math.floor(timer / 60)} : ${timer % 60 < 10 ? '0' : ''}${timer % 60}`,
+      `${Math.floor(timerRef.current / 60)} : ${timerRef.current % 60 < 10 ? '0' : ''}${timerRef.current % 60}`,
       {
         fontFamily: 'DNFBitBitv2',
         fontSize: '14px',
@@ -310,11 +307,21 @@ const PhaserGame = () => {
     timeText.setScrollFactor(0);
     timeText.setDepth(10); // 텍스트가 다른 객체 위에 표시되도록 설정
 
-    // 타이머 값이 변경될 때마다 React 상태와 동기화된 값을 업데이트
+    timeTextRef.current = timeText;
+
+    // 타이머 이벤트
     this.time.addEvent({
       delay: 1000,
       callback: () => {
-        timeText.setText(`${Math.floor(timer / 60)}:${timer % 60 < 10 ? '0' : ''}${timer % 60}`);
+        if (timerRef.current > 0) {
+          timerRef.current -= 1; // timerRef.current 값을 직접 수정
+        } else {
+          setShowModal(true); // 타이머가 0이 되면 모달을 보여줌
+        }
+        // 타이머 텍스트 업데이트
+        timeTextRef.current?.setText(
+          `${Math.floor(timerRef.current / 60)} : ${timerRef.current % 60 < 10 ? '0' : ''}${timerRef.current % 60}`,
+        );
       },
       loop: true,
     });
@@ -394,10 +401,11 @@ const PhaserGame = () => {
   }
 
   const handleNextRound = () => {
-    setRound((prevRound) => prevRound + 1);
-    setTimer(30);
+    timerRef.current = 30; // 타이머 초기화
+    setRound((prev) => prev + 1);
+    console.log(round);
     setShowModal(false);
-  }
+  };
 
   const closeModal = () => {
     setHouseNum(null);
