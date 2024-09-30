@@ -9,6 +9,8 @@ import wontouch.mileage.domain.dto.response.MileageResponseDto;
 import wontouch.mileage.domain.entity.MileageLog;
 import wontouch.mileage.domain.entity.MileageLogType;
 import wontouch.mileage.domain.model.repository.MileageLogRepository;
+import wontouch.mileage.global.exception.CustomException;
+import wontouch.mileage.global.exception.ExceptionResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,7 +40,8 @@ public class MileageService {
 
     // 마일리지 적립 목록 조회
     public List<MileageResponseDto> getMileageLogList(int userId) {
-        List<MileageLog> mileageLogList = mileageLogRepository.findByUserId(userId);
+        List<MileageLog> mileageLogList = mileageLogRepository.findByUserId(userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_MILEAGE_LOG_EXCEPTION));
 
         List<MileageResponseDto> responseDtoList = mileageLogList.stream()
                 .map(mileageLog -> MileageResponseDto.builder()
@@ -55,7 +58,8 @@ public class MileageService {
 
     // 총 마일리지 조회
     public int getTotalMileageByUserId(int userId) {
-        List<MileageLog> mileageLogs = mileageLogRepository.findByUserId(userId);
+        List<MileageLog> mileageLogs = mileageLogRepository.findByUserId(userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_MILEAGE_LOG_EXCEPTION));
 
         // 적립일 경우 더하고, 사용일 경우 빼는 방식으로 총 마일리지 계산
         return mileageLogs.stream()
