@@ -24,4 +24,6 @@ public class MileageLog {
     private int totalMileage;
 
     private LocalDateTime createAt;
+    
+    private MileageLogType mileageLogType;  // 적립, 사용 여부
 }
