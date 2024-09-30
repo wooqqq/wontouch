@@ -1,5 +1,6 @@
 package wontouch.mileage.domain.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class MileageController {
 
     // 마일리지 생성
     @PostMapping("/create")
-    public ResponseEntity<?> createMileage(@RequestBody MileageCreateRequestDto requestDto) {
+    public ResponseEntity<?> createMileage(@Valid @RequestBody MileageCreateRequestDto requestDto) {
         mileageService.createMileage(requestDto);
 
         ResponseDto<String> responseDto = ResponseDto.<String>builder()

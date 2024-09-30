@@ -1,5 +1,6 @@
 package wontouch.mileage.domain.model.service;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,7 @@ public class MileageService {
 
     // 마일리지 생성
     @Transactional
-    public MileageLog createMileage(@RequestBody MileageCreateRequestDto requestDto) {
+    public MileageLog createMileage(MileageCreateRequestDto requestDto) {
         // 사용자에 대한 유효성 검사
 
         MileageLog mileageLog = MileageLog.builder()
