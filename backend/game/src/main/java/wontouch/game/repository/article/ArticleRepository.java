@@ -3,6 +3,9 @@ package wontouch.game.repository.article;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import wontouch.game.dto.article.ArticleTransactionResult;
+import wontouch.game.dto.town.CropTransactionResult;
+import wontouch.game.dto.TransactionStatusType;
 import wontouch.game.entity.Article;
 import wontouch.game.entity.Crop;
 import wontouch.game.repository.crop.CropRedisRepository;
@@ -39,19 +42,26 @@ public class ArticleRepository {
         return article;
     }
 
-    public Article buyRandomArticle(String roomId, String playerId, String cropId) {
+    public ArticleTransactionResult buyRandomArticle(String roomId, String playerId, String cropId) {
         String articleKey = GAME_PREFIX + roomId + ARTICLE_SUFFIX + ":" + cropId;
         String playerArticleKey = PLAYER_PREFIX + playerId + ARTICLE_SUFFIX;
         String playerInfoKey = PLAYER_PREFIX + playerId + INFO_SUFFIX;
+
+        int articlePrice = (Integer) redisTemplate.opsForHash().get(playerInfoKey, "articlePrice");
+        Integer gold = (Integer) redisTemplate.opsForHash().get(playerInfoKey, "gold");
+        if (gold == null || gold < articlePrice) {
+            return new ArticleTransactionResult(TransactionStatusType.INSUFFICIENT_GOLDS, null);
+        }
+
         Set<Object> articleIds = redisTemplate.opsForSet().members(articleKey);
         log.debug("crop:{}, articleIds:{}", cropId, articleIds);
         List<Object> articleIdList = new ArrayList<>(Objects.requireNonNull(articleIds));
         Random random = new Random();
 
+
         if (!articleIdList.isEmpty()) {
             // 랜덤 인덱스를 통해 랜덤한 값 선택
             Object articleId = articleIdList.get(random.nextInt(articleIdList.size()));
-            int articlePrice = (Integer) redisTemplate.opsForHash().get(playerInfoKey, "articlePrice");
             log.debug("articlePrice: {}", articlePrice);
             // 골드 차감
             redisTemplate.opsForHash().increment(playerInfoKey, "gold", -articlePrice);
@@ -61,7 +71,8 @@ public class ArticleRepository {
             redisTemplate.opsForSet().add(playerArticleKey, articleId);
             log.debug("add article");
             // TODO 처리 로직
-            return getArticle(cropId, (String)articleId);
+            Article article = getArticle(cropId, (String) articleId);
+            return new ArticleTransactionResult(TransactionStatusType.SUCCESS, article);
         } else {
             System.out.println("No articles available to buy.");
         }

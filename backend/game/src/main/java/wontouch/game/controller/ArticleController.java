@@ -3,6 +3,7 @@ package wontouch.game.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import wontouch.game.dto.article.ArticleTransactionResult;
 import wontouch.game.entity.Article;
 import wontouch.game.entity.Crop;
 import wontouch.game.repository.article.ArticleRepository;
@@ -48,7 +49,7 @@ public class ArticleController {
         String cropId = cropService.getRandomCropFromGame(roomId);
         cropId = "radish";
         String playerId = buyInfo.get("playerId").toString();
-        Article article = articleRepository.buyRandomArticle(roomId, playerId, cropId);
+        ArticleTransactionResult article = articleRepository.buyRandomArticle(roomId, playerId, cropId);
 
         return ResponseEntity.ok(article);
     }
@@ -57,7 +58,7 @@ public class ArticleController {
     public ResponseEntity<?> buyRandomArticle(@PathVariable String roomId, @RequestBody Map<String, Object> buyInfo) {
         String cropId = cropService.getRandomCropFromGame(roomId);
         String playerId = buyInfo.get("playerId").toString();
-        Article article = articleRepository.buyRandomArticle(roomId, playerId, cropId);
+        ArticleTransactionResult article = articleRepository.buyRandomArticle(roomId, playerId, cropId);
         return ResponseEntity.ok(article);
     }
 }

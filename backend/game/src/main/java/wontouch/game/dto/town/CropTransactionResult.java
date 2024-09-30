@@ -2,6 +2,7 @@ package wontouch.game.dto.town;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import wontouch.game.dto.TransactionStatusType;
 
 @Data
 @AllArgsConstructor

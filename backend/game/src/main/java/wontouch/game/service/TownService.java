@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import wontouch.game.dto.town.CropTransactionRequestDto;
 import wontouch.game.dto.town.CropTransactionResponseDto;
 import wontouch.game.dto.town.CropTransactionResult;
-import wontouch.game.dto.town.TransactionStatusType;
+import wontouch.game.dto.TransactionStatusType;
 
 import static wontouch.game.domain.RedisKeys.*;
 
@@ -71,7 +71,7 @@ public class TownService {
             }
         } else {
             // 3.3 골드가 부족한 경우
-            return new CropTransactionResult(TransactionStatusType.INSUFFICIENT_FUNDS, null);
+            return new CropTransactionResult(TransactionStatusType.INSUFFICIENT_GOLDS, null);
         }
     }
 

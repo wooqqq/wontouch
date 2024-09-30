@@ -1,4 +1,4 @@
-package wontouch.socket.dto.game;
+package wontouch.socket.dto.game.crop;
 
 import lombok.Getter;
 

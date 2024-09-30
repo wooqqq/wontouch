@@ -1,7 +1,8 @@
-package wontouch.socket.dto.game;
+package wontouch.socket.dto.game.crop;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import wontouch.socket.dto.game.TransactionStatusType;
 
 @Data
 @AllArgsConstructor
