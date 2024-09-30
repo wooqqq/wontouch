@@ -4,10 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.game.dto.article.ArticleTransactionResult;
-import wontouch.game.dto.town.CropTransactionResult;
 import wontouch.game.dto.TransactionStatusType;
 import wontouch.game.entity.Article;
 import wontouch.game.entity.Crop;
+import wontouch.game.entity.FutureArticle;
 import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
 
@@ -81,23 +81,78 @@ public class ArticleRepository {
 
     // TODO 라운드 진행 후 기사로 인해 변경된 작물의 가격 계산
     // TODO 각자 메서드의 성격에 맞게 책임 분리
-    public void calculateArticleResult(String roomId, int round) {
+    public synchronized Map<String, Integer> calculateArticleResult(String roomId, int round) {
         Set<Object> allCrops = cropRedisRepository.getAllCrops(roomId);
 
         List<Object> cropList = allCrops.stream().toList();
         log.debug("cropList: {}", cropList);
-        for (Object cropId : cropList) {
-            log.debug("cropId:{} 갱신 중 ", cropId);
-            int cropPrice = cropRedisRepository.getCropPrice(roomId, cropId);
-            log.debug("cropPrice:{}", cropPrice);
-            // TODO 기사를 통해 가격 갱신 (현재는 테스트를 위해 랜덤하게 결정)
-            Random random = new Random();
-            int randomNumber = random.nextInt(1001);
-            int newCropPrice = cropPrice + randomNumber;
-            cropRedisRepository.updateCropPrice(roomId, cropId, newCropPrice);
-            log.debug("갱신 완료:{}", newCropPrice);
-            cropRedisRepository.updateCropChart(roomId, (String) cropId, round, newCropPrice);
-            log.debug("차트 업데이트 완료");
+
+        Map<String, Integer> priceMap = initializePriceMap(roomId, allCrops);
+        Map<String, Integer> newPriceMap = calculateNewPrices(roomId, allCrops, priceMap);
+
+        // 가격 갱신 및 차트 업데이트
+        for (Object cropId : allCrops) {
+            updateCropPrice(roomId, (String) cropId, newPriceMap.get(cropId), round);
         }
+
+        return newPriceMap;
+    }
+
+    // 현재 가격 맵
+    private Map<String, Integer> initializePriceMap(String roomId, Set<Object> allCrops) {
+        Map<String, Integer> priceMap = new HashMap<>();
+        for (Object cropId : allCrops) {
+            int cropPrice = cropRedisRepository.getCropPrice(roomId, cropId);
+            priceMap.put((String) cropId, cropPrice);
+        }
+        return priceMap;
+    }
+
+    // 새로운 가격 맵
+    private Map<String, Integer> calculateNewPrices(String roomId, Set<Object> allCrops, Map<String, Integer> priceMap) {
+        Map<String, Integer> newPriceMap = new HashMap<>(priceMap);
+        for (Object cropId : allCrops) {
+            Set<Object> articleIds = getAllArticleIds(roomId, (String) cropId);
+            for (Object articleId : articleIds) {
+                Article article = getArticle((String) cropId, (String) articleId);
+                List<FutureArticle> futureArticles = article.getFutureArticles();
+                FutureArticle futureArticle = selectFutureArticle(futureArticles);
+
+                if (futureArticle != null) {
+                    double changeRate = futureArticle.getChangeRate();
+                    double updatedPrice = newPriceMap.get(cropId) + (priceMap.get(cropId) * changeRate / 100);
+                    newPriceMap.put((String) cropId, (int) updatedPrice);
+                }
+            }
+        }
+        return newPriceMap;
+    }
+
+    public FutureArticle selectFutureArticle(List<FutureArticle> futureArticles) {
+        Random random = new Random();
+        double randomValue = random.nextDouble();  // 0과 1 사이의 랜덤 값 생성
+        double positiveRate = futureArticles.get(0).getChangeRate() / 100;
+        double negativeRate = futureArticles.get(1).getChangeRate() / 100;
+        double naturalRate = futureArticles.get(2).getChangeRate() / 100;
+        if (randomValue < positiveRate) {
+            return futureArticles.get(0);
+        } else if (randomValue < positiveRate + negativeRate) {
+            return futureArticles.get(1);
+        } else if (randomValue < positiveRate + negativeRate + naturalRate) {
+            return futureArticles.get(2);
+        } else {
+            return null;
+        }
+    }
+
+    private void updateCropPrice(String roomId, String cropId, int newPrice, int round) {
+        cropRedisRepository.updateCropPrice(roomId, cropId, newPrice);
+        cropRedisRepository.updateCropChart(roomId, cropId, round, newPrice);
+        log.debug("Crop price updated for cropId: {} with new price: {}", cropId, newPrice);
+    }
+
+    public Set<Object> getAllArticleIds(String roomId, String cropId) {
+        String articleKey = GAME_PREFIX + roomId + ARTICLE_SUFFIX + ":" + cropId;
+        return redisTemplate.opsForSet().members(articleKey);
     }
 }

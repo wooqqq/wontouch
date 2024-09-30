@@ -1,17 +1,14 @@
 package wontouch.game.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import wontouch.game.dto.TransactionStatusType;
 import wontouch.game.dto.town.CropTransactionRequestDto;
 import wontouch.game.dto.town.CropTransactionResponseDto;
 import wontouch.game.dto.town.CropTransactionResult;
-import wontouch.game.dto.TransactionStatusType;
 import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
 import wontouch.game.repository.player.PlayerRepository;
-
-import static wontouch.game.domain.RedisKeys.*;
 
 @Service
 @Slf4j
