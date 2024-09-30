@@ -49,6 +49,14 @@ button:active {
   cursor: url('assets/icon/cursor_focus.png'), auto;
 }
 
+img:hover {
+  cursor: url('assets/icon/cursor_hover.png'), auto;
+}
+
+img:active {
+  cursor: url('assets/icon/cursor_focus.png'), auto;
+}
+
 /* 드래그 허용 CSS */
 .draggable {
   -webkit-user-select: text;
@@ -259,8 +267,6 @@ button:active {
   border-radius: 20px;
   background: #e6e2c2;
   display: flex;
-  width: 468px;
-  padding: 19px 0px 19px 46px;
   align-items: center;
 }
 
@@ -278,7 +284,7 @@ button:active {
   align-items: center;
   flex-shrink: 0;
   border-radius: 20px;
-  border: 3px solid #896a65;
+  border: #896a65 solid 3px;
   background: #dac2a8;
 }
 
@@ -307,4 +313,56 @@ button:active {
 .room-info {
   border-radius: 10px;
   background: #896a65;
+}
+
+/* 환경 설정 박스 */
+.setting-box {
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 20px;
+  border: #896a65 solid 6px;
+  background: #dac2a8;
+}
+
+.setting-text {
+  color: #ffffff;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: black;
+}
+
+.audio-on {
+  color: #36eab5;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #10ab7d;
+  background-color: #fffff8;
+  margin: 10%;
+  padding: 2%;
+  border-radius: 20px;
+}
+
+.setting-list {
+  color: #ffffff;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: black;
+  background-color: #fffff8;
+  margin: 10%;
+  padding: 2%;
+  border-radius: 20px;
+}
+
+.version {
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: white;
+}
+
+.ranking-box {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  border: #896a65 solid 3px;
+  background: #dac2a8;
+  padding-left: 5%;
 }
