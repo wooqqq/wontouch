@@ -1,18 +1,16 @@
 package wontouch.mileage.domain.model.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 import wontouch.mileage.domain.dto.request.MileageCreateRequestDto;
+import wontouch.mileage.domain.dto.request.MileageSpendRequestDto;
 import wontouch.mileage.domain.dto.response.MileageResponseDto;
 import wontouch.mileage.domain.entity.MileageLog;
 import wontouch.mileage.domain.entity.MileageLogType;
 import wontouch.mileage.domain.model.repository.MileageLogRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -66,6 +64,20 @@ public class MileageService {
     }
 
     // 마일리지 사용
+    public void spendMileage(MileageSpendRequestDto requestDto) {
+        int totalMileage = getTotalMileageByUserId(requestDto.getUserId()) - requestDto.getAmount();
+
+        MileageLog mileageLog = MileageLog.builder()
+                .userId(requestDto.getUserId())
+                .amount(requestDto.getAmount())
+                .description(requestDto.getDescription())
+                .totalMileage(totalMileage)
+                .createAt(LocalDateTime.now())
+                .mileageLogType(MileageLogType.SPEND)
+                .build();
+
+        mileageLogRepository.save(mileageLog);
+    }
 
     // 마일리지 삭제
 

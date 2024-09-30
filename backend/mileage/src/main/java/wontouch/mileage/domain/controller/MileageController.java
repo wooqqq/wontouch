@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wontouch.mileage.domain.dto.request.MileageCreateRequestDto;
+import wontouch.mileage.domain.dto.request.MileageSpendRequestDto;
 import wontouch.mileage.domain.dto.response.MileageResponseDto;
 import wontouch.mileage.domain.model.service.MileageService;
 import wontouch.mileage.global.dto.ResponseDto;
@@ -62,6 +63,18 @@ public class MileageController {
     }
 
     // 마일리지 사용
+    @PostMapping("/spend")
+    public ResponseEntity<?> spendMileage(@Valid @RequestBody MileageSpendRequestDto requestDto) {
+        mileageService.spendMileage(requestDto);
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("마일리지 사용 성공")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
 
     // 마일리지 삭제
 
