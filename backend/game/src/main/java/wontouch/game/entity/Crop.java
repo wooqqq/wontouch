@@ -4,6 +4,8 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document(collection = "crop")
 @Data
 public class Crop {
@@ -15,4 +17,6 @@ public class Crop {
     private int price;
     private String description;
     private final String imgUrl;
+
+    private List<Article> articleList;
 }

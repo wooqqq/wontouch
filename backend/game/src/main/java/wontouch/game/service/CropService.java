@@ -82,4 +82,12 @@ public class CropService {
             cropRedisRepository.addCropDetails(roomId, crop);
         }
     }
+
+    // 랜덤한 Crop 선정
+    public String getRandomCropFromGame(String roomId) {
+        Set<Object> allCrops = cropRedisRepository.getAllCrops(roomId);
+        List<Object> crops = allCrops.stream().toList();
+        Random random = new Random();
+        return (String) crops.get(random.nextInt(allCrops.size()));
+    }
 }

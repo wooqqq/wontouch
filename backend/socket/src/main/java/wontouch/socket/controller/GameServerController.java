@@ -81,7 +81,7 @@ public class GameServerController {
         String roomId = (String) messageData.get("roomId");
         log.debug("GAME RESULT!!: {}", messageData);
         try {
-            sessionService.broadcastMessage(roomId, MessageType.RESULT, messageData);
+            sessionService.broadcastMessage(roomId, MessageType.GAME_RESULT, messageData);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

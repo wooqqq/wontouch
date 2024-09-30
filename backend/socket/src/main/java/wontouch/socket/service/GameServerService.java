@@ -3,15 +3,10 @@ package wontouch.socket.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
-import wontouch.socket.dto.game.CropDto;
-import wontouch.socket.dto.game.CropTransactionResult;
-import wontouch.socket.dto.lobby.ReadyStateDto;
+import wontouch.socket.dto.game.crop.CropTransactionResult;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 // 게임 서버로 이동하여 처리하는 로직들을 담는 서비스 레이어
 @Service
@@ -67,6 +62,7 @@ public class GameServerService {
         return townCrops;
     }
 
+    // 라운드 준비
     public Object sendPreparationInfo(String roomId, String playerId, Map<String, Object> readyInfo) {
         String readyUrl = gameServerUrl + "/game/ready/" + roomId;
         log.debug("readyUrl:{}", readyUrl);
@@ -74,5 +70,12 @@ public class GameServerService {
         log.debug("preparationInfo:{}", readyInfo);
         System.out.println("Sending preparation info to Game Server: " + readyInfo);
         return restTemplate.postForObject(readyUrl, readyInfo, Object.class);
+    }
+
+    // 랜덤 기사 구입
+    public Object buyRandomArticle(String roomId, String playerId, Map<String, Object> transactionInfo) {
+        String articleUrl = gameServerUrl + "/article/buy-random/" + roomId;
+        transactionInfo.put("playerId", playerId);
+        return restTemplate.postForObject(articleUrl, transactionInfo, Object.class);
     }
 }

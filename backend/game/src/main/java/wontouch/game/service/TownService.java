@@ -6,17 +6,15 @@ import org.springframework.stereotype.Service;
 import wontouch.game.dto.town.CropTransactionRequestDto;
 import wontouch.game.dto.town.CropTransactionResponseDto;
 import wontouch.game.dto.town.CropTransactionResult;
-import wontouch.game.dto.town.TransactionStatusType;
+import wontouch.game.dto.TransactionStatusType;
+
+import static wontouch.game.domain.RedisKeys.*;
 
 @Service
 @Slf4j
 public class TownService {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private static final String ROOM_PREFIX = "game:";
-    private static final String PLAYER_PREFIX = "player:";
-    private static final String CROP_INFIX = ":crop:";
-    private static final String CROP_SUFFIX = ":crop";
 
     public TownService(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -26,8 +24,8 @@ public class TownService {
     public synchronized CropTransactionResult buyCrop(String roomId, CropTransactionRequestDto cropTransactionRequestDto) {
         String cropId = cropTransactionRequestDto.getCropId();
         long playerId = cropTransactionRequestDto.getPlayerId();
-        String cropKey = ROOM_PREFIX + roomId + CROP_INFIX + cropId;
-        String playerKey = PLAYER_PREFIX + Long.toString(playerId);
+        String cropKey = GAME_PREFIX + roomId + CROP_INFIX + cropId;
+        String playerKey = PLAYER_PREFIX + Long.toString(playerId) + INFO_SUFFIX;
         String playerCropKey = PLAYER_PREFIX + Long.toString(playerId) + CROP_SUFFIX;
 
         log.debug("cropId: {}, cropKey: {}, playerKey: {}", cropId, cropKey, playerKey);
@@ -53,8 +51,8 @@ public class TownService {
                 // TODO 트랜잭션 처리
 //                redisTemplate.multi(); // 새로운 트랜잭션 시작
                 redisTemplate.opsForHash().increment(playerKey, "gold", -totalPrice); // 골드 차감
-                redisTemplate.opsForHash().increment(cropKey, "quantity", -purchaseQuantity); // 작물 수량 감소
-                redisTemplate.opsForHash().increment(playerCropKey, cropId, purchaseQuantity); // 작물 수량 감소
+                redisTemplate.opsForHash().increment(cropKey, "quantity", -purchaseQuantity); // 마을 보유 작물 수량 감소
+                redisTemplate.opsForHash().increment(playerCropKey, cropId, purchaseQuantity); // 플레이어 보유 작물 수량 증가
 //                redisTemplate.exec(); // 트랜잭션 커밋
                 System.out.println("Transaction successful! Player bought " + purchaseQuantity + " crops.");
                 Integer playerGold = (Integer) redisTemplate.opsForHash().get(playerKey, "gold");
@@ -73,7 +71,7 @@ public class TownService {
             }
         } else {
             // 3.3 골드가 부족한 경우
-            return new CropTransactionResult(TransactionStatusType.INSUFFICIENT_FUNDS, null);
+            return new CropTransactionResult(TransactionStatusType.INSUFFICIENT_GOLDS, null);
         }
     }
 
@@ -81,8 +79,8 @@ public class TownService {
     public synchronized CropTransactionResult sellCrop(String roomId, CropTransactionRequestDto cropTransactionRequestDto) {
         String cropId = cropTransactionRequestDto.getCropId();
         long playerId = cropTransactionRequestDto.getPlayerId();
-        String cropKey = ROOM_PREFIX + roomId + CROP_INFIX + cropId;  // 상점의 작물 키
-        String playerKey = PLAYER_PREFIX + Long.toString(playerId);    // 플레이어의 기본 정보 (골드)
+        String cropKey = GAME_PREFIX + roomId + CROP_INFIX + cropId;  // 상점의 작물 키
+        String playerKey = PLAYER_PREFIX + Long.toString(playerId) + INFO_SUFFIX;    // 플레이어의 기본 정보 (골드)
         String playerCropKey = PLAYER_PREFIX + Long.toString(playerId) + CROP_SUFFIX;  // 플레이어의 작물 인벤토리 키
 
         log.debug("cropId: {}, cropKey: {}, playerKey: {}", cropId, cropKey, playerKey);
