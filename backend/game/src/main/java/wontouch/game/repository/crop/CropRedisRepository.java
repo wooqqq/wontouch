@@ -78,7 +78,7 @@ public class CropRedisRepository {
     // 구매한 만큼 재고 감소
     public void updateCropQuantity(String roomId, Object cropId, int purchaseQuantity) {
         String cropKey = GAME_PREFIX + roomId + CROP_INFIX + cropId;
-        redisTemplate.opsForHash().increment(cropKey, "quantity", -purchaseQuantity); // 마을 보유 작물 수량 감소
+        redisTemplate.opsForHash().increment(cropKey, "quantity", purchaseQuantity); // 마을 보유 작물 수량 감소
     }
 
     // 특정 작물의 세부 정보 조회
