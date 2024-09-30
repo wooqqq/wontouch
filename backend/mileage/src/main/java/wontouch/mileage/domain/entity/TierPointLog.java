@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class TierPointLog {
 
     @Id
-    private int id;
+    private String id;
 
     private int userId;
 
