@@ -12,6 +12,9 @@ import Setting from '../components/common/Setting';
 
 import mail from '../assets/icon/mail.png';
 import setting from '../assets/icon/setting.png';
+import search from '../assets/icon/search.png';
+import lock from '../assets/icon/lock.png';
+import unlock from '../assets/icon/unlock.png';
 
 function Lobby() {
   const [showMakeRoom, setShowMakeRoom] = useState<boolean>(false);
@@ -57,21 +60,117 @@ function Lobby() {
 
   return (
     <div>
-      <div>
-        <ProfileImg />
-        <Nickname />
-        <div onClick={openMail}>
+      <div className="flex items-center space-x-4 p-3 justify-end">
+        <div className="brown-box w-12 h-12">
+          <ProfileImg />
+        </div>
+        <div className="brown-box w-44 h-12">
+          <Nickname />
+        </div>
+        <div onClick={openMail} className="brown-box w-12 h-12 p-1">
           <img src={mail} alt="" />
         </div>
-        <div onClick={openSetting}>
+        <div onClick={openSetting} className="brown-box w-12 h-12 p-1">
           <img src={setting} alt="" />
         </div>
       </div>
-      <div>
-        <button onClick={openMakeRoom}>방 만들기</button>
-      </div>
-      <div>
-        <button onClick={openFindRoom}>방 찾기</button>
+
+      <div className="justify-between">
+        <div className="yellow-box w-8/12 h-5/6 flex flex-col justify-center p-2">
+          <div className="flex space-x-4 mb-4">
+            <div>
+              <button
+                onClick={openMakeRoom}
+                className="ready-button w-52 h-14 text-3xl"
+              >
+                방 만들기
+                <img src={search} alt="" />
+              </button>
+            </div>
+            <div>
+              <button
+                onClick={openFindRoom}
+                className="ready-button w-52 h-14 text-3xl"
+              >
+                방 찾기
+                <img src={search} alt="" />
+              </button>
+            </div>
+          </div>
+          <div className="list-box overflow-auto flex flex-wrap justify-between p-2 h-full">
+            <div className="room-box w-96 h-36 m-3 p-2">
+              <div className="room-info p-0.5 px-2 mb-2">
+                <span className="text-lg font-['Galmuri11-bold'] text-yellow-300 mr-2.5">
+                  001
+                </span>
+                <span className="text-lg font-['Galmuri11'] text-white text-center">
+                  방 제목
+                </span>
+              </div>
+              <div className="room-info flex p-2">
+                <span className="mr-4">
+                  <img src="src/assets/tmp.png" alt="" className="w-72 h-16" />
+                </span>
+                <div className="flex flex-col items-center justify-center">
+                  <div>
+                    <img src={lock} alt="" className="w-6 h-8" />
+                  </div>
+                  <div>
+                    <div className="white-text">3/8</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* 삭제할 부분 */}
+            <div className="room-box w-96 h-36 m-3 p-2">
+              <div className="room-info p-0.5 px-2 mb-2">
+                <span className="text-lg font-['Galmuri11-bold'] text-yellow-300 mr-2.5">
+                  001
+                </span>
+                <span className="text-lg font-['Galmuri11'] text-white text-center">
+                  방 제목
+                </span>
+              </div>
+              <div className="room-info flex p-2">
+                <span className="mr-4">
+                  <img src="src/assets/tmp.png" alt="" className="w-72 h-16" />
+                </span>
+                <div className="flex flex-col items-center justify-center">
+                  <div>
+                    <img src={lock} alt="" className="w-6 h-8" />
+                  </div>
+                  <div>
+                    <div className="white-text">3/8</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="room-box w-96 h-36 m-3 p-2">
+              <div className="room-info p-0.5 px-2 mb-2">
+                <span className="text-lg font-['Galmuri11-bold'] text-yellow-300 mr-2.5">
+                  001
+                </span>
+                <span className="text-lg font-['Galmuri11'] text-white text-center">
+                  방 제목
+                </span>
+              </div>
+              <div className="room-info flex p-2">
+                <span className="mr-4">
+                  <img src="src/assets/tmp.png" alt="" className="w-72 h-16" />
+                </span>
+                <div className="flex flex-col items-center justify-center">
+                  <div>
+                    <img src={lock} alt="" className="w-6 h-8" />
+                  </div>
+                  <div>
+                    <div className="white-text">3/8</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {showMakeRoom && (
