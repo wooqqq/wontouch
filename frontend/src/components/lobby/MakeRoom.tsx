@@ -1,14 +1,14 @@
-import React from "react";
-import axios from "axios";
-import { RootState } from "../../redux/store";
-import { useState } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import axios from 'axios';
+import { RootState } from '../../redux/store';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-import cancel from "../../assets/icon/cancel.png";
-import confirm from "../../assets/icon/confirm.png";
-import lock from "../../assets/icon/lock.png";
-import unLock from "../../assets/icon/unlock.png";
+import cancel from '../../assets/icon/cancel.png';
+import confirm from '../../assets/icon/confirm.png';
+import lock from '../../assets/icon/lock.png';
+import unLock from '../../assets/icon/unlock.png';
 
 // api 주소
 const API_LINK = import.meta.env.VITE_API_URL;
@@ -27,23 +27,23 @@ export default function MakeRoomModal({
       const UUID = res.data.data;
       return UUID; // UUID 값을 반환
     } catch (error) {
-      console.error("UUID 발급 중 에러 발생", error);
+      console.error('UUID 발급 중 에러 발생', error);
     }
   };
 
   // store에 저장된 userId
   const userId = useSelector((state: RootState) => state.user.id);
 
-  const [roomName, setRoomName] = useState<string>("");
+  const [roomName, setRoomName] = useState<string>('');
   const [isPrivate, setIsPrivate] = useState<boolean>(false);
-  const [password, setPassword] = useState<string>("");
+  const [password, setPassword] = useState<string>('');
 
   const handleMakeRoom = async () => {
     try {
       // UUID 발급
       const UUID = await getUUID(); // getUUID를 호출하고 UUID를 기다림
       if (!UUID) {
-        alert("UUID 발급에 실패했습니다.");
+        alert('UUID 발급에 실패했습니다.');
         return;
       }
 
@@ -53,13 +53,16 @@ export default function MakeRoomModal({
         roomName: roomName,
         hostPlayerId: userId,
         isPrivate: isPrivate,
-        password: isPrivate ? password : "",
+        password: isPrivate ? password : '',
       });
 
+      // 응답에서 받아온 roomId
+      const createdRoomId = res.data.data.roomId;
+
       // 방 생성 후 생성한 방으로 바로 이동
-      navigate(`/waiting-room/${UUID}`);
+      navigate(`/wait/${createdRoomId}`);
     } catch (error) {
-      console.error("방 생성 중 에러 발생", error);
+      console.error('방 생성 중 에러 발생', error);
     }
   };
 
@@ -67,7 +70,7 @@ export default function MakeRoomModal({
     setIsPrivate(!isPrivate);
     // 비밀번호가 없는 방이라면 비밀번호 초기화
     if (!isPrivate) {
-      setPassword("");
+      setPassword('');
     }
   };
 
@@ -89,7 +92,7 @@ export default function MakeRoomModal({
         <span onClick={clickPrivate}>
           <img
             src={isPrivate ? lock : unLock}
-            alt={isPrivate ? "비밀번호 있는 방" : "비밀번호 없는 방"}
+            alt={isPrivate ? '비밀번호 있는 방' : '비밀번호 없는 방'}
           />
         </span>
         {/* 비밀번호 입력 필드 */}
