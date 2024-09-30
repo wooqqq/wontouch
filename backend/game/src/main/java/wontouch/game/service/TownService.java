@@ -7,6 +7,9 @@ import wontouch.game.dto.town.CropTransactionRequestDto;
 import wontouch.game.dto.town.CropTransactionResponseDto;
 import wontouch.game.dto.town.CropTransactionResult;
 import wontouch.game.dto.TransactionStatusType;
+import wontouch.game.repository.crop.CropRedisRepository;
+import wontouch.game.repository.crop.CropRepository;
+import wontouch.game.repository.player.PlayerRepository;
 
 import static wontouch.game.domain.RedisKeys.*;
 
@@ -15,24 +18,26 @@ import static wontouch.game.domain.RedisKeys.*;
 public class TownService {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final PlayerRepository playerRepository;
+    private final CropRepository cropRepository;
+    private final CropRedisRepository cropRedisRepository;
 
-    public TownService(RedisTemplate<String, Object> redisTemplate) {
+    public TownService(RedisTemplate<String, Object> redisTemplate, PlayerRepository playerRepository, CropRepository cropRepository, CropRedisRepository cropRedisRepository) {
         this.redisTemplate = redisTemplate;
+        this.playerRepository = playerRepository;
+        this.cropRepository = cropRepository;
+        this.cropRedisRepository = cropRedisRepository;
     }
 
     // 플레이어가 특정 작물을 구매
     public synchronized CropTransactionResult buyCrop(String roomId, CropTransactionRequestDto cropTransactionRequestDto) {
         String cropId = cropTransactionRequestDto.getCropId();
         long playerId = cropTransactionRequestDto.getPlayerId();
-        String cropKey = GAME_PREFIX + roomId + CROP_INFIX + cropId;
-        String playerKey = PLAYER_PREFIX + Long.toString(playerId) + INFO_SUFFIX;
-        String playerCropKey = PLAYER_PREFIX + Long.toString(playerId) + CROP_SUFFIX;
 
-        log.debug("cropId: {}, cropKey: {}, playerKey: {}", cropId, cropKey, playerKey);
         // 1. 플레이어의 보유 골드와 작물의 가격 및 상점에 남은 수량 가져오기
-        Integer gold = (Integer) redisTemplate.opsForHash().get(playerKey, "gold");
-        Integer price = (Integer) redisTemplate.opsForHash().get(cropKey, "price");
-        Integer availableQuantity = (Integer) redisTemplate.opsForHash().get(cropKey, "quantity");
+        Integer gold = playerRepository.getPlayerGold(String.valueOf(playerId));
+        Integer price = cropRedisRepository.getCropPrice(roomId, cropId);
+        Integer availableQuantity = cropRedisRepository.getCropQuantity(roomId, cropId);
 
         log.debug("gold: {}, price: {}, availableQuantity: {}", gold, price, availableQuantity);
         // 2. 총 거래 금액 계산
@@ -50,14 +55,14 @@ public class TownService {
                 // 3.1 충분하다면 골드 차감 및 작물 수량 감소
                 // TODO 트랜잭션 처리
 //                redisTemplate.multi(); // 새로운 트랜잭션 시작
-                redisTemplate.opsForHash().increment(playerKey, "gold", -totalPrice); // 골드 차감
-                redisTemplate.opsForHash().increment(cropKey, "quantity", -purchaseQuantity); // 마을 보유 작물 수량 감소
-                redisTemplate.opsForHash().increment(playerCropKey, cropId, purchaseQuantity); // 플레이어 보유 작물 수량 증가
+                playerRepository.updatePlayerGold(String.valueOf(playerId), -totalPrice); // 플레이어 보유 골드 감소
+                cropRedisRepository.updateCropQuantity(roomId, cropId, -purchaseQuantity); // 마을 작물 수량 감소
+                playerRepository.updatePlayerCropQuantity(String.valueOf(playerId), cropId, purchaseQuantity); // 플레이어 보유 작물 수량 증가
 //                redisTemplate.exec(); // 트랜잭션 커밋
                 System.out.println("Transaction successful! Player bought " + purchaseQuantity + " crops.");
-                Integer playerGold = (Integer) redisTemplate.opsForHash().get(playerKey, "gold");
-                Integer playerQuantity = (Integer) redisTemplate.opsForHash().get(playerCropKey, cropId);
-                Integer townQuantity = (Integer) redisTemplate.opsForHash().get(cropKey, "quantity");
+                int playerGold = playerRepository.getPlayerGold(String.valueOf(playerId));
+                int playerQuantity = playerRepository.getPlayerCropQuantity(String.valueOf(playerId), cropId);
+                int townQuantity = cropRedisRepository.getCropQuantity(roomId, cropId);
 
                 // TODO 플레이어에게 남은 수량으로 변경
                 responseDto.setPlayerQuantity(playerQuantity);  // 플레이어가 구매한 수량
@@ -109,9 +114,9 @@ public class TownService {
             log.debug("Player sold {} crops for {} gold.", sellQuantity, totalPrice);
 
             // 3. 갱신된 정보 가져오기
-            Integer playerGold = (Integer) redisTemplate.opsForHash().get(playerKey, "gold");  // 갱신된 플레이어의 골드
-            Integer playerUpdatedQuantity = (Integer) redisTemplate.opsForHash().get(playerCropKey, cropId);  // 갱신된 플레이어의 작물 수량
-            Integer townQuantity = (Integer) redisTemplate.opsForHash().get(cropKey, "quantity");  // 갱신된 상점의 작물 수량
+            int playerGold = playerRepository.getPlayerGold(String.valueOf(playerId));
+            int playerUpdatedQuantity = playerRepository.getPlayerCropQuantity(String.valueOf(playerId), cropId);
+            int townQuantity = cropRedisRepository.getCropQuantity(roomId, cropId);
 
             // 4. 응답 DTO에 갱신된 정보 설정
             responseDto.setPlayerQuantity(playerUpdatedQuantity);  // 플레이어가 남은 작물 수량
