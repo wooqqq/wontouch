@@ -107,7 +107,7 @@ function WaitingRoom() {
       <section className="w-1/3">
         <MapInfo />
         <RoomHowTo />
-        <ReadyButton />
+        {/* <ReadyButton /> */}
       </section>
 
       {isModalOpen && (
