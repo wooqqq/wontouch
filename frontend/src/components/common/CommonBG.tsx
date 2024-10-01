@@ -1,5 +1,5 @@
-import { Outlet } from "react-router-dom";
-import backgroundImage from "../../assets/background.png";
+import { Outlet } from 'react-router-dom';
+import backgroundImage from '../../assets/background.png';
 
 // 로그인 이후 보일 배경 asset 적용 페이지
 function CommonBG() {
