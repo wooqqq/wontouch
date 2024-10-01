@@ -15,18 +15,21 @@ import KakaoToSignup from './components/login/kakao/KakaoToSignup';
 import SignupWithKakao from './components/signup/kakao/SignupWithKakao';
 import Setting from './pages/Setting';
 import CommonBG from './components/common/CommonBG';
+import Header from './components/Header';
+import { useSelector } from 'react-redux';
+import { RootState } from './redux/store';
 
 // 로그인이 되어있지 않을 때, 다른 페이지로 이동하려고 하면 강제로 로그인 창으로 이동
 // children은 렌더링 될 컴포넌트
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const navigate = useNavigate();
+  const token = localStorage.getItem('access_token');
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
     if (!token) {
       navigate('/login');
     }
-  }, [navigate]);
+  }, [token, navigate]);
 
   // 로그인 되어있는 상태라면 해당 컴포넌트 return
   return children;
@@ -35,6 +38,9 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
 function AppRouter() {
   return (
     <Router>
+      <div>
+        <Header />
+      </div>
       <Routes>
         {/* 루트 경로가 로그인 상태를 확인하도록 설정 */}
         <Route
@@ -64,7 +70,7 @@ function AppRouter() {
             }
           />
           <Route
-            path="waiting-room/:roomId"
+            path="wait/:roomId"
             element={
               <ProtectedRoute>
                 <WaitingRoom />

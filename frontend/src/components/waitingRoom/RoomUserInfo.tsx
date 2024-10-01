@@ -1,14 +1,25 @@
-import heart from '../../assets/icon/expression_love.png';
 import level05 from '../../assets/level/05_level_silver.png';
+import boy from '../../assets/background/characters/stand/boy.png';
 
 interface UserInfoProps {
   isHost: boolean; // 방장 여부
   playerId: string | undefined; // 사용자 (없으면 undefined)
+  nickname: string | undefined;
   isReady: boolean; // 준비 여부
+  character: string | undefined;
 }
 
-// 방장
-function RoomUserInfo({ isHost, playerId, isReady }: UserInfoProps) {
+function RoomUserInfo({
+  isHost,
+  playerId,
+  isReady,
+  character,
+  nickname,
+}: UserInfoProps) {
+  const characterImages: { [key: string]: string } = {
+    boy: boy,
+  };
+
   if (!playerId) {
     // 유저가 없을 경우 (친구 초대 버튼)
     return (
@@ -31,11 +42,13 @@ function RoomUserInfo({ isHost, playerId, isReady }: UserInfoProps) {
               className="w-7 absolute right-4 top-0"
             />
           </div>
-          <div>{playerId}</div>
-          <div>
-            <img src={heart} alt="캐릭터" />
+          <div className="w-full">
+            <img
+              src={character ? characterImages[character] : ''}
+              alt="캐릭터"
+            />
           </div>
-          <div className="user-name"></div>
+          <div className="user-name">{nickname}</div>
           {isHost ? (
             <div className="host-user absolute bottom-3 left-11">방장</div>
           ) : isReady ? (
