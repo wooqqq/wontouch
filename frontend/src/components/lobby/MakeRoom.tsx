@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { RootState } from '../../redux/store';
-import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,75 +37,66 @@ export default function MakeRoomModal({
   const [isPrivate, setIsPrivate] = useState<boolean>(false);
   const [password, setPassword] = useState<string>('');
 
+  // 비밀번호 입력 시 isPrivate 값을 설정
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    setIsPrivate(value !== ''); // 비밀번호가 있으면 isPrivate을 true로, 없으면 false로 설정
+  };
+
   const handleMakeRoom = async () => {
     try {
       // UUID 발급
-      const UUID = await getUUID(); // getUUID를 호출하고 UUID를 기다림
+      const UUID = await getUUID();
       if (!UUID) {
         alert('UUID 발급에 실패했습니다.');
         return;
       }
 
-      // 발급된 UUID로 방 생성 요청
+      // 방 생성 요청
       const res = await axios.post(`${API_LINK}/room`, {
         roomId: UUID,
-        roomName: roomName,
+        roomName,
         hostPlayerId: userId,
-        isPrivate: isPrivate,
-        password: isPrivate ? password : '',
+        isPrivate,
+        password: isPrivate ? password : '', // 비공개 방일 경우에만 비밀번호를 설정
       });
 
-      // 응답에서 받아온 roomId
       const createdRoomId = res.data.data.roomId;
-
-      // 방 생성 후 생성한 방으로 바로 이동
       navigate(`/wait/${createdRoomId}`);
-      console.log(userId);
     } catch (error) {
       console.error('방 생성 중 에러 발생', error);
     }
   };
 
-  const clickPrivate = () => {
-    setIsPrivate(!isPrivate);
-    // 비밀번호가 없는 방이라면 비밀번호 초기화
-    if (!isPrivate) {
-      setPassword('');
-    }
-  };
-
   return (
-    <div className="yellow-box w-[725px] h-[500px] border-[#36EAB5] bg-[#FFFEEE]">
-      <div className="mint-title">방 만들기</div>
-      {/* 방 제목 입력 */}
+    <div className="yellow-box w-1/2 h-[460px] border-[#36EAB5] bg-[#FFFEEE] p-8 px-20">
+      <div className="mint-title mb-6">방 만들기</div>
       <div>
         <input
           type="text"
           placeholder="방 제목"
-          className="input-tag"
+          className="input-tag font-['Galmuri11'] w-full h-[80px] p-4 text-2xl mb-12"
           value={roomName}
           onChange={(e) => setRoomName(e.target.value)}
         />
       </div>
-      {/* 비밀번호 설정 */}
-      <div>
-        <span onClick={clickPrivate}>
+      <div className="flex items-center justify-between">
+        <span>
           <img
             src={isPrivate ? lock : unLock}
             alt={isPrivate ? '비밀번호 있는 방' : '비밀번호 없는 방'}
           />
         </span>
-        {/* 비밀번호 입력 필드 */}
         <input
           type="text"
           placeholder="비밀번호"
-          className="input-tag"
+          className="input-tag font-['Galmuri11'] w-10/12 h-[80px] p-4 text-2xl"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={!isPrivate}
+          onChange={handlePasswordChange} // 비밀번호 입력 시 isPrivate 업데이트
         />
       </div>
-      <div>
+      <div className="mt-12 flex justify-between px-48">
         <button onClick={closeMakeRoom}>
           <img src={cancel} alt="모달 닫기" />
         </button>

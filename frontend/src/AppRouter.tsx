@@ -15,7 +15,6 @@ import KakaoToSignup from './components/login/kakao/KakaoToSignup';
 import SignupWithKakao from './components/signup/kakao/SignupWithKakao';
 import Setting from './pages/Setting';
 import CommonBG from './components/common/CommonBG';
-import Header from './components/Header';
 import { useSelector } from 'react-redux';
 import { RootState } from './redux/store';
 
@@ -38,9 +37,6 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
 function AppRouter() {
   return (
     <Router>
-      <div>
-        <Header />
-      </div>
       <Routes>
         {/* 루트 경로가 로그인 상태를 확인하도록 설정 */}
         <Route
