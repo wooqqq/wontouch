@@ -1,18 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useSelector, useDispatch } from 'react-redux';
-import { setUserNickname } from '../../../redux/slices/userSlice';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 
-import basicCharacter from '../../../assets/login/basicCharacter.png';
+import boy from '../../../assets/background/characters/stand/boy.png';
 import './SignupWithKakao.css';
 
 const API_LINK = import.meta.env.VITE_API_URL;
 
 function SignupWithKakao() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const [nickname, setNickname] = useState('');
   const [isNicknameAvailable, setIsNicknameAvailable] = useState<
@@ -26,7 +24,6 @@ function SignupWithKakao() {
     }
 
     // 닉네임 중복 체크
-    // 임의로 넣은 true, false가 아닌 중복확인 요청으로 받은 값을 넣어야 함.
     try {
       const response = await axios.post(
         `${API_LINK}/user-profile/nickname/duplicate-check`,
@@ -42,7 +39,7 @@ function SignupWithKakao() {
         setIsNicknameAvailable(true);
       }
     } catch (error) {
-      console.log('중복 확인 불가', error);
+      console.log('닉네임 중복 확인 불가', error);
     }
   };
 
@@ -61,6 +58,9 @@ function SignupWithKakao() {
       return;
     }
 
+    console.log(userId);
+    console.log(nickname);
+
     try {
       const res = await axios.post(`${API_LINK}/user-profile/join`, {
         userId: userId,
@@ -75,35 +75,56 @@ function SignupWithKakao() {
   };
 
   return (
-    <div>
-      <div className="profile-create">캐릭터생성</div>
-      <div>
-        <div className="profile-box">
-          <img className="profile-img" src={basicCharacter} alt="기본 캐릭터" />
+    <div className="flex flex-col items-center">
+      <div className="mint-title">캐릭터생성</div>
+      <div className="yellow-box flex flex-col items-center w-[800px] h-[480px]">
+        <div className="profile-img w-[200px] h-[200px] flex items-center justify-center p-4">
+          <img
+            className="w-full h-full object-contain"
+            src={boy}
+            alt="기본 캐릭터"
+          />
         </div>
-        <div>
-          <form onSubmit={signupWithKakao}>
-            <label htmlFor="nickname" style={{ marginRight: '30px' }}>
-              닉네임
-            </label>
-            <input
-              className="font-['Galmuri11']"
-              style={{ width: '400px' }}
-              id="nickname"
-              placeholder="한글, 숫자, 영문 입력 가능 (한글 기준 최대 6자)"
-              value={nickname}
-              onChange={(event) => setNickname(event.target.value)}
-            />
-            <button type="button" onClick={handleCheckNickname}>
-              중복확인
-            </button>
-            <div className="font-['Galmuri11']">
-              {isNicknameAvailable === true && <p>사용 가능한 닉네임입니다.</p>}
+
+        <div className="w-full flex flex-col items-center">
+          <form onSubmit={signupWithKakao} className="w-full max-w-lg">
+            <div className="flex items-center justify-center space-x-4 mb-2">
+              <label htmlFor="nickname" className="text-green-700 text-2xl">
+                닉네임
+              </label>
+              <input
+                className="font-['Galmuri11'] w-[400px]"
+                id="nickname"
+                placeholder="한글, 숫자, 영문 입력 가능 (한글 기준 최대 6자)"
+                value={nickname}
+                onChange={(event) => setNickname(event.target.value)}
+              />
+              <button
+                type="button"
+                className="ready-button w-[130px] h-[30px] text-2xl"
+                onClick={handleCheckNickname}
+              >
+                중복확인
+              </button>
+            </div>
+
+            <div className="text-left ml-4 font-['Galmuri11'] mb-4">
+              {isNicknameAvailable === true && (
+                <p className="text-green-600">사용 가능한 닉네임입니다.</p>
+              )}
               {isNicknameAvailable === false && (
-                <p>이미 사용 중인 닉네임입니다.</p>
+                <p className="text-red-600">이미 사용 중인 닉네임입니다.</p>
               )}
             </div>
-            <button type="submit">생성</button>
+
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                className="ready-button w-[180px] h-[50px] text-3xl"
+              >
+                생성
+              </button>
+            </div>
           </form>
         </div>
       </div>

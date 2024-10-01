@@ -13,6 +13,10 @@ export default {
         2: '2px black',
         1: '1px black',
       },
+      textStroke: {
+        2: '2px black',
+        1: '1px black',
+      },
     },
   },
   plugins: [

@@ -3,9 +3,11 @@ import Phaser from 'phaser';
 export const createPlayerMovement = (
   _scene: Phaser.Scene,
   player: Phaser.Physics.Arcade.Sprite,
-  cursors: Phaser.Types.Input.Keyboard.CursorKeys
+  cursors: Phaser.Types.Input.Keyboard.CursorKeys,
+  delta: number //델타 타임 추가
 ) => {
-  const speed = 350;
+  const baseSpeed = 15000;
+  const speed = baseSpeed * (delta / 10);
   let vx = 0;
   let vy = 0;
 
@@ -22,12 +24,13 @@ export const createPlayerMovement = (
     player.flipX = false;
     moving = true;
   }
+  //위아래는 조금더 느리게..
   if (cursors.up.isDown) {
-    vy = -speed;
+    vy = -speed + 5;
     moving = true;
   }
   if (cursors.down.isDown) {
-    vy = speed;
+    vy = speed - 5;
     moving = true;
   }
 
@@ -36,7 +39,7 @@ export const createPlayerMovement = (
     vy *= Math.SQRT1_2;
   }
 
-  player.setVelocity(vx, vy);
+  player.setVelocity(vx * delta / 1000, vy * delta / 1000);
 
   if (moving) {
     if (!player.anims.isPlaying || player.anims.currentAnim?.key !== 'walk') {

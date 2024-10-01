@@ -50,6 +50,14 @@ button:active {
   cursor: url('assets/icon/cursor_focus.png'), auto;
 }
 
+img:hover {
+  cursor: url('assets/icon/cursor_hover.png'), auto;
+}
+
+img:active {
+  cursor: url('assets/icon/cursor_focus.png'), auto;
+}
+
 /* 드래그 허용 CSS */
 .draggable {
   -webkit-user-select: text;
@@ -75,9 +83,9 @@ button:active {
   /* 던파 비트비트체 v2 */
   @font-face {
     font-family: 'DNFBitBitv2';
+    src: url('./fonts/woff/DNFBitBitv2.woff') format('woff'); /* 폰트 경로 재확인 */
+    font-weight: normal;
     font-style: normal;
-    font-weight: 400;
-    src: url(./fonts/woff/DNFBitBitv2.woff) format('woff');
   }
 
   /* 갈무리 시리즈 (목업 기준 11, 14 사용) */
@@ -261,7 +269,102 @@ button:active {
   border-radius: 20px;
   background: #e6e2c2;
   display: flex;
-  width: 468px;
-  padding: 19px 0px 19px 46px;
   align-items: center;
+}
+
+/* 프로필 이미지 */
+.profile-img {
+  background-color: #efeaa0;
+  border-radius: 50%;
+  border: #896a65 3px;
+}
+
+/* 갈색 박스 */
+.brown-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 20px;
+  border: #896a65 solid 3px;
+  background: #dac2a8;
+}
+
+/* 흰색 글씨 */
+.white-text {
+  color: #ffffff;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}
+
+/* 방 목록 배경 */
+.list-box {
+  border-radius: 20px;
+  background: #e6e2c2;
+}
+
+/* 방 */
+.room-box {
+  border-radius: 20px;
+  border: 3px solid #896a65;
+  background: #dac2a8;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.25);
+}
+
+/* 방 정보 */
+.room-info {
+  border-radius: 10px;
+  background: #896a65;
+}
+
+/* 환경 설정 박스 */
+.setting-box {
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 20px;
+  border: #896a65 solid 6px;
+  background: #dac2a8;
+}
+
+.setting-text {
+  color: #ffffff;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: black;
+}
+
+.audio-on {
+  color: #36eab5;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #10ab7d;
+  background-color: #fffff8;
+  margin: 10%;
+  padding: 2%;
+  border-radius: 20px;
+}
+
+.setting-list {
+  color: #ffffff;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: black;
+  background-color: #fffff8;
+  margin: 10%;
+  padding: 2%;
+  border-radius: 20px;
+}
+
+.version {
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: white;
+}
+
+.ranking-box {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  border: #896a65 solid 3px;
+  background: #dac2a8;
+  padding-left: 5%;
 }
