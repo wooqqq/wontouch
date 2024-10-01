@@ -112,15 +112,17 @@ public class ArticleRepository {
     private Map<String, Integer> calculateNewPrices(String roomId, Set<Object> allCrops, Map<String, Integer> priceMap) {
         Map<String, Integer> newPriceMap = new HashMap<>(priceMap);
         for (Object cropId : allCrops) {
+            // 작물에 해당하는 기사ID 반환
             Set<Object> articleIds = getAllArticleIds(roomId, (String) cropId);
             for (Object articleId : articleIds) {
-                Article article = getArticle((String) cropId, (String) articleId);
-                List<FutureArticle> futureArticles = article.getFutureArticles();
-                FutureArticle futureArticle = selectFutureArticle(futureArticles);
-
+                Article article = getArticle((String) cropId, (String) articleId); // 기사 ID를 통해 실제 객체 반환
+                List<FutureArticle> futureArticles = article.getFutureArticles(); // 미래 결과 리스트를 확인
+                FutureArticle futureArticle = selectFutureArticle(futureArticles); //확률을 통해 기사 선택
+                log.debug("futureArticle: {}", futureArticle); // 선택된 결과 확인
                 if (futureArticle != null) {
                     double changeRate = futureArticle.getChangeRate();
                     double updatedPrice = newPriceMap.get(cropId) + (priceMap.get(cropId) * changeRate / 100);
+                    log.debug("crop:{}, updatedPrice: {}", cropId, updatedPrice);
                     newPriceMap.put((String) cropId, (int) updatedPrice);
                 }
             }

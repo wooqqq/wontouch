@@ -6,7 +6,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.game.domain.PlayerStatus;
-import wontouch.game.entity.FutureArticle;
 import wontouch.game.repository.GameRepository;
 import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.repository.player.PlayerRepository;
@@ -15,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static wontouch.game.domain.RedisKeys.PLAYER_SUFFIX;
 import static wontouch.game.domain.RedisKeys.GAME_PREFIX;
+import static wontouch.game.domain.RedisKeys.PLAYER_SUFFIX;
 
 @Service
 @Slf4j
