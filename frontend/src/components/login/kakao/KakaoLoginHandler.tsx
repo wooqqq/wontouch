@@ -39,9 +39,6 @@ function KakaoLoginHandler() {
       const userId = decodedToken.userId;
       dispatch(setUserId(userId));
 
-      console.log(userId);
-      console.log(accessToken);
-
       // 회원가입이 필요한 경우
       if (userRes.data.data.firstLogin === true) {
         setTimeout(() => {
