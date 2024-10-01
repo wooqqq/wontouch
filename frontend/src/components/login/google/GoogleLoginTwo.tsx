@@ -9,7 +9,7 @@ interface DecodedToken {
   userId: number;
 }
 
-function GoogleLogin() {
+function GoogleLoginTwo() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -37,4 +37,4 @@ function GoogleLogin() {
   );
 }
 
-export default GoogleLogin;
+export default GoogleLoginTwo;
