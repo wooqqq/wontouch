@@ -1,8 +1,14 @@
 package wontouch.api.domain.friend.model.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.friend.dto.request.FriendDeleteRequestDto;
 import wontouch.api.domain.friend.dto.request.FriendRequestActionDto;
 import wontouch.api.domain.friend.dto.request.FriendRequestDto;
@@ -29,10 +35,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FriendService {
 
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
     private final FriendRepository friendRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final UserProfileRepository userProfileRepository;
     private final AvatarRepository avatarRepository;
+
+    @Value("${mileage.server.name}:${mileage.server.path}")
+    private String mileageServerUrl;
+
 
     // 친구 목록 조회
     public List<FriendResponseDto> getFriendList(int userId) {
@@ -60,7 +72,7 @@ public class FriendService {
                             .nickname(friendProfile.getNickname())
                             .description(friendProfile.getDescription())
                             .characterName(getCharacterNameByUserId(friendProfile.getUserId())) // 캐릭터 이름을 가져오는 로직
-                            .tier(getTierByUserId(friendProfile.getUserId())) // 티어를 가져오는 로직
+                            .tierPoint(getTierByUserId(friendProfile.getUserId())) // 티어를 가져오는 로직
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -121,7 +133,7 @@ public class FriendService {
                 .fromUserId(friendRequest.getFromUserId())
                 .fromUserNickname(userProfile.getNickname())
                 .fromUserCharacterName(equippedAvatar.getCharacterName())
-                .fromUserTier("남작") // 임시 지정
+                .fromUserTierPoint(getTierByUserId(friendRequest.getFromUserId()))
                 .build();
 
         return receiveFriendRequestDto;
@@ -211,9 +223,25 @@ public class FriendService {
     }
 
     // 티어 불러오기
-    private String getTierByUserId(int userId) {
+    private int getTierByUserId(int userId) {
+        String tierUrl = String.format("%s/mileage/tier/total/%d", mileageServerUrl, userId);
 
-        return "티어 예시 (미구현)";
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(tierUrl, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode jsonResponse = objectMapper.readTree(response.getBody());
+
+                // data 필드에서 값 추출
+                return jsonResponse.get("data").asInt();
+            } else {
+                // 추가 구현 시 에러 처리
+                return 0;
+            }
+        } catch (Exception e) {
+            // 예외 처리
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
+        }
     }
 
 }

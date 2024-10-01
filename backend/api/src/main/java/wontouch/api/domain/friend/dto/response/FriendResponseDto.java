@@ -15,5 +15,5 @@ public class FriendResponseDto {
     private String nickname;
     private String description;
     private String characterName;
-    private String tier;
+    private int tierPoint;
 }
