@@ -76,6 +76,18 @@ public class MileageController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    // 마일리지 삭제
+    // 오래된 마일리지 로그 삭제
+    @DeleteMapping("/delete/old/{userId}")
+    public ResponseEntity<?> deleteOldEarnMileageLogs(@PathVariable int userId) {
+        mileageService.deleteOldEarnMileageLogs(userId);
+        
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("오래된 마일리지 로그 삭제 성공")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 
 }

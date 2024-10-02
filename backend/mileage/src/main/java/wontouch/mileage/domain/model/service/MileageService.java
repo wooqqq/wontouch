@@ -13,6 +13,7 @@ import wontouch.mileage.global.exception.CustomException;
 import wontouch.mileage.global.exception.ExceptionResponse;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -87,5 +88,9 @@ public class MileageService {
     }
 
     // 마일리지 삭제
-
+    @Transactional
+    public void deleteOldEarnMileageLogs(int userId) {
+        LocalDateTime oneMonthAgo = LocalDateTime.now().minus(1, ChronoUnit.MONTHS);
+        mileageLogRepository.deleteByUserIdAndMileageLogTypeAndCreateAtBefore(userId, MileageLogType.EARN, oneMonthAgo);
+    }
 }
