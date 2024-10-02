@@ -89,8 +89,10 @@ public class UserService {
             throw new ExceptionResponse(CustomException.NOT_OTHER_USER_PROFILE_EXCEPTION);
 
         // 검색한 사용자가 이미 친구인지 확인
+        boolean isFriend = false;
         if (friendRepository.existsByFromUserIdAndToUserId(requestDto.getUserId(), userProfile.getUserId()))
-            throw new ExceptionResponse(CustomException.ALREADY_FRIEND_EXCEPTION);
+            isFriend = true;
+
 
         // 장착중인 아바타 가져오기
         Avatar equippedAvatar = avatarRepository.findByUserIdAndIsEquippedIsTrue(userProfile.getUserId())
@@ -101,6 +103,7 @@ public class UserService {
                 .friendId(userProfile.getUserId())
                 .nickname(userProfile.getNickname())
                 .characterName(equippedAvatar.getCharacterName())
+                .isFriend(isFriend)
                 .build();
 
         return responseDto;

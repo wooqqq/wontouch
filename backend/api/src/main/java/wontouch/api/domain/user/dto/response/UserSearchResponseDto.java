@@ -15,4 +15,5 @@ public class UserSearchResponseDto {
     private int friendId;
     private String nickname;
     private String characterName;
+    private boolean isFriend;
 }
