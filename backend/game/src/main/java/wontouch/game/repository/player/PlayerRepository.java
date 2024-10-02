@@ -98,4 +98,12 @@ public class PlayerRepository {
             redisTemplate.opsForHash().put(key, "articlePrice", ARTICLE_DEFAULT_PRICE);
         }
     }
+
+    public void freePlayerMemory(String roomId) {
+        Set<Object> players = getPlayersFromGame(roomId);
+        for (Object player : players) {
+            String key = PLAYER_PREFIX + player + INFO_SUFFIX;
+            redisTemplate.delete(key);
+        }
+    }
 }

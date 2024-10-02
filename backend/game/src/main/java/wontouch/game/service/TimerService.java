@@ -21,7 +21,7 @@ import static wontouch.game.domain.RedisKeys.PLAYER_SUFFIX;
 @Slf4j
 public class TimerService {
     private static final int ROUND_DURATION_SECONDS = 3;
-    private static final int PREPARATION_DURATION_SECONDS = 1;
+    private static final int PREPARATION_DURATION_SECONDS = 10;
     private static final int FINAL_ROUND = 5;
 
     @Value("${socket.server.name}:${socket.server.path}")
@@ -39,13 +39,15 @@ public class TimerService {
     private final ArticleService articleService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisService redisService;
 
-    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate) {
+    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate, RedisService redisService) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.articleRepository = articleRepository;
         this.articleService = articleService;
         this.redisTemplate = redisTemplate;
+        this.redisService = redisService;
     }
 
     // 라운드 시작 시 타이머 설정
@@ -174,6 +176,11 @@ public class TimerService {
         restTemplate.postForObject(mileageTargetUrl, resultTable, String.class);
 
         // TODO 마일리지 부여를 위해 API 전송
+        restTemplate.postForObject(targetUrl, gameResult, String.class);
+        log.debug("삭제 로직 호출");
+        playerRepository.freePlayerMemory(roomId);
+        redisService.deleteGameKeysByPattern(roomId);
+        log.debug("삭제 로직 끝");
     }
 
     // 라운드가 시작했음을 알리는 알림 로직
