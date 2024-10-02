@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class UserSearchResponseDto {
 
     private int tierPoint;
+    private int friendId;
     private String nickname;
     private String characterName;
 }

@@ -98,6 +98,7 @@ public class UserService {
 
         UserSearchResponseDto responseDto = UserSearchResponseDto.builder()
                 .tierPoint(getTotalTierPoint(userProfile.getUserId()))
+                .friendId(userProfile.getUserId())
                 .nickname(userProfile.getNickname())
                 .characterName(equippedAvatar.getCharacterName())
                 .build();
