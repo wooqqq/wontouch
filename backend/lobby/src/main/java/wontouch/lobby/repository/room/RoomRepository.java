@@ -71,7 +71,7 @@ public class RoomRepository {
             }
         }
         redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
-        return new RoomResponseDto(room);
+        return new RoomResponseDto(getRoomById(room.getRoomId()));
     }
 
     // 빠른 입장

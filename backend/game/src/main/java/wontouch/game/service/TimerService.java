@@ -20,7 +20,7 @@ import static wontouch.game.domain.RedisKeys.PLAYER_SUFFIX;
 @Service
 @Slf4j
 public class TimerService {
-    private static final int ROUND_DURATION_SECONDS = 30;
+    private static final int ROUND_DURATION_SECONDS = 3;
     private static final int PREPARATION_DURATION_SECONDS = 10;
     private static final int FINAL_ROUND = 5;
 
@@ -39,13 +39,15 @@ public class TimerService {
     private final ArticleService articleService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisService redisService;
 
-    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate) {
+    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate, RedisService redisService) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.articleRepository = articleRepository;
         this.articleService = articleService;
         this.redisTemplate = redisTemplate;
+        this.redisService = redisService;
     }
 
     // 라운드 시작 시 타이머 설정
@@ -168,11 +170,11 @@ public class TimerService {
         log.debug("최종 결과 테이블 출력: {}", resultTable);
         gameResult.put("roomId", roomId);
         gameResult.put("game-result", resultTable);
-        log.debug("보내는 데이터 확인", gameResult);
-        restTemplate.postForObject(targetUrl, gameResult, Map.class);
-        restTemplate.postForObject(mileageServerUrl, resultTable, Map.class);
-
-        // TODO 마일리지 부여를 위해 API 전송
+        restTemplate.postForObject(targetUrl, gameResult, String.class);
+//        restTemplate.postForObject(mileageServerUrl, resultTable, String.class);
+        log.debug("삭제 로직 호출");
+        redisService.deleteGameKeysByPattern(roomId);
+        log.debug("삭제 로직 끝");
     }
 
     // 라운드가 시작했음을 알리는 알림 로직
