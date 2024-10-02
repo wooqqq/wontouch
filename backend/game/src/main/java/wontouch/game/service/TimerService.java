@@ -20,8 +20,8 @@ import static wontouch.game.domain.RedisKeys.PLAYER_SUFFIX;
 @Service
 @Slf4j
 public class TimerService {
-    private static final int ROUND_DURATION_SECONDS = 30;
-    private static final int PREPARATION_DURATION_SECONDS = 10;
+    private static final int ROUND_DURATION_SECONDS = 3;
+    private static final int PREPARATION_DURATION_SECONDS = 1;
     private static final int FINAL_ROUND = 5;
 
     @Value("${socket.server.name}:${socket.server.path}")
@@ -162,15 +162,16 @@ public class TimerService {
     }
     private void endGame(String roomId) {
         String targetUrl = socketServerUrl + "/game/game-result";
+        String mileageTargetUrl = mileageServerUrl + "/result";
         log.debug("게임 종료 로직 실행: {}", roomId);
         Map<String, Object> gameResult = new HashMap<>();
         Map<String, Map<String, Integer>> resultTable = gameRepository.getTotalGold(roomId);
         log.debug("최종 결과 테이블 출력: {}", resultTable);
         gameResult.put("roomId", roomId);
         gameResult.put("game-result", resultTable);
+        restTemplate.postForObject(targetUrl, gameResult, String.class);
         log.debug("보내는 데이터 확인", gameResult);
-        restTemplate.postForObject(targetUrl, gameResult, Map.class);
-        restTemplate.postForObject(mileageServerUrl, resultTable, Map.class);
+        restTemplate.postForObject(mileageTargetUrl, resultTable, String.class);
 
         // TODO 마일리지 부여를 위해 API 전송
     }
