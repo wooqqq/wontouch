@@ -166,8 +166,9 @@ public class TimerService {
         log.debug("최종 결과 테이블 출력: {}", resultTable);
         gameResult.put("roomId", roomId);
         gameResult.put("game-result", resultTable);
-
+        log.debug("보내는 데이터 확인", gameResult);
         restTemplate.postForObject(targetUrl, gameResult, Map.class);
+
         // TODO 마일리지 부여를 위해 API 전송
     }
 

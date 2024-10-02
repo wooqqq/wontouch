@@ -72,6 +72,13 @@ public class GameServerService {
         return restTemplate.postForObject(readyUrl, readyInfo, Object.class);
     }
 
+    // 특정 작물 기사 구입
+    public Object buyArticle(String roomId, String playerId, Map<String, Object> transactionInfo) {
+        String articleUrl = gameServerUrl + "/article/buy/" + roomId;
+        transactionInfo.put("playerId", playerId);
+        return restTemplate.postForObject(articleUrl, transactionInfo, Object.class);
+    }
+
     // 랜덤 기사 구입
     public Object buyRandomArticle(String roomId, String playerId, Map<String, Object> transactionInfo) {
         String articleUrl = gameServerUrl + "/article/buy-random/" + roomId;
