@@ -49,5 +49,4 @@ public class GameResultController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-
 }
