@@ -1,10 +1,9 @@
-package wontouch.lobby.repository;
+package wontouch.lobby.repository.room;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.lobby.domain.Room;
-
 import wontouch.lobby.dto.CreateRoomRequestDto;
 import wontouch.lobby.dto.RoomRequestDto;
 import wontouch.lobby.dto.RoomResponseDto;
@@ -13,7 +12,6 @@ import wontouch.lobby.exception.CustomException;
 import wontouch.lobby.exception.ExceptionResponse;
 
 import java.util.*;
-
 import java.util.stream.Collectors;
 
 // 방의 정보를 관리하는 레포지토리
@@ -31,8 +29,11 @@ public class RoomRepository {
     public RoomResponseDto saveRoom(CreateRoomRequestDto room) {
         String key = "game_lobby:" + room.getRoomId() + ":info";
         String playerId = Long.toString(room.getHostPlayerId());
-        redisTemplate.opsForHash().put(key, "roomId", room.getRoomId());
-        redisTemplate.opsForHash().put(key, "roomName", room.getRoomName());
+        String roomId = room.getRoomId();
+        String roomName = room.getRoomName();
+
+        redisTemplate.opsForHash().put(key, "roomId", roomId);
+        redisTemplate.opsForHash().put(key, "roomName", roomName);
         redisTemplate.opsForHash().put(key, "secret", room.isSecret());
         redisTemplate.opsForHash().put(key, "hostId", playerId);
         if (room.isSecret()) {
@@ -49,6 +50,7 @@ public class RoomRepository {
         // 참여자 목록에 방 생성자 삽입
         String participantsKey = "game_lobby:" + room.getRoomId() + ":participants";
         redisTemplate.opsForHash().put(participantsKey, playerId, false);
+
         return new RoomResponseDto(getRoomById(room.getRoomId()));
     }
 

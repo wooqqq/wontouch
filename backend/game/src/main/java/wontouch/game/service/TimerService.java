@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static wontouch.game.domain.RedisKeys.PLAYER_SUFFIX;
 import static wontouch.game.domain.RedisKeys.GAME_PREFIX;
+import static wontouch.game.domain.RedisKeys.PLAYER_SUFFIX;
 
 @Service
 @Slf4j
@@ -26,6 +26,8 @@ public class TimerService {
 
     @Value("${socket.server.name}:${socket.server.path}")
     private String socketServerUrl;
+    @Value("${mileage.server.name}:${mileage.server.path}")
+    private String mileageServerUrl;
 
     // 라운드를 관리하는 타이머
     private final Map<String, ScheduledFuture<?>> roundTimers = new ConcurrentHashMap<>();
@@ -69,7 +71,8 @@ public class TimerService {
         // WebSocket 서버로 라운드 종료 알림 전송
         notifyClientsOfRoundEnd(roomId);
 
-        articleRepository.calculateArticleResult(roomId, round);
+        Map<String, Integer> roundResult = articleRepository.calculateArticleResult(roomId, round);
+        notifyRoundResult(roomId, roundResult);
         // TODO 이번 라운드 결과 각자에게 유니캐스트?
         log.debug("작물 가격 계산 완료 후 반영: {}", roomId);
         // 마지막 라운드라면 종료
@@ -82,6 +85,7 @@ public class TimerService {
     }
 
     // 준비 타이머 로직
+
     private void startPreparationTimer(String roomId) {
         log.debug("Starting preparation timer for room: {}", roomId);
 
@@ -94,7 +98,6 @@ public class TimerService {
         // TODO 다음 라운드 기사 세팅
         articleService.saveNewArticlesForRound(roomId, 2);
     }
-
     private void notifyClientsOfPreparationStart(String roomId) {
         // 클라이언트에게 준비 시간 시작을 알리는 로직
         String targetUrl = socketServerUrl + "/game/preparation-start";
@@ -110,6 +113,7 @@ public class TimerService {
     }
 
     // 플레이어의 다음 라운드 시작 준비 여부 확인
+
     public Map<String, Object> playerReady(String roomId, String playerId) {
         playerRepository.setPlayerStatus(roomId, playerId, PlayerStatus.READY);
         Map<String, Object> readyInfo = checkAllPlayersReady(roomId);
@@ -120,8 +124,8 @@ public class TimerService {
         }
         return readyInfo;
     }
-
     // 모든 플레이어가 준비되었는지 확인
+
     public Map<String, Object> checkAllPlayersReady(String roomId) {
         String playerStatusKey = GAME_PREFIX + roomId + PLAYER_SUFFIX;
         Map<Object, Object> players = redisTemplate.opsForHash().entries(playerStatusKey);
@@ -156,7 +160,6 @@ public class TimerService {
             log.debug("Preparation timer cancelled for room: {}", roomId);
         }
     }
-
     private void endGame(String roomId) {
         String targetUrl = socketServerUrl + "/game/game-result";
         log.debug("게임 종료 로직 실행: {}", roomId);
@@ -165,12 +168,15 @@ public class TimerService {
         log.debug("최종 결과 테이블 출력: {}", resultTable);
         gameResult.put("roomId", roomId);
         gameResult.put("game-result", resultTable);
-
+        log.debug("보내는 데이터 확인", gameResult);
         restTemplate.postForObject(targetUrl, gameResult, Map.class);
+        restTemplate.postForObject(mileageServerUrl, resultTable, Map.class);
+
         // TODO 마일리지 부여를 위해 API 전송
     }
 
     // 라운드가 시작했음을 알리는 알림 로직
+
     private void notifyClientsOfRoundStart(String roomId) {
         // WebSocket 서버로 라운드 시작 메시지 전달 (WebSocket 서버가 클라이언트로 전달)
         String targetUrl = socketServerUrl + "/game/round-start";
@@ -184,13 +190,17 @@ public class TimerService {
             e.printStackTrace();
         }
     }
-
     // 라운드가 종료했음을 알리는 알림 로직
+
     private void notifyClientsOfRoundEnd(String roomId) {
         // WebSocket 서버로 라운드 종료 메시지 전달 (WebSocket 서버가 클라이언트로 전달)
         String targetUrl = socketServerUrl + "/game/round-end";
         Map<String, Object> messageData = new HashMap<>();
         messageData.put("roomId", roomId);
         restTemplate.postForObject(targetUrl, messageData, String.class);
+    }
+
+    private void notifyRoundResult(String roomId, Map<String, Integer> roundResult) {
+        // TODO 라운드 결과 보내기
     }
 }

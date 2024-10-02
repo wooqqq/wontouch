@@ -16,7 +16,8 @@ public class GameServerService {
     private final RestTemplate restTemplate = new RestTemplate();
     @Value("${game.server.name}:${game.server.path}")
     private String gameServerUrl;
-
+    @Value("${mileage.server.name}:${mileage.server.path}")
+    private String mileageServerUrl;
     // 작물 구매 요청
     public CropTransactionResult buyCropRequest(String roomId, Map<String, Object> transactionInfo) {
         String buyCropUrl = gameServerUrl + "/town/buy/crop/" + roomId;
@@ -70,6 +71,13 @@ public class GameServerService {
         log.debug("preparationInfo:{}", readyInfo);
         System.out.println("Sending preparation info to Game Server: " + readyInfo);
         return restTemplate.postForObject(readyUrl, readyInfo, Object.class);
+    }
+
+    // 특정 작물 기사 구입
+    public Object buyArticle(String roomId, String playerId, Map<String, Object> transactionInfo) {
+        String articleUrl = gameServerUrl + "/article/buy/" + roomId;
+        transactionInfo.put("playerId", playerId);
+        return restTemplate.postForObject(articleUrl, transactionInfo, Object.class);
     }
 
     // 랜덤 기사 구입

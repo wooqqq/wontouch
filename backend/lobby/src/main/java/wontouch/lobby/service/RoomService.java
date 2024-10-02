@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.lobby.dto.*;
-import wontouch.lobby.repository.RoomRepository;
+import wontouch.lobby.repository.room.RoomRepository;
 
 import java.util.List;
 
