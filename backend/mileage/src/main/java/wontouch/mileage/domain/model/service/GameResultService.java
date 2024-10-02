@@ -2,14 +2,11 @@ package wontouch.mileage.domain.model.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import wontouch.mileage.domain.dto.request.GameResultRequestDto;
 import wontouch.mileage.domain.dto.request.MileageCreateRequestDto;
-import wontouch.mileage.domain.dto.request.MileageSpendRequestDto;
 import wontouch.mileage.domain.dto.request.TierPointCreateRequestDto;
 import wontouch.mileage.global.exception.CustomException;
 import wontouch.mileage.global.exception.ExceptionResponse;
 
-import java.util.List;
 import java.util.Map;
 
 @Service
