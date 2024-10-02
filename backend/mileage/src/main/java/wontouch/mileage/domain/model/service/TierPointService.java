@@ -27,7 +27,6 @@ public class TierPointService {
                 .userId(requestDto.getUserId())
                 .amount(requestDto.getAmount())
                 .description("게임 완료 보상")
-                .tier("미구현")
                 .createAt(LocalDateTime.now())
                 .build();
 
@@ -43,7 +42,6 @@ public class TierPointService {
                 .map(tierPointLog -> TierPointResponseDto.builder()
                         .amount(tierPointLog.getAmount())
                         .description(tierPointLog.getDescription())
-                        .tier("미구현")
                         .createAt(tierPointLog.getCreateAt().toString())
                         .build())
                 .toList();

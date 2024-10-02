@@ -21,7 +21,5 @@ public class TierPointLog {
 
     private String description;
 
-    private String tier;
-
     private LocalDateTime createAt;
 }

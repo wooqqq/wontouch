@@ -17,6 +17,7 @@ public enum CustomException {
     NOT_SAME_USER_EXCEPTION(400,"NotSameUserException","로그인 유저와 수정 회원이 일지하지 않습니다."),
     DUPLICATED_ID_EXCEPTION(400,"DuplicatedIDException","가입된 아이디가 존재합니다."),
     DUPLICATED_NAME_EXCEPTION(400,"DuplicateNameException","가입된 닉네임 또는 이름이 존재합니다."),
+    NUMBER_FORMAT_EXCEPTION(400, "NumberFormatException", "숫자 형태가 아닙니다."),
 
     // 사용자 프로필
     NOT_FOUND_PROFILE_EXCEPTION(400, "NotFoundProfileException", "사용자 프로필이 존재하지 않습니다"),

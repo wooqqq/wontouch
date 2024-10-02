@@ -12,12 +12,15 @@ import wontouch.api.domain.user.dto.request.AvatarUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarRequestDto;
 import wontouch.api.domain.user.dto.request.MileageSpendRequestDto;
 import wontouch.api.domain.user.dto.response.AvatarDetailResponseDto;
+import wontouch.api.domain.user.dto.response.AvatarListResponseDto;
 import wontouch.api.domain.user.dto.response.AvatarResponseDto;
 import wontouch.api.domain.user.entity.Avatar;
+import wontouch.api.domain.user.entity.AvatarType;
 import wontouch.api.domain.user.model.repository.AvatarRepository;
 import wontouch.api.global.exception.CustomException;
 import wontouch.api.global.exception.ExceptionResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,7 +35,35 @@ public class AvatarService {
     private String mileageServerUrl;
 
     // 아바타 리스트 조회
+    public List<AvatarListResponseDto> getAllAvatars(int userId) {
+        List<AvatarListResponseDto> avatarList = new ArrayList<>();
 
+        AvatarType[] avatarTypes = AvatarType.values();
+        for (int i = 0; i < avatarTypes.length; i++) {
+            AvatarType avatarType = avatarTypes[i];
+
+            boolean owned = avatarRepository.existsByUserIdAndCharacterName(userId, avatarType.getName());
+            boolean equipped = false;
+
+            if (owned) {
+                Avatar avatar = avatarRepository.findByUserIdAndCharacterName(userId, avatarType.getName())
+                        .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
+                equipped = avatar.isEquipped();
+            }
+
+            AvatarListResponseDto avatarDto = AvatarListResponseDto.builder()
+                    .characterName(avatarType.getName())
+                    .description(avatarType.getDescription())
+                    .price(avatarType.getPrice())
+                    .isOwned(owned)
+                    .isEquipped(equipped)
+                    .build();
+
+            avatarList.add(avatarDto);
+        }
+
+        return avatarList;
+    }
 
     // 보유한 아바타 리스트 조회
     public List<AvatarResponseDto> getOwnedAvatar(int userId) {
@@ -91,7 +122,9 @@ public class AvatarService {
     @Transactional
     public void purchaseAvatar(AvatarPurchaseRequestDto requestDto) {
         // 마일리지 조회 및 사용 구현 필요 => requestDto에 아바타 가격 포함되어야 함 (추후 구현사항)
-        purchaseByMileage(requestDto.getUserId(), requestDto.getPrice(), "아바타 구매");
+        AvatarType avatarType = AvatarType.getByCharacterName(requestDto.getCharacterName());
+
+        purchaseByMileage(requestDto.getUserId(), avatarType.getPrice(), "아바타 구매");
 
         boolean isExistAvatar = avatarRepository.existsByUserIdAndCharacterName(requestDto.getUserId(), requestDto.getCharacterName());
 

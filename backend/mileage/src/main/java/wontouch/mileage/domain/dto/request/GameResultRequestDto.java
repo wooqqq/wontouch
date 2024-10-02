@@ -1,16 +1,17 @@
 package wontouch.mileage.domain.dto.request;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
-public class MileageCreateRequestDto {
+public class GameResultRequestDto {
 
     @NotNull
     private int userId;
 
     @NotNull
-    private int amount;
+    private int mileage;
+
+    @NotNull
+    private int tierPoint;
 }
