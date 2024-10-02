@@ -122,7 +122,9 @@ public class AvatarService {
     @Transactional
     public void purchaseAvatar(AvatarPurchaseRequestDto requestDto) {
         // 마일리지 조회 및 사용 구현 필요 => requestDto에 아바타 가격 포함되어야 함 (추후 구현사항)
-        purchaseByMileage(requestDto.getUserId(), requestDto.getPrice(), "아바타 구매");
+        AvatarType avatarType = AvatarType.getByCharacterName(requestDto.getCharacterName());
+
+        purchaseByMileage(requestDto.getUserId(), avatarType.getPrice(), "아바타 구매");
 
         boolean isExistAvatar = avatarRepository.existsByUserIdAndCharacterName(requestDto.getUserId(), requestDto.getCharacterName());
 

@@ -2,6 +2,8 @@ package wontouch.api.domain.user.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import wontouch.api.global.exception.CustomException;
+import wontouch.api.global.exception.ExceptionResponse;
 
 @Getter
 @AllArgsConstructor
@@ -19,5 +21,13 @@ public enum AvatarType {
     private String name;
     private String description;
     private int price;
+
+    public static AvatarType getByCharacterName(String characterName) {
+        for (AvatarType avatarType : AvatarType.values()) {
+            if (avatarType.getName().equals(characterName))
+                return avatarType;
+        }
+        throw new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION);
+    }
 
 }
