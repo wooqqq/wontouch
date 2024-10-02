@@ -93,7 +93,7 @@ public class GameRepository {
             // 플레이어에게 보상 분배
             Map<String, Integer> playerRewards = new HashMap<>();
             playerRewards.put("totalGold", totalGold);
-            playerRewards.put("experience", experienceEarned);
+            playerRewards.put("tierPoint", experienceEarned);
             playerRewards.put("mileage", mileageEarned);
             rewardDistribution.put(playerId.toString(), playerRewards);
         }
