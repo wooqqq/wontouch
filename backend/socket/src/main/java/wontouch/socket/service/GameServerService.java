@@ -16,7 +16,8 @@ public class GameServerService {
     private final RestTemplate restTemplate = new RestTemplate();
     @Value("${game.server.name}:${game.server.path}")
     private String gameServerUrl;
-
+    @Value("${mileage.server.name}:${mileage.server.path}")
+    private String mileageServerUrl;
     // 작물 구매 요청
     public CropTransactionResult buyCropRequest(String roomId, Map<String, Object> transactionInfo) {
         String buyCropUrl = gameServerUrl + "/town/buy/crop/" + roomId;

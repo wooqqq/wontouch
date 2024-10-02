@@ -26,6 +26,8 @@ public class TimerService {
 
     @Value("${socket.server.name}:${socket.server.path}")
     private String socketServerUrl;
+    @Value("${mileage.server.name}:${mileage.server.path}")
+    private String mileageServerUrl;
 
     // 라운드를 관리하는 타이머
     private final Map<String, ScheduledFuture<?>> roundTimers = new ConcurrentHashMap<>();
@@ -168,6 +170,7 @@ public class TimerService {
         gameResult.put("game-result", resultTable);
         log.debug("보내는 데이터 확인", gameResult);
         restTemplate.postForObject(targetUrl, gameResult, Map.class);
+        restTemplate.postForObject(mileageServerUrl, resultTable, Map.class);
 
         // TODO 마일리지 부여를 위해 API 전송
     }
