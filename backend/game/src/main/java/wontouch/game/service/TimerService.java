@@ -164,6 +164,7 @@ public class TimerService {
     }
     private void endGame(String roomId) {
         String targetUrl = socketServerUrl + "/game/game-result";
+        String mileageTargetUrl = mileageServerUrl + "/result";
         log.debug("게임 종료 로직 실행: {}", roomId);
         Map<String, Object> gameResult = new HashMap<>();
         Map<String, Map<String, Integer>> resultTable = gameRepository.getTotalGold(roomId);
@@ -171,8 +172,13 @@ public class TimerService {
         gameResult.put("roomId", roomId);
         gameResult.put("game-result", resultTable);
         restTemplate.postForObject(targetUrl, gameResult, String.class);
-//        restTemplate.postForObject(mileageServerUrl, resultTable, String.class);
+        log.debug("보내는 데이터 확인", gameResult);
+        restTemplate.postForObject(mileageTargetUrl, resultTable, String.class);
+
+        // TODO 마일리지 부여를 위해 API 전송
+        restTemplate.postForObject(targetUrl, gameResult, String.class);
         log.debug("삭제 로직 호출");
+        playerRepository.freePlayerMemory(roomId);
         redisService.deleteGameKeysByPattern(roomId);
         log.debug("삭제 로직 끝");
     }

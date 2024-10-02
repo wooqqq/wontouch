@@ -7,5 +7,4 @@ public class AvatarPurchaseRequestDto {
 
     private int userId;
     private String characterName;
-    private int price;
 }

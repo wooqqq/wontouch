@@ -13,6 +13,5 @@ public class TierPointResponseDto {
 
     private int amount;
     private String description;
-    private String tier;
     private String createAt;
 }

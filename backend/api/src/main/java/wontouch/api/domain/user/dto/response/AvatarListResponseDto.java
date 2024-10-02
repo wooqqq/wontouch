@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSearchResponseDto {
+public class AvatarListResponseDto {
 
-    private int tierPoint;
-    private int friendId;
-    private String nickname;
     private String characterName;
-    private boolean isFriend;
+    private String description;
+    private int price;
+    private boolean isOwned;
+    private boolean isEquipped;
 }

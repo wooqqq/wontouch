@@ -8,6 +8,7 @@ import wontouch.api.domain.user.dto.request.AvatarPurchaseRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarRequestDto;
 import wontouch.api.domain.user.dto.response.AvatarDetailResponseDto;
+import wontouch.api.domain.user.dto.response.AvatarListResponseDto;
 import wontouch.api.domain.user.dto.response.AvatarResponseDto;
 import wontouch.api.domain.user.model.service.AvatarService;
 import wontouch.api.global.dto.ResponseDto;
@@ -22,9 +23,17 @@ public class AvatarController {
     private final AvatarService avatarService;
 
     // 아바타 리스트 조회
-    @GetMapping("/list")
-    public ResponseEntity<List<AvatarResponseDto>> getAllAvatars() {
-        return null;
+    @GetMapping("/list/{userId}")
+    public ResponseEntity<?> getAllAvatars(@PathVariable int userId) {
+        List<AvatarListResponseDto> avatarList = avatarService.getAllAvatars(userId);
+
+        ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
+                .status(HttpStatus.OK.value())
+                .message("아바타 리스트 조회 성공")
+                .data(avatarList)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     // 보유 아바타 리스트 조회
