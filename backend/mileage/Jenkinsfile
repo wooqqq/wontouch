@@ -49,7 +49,7 @@ pipeline {
         }
         stage("Build with Gradle") {
             steps {
-                dir("backend/lobby") {
+                dir("backend/mileage") {
                     sh "chmod +x ./gradlew"
                     sh "./gradlew clean build --no-daemon"
                 }
