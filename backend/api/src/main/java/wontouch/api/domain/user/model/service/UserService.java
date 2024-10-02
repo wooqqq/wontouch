@@ -92,9 +92,14 @@ public class UserService {
         if (friendRepository.existsByFromUserIdAndToUserId(requestDto.getUserId(), userProfile.getUserId()))
             throw new ExceptionResponse(CustomException.ALREADY_FRIEND_EXCEPTION);
 
+        // 장착중인 아바타 가져오기
+        Avatar equippedAvatar = avatarRepository.findByUserIdAndIsEquippedIsTrue(userProfile.getUserId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
+
         UserSearchResponseDto responseDto = UserSearchResponseDto.builder()
                 .tierPoint(getTotalTierPoint(userProfile.getUserId()))
                 .nickname(userProfile.getNickname())
+                .characterName(equippedAvatar.getCharacterName())
                 .build();
 
         return responseDto;
