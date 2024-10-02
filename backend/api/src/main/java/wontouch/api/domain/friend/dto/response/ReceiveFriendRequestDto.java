@@ -13,6 +13,6 @@ public class ReceiveFriendRequestDto {
 
     private int fromUserId;
     private String fromUserNickname;
-    private String fromUserTier;
+    private int fromUserTierPoint;
     private String fromUserCharacterName;
 }

@@ -1,11 +1,16 @@
 package wontouch.api.domain.user.model.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.user.dto.request.AvatarPurchaseRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarUpdateRequestDto;
 import wontouch.api.domain.user.dto.request.AvatarRequestDto;
+import wontouch.api.domain.user.dto.request.MileageSpendRequestDto;
 import wontouch.api.domain.user.dto.response.AvatarDetailResponseDto;
 import wontouch.api.domain.user.dto.response.AvatarResponseDto;
 import wontouch.api.domain.user.entity.Avatar;
@@ -19,7 +24,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AvatarService {
 
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
     private final AvatarRepository avatarRepository;
+
+    @Value("${mileage.server.name}:${mileage.server.path}")
+    private String mileageServerUrl;
 
     // 보유한 아바타 리스트 조회
     public List<AvatarResponseDto> getOwnedAvatar(int userId) {
@@ -78,6 +88,7 @@ public class AvatarService {
     @Transactional
     public void purchaseAvatar(AvatarPurchaseRequestDto requestDto) {
         // 마일리지 조회 및 사용 구현 필요 => requestDto에 아바타 가격 포함되어야 함 (추후 구현사항)
+        purchaseByMileage(requestDto.getUserId(), requestDto.getPrice(), "아바타 구매");
 
         boolean isExistAvatar = avatarRepository.existsByUserIdAndCharacterName(requestDto.getUserId(), requestDto.getCharacterName());
 
@@ -107,6 +118,44 @@ public class AvatarService {
         
         // 해당 아바타의 장착 상태를 true 로 설정
         equipAvatar.setEquipped(true);
+    }
+
+    // 마일리지 사용 로직
+    private void purchaseByMileage(int userId, int amount, String description) {
+        String spendMileageUrl = String.format("%s/mileage/log/spend", mileageServerUrl);
+
+        MileageSpendRequestDto requestDto = MileageSpendRequestDto.builder()
+                .userId(userId)
+                .amount(amount)
+                .description(description)
+                .build();
+
+        try {
+            // 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+
+            // dto를 JSON으로 변환
+            String requestJson = objectMapper.writeValueAsString(requestDto);
+
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestJson, headers);
+
+            // post 요청 보내기
+            ResponseEntity<String> response = restTemplate.exchange(spendMileageUrl, HttpMethod.POST, requestEntity, String.class);
+
+            // 응답 처리
+            if (response.getStatusCode() == HttpStatus.CREATED) {
+                // 마일리지 사용 성공 로직
+                System.out.println("마일리지 사용 성공");
+            } else {
+                // 실패 로직
+                System.out.println("마일리지 사용 실패");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
+        }
     }
 
 }
