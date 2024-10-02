@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface TierPointLogRepository extends MongoRepository<TierPointLog, Integer> {
 
+    boolean existsByUserId(int userId);
     Optional<List<TierPointLog>> findByUserId(int userId);
 }
