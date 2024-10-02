@@ -52,6 +52,9 @@ public class RoomController {
     // 게임방 생성
     @PostMapping()
     public ResponseEntity<ResponseDto<?>> createRoom(@RequestBody CreateRoomRequestDto createRoomRequestDto) {
+        if (createRoomRequestDto.getPassword() != null && !createRoomRequestDto.getPassword().isEmpty()) {
+            createRoomRequestDto.setSecret(true);
+        }
         log.debug("create Room: {}", createRoomRequestDto);
         ResponseDto responseDto = null;
         String targetUrl = lobbyServerUrl + "/rooms/create"; // 로비 서버 URL

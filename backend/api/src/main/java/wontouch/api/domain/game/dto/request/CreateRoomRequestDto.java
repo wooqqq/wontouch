@@ -1,6 +1,7 @@
 package wontouch.api.domain.game.dto.request;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
@@ -10,6 +11,7 @@ public class CreateRoomRequestDto {
     private String roomName;
     private final long hostPlayerId;
 
+    @Setter
     private boolean secret;
     private String password;
 

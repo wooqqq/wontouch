@@ -44,13 +44,21 @@ public class ArticleController {
         return ResponseEntity.ok("random articles");
     }
 
+//    @PostMapping("/buy/{roomId}")
+//    public ResponseEntity<?> buyTest(@PathVariable String roomId, @RequestBody Map<String, Object> buyInfo) {
+//        String cropId = cropService.getRandomCropFromGame(roomId);
+//        cropId = "radish";
+//        String playerId = buyInfo.get("playerId").toString();
+//        ArticleTransactionResult article = articleRepository.buyRandomArticle(roomId, playerId, cropId);
+//
+//        return ResponseEntity.ok(article);
+//    }
+
     @PostMapping("/buy/{roomId}")
-    public ResponseEntity<?> buyTest(@PathVariable String roomId, @RequestBody Map<String, Object> buyInfo) {
-        String cropId = cropService.getRandomCropFromGame(roomId);
-        cropId = "radish";
+    public ResponseEntity<?> buyArticle(@PathVariable String roomId, @RequestBody Map<String, Object> buyInfo) {
+        String cropId = buyInfo.get("cropId").toString();
         String playerId = buyInfo.get("playerId").toString();
         ArticleTransactionResult article = articleRepository.buyRandomArticle(roomId, playerId, cropId);
-
         return ResponseEntity.ok(article);
     }
 

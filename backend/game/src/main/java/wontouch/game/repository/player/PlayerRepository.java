@@ -68,11 +68,28 @@ public class PlayerRepository {
     }
 
     // 플레이어의 골드 반환
-    private int getPlayerGold(String playerId) {
+    public int getPlayerGold(String playerId) {
         String playerKey = PLAYER_PREFIX + playerId + INFO_SUFFIX;
         return (Integer) redisTemplate.opsForHash().get(playerKey, "gold");
     }
 
+
+    // 플레이어의 특정 작물 보유 개수 반환
+    public int getPlayerCropQuantity(String playerId, String cropId) {
+        String playerCropKey = PLAYER_PREFIX + playerId + CROP_SUFFIX;
+        return (Integer) redisTemplate.opsForHash().get(playerCropKey, cropId);
+    }
+
+    // 플레이어의 보유 골드 gold만큼 변경
+    public void updatePlayerGold(String playerId, long gold) {
+        String playerKey = PLAYER_PREFIX + playerId + INFO_SUFFIX;
+        redisTemplate.opsForHash().increment(playerKey, "gold", gold); // 골드 차감
+    }
+
+    public void updatePlayerCropQuantity(String playerId, String cropId, int quantity) {
+        String playerCropKey = PLAYER_PREFIX + playerId + CROP_SUFFIX;
+        redisTemplate.opsForHash().increment(playerCropKey, cropId, quantity); // 플레이어 보유 작물 수량 증가
+    }
     // 플레이어의 기사 구입 초기 가격 세팅
     public void setPlayersArticlePrice(String roomId) {
         Set<Object> players = getPlayersFromGame(roomId);
