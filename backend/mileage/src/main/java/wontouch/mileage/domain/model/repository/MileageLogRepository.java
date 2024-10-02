@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface MileageLogRepository extends MongoRepository<MileageLog, Integer> {
 
+    boolean existsByUserId(int userId);
     Optional<List<MileageLog>> findByUserId(int userId);
 }

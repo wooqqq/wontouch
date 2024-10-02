@@ -53,6 +53,9 @@ public class TierPointService {
 
     // 총 티어 포인트 조회 기능
     public int getTotalTierPoint(int userId) {
+        if (!tierPointLogRepository.existsByUserId(userId))
+            return 0;
+
         List<TierPointLog> tierPointLogList = tierPointLogRepository.findByUserId(userId)
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_TIER_POINT_LOG_EXCEPTION));
 

@@ -58,6 +58,9 @@ public class MileageService {
 
     // 총 마일리지 조회
     public int getTotalMileageByUserId(int userId) {
+        if (!mileageLogRepository.existsByUserId(userId))
+            return 0;
+
         List<MileageLog> mileageLogs = mileageLogRepository.findByUserId(userId)
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_MILEAGE_LOG_EXCEPTION));
 

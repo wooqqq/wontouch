@@ -31,6 +31,9 @@ public class AvatarService {
     @Value("${mileage.server.name}:${mileage.server.path}")
     private String mileageServerUrl;
 
+    // 아바타 리스트 조회
+
+
     // 보유한 아바타 리스트 조회
     public List<AvatarResponseDto> getOwnedAvatar(int userId) {
         List<Avatar> ownedList = avatarRepository.findByUserId(userId)

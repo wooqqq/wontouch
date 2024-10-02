@@ -13,4 +13,5 @@ public class UserSearchResponseDto {
 
     private int tierPoint;
     private String nickname;
+    private String characterName;
 }
