@@ -17,6 +17,7 @@ public class UserResponseDto {
     private String description;
     private String characterName;
     private int tierPoint;
+    private int mileage;
 
     public void updateEmail(String email) {
         this.email = email;

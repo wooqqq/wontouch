@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class MileageLog {
 
     @Id
-    private int id;
+    private String id;
 
     private int userId;
 
@@ -24,4 +24,6 @@ public class MileageLog {
     private int totalMileage;
 
     private LocalDateTime createAt;
+    
+    private MileageLogType mileageLogType;  // 적립, 사용 여부
 }

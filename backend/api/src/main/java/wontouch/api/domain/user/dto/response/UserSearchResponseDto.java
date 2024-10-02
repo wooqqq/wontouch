@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserSearchResponseDto {
 
-    private String tier;
+    private int tierPoint;
     private String nickname;
+    private String characterName;
 }

@@ -33,7 +33,7 @@ public class UserController {
     }
 
     // 닉네임을 통한 사용자 검색 기능
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<?> getUserByNickname(@RequestBody UserSearchRequestDto requestDto) {
         // 서비스 내 메서드 호출
         UserSearchResponseDto searchResponseDto = userService.getUserByNickname(requestDto);

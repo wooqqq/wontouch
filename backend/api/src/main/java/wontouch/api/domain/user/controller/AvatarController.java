@@ -21,6 +21,12 @@ public class AvatarController {
 
     private final AvatarService avatarService;
 
+    // 아바타 리스트 조회
+    @GetMapping("/list")
+    public ResponseEntity<List<AvatarResponseDto>> getAllAvatars() {
+        return null;
+    }
+
     // 보유 아바타 리스트 조회
     @GetMapping("/{userId}")
     public ResponseEntity<?> getOwnedAvatar(@PathVariable int userId) {

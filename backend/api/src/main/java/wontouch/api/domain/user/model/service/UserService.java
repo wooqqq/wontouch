@@ -3,7 +3,9 @@ package wontouch.api.domain.user.model.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -31,6 +33,9 @@ public class UserService {
     @Value("${auth.server.name}:${auth.server.path}")
     private String authServerUrl;
 
+    @Value("${mileage.server.name}:${mileage.server.path}")
+    private String mileageServerUrl;
+
     /**
      * 사용자 정보 조회
      * 추후 characterName, mileage, level 등 넣어줄 예정
@@ -52,7 +57,8 @@ public class UserService {
                 .nickname(userProfile.getNickname())
                 .description(userProfile.getDescription())
                 .characterName(avatar.getCharacterName())
-                .tierPoint(1000) // 추후 tier_point log 구현 후 보내줄 예정
+                .tierPoint(getTotalTierPoint(userId)) // 추후 tier_point log 구현 후 보내줄 예정
+                .mileage(getTotalMileage(userId))
                 .build();
 
         // Auth 서버에서 사용자 이메일 불러오기
@@ -86,12 +92,65 @@ public class UserService {
         if (friendRepository.existsByFromUserIdAndToUserId(requestDto.getUserId(), userProfile.getUserId()))
             throw new ExceptionResponse(CustomException.ALREADY_FRIEND_EXCEPTION);
 
+        // 장착중인 아바타 가져오기
+        Avatar equippedAvatar = avatarRepository.findByUserIdAndIsEquippedIsTrue(userProfile.getUserId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
+
         UserSearchResponseDto responseDto = UserSearchResponseDto.builder()
-                .tier("아직 구현 X")
+                .tierPoint(getTotalTierPoint(userProfile.getUserId()))
                 .nickname(userProfile.getNickname())
+                .characterName(equippedAvatar.getCharacterName())
                 .build();
 
         return responseDto;
+    }
+
+    /**
+     * 사용자 ID를 통한 총 마일리지 조회
+     */
+    private int getTotalMileage(int userId) {
+        String mileageUrl = String.format("%s/mileage/log/total/%d", mileageServerUrl, userId);
+
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(mileageUrl, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode jsonResponse = objectMapper.readTree(response.getBody());
+
+                // data 필드에서 값 추출
+                return jsonResponse.get("data").asInt();
+            } else {
+                // 추가 구현 시 에러 처리
+                return 0;
+            }
+        } catch (Exception e) {
+            // 예외 처리
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
+        }
+    }
+
+    /**
+     * 사용자 ID를 통한 총 티어 포인트 조회
+     */
+    private int getTotalTierPoint(int userId) {
+        String tierUrl = String.format("%s/mileage/tier/total/%d", mileageServerUrl, userId);
+
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(tierUrl, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode jsonResponse = objectMapper.readTree(response.getBody());
+
+                // data 필드에서 값 추출
+                return jsonResponse.get("data").asInt();
+            } else {
+                // 추가 구현 시 에러 처리
+                return 0;
+            }
+        } catch (Exception e) {
+            // 예외 처리
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
+        }
     }
 
 }

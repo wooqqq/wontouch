@@ -1,4 +1,4 @@
-package wontouch.api.domain.friend.dto.response;
+package wontouch.api.domain.user.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FriendResponseDto {
+public class MileageSpendRequestDto {
 
-    private int friendId;
-    private String nickname;
+    private int userId;
+    private int amount;
     private String description;
-    private String characterName;
-    private int tierPoint;
 }
