@@ -136,6 +136,14 @@ public class ArticleRepository {
         double positiveRate = futureArticles.get(0).getChangeRate() / 100;
         double negativeRate = futureArticles.get(1).getChangeRate() / 100;
         double naturalRate = futureArticles.get(2).getChangeRate() / 100;
+
+        // 세 비율의 합을 구함
+        double totalRate = positiveRate + negativeRate + naturalRate;
+
+        // 0.99가 되도록 각 비율을 재조정
+        positiveRate = positiveRate / totalRate * 0.99;
+        negativeRate = negativeRate / totalRate * 0.99;
+        naturalRate = naturalRate / totalRate * 0.99;
         if (randomValue < positiveRate) {
             return futureArticles.get(0);
         } else if (randomValue < positiveRate + negativeRate) {
@@ -143,6 +151,7 @@ public class ArticleRepository {
         } else if (randomValue < positiveRate + negativeRate + naturalRate) {
             return futureArticles.get(2);
         } else {
+            System.out.println("SPECIAL EVENT");
             return null;
         }
     }
