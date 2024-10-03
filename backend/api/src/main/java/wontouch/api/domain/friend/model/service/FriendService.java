@@ -19,6 +19,7 @@ import wontouch.api.domain.friend.entity.Friend;
 import wontouch.api.domain.friend.entity.FriendRequest;
 import wontouch.api.domain.friend.model.repository.jpa.FriendRepository;
 import wontouch.api.domain.friend.model.repository.mongo.FriendRequestRepository;
+import wontouch.api.domain.notification.model.service.NotificationService;
 import wontouch.api.domain.user.entity.Avatar;
 import wontouch.api.domain.user.entity.UserProfile;
 import wontouch.api.domain.user.model.repository.AvatarRepository;
@@ -41,6 +42,7 @@ public class FriendService {
     private final FriendRequestRepository friendRequestRepository;
     private final UserProfileRepository userProfileRepository;
     private final AvatarRepository avatarRepository;
+    private final NotificationService notificationService;
 
     @Value("${mileage.server.name}:${mileage.server.path}")
     private String mileageServerUrl;
@@ -97,6 +99,10 @@ public class FriendService {
                 .toUserId(toUserId)
                 .createAt(LocalDateTime.now())
                 .build();
+
+        UserProfile toUser = userProfileRepository.findByUserId(toUserId)
+                        .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
+        notificationService.notifyFriendRequest(toUser.getNickname(), fromUserId);
 
         return friendRequestRepository.save(friendRequest);
     }
@@ -159,6 +165,8 @@ public class FriendService {
                 .build();
 
         friendRepository.save(friend);
+
+        notificationService.notifyFriendAccept(friendRequest.getFromUserId(), requestDto.getUserId());
     }
 
     // 친구 신청 거절

@@ -10,7 +10,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
         "wontouch.api.domain.friend.model.repository.jpa"
 })
 @EnableMongoRepositories(basePackages = {
-        "wontouch.api.domain.friend.model.repository.mongo"
+        "wontouch.api.domain.friend.model.repository.mongo",
+        "wontouch.api.domain.notification.model.repository"
 })
 public class RepositoryConfig {
 }
