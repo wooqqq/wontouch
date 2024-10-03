@@ -102,7 +102,7 @@ public class FriendService {
 
         UserProfile toUser = userProfileRepository.findByUserId(toUserId)
                         .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
-        notificationService.notifyFriendRequest(toUser.getNickname());
+        notificationService.notifyFriendRequest(toUser.getNickname(), fromUserId);
 
         return friendRequestRepository.save(friendRequest);
     }

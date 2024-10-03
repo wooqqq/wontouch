@@ -5,12 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import wontouch.api.domain.notification.controller.NotificationController;
+import wontouch.api.domain.notification.entity.Notification;
+import wontouch.api.domain.notification.entity.NotificationType;
+import wontouch.api.domain.notification.model.repository.NotificationRepository;
 import wontouch.api.domain.user.entity.UserProfile;
 import wontouch.api.domain.user.model.repository.UserProfileRepository;
 import wontouch.api.global.exception.CustomException;
 import wontouch.api.global.exception.ExceptionResponse;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +24,7 @@ import java.io.IOException;
 public class NotificationService {
 
     private final UserProfileRepository userProfileRepository;
+    private final NotificationRepository notificationRepository;
 
     public SseEmitter subscribe(Long userId) {
 
@@ -47,32 +54,51 @@ public class NotificationService {
     }
 
     // 수신 알람 - receiver 에게
-    public void notifyFriendRequest(String nickname) {
-        // 5. 수신자 정보 조회
-        UserProfile userProfile = userProfileRepository.findByNickname(nickname)
+    public void notifyFriendRequest(String receiverNickname, int senderId) {
+        UserProfile sender = userProfileRepository.findByUserId(senderId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        UserProfile receiver = userProfileRepository.findByNickname(receiverNickname)
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
 
         // 디버깅 로그 추가
-        log.info("Friend request notification for user: {}", nickname);
+        log.info("Friend request notification for user: {}", receiverNickname);
 
         // 6. 수신자 정보로부터 ID 추출
-        Long userId = Long.valueOf(userProfile.getUserId());
+        Long receiverId = Long.valueOf(receiver.getUserId());
 
-        log.info("Notification sseEmitters has userId: {}", userId);
+        log.info("Notification sseEmitters has userId: {}", receiverId);
 
         // Map에서 userId로 사용자 검색
-        if (NotificationController.sseEmitters.containsKey(userId)) {
-            SseEmitter sseEmitter = NotificationController.sseEmitters.get(userId);
+        if (NotificationController.sseEmitters.containsKey(receiverId)) {
+            SseEmitter sseEmitter = NotificationController.sseEmitters.get(receiverId);
 
             try {
-                sseEmitter.send(SseEmitter.event().name("addFriendRequest").data("새로운 친구 요청이 도착했습니다."));
-                log.info("Notification sent to userId: {}", userId);
+                // 친구 요청 알림에 대한 추가 정보 설정
+                Map<String, String> eventData = new HashMap<>();
+                eventData.put("message", sender.getNickname() + " 님의 친구요청이 도착했습니다.");
+                eventData.put("senderNickname", sender.getNickname());  // 친구 요청을 보낸 사람의 닉네임
+                eventData.put("timestamp", LocalDateTime.now().toString()); // 요청 보낸 시간
+
+                // SSE로 친구 요청 알림 전송
+                sseEmitter.send(SseEmitter.event().name("addFriendRequest").data(eventData));
+
+                // 알림 DB에 저장
+                Notification notification = Notification.builder()
+                        .sender(sender.getDescription())
+                        .createAt(LocalDateTime.now())
+                        .content(sender.getNickname() + " 님의 친구요청이 도착했습니다.")
+                        .notificationType(NotificationType.FRIEND_REQUEST)
+                        .build();
+                notificationRepository.save(notification);
+
+                log.info("Notification sent to userId: {}", receiverId);
             } catch (Exception e) {
-                NotificationController.sseEmitters.remove(userId);
-                log.error("Error sending notification to userId: {}", userId, e);
+                NotificationController.sseEmitters.remove(receiverId);
+                log.error("Error sending notification to userId: {}", receiverId, e);
             }
         } else {
-            log.warn("No active SSE connection for userId: {}", userId);
+            log.warn("No active SSE connection for userId: {}", receiverId);
         }
     }
 }

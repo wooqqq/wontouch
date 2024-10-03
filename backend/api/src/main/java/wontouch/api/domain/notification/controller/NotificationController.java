@@ -29,8 +29,8 @@ public class NotificationController {
 
     // 친구 신청 알림 전송
     @PostMapping("/friend-request")
-    public void sendFriendRequestNofication(@RequestParam String nickname) {
-        notificationService.notifyFriendRequest(nickname);
+    public void sendFriendRequestNofication(@RequestParam String receiverNickname, @RequestBody int senderId) {
+        notificationService.notifyFriendRequest(receiverNickname, senderId);
     }
 
 }
