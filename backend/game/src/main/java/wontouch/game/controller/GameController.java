@@ -6,9 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import wontouch.game.domain.Player;
 import wontouch.game.entity.Crop;
+import wontouch.game.service.ArticleService;
 import wontouch.game.service.CropService;
-import wontouch.game.service.GameService;
-import wontouch.game.service.TimerService;
+import wontouch.game.service.game.GameService;
+import wontouch.game.service.game.TimerService;
 
 import java.util.List;
 import java.util.Map;
@@ -25,13 +26,15 @@ public class GameController {
     private final GameService gameService;
     private final TimerService timerService;
     private final CropService cropService;
+    private final ArticleService articleService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     public GameController(GameService gameService, TimerService timerService,
-                          CropService cropService) {
+                          CropService cropService, ArticleService articleService) {
         this.gameService = gameService;
         this.timerService = timerService;
         this.cropService = cropService;
+        this.articleService = articleService;
     }
 
     // 게임 시작 시에 기본 정보 세팅
@@ -43,7 +46,7 @@ public class GameController {
         // 작물 정보 세팅
         List<Crop> cropList = cropService.loadRandomCropsFromEachTypeToRedis(roomId);
         gameService.initPlayersCrops(players, cropList);
-
+        gameService.initCropsForRoundZero(roomId, cropList);
         String targetUrl = socketServerUrl + "/game/crop-list";
         Map<String, Object> cropListResponse = new ConcurrentHashMap<>();
         cropListResponse.put("roomId", roomId);
@@ -51,6 +54,7 @@ public class GameController {
         restTemplate.postForObject(targetUrl, cropListResponse, String.class);
 
         // 게임 시작
+        articleService.saveNewArticlesForRound(roomId, 2);
         timerService.startNewRound(roomId);
         return cropList;
     }

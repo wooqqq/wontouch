@@ -1,14 +1,10 @@
-package wontouch.game.service;
+package wontouch.game.service.game;
 
-import org.springframework.data.redis.connection.lettuce.LettuceConnection;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static wontouch.game.domain.RedisKeys.GAME_PREFIX;
 
