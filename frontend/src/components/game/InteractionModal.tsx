@@ -4,6 +4,8 @@ import board from '../../assets/game/board.png';
 import npc from '../../assets/background/npc.png';
 import apple from '../../assets/crops/apple.png';
 import up from '../../assets/icon/arrow_up.png';
+import cancle from '../../assets/icon/cancel.png';
+import confirm from '../../assets/icon/confirm.png';
 
 interface ModalProps {
   houseNum: number | null;
@@ -12,6 +14,19 @@ interface ModalProps {
 
 const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal }) => {
   const [count, setCount] = useState(0);
+  const [purchaseModal, setPurchaseModal] = useState(false);
+
+  const openPurchaseModal = () => {
+    setPurchaseModal(true);
+  };
+
+  const closePurchaseModal = () => {
+    setPurchaseModal(false);
+  };
+
+  // const closePurchaseModal = () => {
+  //   setPurchaseModal(false);
+  // }
 
   const minusCount = () => {
     if (count > 0) {
@@ -130,7 +145,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal }) => {
                     <div className="flex mt-4 px-2 py-4 bg-red-600 rounded-lg ml-[10%] w-[60%] items-center justify-center">
                       <p className="text-white font-semibold text-[24px] text-end">
                         전날에 비해
-                        <p className="semi-bold text-[36px]">5% 상승</p>
+                        <span className="semi-bold text-[36px]">5% 상승</span>
                       </p>
                       <img src={up} className="ml-5 w-[60px] h-[60px]" />
                     </div>
@@ -166,14 +181,15 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal }) => {
                 <div className="space-y-4">
                   {['A마을', 'B마을', 'C마을', 'D마을'].map(
                     (village, index) => (
-                      <div
+                      <button
                         key={index}
-                        className="flex justify-between items-center p-2 bg-gray-200 rounded"
+                        className="flex justify-between items-center p-2 bg-gray-200 rounded w-full"
+                        onClick={openPurchaseModal}
                       >
                         <span className="font-bold">News</span>
                         <span>{village}</span>
                         <img src={lock} alt="news" className="w-6 h-6" />
-                      </div>
+                      </button>
                     ),
                   )}
                 </div>
@@ -206,6 +222,31 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal }) => {
           </div>
         </div>
       </div>
+
+      {purchaseModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="relative p-6 rounded-lg shadow-lg w-[60%] h-auto bg-white z-30">
+            {/* 보드 이미지 */}
+            <img
+              src={board}
+              alt="보드 이미지"
+              className="absolute top-0 left-0 w-full h-full z-10"
+            />
+
+            {/* 아이템 정보 (보드 위에 텍스트 배치) */}
+            <div className="relative z-20 p-6">
+              <div className="flex justify-end items-center mb-4">
+
+                <button
+                  onClick={closePurchaseModal}
+                >
+                  <img src={cancle} alt='아이이잉'/>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
