@@ -15,7 +15,7 @@ function GoogleLogin() {
 
   const handleGoogleLogin = () => {
     // 본인 구글 토큰 입력
-    const accessToken = '';
+    const accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjMsImlhdCI6MTcyNzk0NzQxMiwiZXhwIjoxNzI3OTkwNjEyfQ.Ho2OkFyIHDTNa6YkT-zPyFnzX28uCDDhAeJPYPcnBMc';
 
     localStorage.setItem('access_token', accessToken);
     const decodedToken = jwtDecode<DecodedToken>(accessToken);

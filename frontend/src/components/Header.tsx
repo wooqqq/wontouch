@@ -19,7 +19,7 @@ function Header() {
 
   return (
     <div className="mb-10">
-      {token ? <div>로그인 상태입니다.</div> : <div>로그인 해주세요.</div>}
+      {/* {token ? <div>로그인 상태입니다.</div> : <div>로그인 해주세요.</div>} */}
     </div>
   );
 }
