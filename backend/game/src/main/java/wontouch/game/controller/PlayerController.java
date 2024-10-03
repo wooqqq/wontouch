@@ -3,9 +3,9 @@ package wontouch.game.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import wontouch.game.service.GameService;
+import wontouch.game.service.game.GameService;
 import wontouch.game.service.PlayerService;
-import wontouch.game.service.TimerService;
+import wontouch.game.service.game.TimerService;
 
 import java.util.Map;
 

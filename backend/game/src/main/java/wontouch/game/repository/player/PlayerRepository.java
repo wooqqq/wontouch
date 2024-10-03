@@ -1,19 +1,19 @@
 package wontouch.game.repository.player;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.game.domain.Player;
 import wontouch.game.domain.PlayerStatus;
 import wontouch.game.repository.crop.CropRedisRepository;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static wontouch.game.domain.RedisKeys.*;
 
 @Repository
+@Slf4j
 public class PlayerRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -90,6 +90,7 @@ public class PlayerRepository {
         String playerCropKey = PLAYER_PREFIX + playerId + CROP_SUFFIX;
         redisTemplate.opsForHash().increment(playerCropKey, cropId, quantity); // 플레이어 보유 작물 수량 증가
     }
+
     // 플레이어의 기사 구입 초기 가격 세팅
     public void setPlayersArticlePrice(String roomId) {
         Set<Object> players = getPlayersFromGame(roomId);
@@ -102,8 +103,10 @@ public class PlayerRepository {
     public void freePlayerMemory(String roomId) {
         Set<Object> players = getPlayersFromGame(roomId);
         for (Object player : players) {
-            String key = PLAYER_PREFIX + player + INFO_SUFFIX;
-            redisTemplate.delete(key);
+            String infoKey = PLAYER_PREFIX + player + INFO_SUFFIX;
+            redisTemplate.delete(infoKey);
+            String cropKey = PLAYER_PREFIX + player + CROP_SUFFIX;
+            redisTemplate.delete(cropKey);
         }
     }
 }

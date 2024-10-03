@@ -38,7 +38,6 @@ public class ArticleRepository {
         }
         Crop crop = cropByArticleId.get();
         Article article = crop.getArticleList().get(0);
-        article.setFutureArticles(null);
         return article;
     }
 
@@ -71,8 +70,13 @@ public class ArticleRepository {
             redisTemplate.opsForSet().add(playerArticleKey, articleId);
             log.debug("add article");
             // TODO 처리 로직
-            Article article = getArticle(cropId, (String) articleId);
-            return new ArticleTransactionResult(TransactionStatusType.SUCCESS, article);
+            try {
+                Article article = getArticle(cropId, (String) articleId);
+                article.setFutureArticles(null);
+                return new ArticleTransactionResult(TransactionStatusType.SUCCESS, article);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else {
             System.out.println("No articles available to buy.");
         }
@@ -115,15 +119,19 @@ public class ArticleRepository {
             // 작물에 해당하는 기사ID 반환
             Set<Object> articleIds = getAllArticleIds(roomId, (String) cropId);
             for (Object articleId : articleIds) {
-                Article article = getArticle((String) cropId, (String) articleId); // 기사 ID를 통해 실제 객체 반환
-                List<FutureArticle> futureArticles = article.getFutureArticles(); // 미래 결과 리스트를 확인
-                FutureArticle futureArticle = selectFutureArticle(futureArticles); //확률을 통해 기사 선택
-                log.debug("futureArticle: {}", futureArticle); // 선택된 결과 확인
-                if (futureArticle != null) {
-                    double changeRate = futureArticle.getChangeRate();
-                    double updatedPrice = newPriceMap.get(cropId) + (priceMap.get(cropId) * changeRate / 100);
-                    log.debug("crop:{}, updatedPrice: {}", cropId, updatedPrice);
-                    newPriceMap.put((String) cropId, (int) updatedPrice);
+                try {
+                    Article article = getArticle((String) cropId, (String) articleId); // 기사 ID를 통해 실제 객체 반환
+                    List<FutureArticle> futureArticles = article.getFutureArticles(); // 미래 결과 리스트를 확인
+                    FutureArticle futureArticle = selectFutureArticle(futureArticles); //확률을 통해 기사 선택
+                    log.debug("futureArticle: {}", futureArticle); // 선택된 결과 확인
+                    if (futureArticle != null) {
+                        double changeRate = futureArticle.getChangeRate();
+                        double updatedPrice = newPriceMap.get(cropId) + (priceMap.get(cropId) * changeRate / 100);
+                        log.debug("crop:{}, updatedPrice: {}", cropId, updatedPrice);
+                        newPriceMap.put((String) cropId, (int) updatedPrice);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -133,9 +141,9 @@ public class ArticleRepository {
     public FutureArticle selectFutureArticle(List<FutureArticle> futureArticles) {
         Random random = new Random();
         double randomValue = random.nextDouble();  // 0과 1 사이의 랜덤 값 생성
-        double positiveRate = futureArticles.get(0).getChangeRate() / 100;
-        double negativeRate = futureArticles.get(1).getChangeRate() / 100;
-        double naturalRate = futureArticles.get(2).getChangeRate() / 100;
+        double positiveRate = futureArticles.get(0).getSpawnRate() / 100;
+        double negativeRate = futureArticles.get(1).getSpawnRate() / 100;
+        double naturalRate = futureArticles.get(2).getSpawnRate() / 100;
 
         // 세 비율의 합을 구함
         double totalRate = positiveRate + negativeRate + naturalRate;
@@ -144,11 +152,15 @@ public class ArticleRepository {
         positiveRate = positiveRate / totalRate * 0.99;
         negativeRate = negativeRate / totalRate * 0.99;
         naturalRate = naturalRate / totalRate * 0.99;
+        log.debug("RANDOM VALUE: {}, positiveRate: {}, negativeRate: {}, naturalRate: {}", randomValue, positiveRate, negativeRate, naturalRate);
         if (randomValue < positiveRate) {
+            log.debug("POSITIVE EVENT");
             return futureArticles.get(0);
         } else if (randomValue < positiveRate + negativeRate) {
+            log.debug("NEGATIVE EVENT");
             return futureArticles.get(1);
         } else if (randomValue < positiveRate + negativeRate + naturalRate) {
+            log.debug("NATURAL EVENT");
             return futureArticles.get(2);
         } else {
             System.out.println("SPECIAL EVENT");
@@ -156,7 +168,7 @@ public class ArticleRepository {
         }
     }
 
-    private void updateCropPrice(String roomId, String cropId, int newPrice, int round) {
+    public void updateCropPrice(String roomId, String cropId, int newPrice, int round) {
         cropRedisRepository.updateCropPrice(roomId, cropId, newPrice);
         cropRedisRepository.updateCropChart(roomId, cropId, round, newPrice);
         log.debug("Crop price updated for cropId: {} with new price: {}", cropId, newPrice);

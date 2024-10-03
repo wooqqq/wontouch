@@ -1,4 +1,4 @@
-package wontouch.game.service;
+package wontouch.game.service.game;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +9,7 @@ import wontouch.game.domain.PlayerStatus;
 import wontouch.game.repository.GameRepository;
 import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.repository.player.PlayerRepository;
+import wontouch.game.service.ArticleService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,8 +21,8 @@ import static wontouch.game.domain.RedisKeys.PLAYER_SUFFIX;
 @Service
 @Slf4j
 public class TimerService {
-    private static final int ROUND_DURATION_SECONDS = 3;
-    private static final int PREPARATION_DURATION_SECONDS = 10;
+    private static final int ROUND_DURATION_SECONDS = 20;
+    private static final int PREPARATION_DURATION_SECONDS = 5;
     private static final int FINAL_ROUND = 5;
 
     @Value("${socket.server.name}:${socket.server.path}")
@@ -57,7 +58,7 @@ public class TimerService {
         ScheduledFuture<?> roundTimer = scheduler.schedule(() -> endRound(roomId, round), ROUND_DURATION_SECONDS, TimeUnit.SECONDS);
         roundTimers.put(roomId, roundTimer);
 
-        log.debug("start Timer For {}", roomId);
+        log.debug("round{} start Timer For {}", round, roomId);
 
         // 각 플레이어의 기사 구입 가격 초기화
         playerRepository.setPlayersArticlePrice(roomId);
@@ -165,22 +166,27 @@ public class TimerService {
     private void endGame(String roomId) {
         String targetUrl = socketServerUrl + "/game/game-result";
         String mileageTargetUrl = mileageServerUrl + "/result";
-        log.debug("게임 종료 로직 실행: {}", roomId);
-        Map<String, Object> gameResult = new HashMap<>();
-        Map<String, Map<String, Integer>> resultTable = gameRepository.getTotalGold(roomId);
-        log.debug("최종 결과 테이블 출력: {}", resultTable);
-        gameResult.put("roomId", roomId);
-        gameResult.put("game-result", resultTable);
-        restTemplate.postForObject(targetUrl, gameResult, String.class);
-        log.debug("보내는 데이터 확인", gameResult);
-        restTemplate.postForObject(mileageTargetUrl, resultTable, String.class);
+        try {
+            log.debug("게임 종료 로직 실행: {}", roomId);
+            Map<String, Object> gameResult = new HashMap<>();
+            Map<String, Map<String, Integer>> resultTable = gameRepository.getTotalGold(roomId); //
+            log.debug("최종 결과 테이블 출력: {}", resultTable);
+            gameResult.put("roomId", roomId);
+            gameResult.put("game-result", resultTable);
+            restTemplate.postForObject(targetUrl, gameResult, String.class); //게임 결과 소켓서버로 전송
+            log.debug("보내는 데이터 확인", gameResult);
+            //restTemplate.postForObject(mileageTargetUrl, resultTable, String.class); // 게임 결과로 마일리지 적립
 
-        // TODO 마일리지 부여를 위해 API 전송
-        restTemplate.postForObject(targetUrl, gameResult, String.class);
-        log.debug("삭제 로직 호출");
-        playerRepository.freePlayerMemory(roomId);
-        redisService.deleteGameKeysByPattern(roomId);
-        log.debug("삭제 로직 끝");
+            // TODO 마일리지 부여를 위해 API 전송
+            restTemplate.postForObject(targetUrl, gameResult, String.class);
+            log.debug("삭제 로직 호출");
+            playerRepository.freePlayerMemory(roomId);
+            redisService.deleteGameKeysByPattern(roomId);
+            log.debug("삭제 로직 끝");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // 라운드가 시작했음을 알리는 알림 로직

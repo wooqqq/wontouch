@@ -68,9 +68,14 @@ public class CropService {
             numOfCrops = crops.size();
         }
         Random random = new Random();
+//        return crops.stream()
+//                .sorted((a, b) -> random.nextInt(2) - 1)  // 무작위로 정렬
+//                .limit(numOfCrops)                // 제한된 개수 선택
+//                .toList();
         return crops.stream()
+                .filter(crop -> crop.getArticleList() != null && !crop.getArticleList().isEmpty()) // articleList가 비어있지 않은 것만 필터링
                 .sorted((a, b) -> random.nextInt(2) - 1)  // 무작위로 정렬
-                .limit(numOfCrops)                // 제한된 개수 선택
+                .limit(numOfCrops)                         // 제한된 개수 선택
                 .toList();
     }
 
