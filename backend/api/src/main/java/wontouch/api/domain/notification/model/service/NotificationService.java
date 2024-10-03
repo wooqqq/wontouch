@@ -85,7 +85,7 @@ public class NotificationService {
 
                 // 알림 DB에 저장
                 Notification notification = Notification.builder()
-                        .sender(sender.getDescription())
+                        .sender(sender.getNickname())
                         .createAt(LocalDateTime.now())
                         .content(sender.getNickname() + " 님의 친구요청이 도착했습니다.")
                         .notificationType(NotificationType.FRIEND_REQUEST)
@@ -99,6 +99,41 @@ public class NotificationService {
             }
         } else {
             log.warn("No active SSE connection for userId: {}", receiverId);
+        }
+    }
+
+    public void notifyFriendAccept(int receiverId, int senderId) {
+        UserProfile sender = userProfileRepository.findByUserId(senderId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        UserProfile receiver = userProfileRepository.findByUserId(receiverId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        Long notifyId = Long.valueOf(receiverId);
+
+        if (NotificationController.sseEmitters.containsKey(notifyId)) {
+            SseEmitter sseEmitter = NotificationController.sseEmitters.get(notifyId);
+
+            try {
+                Map<String, String> eventData = new HashMap<>();
+                eventData.put("message", sender.getNickname() + " 님과 친구가 되었습니다.");
+                eventData.put("senderNickname", sender.getNickname());  // 친구 요청을 보낸 사람의 닉네임
+                eventData.put("timestamp", LocalDateTime.now().toString()); // 요청 보낸 시간
+
+                sseEmitter.send(SseEmitter.event().name("acceptFriend").data(eventData));
+
+                // 알림 DB에 저장
+                Notification notification = Notification.builder()
+                        .sender(sender.getNickname())
+                        .createAt(LocalDateTime.now())
+                        .content(sender.getNickname() + " 님과 친구가 되었습니다.")
+                        .notificationType(NotificationType.FRIEND_ACCEPT)
+                        .build();
+                notificationRepository.save(notification);
+            } catch (Exception e) {
+                NotificationController.sseEmitters.remove(notifyId);
+                log.error("Error sending notification to userId: {}", notifyId, e);
+            }
         }
     }
 }

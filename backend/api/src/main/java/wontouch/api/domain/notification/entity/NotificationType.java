@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum NotificationType {
 
     FRIEND_REQUEST("친구 신청"),
+    FRIEND_ACCEPT("친구 수락"),
     GAME_INVITE("게임 초대")
     ;
 
