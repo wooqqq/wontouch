@@ -1,5 +1,6 @@
 package wontouch.api.domain.user.model.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -121,8 +122,11 @@ public class AvatarService {
     // 아바타 구매
     @Transactional
     public void purchaseAvatar(AvatarPurchaseRequestDto requestDto) {
-        // 마일리지 조회 및 사용 구현 필요 => requestDto에 아바타 가격 포함되어야 함 (추후 구현사항)
         AvatarType avatarType = AvatarType.getByCharacterName(requestDto.getCharacterName());
+
+        // 아바타 가격보다 적은 마일리지 갖고있을 시 예외처리
+        if (getTotalMileage(requestDto.getUserId()) < avatarType.getPrice())
+            throw new ExceptionResponse(CustomException.INSUFFICIENT_MILEAGE_EXCEPTION);
 
         purchaseByMileage(requestDto.getUserId(), avatarType.getPrice(), "아바타 구매");
 
@@ -154,6 +158,28 @@ public class AvatarService {
         
         // 해당 아바타의 장착 상태를 true 로 설정
         equipAvatar.setEquipped(true);
+    }
+
+    // 총 마일리지 조회 기능
+    private int getTotalMileage(int userId) {
+        String mileageUrl = String.format("%s/mileage/log/total/%d", mileageServerUrl, userId);
+
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(mileageUrl, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode jsonResponse = objectMapper.readTree(response.getBody());
+
+                // data 필드에서 값 추출
+                return jsonResponse.get("data").asInt();
+            } else {
+                // 추가 구현 시 에러 처리
+                return 0;
+            }
+        } catch (Exception e) {
+            // 예외 처리
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
+        }
     }
 
     // 마일리지 사용 로직

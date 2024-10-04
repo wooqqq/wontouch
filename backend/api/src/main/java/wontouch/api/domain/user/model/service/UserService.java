@@ -110,11 +110,6 @@ public class UserService {
     }
 
     /**
-     * 티어 포인트에 따른 상위 랭킹 조회
-     */
-
-
-    /**
      * 사용자 ID를 통한 총 마일리지 조회
      */
     private int getTotalMileage(int userId) {
