@@ -66,7 +66,7 @@ public class GameServerController {
     @PostMapping("/crop-list")
     public ResponseEntity<?> cropList(@RequestBody Map<String, Object> messageData) {
         String roomId = (String) messageData.get("roomId");
-        log.debug("CROP LIST!!: {}", messageData);
+        //log.debug("CROP LIST!!: {}", messageData);
         try {
             sessionService.broadcastMessage(roomId, MessageType.NOTIFY, messageData);
         } catch (IOException e) {

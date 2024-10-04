@@ -8,6 +8,7 @@ import wontouch.game.dto.TransactionStatusType;
 import wontouch.game.entity.Article;
 import wontouch.game.entity.Crop;
 import wontouch.game.entity.FutureArticle;
+import wontouch.game.entity.SubCrop;
 import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
 
@@ -30,6 +31,7 @@ public class ArticleRepository {
         this.redisTemplate = redisTemplate;
     }
 
+    // 기사 내용 획득
     public Article getArticle(String cropId, String articleId) {
         Optional<Crop> cropByArticleId = cropRepository.findCropByArticleId(cropId, articleId);
         log.debug("cropByArticleId: {}", cropByArticleId);
@@ -41,6 +43,7 @@ public class ArticleRepository {
         return article;
     }
 
+    // 랜덤한 기사 구매
     public ArticleTransactionResult buyRandomArticle(String roomId, String playerId, String cropId) {
         String articleKey = GAME_PREFIX + roomId + ARTICLE_SUFFIX + ":" + cropId;
         String playerArticleKey = PLAYER_PREFIX + playerId + ARTICLE_SUFFIX;
@@ -112,7 +115,7 @@ public class ArticleRepository {
         return priceMap;
     }
 
-    // 새로운 가격 맵
+    // 새로운 가격 맵 반환
     private Map<String, Integer> calculateNewPrices(String roomId, Set<Object> allCrops, Map<String, Integer> priceMap) {
         Map<String, Integer> newPriceMap = new HashMap<>(priceMap);
         for (Object cropId : allCrops) {
@@ -129,6 +132,15 @@ public class ArticleRepository {
                         double updatedPrice = newPriceMap.get(cropId) + (priceMap.get(cropId) * changeRate / 100);
                         log.debug("crop:{}, updatedPrice: {}", cropId, updatedPrice);
                         newPriceMap.put((String) cropId, (int) updatedPrice);
+
+                        // SubCrops 처리
+                        List<SubCrop> subCrops = futureArticle.getSubCrops();
+                        for (SubCrop subCrop : subCrops) {
+                            String subCropId = subCrop.getId();
+                            double subChangeRate = subCrop.getChangeRate();
+                            double subUpdatedPrice = newPriceMap.get(subCropId) + (priceMap.get(subCropId) * subChangeRate / 100);
+                            newPriceMap.put((String) subCropId, (int) subUpdatedPrice);
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

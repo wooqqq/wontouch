@@ -47,6 +47,14 @@ public class PlayerRepository {
         redisTemplate.opsForHash().put(playerStatusKey, playerId, status.toString());
     }
 
+    // 플레이어의 라운드 대기 상태 세팅
+    public void setAllPlayerStatus(String roomId, PlayerStatus status) {
+        Set<Object> players = getPlayersFromGame(roomId);
+        for (Object playerId : players) {
+            setPlayerStatus(roomId, (String)playerId, status);
+        }
+    }
+
     // 플레이어의 보유 작물 조회
     public Map<Object, Object> findAllCropsByPlayer(String playerId) {
         String playerCropKey = PLAYER_PREFIX + playerId + CROP_SUFFIX;
