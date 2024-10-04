@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,8 @@ import wontouch.socket.dto.MessageType;
 import wontouch.socket.service.WebSocketSessionService;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Controller()
@@ -20,9 +23,11 @@ public class GameServerController {
 
     private final WebSocketSessionService sessionService;
     private final ObjectMapper mapper = new ObjectMapper();
+    private final WebSocketSessionService webSocketSessionService;
 
-    public GameServerController(WebSocketSessionService sessionService) {
+    public GameServerController(WebSocketSessionService sessionService, WebSocketSessionService webSocketSessionService) {
         this.sessionService = sessionService;
+        this.webSocketSessionService = webSocketSessionService;
     }
 
     @PostMapping("/round-start")
@@ -51,8 +56,34 @@ public class GameServerController {
         return ResponseEntity.ok("Timer ended successfully");
     }
 
+    @PostMapping("/round-result/{roomId}")
+    public ResponseEntity<?> roundResult(@PathVariable String roomId, @RequestBody Map<String, Object> messageData) throws IOException {
+        log.debug("roomId: {}", roomId);
+        log.debug(messageData.toString());
+        Map<String, List<Object>> playerArticleMap = (Map<String, List<Object>>) messageData.get("playerArticleMap");
+        Map<String, Object> futureArticleMap = (Map<String, Object>) messageData.get("futureArticles");
+        for (String playerId : playerArticleMap.keySet()) {
+            List<Object> articleIds = playerArticleMap.get(playerId);
+            List<Object> futureArticles = new ArrayList<>();
+            for (Object articleId : articleIds) {
+                Object futureArticle = futureArticleMap.get(articleId.toString());
+                futureArticles.add(futureArticle);
+            }
+            try {
+                log.debug("futureArticles size: {}", futureArticles.size());
+                webSocketSessionService.unicastMessage(roomId, playerId, MessageType.ARTICLE_RESULT, futureArticles);
+            } catch (IOException e) {
+                log.error(e.getMessage());
+            }
+        }
+        webSocketSessionService.broadcastMessage(roomId, MessageType.ROUND_RESULT,
+                messageData.get("newPriceMap"));
+        return null;
+    }
+
     @PostMapping("/preparation-start")
     public ResponseEntity<?> preparationStart(@RequestBody Map<String, Object> messageData) {
+
         String roomId = (String) messageData.get("roomId");
         log.debug("START PREPARATION!!: {}", messageData);
         try {

@@ -10,6 +10,9 @@ import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.repository.player.PlayerRepository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
@@ -45,5 +48,15 @@ public class GameService {
         for (Crop crop : crops) {
             articleRepository.updateCropPrice(roomId, crop.getId(), crop.getPrice(), 0);
         }
+    }
+
+    public Map<String, Set<Object>> mappingPlayerArticles(String roomId) {
+        Set<Object> players = playerRepository.getPlayersFromGame(roomId);
+        Map<String, Set<Object>> playerArticleMap = new ConcurrentHashMap<>();
+        for (Object playerId : players) {
+            Set<Object> playerArticleIds = playerRepository.getPlayerArticleIds((String) playerId);
+            playerArticleMap.put(String.valueOf(playerId), playerArticleIds);
+        }
+        return playerArticleMap;
     }
 }

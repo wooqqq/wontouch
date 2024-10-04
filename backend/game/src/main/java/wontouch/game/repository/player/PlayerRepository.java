@@ -88,6 +88,12 @@ public class PlayerRepository {
         return (Integer) redisTemplate.opsForHash().get(playerCropKey, cropId);
     }
 
+    // 플레이어가 보유한 기사 목록 반환
+    public Set<Object> getPlayerArticleIds(String playerId) {
+        String playerCropKey = PLAYER_PREFIX + playerId + ARTICLE_SUFFIX;
+        return redisTemplate.opsForSet().members(playerCropKey);
+    }
+
     // 플레이어의 보유 골드 gold만큼 변경
     public void updatePlayerGold(String playerId, long gold) {
         String playerKey = PLAYER_PREFIX + playerId + INFO_SUFFIX;
@@ -108,6 +114,14 @@ public class PlayerRepository {
         }
     }
 
+    public void freePlayerArticle(String roomId) {
+        Set<Object> player = getPlayersFromGame(roomId);
+        for (Object playerId : player) {
+            String key = PLAYER_PREFIX + playerId + ARTICLE_SUFFIX;
+            redisTemplate.delete(key);
+        }
+    }
+
     public void freePlayerMemory(String roomId) {
         Set<Object> players = getPlayersFromGame(roomId);
         for (Object player : players) {
@@ -116,5 +130,6 @@ public class PlayerRepository {
             String cropKey = PLAYER_PREFIX + player + CROP_SUFFIX;
             redisTemplate.delete(cropKey);
         }
+        freePlayerArticle(roomId);
     }
 }

@@ -3,6 +3,7 @@ package wontouch.game.repository.article;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import wontouch.game.dto.RoundResultDto;
 import wontouch.game.dto.article.ArticleTransactionResult;
 import wontouch.game.dto.TransactionStatusType;
 import wontouch.game.entity.Article;
@@ -88,21 +89,21 @@ public class ArticleRepository {
 
     // TODO 라운드 진행 후 기사로 인해 변경된 작물의 가격 계산
     // TODO 각자 메서드의 성격에 맞게 책임 분리
-    public synchronized Map<String, Integer> calculateArticleResult(String roomId, int round) {
+    public synchronized RoundResultDto calculateArticleResult(String roomId, int round) {
         Set<Object> allCrops = cropRedisRepository.getAllCrops(roomId);
 
         List<Object> cropList = allCrops.stream().toList();
         log.debug("cropList: {}", cropList);
 
         Map<String, Integer> priceMap = initializePriceMap(roomId, allCrops);
-        Map<String, Integer> newPriceMap = calculateNewPrices(roomId, allCrops, priceMap);
-
+        RoundResultDto roundResultDto = calculateNewPrices(roomId, allCrops, priceMap);
+        Map<String, Integer> newPriceMap = roundResultDto.getNewPriceMap();
         // 가격 갱신 및 차트 업데이트
         for (Object cropId : allCrops) {
             updateCropPrice(roomId, (String) cropId, newPriceMap.get(cropId), round);
         }
 
-        return newPriceMap;
+        return roundResultDto;
     }
 
     // 현재 가격 맵
@@ -116,8 +117,9 @@ public class ArticleRepository {
     }
 
     // 새로운 가격 맵 반환
-    private Map<String, Integer> calculateNewPrices(String roomId, Set<Object> allCrops, Map<String, Integer> priceMap) {
+    private RoundResultDto calculateNewPrices(String roomId, Set<Object> allCrops, Map<String, Integer> priceMap) {
         Map<String, Integer> newPriceMap = new HashMap<>(priceMap);
+        Map<String, FutureArticle> articleResults = new HashMap<>();
         for (Object cropId : allCrops) {
             // 작물에 해당하는 기사ID 반환
             Set<Object> articleIds = getAllArticleIds(roomId, (String) cropId);
@@ -126,6 +128,7 @@ public class ArticleRepository {
                     Article article = getArticle((String) cropId, (String) articleId); // 기사 ID를 통해 실제 객체 반환
                     List<FutureArticle> futureArticles = article.getFutureArticles(); // 미래 결과 리스트를 확인
                     FutureArticle futureArticle = selectFutureArticle(futureArticles); //확률을 통해 기사 선택
+                    articleResults.put(article.getId(), futureArticle);
                     log.debug("futureArticle: {}", futureArticle); // 선택된 결과 확인
                     if (futureArticle != null) {
                         double changeRate = futureArticle.getChangeRate();
@@ -154,9 +157,10 @@ public class ArticleRepository {
                 }
             }
         }
-        return newPriceMap;
+        return new RoundResultDto(newPriceMap, articleResults, null);
     }
 
+    // 결과 확률적으로 선택
     public FutureArticle selectFutureArticle(List<FutureArticle> futureArticles) {
         Random random = new Random();
         double randomValue = random.nextDouble();  // 0과 1 사이의 랜덤 값 생성
