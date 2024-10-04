@@ -165,8 +165,6 @@ public class FriendService {
                 .build();
 
         friendRepository.save(friend);
-
-        notificationService.notifyFriendAccept(friendRequest.getFromUserId(), requestDto.getUserId());
     }
 
     // 친구 신청 거절
