@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.game.domain.PlayerStatus;
+import wontouch.game.dto.RoundResultDto;
 import wontouch.game.repository.GameRepository;
 import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.repository.player.PlayerRepository;
@@ -13,6 +14,7 @@ import wontouch.game.service.ArticleService;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
 import static wontouch.game.domain.RedisKeys.GAME_PREFIX;
@@ -24,6 +26,7 @@ public class TimerService {
     private static final int ROUND_DURATION_SECONDS = 40;
     private static final int PREPARATION_DURATION_SECONDS = 5;
     private static final int FINAL_ROUND = 5;
+    private final GameService gameService;
 
     @Value("${socket.server.name}:${socket.server.path}")
     private String socketServerUrl;
@@ -42,13 +45,14 @@ public class TimerService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisService redisService;
 
-    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate, RedisService redisService) {
+    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate, RedisService redisService, GameService gameService) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.articleRepository = articleRepository;
         this.articleService = articleService;
         this.redisTemplate = redisTemplate;
         this.redisService = redisService;
+        this.gameService = gameService;
     }
 
     // 라운드 시작 시 타이머 설정
@@ -74,9 +78,9 @@ public class TimerService {
         // WebSocket 서버로 라운드 종료 알림 전송
         notifyClientsOfRoundEnd(roomId);
 
-        Map<String, Integer> roundResult = articleRepository.calculateArticleResult(roomId, round);
-        notifyRoundResult(roomId, roundResult);
+        RoundResultDto roundResult = articleRepository.calculateArticleResult(roomId, round);
         // TODO 이번 라운드 결과 각자에게 유니캐스트?
+        notifyRoundResult(roomId, roundResult);
         log.debug("작물 가격 계산 완료 후 반영: {}", roomId);
         // 마지막 라운드라면 종료
         if (round >= FINAL_ROUND) {
@@ -97,6 +101,8 @@ public class TimerService {
         roundTimers.put(roomId, preparationTimer);
         notifyClientsOfPreparationStart(roomId);
 
+        // 현재 article 정보 삭제
+        playerRepository.freePlayerArticle(roomId);
         // TODO 작물 가격 기록
         // TODO 다음 라운드 기사 세팅
         articleService.saveNewArticlesForRound(roomId, 2);
@@ -163,6 +169,8 @@ public class TimerService {
             log.debug("Preparation timer cancelled for room: {}", roomId);
         }
     }
+
+    // 게임 종료 시 로직
     private void endGame(String roomId) {
         String targetUrl = socketServerUrl + "/game/game-result";
         String mileageTargetUrl = mileageServerUrl + "/result";
@@ -215,7 +223,16 @@ public class TimerService {
         restTemplate.postForObject(targetUrl, messageData, String.class);
     }
 
-    private void notifyRoundResult(String roomId, Map<String, Integer> roundResult) {
+    private void notifyRoundResult(String roomId, RoundResultDto roundResult) {
         // TODO 라운드 결과 보내기
+        String targetUrl = socketServerUrl + "/game/round-result/" + roomId;
+        try {
+            Map<String, Set<Object>> playerArticleMap = gameService.mappingPlayerArticles(roomId);
+            roundResult.setPlayerArticleMap(playerArticleMap);
+            log.debug("ROUND RESULT: {}", roundResult);
+            restTemplate.postForObject(targetUrl, roundResult, void.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
