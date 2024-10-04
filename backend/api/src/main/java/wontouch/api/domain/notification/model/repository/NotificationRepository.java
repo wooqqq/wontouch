@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface NotificationRepository extends MongoRepository<Notification, String> {
 
     Optional<Notification> findById(String id);
+    List<Notification> findByReceiverId(Long receiverId);
     List<Notification> findByCreateAtBefore(LocalDateTime dateTime, PageRequest pageRequest);
     void deleteById(String id);
 }

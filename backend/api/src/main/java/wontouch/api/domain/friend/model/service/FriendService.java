@@ -183,7 +183,6 @@ public class FriendService {
 
         friendRequestRepository.delete(friendRequest);
         notificationRepository.deleteById(requestDto.getNotificationId());
-
     }
 
 

@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import wontouch.api.domain.notification.controller.NotificationController;
 import wontouch.api.domain.notification.dto.request.NotificationDeleteRequestDto;
+import wontouch.api.domain.notification.dto.response.NotificationListResponseDto;
 import wontouch.api.domain.notification.entity.Notification;
 import wontouch.api.domain.notification.entity.NotificationType;
 import wontouch.api.domain.notification.model.repository.NotificationRepository;
@@ -17,7 +18,9 @@ import wontouch.api.global.exception.ExceptionResponse;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -141,6 +144,34 @@ public class NotificationService {
             }
         }
     }
+
+    public List<NotificationListResponseDto> getNotificationList(Long userId) {
+        // 존재하는 유저인지 확인
+        UserProfile receiver = userProfileRepository.findByUserId(userId.intValue())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        // notification 찾기
+        List<Notification> notifications = notificationRepository.findByReceiverId(userId);
+
+        if (notifications.isEmpty())
+            return null;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        List<NotificationListResponseDto> responseDtoList = notifications.stream()
+                .map(notification -> NotificationListResponseDto.builder()
+                        .id(notification.getId())
+                        .senderId(userProfileRepository.findByNickname(notification.getSender()).get().getUserId())
+                        .senderNickname(notification.getSender())
+                        .createAt(notification.getCreateAt().format(formatter))
+                        .content(notification.getContent())
+                        .notificationType(notification.getNotificationType().name())
+                        .build())
+                .toList();
+
+        return responseDtoList;
+    }
+
 
     @Transactional
     public void deleteNotification(NotificationDeleteRequestDto requestDto) {
