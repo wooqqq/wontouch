@@ -22,8 +22,6 @@ public class NotificationController {
     public SseEmitter subsribe(@PathVariable Long userId) {
         SseEmitter sseEmitter = notificationService.subscribe(userId);
 
-        System.out.println("User " + userId + " is now subscribed.");
-
         return sseEmitter;
     }
 
