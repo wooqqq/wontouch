@@ -7,9 +7,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wontouch.mileage.domain.dto.request.TierPointCreateRequestDto;
 import wontouch.mileage.domain.dto.response.TierPointResponseDto;
+import wontouch.mileage.domain.entity.TierPointLog;
+import wontouch.mileage.domain.model.repository.TierPointLogRepository;
 import wontouch.mileage.domain.model.service.TierPointService;
 import wontouch.mileage.global.dto.ResponseDto;
+import wontouch.mileage.global.exception.CustomException;
+import wontouch.mileage.global.exception.ExceptionResponse;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 @RestController
@@ -18,7 +27,8 @@ import java.util.List;
 public class TierPointController {
 
     private final TierPointService tierPointService;
-    
+    private final TierPointLogRepository tierPointLogRepository;
+
     // 티어 포인트 적립
     @PostMapping("/create")
     public ResponseEntity<?> createTierPoint(@Valid @RequestBody TierPointCreateRequestDto requestDto) {
@@ -55,6 +65,20 @@ public class TierPointController {
         ResponseDto<Integer> responseDto = ResponseDto.<Integer>builder()
                 .status(HttpStatus.OK.value())
                 .message("총 티어 포인트 조회 성공")
+                .data(totalAmount)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    // 월요일 자정 이후 적립된 티어 포인트 조회 기능
+    @GetMapping("/total/since-monday/{userId}")
+    public ResponseEntity<?> getTotalTierPointSinceMonday(@PathVariable int userId) {
+        int totalAmount = tierPointService.getTotalTierPointSinceMonday(userId);
+
+        ResponseDto<Integer> responseDto = ResponseDto.<Integer>builder()
+                .status(HttpStatus.OK.value())
+                .message("월요일 자정 이후 적립된 총 티어 포인트 조회 성공")
                 .data(totalAmount)
                 .build();
 

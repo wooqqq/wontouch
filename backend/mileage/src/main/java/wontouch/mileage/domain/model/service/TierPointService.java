@@ -10,7 +10,10 @@ import wontouch.mileage.domain.model.repository.TierPointLogRepository;
 import wontouch.mileage.global.exception.CustomException;
 import wontouch.mileage.global.exception.ExceptionResponse;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 @Service
@@ -55,6 +58,22 @@ public class TierPointService {
             return 0;
 
         List<TierPointLog> tierPointLogList = tierPointLogRepository.findByUserId(userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_TIER_POINT_LOG_EXCEPTION));
+
+        return tierPointLogList.stream()
+                .mapToInt(log -> log.getAmount())
+                .sum();
+    }
+
+    // 월요일 자정 이후 적립된 티어 포인트 조회 기능
+    public int getTotalTierPointSinceMonday(int userId) {
+        if (!tierPointLogRepository.existsByUserId(userId))
+            return 0;
+
+        // 월요일 자정의 날짜를 가져온 후, 그 이후 적립된 티어 포인트를 필터링
+        LocalDateTime mondayMidnight = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
+
+        List<TierPointLog> tierPointLogList = tierPointLogRepository.findByUserIdAndCreateAtAfter(userId, mondayMidnight)
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_TIER_POINT_LOG_EXCEPTION));
 
         return tierPointLogList.stream()
