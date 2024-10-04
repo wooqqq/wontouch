@@ -12,47 +12,27 @@ interface Message {
 }
 
 interface RoomInfoProps {
-  roomId: string | undefined;
-  participants: string[];
+  messages: Message[];
   socket: WebSocket | null;
 }
 
-function RoomChat({ socket }: RoomInfoProps) {
+function RoomChat({ messages, socket }: RoomInfoProps) {
   const userId = useSelector((state: RootState) => state.user.id);
+  const roomId = useSelector((state: RootState) => state.room.roomId);
+  const participants = useSelector(
+    (state: RootState) => state.room.participants,
+  );
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // 스크롤 맨 밑으로 내리기
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
   }, [messages]);
 
   useEffect(() => {
     if (!socket) return;
 
-    // 서버로부터 메시지가 도착했을 때 호출
-    socket.onmessage = (event) => {
-      const data = event.data;
-
-      // 메시지가 JSON 형식인지 확인
-      if (data.startsWith('{') && data.endsWith('}')) {
-        try {
-          const receivedMessage = JSON.parse(data);
-          // console.log('받은 메시지:', receivedMessage);
-          setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-        } catch (error) {
-          console.error('JSON 파싱 오류:', error);
-        }
-      } else {
-        // 일반 문자열 메시지 처리
-        // console.log('받은 일반 메시지:', data);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { type: 'NOTIFY', content: data },
-        ]);
-      }
-    };
     // 컴포넌트가 언마운트될 때 이벤트 리스너를 제거
     return () => {
       socket.onmessage = null;
@@ -63,6 +43,7 @@ function RoomChat({ socket }: RoomInfoProps) {
   const handleSendMessage = (e: React.FormEvent) => {
     // 자동 전송 방지
     e.preventDefault();
+    // 소켓 없거나 빈 메시지는 return
     if (!socket || !message.trim()) return;
 
     const chatMessage = {
@@ -71,6 +52,7 @@ function RoomChat({ socket }: RoomInfoProps) {
       playerId: userId,
     };
 
+    // JSON으로 변경하여 전송
     socket.send(JSON.stringify(chatMessage));
     setMessage(''); // 메시지 전송 후 입력창 초기화
   };

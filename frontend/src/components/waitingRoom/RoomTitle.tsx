@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 
 interface RoomTitleProps {
-  roomName: string;
+  roomName: string | null;
   roomId: string | undefined;
 }
 

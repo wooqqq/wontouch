@@ -1,14 +1,20 @@
-import React from 'react';
 import axios from 'axios';
 import { RootState } from '../../redux/store';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import cancel from '../../assets/icon/cancel.png';
 import confirm from '../../assets/icon/confirm.png';
 import lock from '../../assets/icon/lock.png';
 import unLock from '../../assets/icon/unlock.png';
+import {
+  setHostId,
+  setRoomId,
+  setRoomName,
+  setIsPrivate,
+  setPassword,
+} from '../../redux/slices/roomSlice';
 
 // api 주소
 const API_LINK = import.meta.env.VITE_API_URL;
@@ -19,6 +25,7 @@ export default function MakeRoomModal({
   closeMakeRoom: () => void;
 }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // UUID 먼저 발급
   const getUUID = async () => {
@@ -33,12 +40,16 @@ export default function MakeRoomModal({
 
   // store에 저장된 userId
   const userId = useSelector((state: RootState) => state.user.id);
-
-  const [roomName, setRoomName] = useState<string>('');
-  const [isPrivate, setIsPrivate] = useState<boolean>(false);
-  const [password, setPassword] = useState<string>('');
+  const roomName = useSelector((state: RootState) => state.room.roomName);
+  const isPrivate = useSelector((state: RootState) => state.room.isPrivate);
+  const password = useSelector((state: RootState) => state.room.password);
 
   const handleMakeRoom = async () => {
+    if (userId === null) {
+      alert('사용자 ID를 찾을 수 없습니다.');
+      return;
+    }
+
     try {
       // UUID 발급
       const UUID = await getUUID(); // getUUID를 호출하고 UUID를 기다림
@@ -59,6 +70,13 @@ export default function MakeRoomModal({
       // 응답에서 받아온 roomId
       const createdRoomId = res.data.data.roomId;
 
+      //방 생성 성공 시 store에 저장
+      dispatch(setRoomId(createdRoomId));
+      dispatch(setRoomName(roomName));
+      dispatch(setHostId(userId));
+      dispatch(setIsPrivate(isPrivate));
+      dispatch(setPassword(password));
+
       // 방 생성 후 생성한 방으로 바로 이동
       navigate(`/wait/${createdRoomId}`);
       console.log(userId);
@@ -68,10 +86,10 @@ export default function MakeRoomModal({
   };
 
   const clickPrivate = () => {
-    setIsPrivate(!isPrivate);
+    dispatch(setIsPrivate(!isPrivate));
     // 비밀번호가 없는 방이라면 비밀번호 초기화
     if (!isPrivate) {
-      setPassword('');
+      dispatch(setPassword(''));
     }
   };
 
@@ -85,7 +103,7 @@ export default function MakeRoomModal({
           placeholder="방 제목"
           className="input-tag"
           value={roomName}
-          onChange={(e) => setRoomName(e.target.value)}
+          onChange={(e) => dispatch(setRoomName(e.target.value))}
         />
       </div>
       {/* 비밀번호 설정 */}
@@ -102,7 +120,7 @@ export default function MakeRoomModal({
           placeholder="비밀번호"
           className="input-tag"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => dispatch(setPassword(e.target.value))}
           disabled={!isPrivate}
         />
       </div>

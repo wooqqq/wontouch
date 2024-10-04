@@ -4,6 +4,7 @@ import { RootState } from '../redux/store';
 import { useEffect } from 'react';
 import { setToken } from '../redux/slices/authSlice';
 
+// 토큰 테스트용!
 function Header() {
   const dispatch = useDispatch();
   const token = useSelector((state: RootState) => state.auth.token);
@@ -19,7 +20,14 @@ function Header() {
 
   return (
     <div className="mb-10">
-      {/* {token ? <div>로그인 상태입니다.</div> : <div>로그인 해주세요.</div>} */}
+      {/* {token ? (
+        <>
+          <div>로그인 상태입니다.</div>
+          <div>토큰: {token}</div>
+        </>
+      ) : (
+        <div>로그인 해주세요.</div>
+      )} */}
     </div>
   );
 }
