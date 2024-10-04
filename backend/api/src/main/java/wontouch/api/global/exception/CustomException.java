@@ -37,6 +37,9 @@ public enum CustomException {
     ALREADY_EXIST_REQUEST_EXCEPTION(400, "AlreadyExistRequestException", "이미 친구 요청이 존재합니다."),
     NOT_AUTH_ACCEPT_REQUEST_EXCEPTION(400, "NotAuthFriendAcceptException", "친구 요청 승인 권한이 없습니다."),
 
+    // 마일리지
+    INSUFFICIENT_MILEAGE_EXCEPTION(400, "InsufficientMileageException", "마일리지가 부족합니다."),
+
     // 아직 처리하지 않은 예외사항
     UNHANDLED_ERROR_EXCEPTION(400, "UnhandledErrorException", "처리되지 않은 에러가 발생했습니다."),
 
