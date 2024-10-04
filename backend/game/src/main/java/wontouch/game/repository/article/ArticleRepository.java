@@ -136,10 +136,17 @@ public class ArticleRepository {
                         // SubCrops 처리
                         List<SubCrop> subCrops = futureArticle.getSubCrops();
                         for (SubCrop subCrop : subCrops) {
-                            String subCropId = subCrop.getId();
-                            double subChangeRate = subCrop.getChangeRate();
-                            double subUpdatedPrice = newPriceMap.get(subCropId) + (priceMap.get(subCropId) * subChangeRate / 100);
-                            newPriceMap.put((String) subCropId, (int) subUpdatedPrice);
+                            try {
+                                String subCropId = subCrop.getId();
+                                double subChangeRate = subCrop.getChangeRate();
+
+                                if (priceMap.containsKey(subCropId)) {
+                                    double subUpdatedPrice = newPriceMap.get(subCropId) + (priceMap.get(subCropId) * subChangeRate / 100);
+                                    newPriceMap.put((String) subCropId, (int) subUpdatedPrice);
+                                }
+                            } catch (Exception e) {
+                                log.debug("id 때문에 문제가 생겼어용");
+                            }
                         }
                     }
                 } catch (Exception e) {

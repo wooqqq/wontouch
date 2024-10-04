@@ -129,7 +129,8 @@ public class RoomController {
                 targetUrl,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<ResponseDto<?>>() {}
+                new ParameterizedTypeReference<ResponseDto<?>>() {
+                }
         );
         return response;
     }
