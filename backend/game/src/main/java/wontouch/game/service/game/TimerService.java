@@ -177,16 +177,15 @@ public class TimerService {
         try {
             log.debug("게임 종료 로직 실행: {}", roomId);
             Map<String, Object> gameResult = new HashMap<>();
-            Map<String, Map<String, Integer>> resultTable = gameRepository.getTotalGold(roomId); //
+            Map<String, Map<String, Integer>> resultTable = gameRepository.getTotalResultMap(roomId); //
             log.debug("최종 결과 테이블 출력: {}", resultTable);
             gameResult.put("roomId", roomId);
             gameResult.put("game-result", resultTable);
             restTemplate.postForObject(targetUrl, gameResult, String.class); //게임 결과 소켓서버로 전송
             log.debug("보내는 데이터 확인", gameResult);
-            //restTemplate.postForObject(mileageTargetUrl, resultTable, String.class); // 게임 결과로 마일리지 적립
 
             // TODO 마일리지 부여를 위해 API 전송
-            restTemplate.postForObject(targetUrl, gameResult, String.class);
+            //restTemplate.postForObject(mileageTargetUrl, resultTable, String.class); // 게임 결과로 마일리지 적립
             log.debug("삭제 로직 호출");
             playerRepository.freePlayerMemory(roomId);
             redisService.deleteGameKeysByPattern(roomId);

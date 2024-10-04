@@ -7,10 +7,7 @@ import wontouch.game.domain.Player;
 import wontouch.game.entity.Crop;
 import wontouch.game.repository.player.PlayerRepository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static wontouch.game.domain.RedisKeys.*;
 
@@ -56,8 +53,8 @@ public class GameRepository {
         }
     }
 
-    // 최종 골드 계산
-    public Map<String, Map<String, Integer>> getTotalGold(String roomId) {
+    // 최종 결과 맵 반환
+    public Map<String, Map<String, Integer>> getTotalResultMap(String roomId) {
         String playerStatusKey = GAME_PREFIX + roomId + PLAYER_SUFFIX;
         Set<Object> playerIds = redisTemplate.opsForHash().keys(playerStatusKey);
         Map<String, Integer> totalGoldResponse = new HashMap<>();
@@ -80,8 +77,18 @@ public class GameRepository {
             totalGoldResponse.put(playerId.toString(), totalGold);
         }
 
-        for (Object playerId : playerIds) {
-            int totalGold = totalGoldResponse.get(playerId.toString());
+        // 총 골드를 내림차순으로 정렬하여 등수 계산
+        List<Map.Entry<String, Integer>> sortedGoldList = new ArrayList<>(totalGoldResponse.entrySet());
+        sortedGoldList.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));  // 내림차순 정렬
+
+        // 등수 계산 및 보상 분배 (동점 처리 포함)
+        int rank = 1;
+        int previousGold = -1;
+        int playersWithSameRank = 0;
+
+        for (Map.Entry<String, Integer> entry : sortedGoldList) {
+            String playerId = entry.getKey();
+            int totalGold = entry.getValue();
 
             // 플레이어가 차지하는 골드 비율 계산
             double goldRatio = (double) totalGold / totalGoldSum;
@@ -90,13 +97,29 @@ public class GameRepository {
             int experienceEarned = (int) (adjustedTotalExperience * goldRatio);
             int mileageEarned = (int) (adjustedTotalMileage * goldRatio);
 
-            // 플레이어에게 보상 분배
+            // 동점자 처리: 이전 플레이어의 골드와 비교하여 등수 할당
+            if (totalGold == previousGold) {
+                playersWithSameRank++;
+            } else {
+                // 동점자가 아닌 경우 현재 순위에서 동점자 수만큼 증가시킴
+                rank += playersWithSameRank;
+                playersWithSameRank = 1;
+            }
+
+            // 플레이어에게 보상 분배 및 등수 추가
             Map<String, Integer> playerRewards = new HashMap<>();
             playerRewards.put("totalGold", totalGold);
             playerRewards.put("tierPoint", experienceEarned);
             playerRewards.put("mileage", mileageEarned);
-            rewardDistribution.put(playerId.toString(), playerRewards);
+            playerRewards.put("rank", rank);  // 등수 추가
+
+            rewardDistribution.put(playerId, playerRewards);
+
+            // 현재 플레이어의 골드를 기록하여 다음 플레이어와 비교
+            previousGold = totalGold;
         }
+
         return rewardDistribution;
     }
+
 }
