@@ -40,9 +40,9 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
         <div>
           {friendsList.map((friend, index) => (
             <div className="flex mb-4" key={friend.id}>
-              <FriendInfo
-              // friend={friend}
-              />
+              {/* <FriendInfo */}
+              {/* // friend={friend}
+              /> */}
               {/* FriendInfo에 friend 데이터를 전달 */}
               <button
                 onClick={() => !invitedFriends[index] && toggleInvite(index)}
