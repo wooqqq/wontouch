@@ -66,8 +66,8 @@ public class FriendController {
 
     // 친구 신청 상세 조회
     @GetMapping("/request/detail")
-    public ResponseEntity<?> getFriendRequestDetail(@RequestBody FriendRequestDto requestDto) {
-        ReceiveFriendRequestDto receiveFriendRequestDto = friendService.getFriendRequest(requestDto);
+    public ResponseEntity<?> getFriendRequestDetail(@RequestParam int fromUserId, @RequestParam int toUserId) {
+        ReceiveFriendRequestDto receiveFriendRequestDto = friendService.getFriendRequest(fromUserId, toUserId);
 
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())

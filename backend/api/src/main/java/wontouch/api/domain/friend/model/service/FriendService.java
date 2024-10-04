@@ -126,9 +126,9 @@ public class FriendService {
     }
 
     // 친구 신청 상세 조회
-    public ReceiveFriendRequestDto getFriendRequest(FriendRequestDto requestDto) {
+    public ReceiveFriendRequestDto getFriendRequest(int fromUserId, int toUserId) {
 
-        FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(requestDto.getFromUserId(), requestDto.getToUserId())
+        FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(fromUserId, toUserId)
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_FRIEND_REQUEST_EXCEPTION));
 
         UserProfile userProfile = userProfileRepository.findByUserId(friendRequest.getFromUserId())
