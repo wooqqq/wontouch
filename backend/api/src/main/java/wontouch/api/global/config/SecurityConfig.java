@@ -27,9 +27,6 @@ public class SecurityConfig {
     @Value("${server.domain}")
     private String serverDomain;
 
-    @Value("${service.domain}")
-    private String serviceDomain;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -48,7 +45,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(serverDomain, serviceDomain));
+        configuration.setAllowedOrigins(Arrays.asList(serverDomain));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));  // 허용할 메서드
         configuration.setAllowedHeaders(Collections.singletonList("*"));
         configuration.setAllowCredentials(true);  // 인증 정보를 허용할지 여부
