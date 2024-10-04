@@ -388,3 +388,59 @@ img:active {
   background: #dac2a8;
   padding-left: 5%;
 }
+
+.plus-friend {
+  color: #dac2a8;
+  text-align: end;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #896a65;
+}
+
+.friend-search-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  border: white solid 5px;
+  background: #e8e7e2;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.can-search-text {
+  color: #36eab5;
+  text-align: center;
+  -webkit-text-stroke-width: 0.9px;
+  -webkit-text-stroke-color: #000;
+  font-size: x-large;
+}
+
+.cant-search-text {
+  color: #d95353;
+  text-align: center;
+  -webkit-text-stroke-width: 0.8px;
+  -webkit-text-stroke-color: #000;
+  font-size: x-large;
+}
+
+.exp-background {
+  background-color: #fff;
+  border-radius: 20px;
+  border: 2px solid #fff;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.exp {
+  background-color: #36eab5;
+  border-radius: 20px;
+  border: 2px solid #fff;
+}
+
+.exp-text {
+  color: white;
+  text-align: center;
+  -webkit-text-stroke-width: 0.8px;
+  -webkit-text-stroke-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
