@@ -31,11 +31,11 @@ export default function Header() {
   };
 
   return (
-    <div className="flex items-center space-x-4 p-3 justify-end">
-      <div className="brown-box w-12 h-12">
+    <div className="flex items-center space-x-3 p-3 justify-end">
+      <div className="brown-box w-12 h-12 p-1">
         <ProfileImg />
       </div>
-      <div className="brown-box w-44 h-12">
+      <div className="brown-box h-12 p-4">
         <Nickname />
       </div>
       <div onClick={openMail} className="brown-box w-12 h-12 p-1">

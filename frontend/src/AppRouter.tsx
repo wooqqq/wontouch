@@ -17,6 +17,15 @@ import Setting from './pages/Setting';
 import CommonBG from './components/common/CommonBG';
 import { useSelector } from 'react-redux';
 import { RootState } from './redux/store';
+import Header from './components/Header';
+import { useDispatch } from 'react-redux';
+import { setToken } from './redux/slices/authSlice';
+import { setUserId } from './redux/slices/userSlice';
+import { jwtDecode } from 'jwt-decode';
+
+interface DecodedToken {
+  userId: number;
+}
 
 // 로그인이 되어있지 않을 때, 다른 페이지로 이동하려고 하면 강제로 로그인 창으로 이동
 // children은 렌더링 될 컴포넌트
@@ -35,6 +44,17 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
 }
 
 function AppRouter() {
+  const dispatch = useDispatch();
+  const token = localStorage.getItem('access_token');
+
+  useEffect(() => {
+    if (token) {
+      dispatch(setToken(token));
+      const decodedToken = jwtDecode<DecodedToken>(token);
+      dispatch(setUserId(decodedToken.userId));
+    }
+  }, [token, dispatch]);
+
   return (
     <Router>
       <Routes>
@@ -85,7 +105,7 @@ function AppRouter() {
 
         {/* 게임 화면 */}
         <Route
-          path="/game"
+          path="/game/:roomId"
           element={
             <ProtectedRoute>
               <Game />
