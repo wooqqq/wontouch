@@ -2,16 +2,20 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UserState {
   id: number | null;
-  nickname: string | null;
-  description: string | null;
-  characterName: string | null;
+  nickname: string | '';
+  description: string | '';
+  characterName: string | '';
+  tierPoint: number | 0;
+  mileage: number | 0;
 }
 
 const initialState: UserState = {
   id: null,
-  nickname: null,
-  description: null,
-  characterName: null,
+  nickname: '',
+  description: '',
+  characterName: '',
+  tierPoint: 0,
+  mileage: 0,
 };
 
 const userSlice = createSlice({
@@ -33,6 +37,12 @@ const userSlice = createSlice({
     setUserCharacterName(state, action: PayloadAction<string>) {
       state.characterName = action.payload;
     },
+    setUserTierPoint(state, action: PayloadAction<number>) {
+      state.tierPoint = action.payload;
+    },
+    setUserMileage(state, action: PayloadAction<number>) {
+      state.mileage = action.payload;
+    },
   },
 });
 
@@ -42,5 +52,7 @@ export const {
   setUserNickname,
   setUserDescription,
   setUserCharacterName,
+  setUserTierPoint,
+  setUserMileage,
 } = userSlice.actions;
 export default userSlice.reducer;
