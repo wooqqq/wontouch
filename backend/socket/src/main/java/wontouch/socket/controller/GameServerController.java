@@ -30,7 +30,7 @@ public class GameServerController {
         String roomId = (String) messageData.get("roomId");
         log.debug("START TIMER!!: {}", messageData);
         try {
-            sessionService.broadcastMessage(roomId, MessageType.NOTIFY, "Timer started successfully");
+            sessionService.broadcastMessage(roomId, MessageType.ROUND_START, messageData);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -43,7 +43,7 @@ public class GameServerController {
         String roomId = (String) messageData.get("roomId");
         log.debug("END TIMER!!: {}", messageData);
         try {
-            sessionService.broadcastMessage(roomId, MessageType.NOTIFY, "Timer ended successfully");
+            sessionService.broadcastMessage(roomId, MessageType.ROUND_END, "Timer ended successfully");
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
