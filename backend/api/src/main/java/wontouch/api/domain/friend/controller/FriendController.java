@@ -93,7 +93,7 @@ public class FriendController {
     }
 
     // 친구 신청 거절
-    @GetMapping("/request-reject")
+    @DeleteMapping("/request-reject")
     public ResponseEntity<?> rejectRequest(@RequestBody FriendRequestActionDto requestDto) {
         friendService.rejectRequest(requestDto);
 

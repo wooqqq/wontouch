@@ -12,4 +12,7 @@ public class FriendRequestActionDto {
     @NotNull
     private int fromUserId;
 
+    @NotNull
+    private String notificationId;
+
 }
