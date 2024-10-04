@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { RootState } from '../../redux/store';
+import { RootState } from '../../../redux/store';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import cancel from '../../assets/icon/cancel.png';
-import confirm from '../../assets/icon/confirm.png';
-import lock from '../../assets/icon/lock.png';
-import unLock from '../../assets/icon/unlock.png';
+import cancel from '../../../assets/icon/cancel.png';
+import confirm from '../../../assets/icon/confirm.png';
+import lock from '../../../assets/icon/lock.png';
+import unLock from '../../../assets/icon/unlock.png';
 
 // api 주소
 const API_LINK = import.meta.env.VITE_API_URL;

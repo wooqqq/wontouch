@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/common/Modal';
-import MakeRoom from '../components/lobby/MakeRoom';
-import FindRoom from '../components/lobby/FindRoom';
+import MakeRoom from '../components/lobby/room/MakeRoom';
+import FindRoom from '../components/lobby/room/FindRoom';
 import Header from '../components/common/Header';
 import Ranking from '../components/lobby/Ranking';
-import RoomList from '../components/lobby/RoomList';
-import Friend from '../components/lobby/Friend';
+import RoomList from '../components/lobby/room/RoomList';
+import Friend from '../components/lobby/friend/Friend';
+import FriendProfile from '../components/lobby/friend/FriendProfile';
 
 import search from '../assets/icon/search.png';
 import hammer from '../assets/icon/hammer.png';
@@ -35,10 +36,6 @@ function Lobby() {
   const closeFindRoom = () => {
     setShowFindRoom(false);
   };
-
-  // 방 입장
-  const navigate = useNavigate();
-  const enterRoom = () => {};
 
   return (
     <div>
@@ -70,8 +67,12 @@ function Lobby() {
           </div>
         </div>
         <div className="ranking-container w-4/12 h-5/6 flex flex-col items-center">
-          <Ranking />
-          <Friend />
+          <div className="w-11/12 ml-6 mb-6 h-[400px]">
+            <Ranking />
+          </div>
+          <div className="w-11/12 h-[218px] ml-6">
+            <Friend />
+          </div>
         </div>
       </div>
 

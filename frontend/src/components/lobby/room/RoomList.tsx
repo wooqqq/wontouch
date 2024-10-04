@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import lock from '../../assets/icon/lock.png';
+import lock from '../../../assets/icon/lock.png';
 
 interface RoomList {}
 

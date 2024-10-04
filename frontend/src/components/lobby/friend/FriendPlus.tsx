@@ -1,22 +1,20 @@
 import React from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
+import { RootState } from '../../../redux/store';
 import { useState } from 'react';
 
-import boy from '../../assets/background/characters/stand/boy.png';
-import curlyhairBoy from '../../assets/background/characters/stand/curlyhair_boy.png';
-import flowerGirl from '../../assets/background/characters/stand/flower_girl.png';
-import girl from '../../assets/background/characters/stand/girl.png';
-import goblin from '../../assets/background/characters/stand/goblin.png';
-import kingGoblin from '../../assets/background/characters/stand/king_goblin.png';
-import ninjaSkeleton from '../../assets/background/characters/stand/ninja_skeleton.png';
-import skeleton from '../../assets/background/characters/stand/skeleton.png';
-import search from '../../assets/icon/search.png';
-import cancel from '../../assets/icon/cancel.png';
-import confirm from '../../assets/icon/confirm.png';
-
-import tmp from '../../assets/background/characters/stand/boy.png';
+import boy from '../../../assets/background/characters/stand/boy.png';
+import curlyhairBoy from '../../../assets/background/characters/stand/curlyhair_boy.png';
+import flowerGirl from '../../../assets/background/characters/stand/flower_girl.png';
+import girl from '../../../assets/background/characters/stand/girl.png';
+import goblin from '../../../assets/background/characters/stand/goblin.png';
+import kingGoblin from '../../../assets/background/characters/stand/king_goblin.png';
+import ninjaSkeleton from '../../../assets/background/characters/stand/ninja_skeleton.png';
+import skeleton from '../../../assets/background/characters/stand/skeleton.png';
+import search from '../../../assets/icon/search.png';
+import cancel from '../../../assets/icon/cancel.png';
+import confirm from '../../../assets/icon/confirm.png';
 
 // 이미지 매핑 객체 생성
 const characterImages: { [key: string]: string } = {
@@ -106,7 +104,7 @@ export default function FriendPlus({
           }}
         />
         <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-          <img src={search} alt="" onClick={handleSearch} />
+          <img src={search} alt="친구 검색" onClick={handleSearch} />
         </div>
       </div>
 

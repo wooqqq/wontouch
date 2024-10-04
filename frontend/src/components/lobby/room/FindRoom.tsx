@@ -1,6 +1,6 @@
 import React from 'react';
 
-import cancel from '../../assets/icon/cancel.png';
+import cancel from '../../../assets/icon/cancel.png';
 
 const API_LINK = import.meta.env.VITE_API_URL;
 
