@@ -158,7 +158,7 @@ public class RoomRepository {
         // 새로운 방장을 ready 상태 true로 변경
         String participantsKey = "game_lobby:" + roomId + ":participants";
         redisTemplate.opsForHash().put(participantsKey, newHost, true);
-        
+
         // 로그 출력
         log.info("방 ID '{}'의 새로운 방장은 '{}'입니다.", roomId, newHost);
     }
