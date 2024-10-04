@@ -1,6 +1,7 @@
 package wontouch.api.global.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,6 +24,9 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
 
+    @Value("${server.domain}")
+    private String serverDomain;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -31,7 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/", "/**", "/api/**", "user-profile/**").permitAll() // 해당 경로는 인증 없이 접근 가능
 //                        .requestMatchers("**/**").permitAll()
-                                .anyRequest().authenticated() // 모든 요청에 대해 인증 없이 접근 가능
+                                .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
@@ -41,7 +45,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));  // 허용할 출처
+        configuration.setAllowedOrigins(Arrays.asList(serverDomain));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));  // 허용할 메서드
         configuration.setAllowedHeaders(Collections.singletonList("*"));
         configuration.setAllowCredentials(true);  // 인증 정보를 허용할지 여부
