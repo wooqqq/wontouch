@@ -21,13 +21,27 @@ import master2 from '../../assets/level/20_level_master.png';
 import master3 from '../../assets/level/21_level_master.png';
 import grand from '../../assets/level/22_level_grand.png';
 
-export default function FriendInfo() {
+interface FriendInfoProps {
+  key: number;
+  nickname: string;
+  description: string;
+  characterName: string;
+  tierPoint: number;
+}
+
+export default function FriendInfo({
+  key,
+  nickname,
+  description,
+  characterName,
+  tierPoint,
+}: FriendInfoProps) {
   return (
     <div className="relative">
-      <div className="ranking-box white-text text-2xl h-[40px] w-full">
-        김부르주아
+      <div className="ranking-box white-text text-2xl h-[40px] w-full mb-1">
+        {nickname}
         <div className="absolute right-4">
-          <img src={grand} alt="" className="w-6 h-7" />
+          {/* <img src={character} alt="" className="w-6 h-7" /> */}
         </div>
       </div>
     </div>
