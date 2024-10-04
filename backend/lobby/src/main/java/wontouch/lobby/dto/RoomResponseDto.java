@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import wontouch.lobby.domain.Room;
 
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -13,7 +14,7 @@ public class RoomResponseDto {
     private String roomName;
     private long hostId;
     private boolean secret;
-    private Set<String> participants;
+    private Map<Object, Object> participants;
     private int maxPlayers;
     private int currentPlayersCount;
 
@@ -23,7 +24,6 @@ public class RoomResponseDto {
         this.hostId = room.getHostId();
         this.secret = room.isSecret();
         this.participants = room.getParticipants();
-        this.participants.addAll(room.getParticipants());
         this.maxPlayers = 8;
         this.currentPlayersCount = room.getCurrentPlayersCount();
     }

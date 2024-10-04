@@ -49,7 +49,7 @@ public class RoomRepository {
 
         // 참여자 목록에 방 생성자 삽입
         String participantsKey = "game_lobby:" + room.getRoomId() + ":participants";
-        redisTemplate.opsForHash().put(participantsKey, playerId, false);
+        redisTemplate.opsForHash().put(participantsKey, playerId, true);
 
         return new RoomResponseDto(getRoomById(room.getRoomId()));
     }
@@ -136,7 +136,12 @@ public class RoomRepository {
     }
 
     private void changeHost(String roomId) {
-        Set<String> participants = getParticipants(roomId);
+        Map<Object, Object> participantsMap = getParticipants(roomId);
+        // Map<Object, Object>를 Set<String>으로 변환 (Hash에서 참가자 ID만 추출)
+        Set<String> participants = participantsMap.keySet().stream()
+                .map(Object::toString) // Object를 String으로 변환
+                .collect(Collectors.toSet());
+
         // Set을 List로 변환하여 인덱스로 접근 가능하도록 함
         List<String> participantList = new ArrayList<>(participants);
 
@@ -150,9 +155,12 @@ public class RoomRepository {
         // 새로운 방장을 Redis에 저장
         saveNewHost(roomId, newHost);
 
+        // 새로운 방장을 ready 상태 true로 변경
+        String participantsKey = "game_lobby:" + roomId + ":participants";
+        redisTemplate.opsForHash().put(participantsKey, newHost, true);
+        
         // 로그 출력
         log.info("방 ID '{}'의 새로운 방장은 '{}'입니다.", roomId, newHost);
-
     }
 
     private void saveNewHost(String roomId, String hostId) {
@@ -226,7 +234,7 @@ public class RoomRepository {
         }
 
         // 참여자 정보 설정
-        Set<String> participants = getParticipants(roomId);
+        Map<Object, Object> participants = getParticipants(roomId);
         room.setParticipants(participants);
         room.setCurrentPlayersCount(participants.size());
 
@@ -234,7 +242,7 @@ public class RoomRepository {
     }
 
     // 참여자 전체 정보 조회
-    public Set<String> getParticipants(String roomId) {
+    public Map<Object, Object> getParticipants(String roomId) {
         String participantsKey = "game_lobby:" + roomId + ":participants";
 
         // Hash에서 참여자 목록 가져오기
@@ -245,7 +253,7 @@ public class RoomRepository {
                 .map(Object::toString) // Object를 String으로 변환
                 .collect(Collectors.toSet());
 
-        return participantNames;
+        return participantsMap;
     }
 
     // 방의 현재 플레이어 수 조회
