@@ -55,14 +55,14 @@ public class TimerService {
     public void startNewRound(String roomId) {
         // 방마다 개별적으로 타이머 설정
         int round = gameRepository.updateRound(roomId);
+        // 각 플레이어의 기사 구입 가격 초기화
+        playerRepository.setPlayersArticlePrice(roomId);
+        // 각 플레이어의 상태를 게임중으로 변경
+        playerRepository.setAllPlayerStatus(roomId, PlayerStatus.PLAYING);
         ScheduledFuture<?> roundTimer = scheduler.schedule(() -> endRound(roomId, round), ROUND_DURATION_SECONDS, TimeUnit.SECONDS);
         roundTimers.put(roomId, roundTimer);
 
         log.debug("round{} start Timer For {}", round, roomId);
-
-        // 각 플레이어의 기사 구입 가격 초기화
-        playerRepository.setPlayersArticlePrice(roomId);
-
         // 클라이언트에게 라운드 시작 알림
         notifyClientsOfRoundStart(roomId);
     }
