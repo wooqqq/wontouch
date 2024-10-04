@@ -1,5 +1,5 @@
-import level05 from '../../assets/level/05_level_silver.png';
 import boy from '../../assets/background/characters/stand/boy.png';
+import LevelImg from '../common/LevelImg';
 
 interface UserInfoProps {
   isHost: boolean; // 방장 여부
@@ -7,14 +7,17 @@ interface UserInfoProps {
   nickname: string | undefined;
   isReady: boolean; // 준비 여부
   character: string | undefined;
+  tierPoint: string | undefined;
 }
 
+// 대기방 접속자 정보
 function RoomUserInfo({
   isHost,
   playerId,
   isReady,
   character,
   nickname,
+  tierPoint,
 }: UserInfoProps) {
   const characterImages: { [key: string]: string } = {
     boy: boy,
@@ -35,14 +38,10 @@ function RoomUserInfo({
           className={`w-[157px] h-[178px] rounded-[20px] border-[5px] bg-[#FFF2D1] px-[21px] py-[10px] relative
             ${isHost ? 'border-[#FE0]' : isReady ? 'border-[#36eab5]' : 'border-[#FFF] '}`}
         >
-          <div>
-            <img
-              src={level05}
-              alt="레벨"
-              className="w-7 absolute right-4 top-0"
-            />
+          <div className="w-7 absolute right-4 top-0">
+            <LevelImg tierPoint={tierPoint ? Number(tierPoint) : 0} />
           </div>
-          <div className="w-full">
+          <div className="w-[92%] mx-auto my-0">
             <img
               src={character ? characterImages[character] : ''}
               alt="캐릭터"
