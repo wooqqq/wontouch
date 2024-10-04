@@ -7,8 +7,12 @@ import wontouch.api.domain.notification.entity.Notification;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface NotificationRepository extends MongoRepository<Notification, String> {
+
+    Optional<Notification> findById(String id);
     List<Notification> findByCreateAtBefore(LocalDateTime dateTime, PageRequest pageRequest);
+    void deleteById(String id);
 }

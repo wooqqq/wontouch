@@ -40,6 +40,11 @@ public enum CustomException {
     // 마일리지
     INSUFFICIENT_MILEAGE_EXCEPTION(400, "InsufficientMileageException", "마일리지가 부족합니다."),
 
+    // 알림
+    NOT_FOUND_NOTIFICATION_EXCEPTION(400, "NotFoundNotificationException", "알림이 존재하지 않습니다."),
+    NO_CONTENT_NOTIFICATION_EXCEPTION(204, "NoContentNotificationException", "해당 알림을 찾을 수 없습니다."),
+    ALERT_ACCESS_DENIED_EXCEPTION(403, "AlertAccessDeniedException", "해당 알림을 삭제할 권한이 없습니다."),
+
     // 아직 처리하지 않은 예외사항
     UNHANDLED_ERROR_EXCEPTION(400, "UnhandledErrorException", "처리되지 않은 에러가 발생했습니다."),
 

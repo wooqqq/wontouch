@@ -3,8 +3,10 @@ package wontouch.api.domain.notification.model.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import wontouch.api.domain.notification.controller.NotificationController;
+import wontouch.api.domain.notification.dto.request.NotificationDeleteRequestDto;
 import wontouch.api.domain.notification.entity.Notification;
 import wontouch.api.domain.notification.entity.NotificationType;
 import wontouch.api.domain.notification.model.repository.NotificationRepository;
@@ -85,6 +87,7 @@ public class NotificationService {
 
                 // 알림 DB에 저장
                 Notification notification = Notification.builder()
+                        .receiverId(receiverId)
                         .sender(sender.getNickname())
                         .createAt(LocalDateTime.now())
                         .content(sender.getNickname() + " 님의 친구요청이 도착했습니다.")
@@ -102,6 +105,7 @@ public class NotificationService {
         }
     }
 
+    // 친구 신청 수락 알림
     public void notifyFriendAccept(int receiverId, int senderId) {
         UserProfile sender = userProfileRepository.findByUserId(senderId)
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
@@ -124,6 +128,7 @@ public class NotificationService {
 
                 // 알림 DB에 저장
                 Notification notification = Notification.builder()
+                        .receiverId(notifyId)
                         .sender(sender.getNickname())
                         .createAt(LocalDateTime.now())
                         .content(sender.getNickname() + " 님과 친구가 되었습니다.")
@@ -135,5 +140,20 @@ public class NotificationService {
                 log.error("Error sending notification to userId: {}", notifyId, e);
             }
         }
+    }
+
+    @Transactional
+    public void deleteNotification(NotificationDeleteRequestDto requestDto) {
+        System.out.println("알림 String id : " + requestDto.getId());
+
+        // 존재하는 알림인지 확인
+        Notification notification = notificationRepository.findById(requestDto.getId())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NO_CONTENT_NOTIFICATION_EXCEPTION));
+
+        // 지우려는 사용자가 알림 receiver인지 확인
+        if (notification.getReceiverId().intValue() != requestDto.getUserId())
+            throw new ExceptionResponse(CustomException.ALERT_ACCESS_DENIED_EXCEPTION);
+
+        notificationRepository.deleteById(requestDto.getId());
     }
 }

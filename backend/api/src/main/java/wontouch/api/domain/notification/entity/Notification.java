@@ -15,6 +15,8 @@ public class Notification {
     @Id
     private String id;
 
+    private Long receiverId;
+
     private String sender;
 
     private LocalDateTime createAt;
