@@ -106,7 +106,7 @@ function AppRouter() {
 
         {/* 게임 화면 */}
         <Route
-          path="/game"
+          path="/game/:roomId"
           element={
             <ProtectedRoute>
               <Game />

@@ -5,6 +5,12 @@ import { createPlayerMovement } from './PlayerMovement';
 import InteractionModal from './InteractionModal';
 import MapModal from './MapModal';
 import ResultModal from './ResultModal';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+import { setUserId } from '../../redux/slices/userSlice';
+import { setToken } from '../../redux/slices/authSlice';
+import { jwtDecode } from 'jwt-decode';
 
 interface MapLayers {
   backgroundLayer: Phaser.Tilemaps.TilemapLayer | null;
@@ -33,6 +39,10 @@ interface MapLayers {
   exchangeLayer: Phaser.Tilemaps.TilemapLayer | null;
 }
 
+interface DecodedToken {
+  userId: number;
+}
+
 const PhaserGame = () => {
   const [houseNum, setHouseNum] = useState<number | null>(null);
   const [openMap, setOpenMap] = useState<boolean>(false);
@@ -40,9 +50,137 @@ const PhaserGame = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [round, setRound] = useState(1);
-  const timerRef = useRef(30); // 타이머 값을 useRef로 관리
+  const timerRef = useRef(5); // 타이머 값을 useRef로 관리
   const timeTextRef = useRef<Phaser.GameObjects.Text | null>(null);
   const roundTextRef = useRef<Phaser.GameObjects.Text | null>(null);
+
+  //웹소켓 관련
+  const { roomId } = useParams();
+  const playerId = useSelector((state: RootState) => state.user.id);
+  //console.log(roomId, playerId);
+  const token = localStorage.getItem('access_token');
+  const dispatch = useDispatch();
+  //const gameRef = useRef<Phaser.Game | null>(null); // Phaser Game 객체를 저장하는 Ref
+  const sceneRef = useRef<Phaser.Scene | null>(null); // Phaser Scene 객체를 저장하는 Ref
+
+  //캐릭터 모음..
+  const playerSpritesRef = useRef<{ [key: string]: Phaser.Physics.Arcade.Sprite }>({});
+
+  //웹소켓 넘기기
+  const gameSocketRef = useRef<WebSocket | null>(null);
+
+  // 로컬스토리지에서 토큰 읽어오기
+  if (token) {
+    dispatch(setToken(token));
+    const decodedToken = jwtDecode<DecodedToken>(token);
+    dispatch(setUserId(decodedToken.userId));
+  }
+
+  useEffect(() => {
+    const connectWebSocket = () => {
+      const gameSocket = new WebSocket(`ws://localhost:8082/socket/ws/game/${roomId}?playerId=${playerId}`);
+
+      gameSocket.onopen = () => {
+        console.log('게임 웹소켓 연결 성공');
+      };
+
+      gameSocket.onmessage = (event) => {
+        try {
+          const message = event.data;
+
+          if (typeof message === 'string' && message[0] !== '{') {
+            console.log('Received message:', message);
+          } else {
+            const data = JSON.parse(message);
+            console.log(data.type);
+
+            if (data.type === 'ROUND_READY') {
+              console.log("들어오더라")
+              const { allReady, totalPlayers, readyPlayers } = data.content;
+              console.log(allReady);
+
+              console.log(`Total Players: ${totalPlayers}, Ready Players: ${readyPlayers}`);
+
+              if (allReady) {
+                console.log('All players are ready. Moving to the next round.');
+                // 다음 단계로 이동하는 로직
+                timerRef.current = 5; // 타이머 초기화
+                setRound((prev) => prev + 1);
+                setShowModal(false);
+              } else {
+                console.log(`Waiting for more players. Ready players: ${readyPlayers}`);
+                // 아직 레디되지 않은 플레이어가 있을 때 처리
+              }
+            }
+            // 새로운 플레이어가 입장했을 때
+            if (data.type === 'NOTIFY') {
+              const otherPlayerId = extractPlayerIdFromMessage(data.content);
+
+              // 자신의 캐릭터는 생성하지 않음
+              if (otherPlayerId && otherPlayerId !== String(playerId) && !playerSpritesRef.current[otherPlayerId]) {
+                const scene = sceneRef.current;
+                if (scene) {
+                  const newPlayer = scene.physics.add.sprite(4000, 300, 'player');
+                  playerSpritesRef.current[otherPlayerId] = newPlayer;
+                  console.log(`New player created: ${otherPlayerId}`, newPlayer);
+                }
+              }
+            }
+
+            // 상대방 플레이어의 MOVE 이벤트 처리
+            if (data.type === 'MOVE') {
+              const otherPlayerId = data.content.playerId;
+              const scene = sceneRef.current;
+
+              // 상대방 플레이어가 이미 존재하는지 확인하고 위치 업데이트
+              if (scene && otherPlayerId !== String(playerId)) {
+                if (playerSpritesRef.current[otherPlayerId]) {
+                  // 이미 존재하는 경우 위치 업데이트
+                  playerSpritesRef.current[otherPlayerId].setPosition(data.content.x, data.content.y);
+                  if (data.content.dir === 'left') {
+                    playerSpritesRef.current[otherPlayerId].flipX = true;
+                  } else if (data.content.dir === 'right') {
+                    playerSpritesRef.current[otherPlayerId].flipX = false;
+                  }
+                  console.log(`Player ${otherPlayerId} position updated:`, data.content.x, data.content.y);
+                } else {
+                  // 존재하지 않는 경우 새로 생성
+                  const newPlayer = scene.physics.add.sprite(data.content.x, data.content.y, 'player');
+                  playerSpritesRef.current[otherPlayerId] = newPlayer;
+                  console.log(`New player created for ${otherPlayerId} at position:`, data.content.x, data.content.y);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
+        }
+      };
+
+      gameSocket.onclose = () => {
+        console.log('WebSocket이 닫혔습니다. 재연결을 시도합니다.');
+        setTimeout(() => {
+          connectWebSocket(); // 재연결 시도
+        }, 1000); // 1초 후에 재연결 시도
+      };
+
+      gameSocketRef.current = gameSocket; // WebSocket을 gameSocketRef에 저장
+
+      return () => {
+        gameSocket.close(); // 컴포넌트가 언마운트될 때 WebSocket 닫기
+      };
+    };
+
+    connectWebSocket();
+  }, [roomId, playerId]);
+
+  // Phaser에서 메시지에서 ID 추출하는 함수
+  const extractPlayerIdFromMessage = (message: string): string => {
+    // 메시지에서 playerId를 추출하는 로직을 여기에 작성하세요
+    // 예시: "Player 1이 입장하였습니다." -> "1" 추출
+    return message.match(/\d+/)?.[0] || '';
+  };
+
 
   // houseNum이 변경될 때마다 houseNumRef를 업데이트
   useEffect(() => {
@@ -195,6 +333,8 @@ const PhaserGame = () => {
 
   //생성
   function create(this: Phaser.Scene) {
+    // 현재 씬을 sceneRef에 저장
+    sceneRef.current = this;
     mapLayers = createGameMap(this);
     //mapLayer가 정의되지 않았으면 빈 객체로 처리해준다.
     const {
@@ -339,9 +479,9 @@ const PhaserGame = () => {
   }
 
   //업데이트
-  function update(this: Phaser.Scene) {
+  function update(this: Phaser.Scene, delta: number) {
     if (houseNumRef.current === null) {
-      createPlayerMovement(this, player, cursors, 16);
+      createPlayerMovement(this, player, cursors, delta, gameSocketRef);
     }
 
     //지도 열기 기능
@@ -400,11 +540,27 @@ const PhaserGame = () => {
     }
   }
 
+  let isRoundReadySent = false; // 메시지 전송 여부를 관리하는 변수
+
   const handleNextRound = () => {
-    timerRef.current = 30; // 타이머 초기화
-    setRound((prev) => prev + 1);
-    console.log(round);
-    setShowModal(false);
+    if (isRoundReadySent) {
+      console.log("이미 ROUND_READY 메시지를 보냈습니다.");
+      return; // 이미 메시지를 보낸 경우 실행되지 않음
+    }
+
+    console.log("ROUND_READY 메시지 보내기 시작");
+
+    const round = {
+      type: 'ROUND_READY',
+    };
+    gameSocketRef.current?.send(JSON.stringify(round));
+
+    isRoundReadySent = true; // 메시지를 보냈으므로 true로 설정
+
+    setTimeout(() => {
+      isRoundReadySent = false; // 일정 시간이 지나면 다시 전송 가능
+      console.log("3초 후 다시 메시지 전송 가능");
+    }, 3000); // 3초 후 다시 메시지 전송 가능
   };
 
   const closeModal = () => {
