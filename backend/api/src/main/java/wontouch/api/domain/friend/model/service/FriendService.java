@@ -19,6 +19,7 @@ import wontouch.api.domain.friend.entity.Friend;
 import wontouch.api.domain.friend.entity.FriendRequest;
 import wontouch.api.domain.friend.model.repository.jpa.FriendRepository;
 import wontouch.api.domain.friend.model.repository.mongo.FriendRequestRepository;
+import wontouch.api.domain.notification.model.repository.NotificationRepository;
 import wontouch.api.domain.notification.model.service.NotificationService;
 import wontouch.api.domain.user.entity.Avatar;
 import wontouch.api.domain.user.entity.UserProfile;
@@ -42,6 +43,7 @@ public class FriendService {
     private final FriendRequestRepository friendRequestRepository;
     private final UserProfileRepository userProfileRepository;
     private final AvatarRepository avatarRepository;
+    private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
 
     @Value("${mileage.server.name}:${mileage.server.path}")
@@ -124,9 +126,9 @@ public class FriendService {
     }
 
     // 친구 신청 상세 조회
-    public ReceiveFriendRequestDto getFriendRequest(FriendRequestDto requestDto) {
+    public ReceiveFriendRequestDto getFriendRequest(int fromUserId, int toUserId) {
 
-        FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(requestDto.getFromUserId(), requestDto.getToUserId())
+        FriendRequest friendRequest = friendRequestRepository.findByFromUserIdAndToUserId(fromUserId, toUserId)
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_FRIEND_REQUEST_EXCEPTION));
 
         UserProfile userProfile = userProfileRepository.findByUserId(friendRequest.getFromUserId())
@@ -165,8 +167,7 @@ public class FriendService {
                 .build();
 
         friendRepository.save(friend);
-
-        notificationService.notifyFriendAccept(friendRequest.getFromUserId(), requestDto.getUserId());
+        notificationRepository.deleteById(requestDto.getNotificationId());
     }
 
     // 친구 신청 거절
@@ -181,6 +182,7 @@ public class FriendService {
             throw new ExceptionResponse(CustomException.NOT_AUTH_ACCEPT_REQUEST_EXCEPTION);
 
         friendRequestRepository.delete(friendRequest);
+        notificationRepository.deleteById(requestDto.getNotificationId());
     }
 
 
