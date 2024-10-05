@@ -35,7 +35,7 @@ export default function ProfileImg() {
       : null;
 
   return (
-    <div>
+    <div className="brown-box w-12 h-12">
       {profileImgSrc ? (
         <img src={profileImgSrc} className="p-1.5" />
       ) : (

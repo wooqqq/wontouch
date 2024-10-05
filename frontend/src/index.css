@@ -50,14 +50,6 @@ button:active {
   cursor: url('assets/icon/cursor_focus.png'), auto;
 }
 
-img:hover {
-  cursor: url('assets/icon/cursor_hover.png'), auto;
-}
-
-img:active {
-  cursor: url('assets/icon/cursor_focus.png'), auto;
-}
-
 /* 드래그 허용 CSS */
 .draggable {
   -webkit-user-select: text;
@@ -302,7 +294,6 @@ img:active {
 /* 갈색 박스 */
 .brown-box {
   display: flex;
-  justify-content: center;
   align-items: center;
   flex-shrink: 0;
   border-radius: 20px;
@@ -358,7 +349,6 @@ img:active {
   -webkit-text-stroke-width: 2px;
   -webkit-text-stroke-color: #10ab7d;
   background-color: #fffff8;
-  margin: 10%;
   padding: 2%;
   border-radius: 20px;
 }
@@ -368,7 +358,6 @@ img:active {
   -webkit-text-stroke-width: 2px;
   -webkit-text-stroke-color: black;
   background-color: #fffff8;
-  margin: 10%;
   padding: 2%;
   border-radius: 20px;
 }
