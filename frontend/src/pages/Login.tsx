@@ -15,19 +15,21 @@ function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="mb-20">
+    <div className="flex flex-col items-center">
+      <div className="mb-24">
         <img src={wontouchLogo} alt="원터치 게임 로고" />
       </div>
-      {!showLoginOptions ? (
-        <LoginButton onClick={handleLoginClick} />
-      ) : (
-        <div className="flex flex-col items-center space-y-4">
-          <KakaoLogin />
-          <GoogleLogin />
-          <GoogleLoginTwo />
-        </div>
-      )}
+      <div className="min-h-[100px]">
+        {!showLoginOptions ? (
+          <LoginButton onClick={handleLoginClick} />
+        ) : (
+          <div className="flex flex-col items-center space-y-4">
+            <KakaoLogin />
+            {/* <GoogleLogin /> */}
+            {/* <GoogleLoginTwo /> */}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
