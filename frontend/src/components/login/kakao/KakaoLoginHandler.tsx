@@ -48,7 +48,7 @@ function KakaoLoginHandler() {
         }, 1500);
       } else {
         setTimeout(() => {
-          // 이미 가입된 유저인 경우 사용자 정보 불러오고 로비로 이동
+          // 이미 가입된 유저인 경우 사용자 정보 store에 저장 후, sse 연결하고 로비로 이동
           getUserData(userId, accessToken);
         }, 1500);
       }
@@ -61,6 +61,7 @@ function KakaoLoginHandler() {
   // 사용자 정보 가져오기
   const getUserData = async (userId: number, accessToken: string) => {
     try {
+      // 사용자 정보 요청
       const response = await axios.get(`${API_LINK}/user/${userId}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -71,10 +72,15 @@ function KakaoLoginHandler() {
       dispatch(setUserDescription(response.data.data.description));
       dispatch(setUserCharacterName(response.data.data.characterName));
 
-      // 사용자 정보가 확인되면 로비로 이동
+      // SSE는 EventSource를 사용
+      const eventSource = new EventSource(
+        `${API_LINK}/notification/subscribe/${userId}`,
+      );
+
+      // 로비로 이동
       navigate('/lobby');
     } catch (error) {
-      console.log('유저 정보 불러오기 실패', error);
+      console.log('Error fetching user data:', error);
     }
   };
 
