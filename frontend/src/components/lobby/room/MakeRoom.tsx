@@ -41,20 +41,9 @@ export default function MakeRoomModal({
   // store에 저장된 userId
   const userId = useSelector((state: RootState) => state.user.id);
 
-  // const [roomName, setRoomName] = useState<string>('');
-  // const [isPrivate, setIsPrivate] = useState<boolean>(false);
-  // const [password, setPassword] = useState<string>('');
-
-  const roomName = useSelector((state: RootState) => state.room.roomName);
-  const isPrivate = useSelector((state: RootState) => state.room.isPrivate);
-  const password = useSelector((state: RootState) => state.room.password);
-
-  // 비밀번호 입력 시 isPrivate 값을 설정
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPassword(value);
-    setIsPrivate(value !== ''); // 비밀번호가 있으면 isPrivate을 true로, 없으면 false로 설정
-  };
+  const [roomNameState, setRoomNameState] = useState<string>('');
+  const [isPrivateState, setIsPrivateState] = useState<boolean>(false);
+  const [passwordState, setPasswordState] = useState<string>('');
 
   const handleMakeRoom = async () => {
     if (userId === null) {
@@ -73,20 +62,20 @@ export default function MakeRoomModal({
       // 방 생성 요청
       const res = await axios.post(`${API_LINK}/room`, {
         roomId: UUID,
-        roomName,
+        roomName: roomNameState,
         hostPlayerId: userId,
-        isPrivate,
-        password: isPrivate ? password : '', // 비공개 방일 경우에만 비밀번호를 설정
+        isPrivate: isPrivateState,
+        password: isPrivateState ? passwordState : '', // 비공개 방일 경우에만 비밀번호를 설정
       });
 
       const createdRoomId = res.data.data.roomId;
 
       //방 생성 성공 시 store에 저장
       dispatch(setRoomId(createdRoomId));
-      dispatch(setRoomName(roomName));
+      dispatch(setRoomName(roomNameState));
       dispatch(setHostId(userId));
-      dispatch(setIsPrivate(isPrivate));
-      dispatch(setPassword(password));
+      dispatch(setIsPrivate(isPrivateState));
+      dispatch(setPassword(passwordState));
 
       navigate(`/wait/${createdRoomId}`);
     } catch (error) {
@@ -102,23 +91,28 @@ export default function MakeRoomModal({
           type="text"
           placeholder="방 제목"
           className="input-tag font-['Galmuri11'] w-full h-[80px] p-4 text-2xl mb-12"
-          value={roomName}
-          onChange={(e) => dispatch(setRoomName(e.target.value))}
+          value={roomNameState}
+          onChange={(e) => {
+            setRoomNameState(e.target.value); // roomNameState 업데이트
+          }}
         />
       </div>
       <div className="flex items-center justify-between">
         <span>
           <img
-            src={isPrivate ? lock : unLock}
-            alt={isPrivate ? '비밀번호 있는 방' : '비밀번호 없는 방'}
+            src={isPrivateState ? lock : unLock}
+            alt={isPrivateState ? '비밀번호 있는 방' : '비밀번호 없는 방'}
           />
         </span>
         <input
           type="text"
           placeholder="비밀번호"
           className="input-tag font-['Galmuri11'] w-10/12 h-[80px] p-4 text-2xl"
-          value={password}
-          onChange={handlePasswordChange} // 비밀번호 입력 시 isPrivate 업데이트
+          value={passwordState} // passwordState로 value 설정
+          onChange={(e) => {
+            setPasswordState(e.target.value); // 로컬 상태 업데이트
+            setIsPrivateState(e.target.value !== ''); // 비밀번호 존재 여부에 따라 isPrivateState 업데이트
+          }}
         />
       </div>
       <div className="mt-12 flex justify-between px-48">

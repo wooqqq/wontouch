@@ -103,9 +103,9 @@ export default function FriendPlus({
             }
           }}
         />
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+        <button className="absolute right-4 top-1/2 transform -translate-y-1/2">
           <img src={search} alt="친구 검색" onClick={handleSearch} />
-        </div>
+        </button>
       </div>
 
       {state === 'init' && (
@@ -159,8 +159,12 @@ export default function FriendPlus({
         </div>
       )}
       <div className="flex justify-between px-60">
-        <img src={cancel} alt="모달 닫기" onClick={closeFriend} />
-        <img src={confirm} alt="친구 추가" onClick={handleConfirm} />
+        <button>
+          <img src={cancel} alt="모달 닫기" onClick={closeFriend} />
+        </button>
+        <button>
+          <img src={confirm} alt="친구 추가" onClick={handleConfirm} />
+        </button>
       </div>
     </div>
   );

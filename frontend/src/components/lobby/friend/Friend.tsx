@@ -52,7 +52,7 @@ export default function Friend() {
           className="absolute right-2 plus-friend text-5xl top-1/2 transform -translate-y-1/2"
           onClick={openFindFriend}
         >
-          +
+          <button>+</button>
         </div>
       </div>
       <div className="mx-8">

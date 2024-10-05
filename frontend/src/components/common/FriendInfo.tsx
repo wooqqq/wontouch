@@ -31,7 +31,7 @@ export default function FriendInfo({
 
   return (
     <div className="relative">
-      <div
+      <button
         className="ranking-box white-text text-2xl h-[40px] w-full mb-1"
         onClick={openProfile}
       >
@@ -39,7 +39,7 @@ export default function FriendInfo({
         <div className="absolute right-4">
           {/* <img src={character} alt="메달" className="w-6 h-7" /> */}
         </div>
-      </div>
+      </button>
 
       {showProfile && (
         <Modal>
