@@ -162,7 +162,7 @@ public class AvatarService {
 
     // 총 마일리지 조회 기능
     private int getTotalMileage(int userId) {
-        String mileageUrl = String.format("%s/mileage/log/total/%d", mileageServerUrl, userId);
+        String mileageUrl = String.format("%s/log/total/%d", mileageServerUrl, userId);
 
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(mileageUrl, String.class);
@@ -184,7 +184,7 @@ public class AvatarService {
 
     // 마일리지 사용 로직
     private void purchaseByMileage(int userId, int amount, String description) {
-        String spendMileageUrl = String.format("%s/mileage/log/spend", mileageServerUrl);
+        String spendMileageUrl = String.format("%s/log/spend", mileageServerUrl);
 
         MileageSpendRequestDto requestDto = MileageSpendRequestDto.builder()
                 .userId(userId)

@@ -113,7 +113,7 @@ public class UserService {
      * 사용자 ID를 통한 총 마일리지 조회
      */
     private int getTotalMileage(int userId) {
-        String mileageUrl = String.format("%s/mileage/log/total/%d", mileageServerUrl, userId);
+        String mileageUrl = String.format("%s/log/total/%d", mileageServerUrl, userId);
 
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(mileageUrl, String.class);
@@ -137,7 +137,7 @@ public class UserService {
      * 사용자 ID를 통한 총 티어 포인트 조회
      */
     private int getTotalTierPoint(int userId) {
-        String tierUrl = String.format("%s/mileage/tier/total/%d", mileageServerUrl, userId);
+        String tierUrl = String.format("%s/tier/total/%d", mileageServerUrl, userId);
 
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(tierUrl, String.class);
