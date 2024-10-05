@@ -67,7 +67,7 @@ public class RankMonitoringService {
      * 월요일 자정 이후 적립된 티어 포인트 가져오기
      */
     private int getTotalTierPointSinceMonday(int userId) {
-        String tierUrl = String.format("%s/mileage/tier/total/since-monday/%d", mileageServerUrl, userId);
+        String tierUrl = String.format("%s/tier/total/since-monday/%d", mileageServerUrl, userId);
 
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(tierUrl, String.class);

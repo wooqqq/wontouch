@@ -234,7 +234,7 @@ public class FriendService {
 
     // 티어 불러오기
     private int getTierByUserId(int userId) {
-        String tierUrl = String.format("%s/mileage/tier/total/%d", mileageServerUrl, userId);
+        String tierUrl = String.format("%s/tier/total/%d", mileageServerUrl, userId);
 
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(tierUrl, String.class);
