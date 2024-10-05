@@ -74,6 +74,16 @@ public class NotificationService {
 
         log.info("Notification sseEmitters has userId: {}", receiverId);
 
+        // 알림 DB에 저장
+        Notification notification = Notification.builder()
+                .receiverId(receiverId)
+                .sender(sender.getNickname())
+                .createAt(LocalDateTime.now())
+                .content(sender.getNickname() + " 님의 친구요청이 도착했습니다.")
+                .notificationType(NotificationType.FRIEND_REQUEST)
+                .build();
+        notificationRepository.save(notification);
+
         // Map에서 userId로 사용자 검색
         if (NotificationController.sseEmitters.containsKey(receiverId)) {
             SseEmitter sseEmitter = NotificationController.sseEmitters.get(receiverId);
@@ -87,16 +97,6 @@ public class NotificationService {
 
                 // SSE로 친구 요청 알림 전송
                 sseEmitter.send(SseEmitter.event().name("addFriendRequest").data(eventData));
-
-                // 알림 DB에 저장
-                Notification notification = Notification.builder()
-                        .receiverId(receiverId)
-                        .sender(sender.getNickname())
-                        .createAt(LocalDateTime.now())
-                        .content(sender.getNickname() + " 님의 친구요청이 도착했습니다.")
-                        .notificationType(NotificationType.FRIEND_REQUEST)
-                        .build();
-                notificationRepository.save(notification);
 
                 log.info("Notification sent to userId: {}", receiverId);
             } catch (Exception e) {
