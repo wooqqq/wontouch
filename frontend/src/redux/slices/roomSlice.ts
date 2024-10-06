@@ -1,15 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface Participant {
-  id: number;
-  nickname: string;
+interface GameParticipant {
+  userId: number;
+  isReady: boolean;
+  nickname: string | '';
+  description: string | '';
+  characterName: string | '';
+  tierPoint: number | 0;
+  mileage: number | 0;
 }
 
 interface RoomState {
   roomId: string | '';
   roomName: string | '';
-  HostId: number | null;
-  participants: Participant[];
+  hostId: number | null;
+  gameParticipants: GameParticipant[];
   currentPlayerCount: number | 0;
   isPrivate: boolean;
   password: string | '';
@@ -18,8 +23,8 @@ interface RoomState {
 const initialState: RoomState = {
   roomId: '',
   roomName: '',
-  HostId: null,
-  participants: [],
+  hostId: null,
+  gameParticipants: [],
   currentPlayerCount: 0,
   isPrivate: false,
   password: '',
@@ -36,21 +41,12 @@ const roomSlice = createSlice({
       state.roomName = action.payload;
     },
     setHostId(state, action: PayloadAction<number | 0>) {
-      state.HostId = action.payload;
+      state.hostId = action.payload;
     },
-    setParticipants(state, action: PayloadAction<Participant[]>) {
-      state.participants = action.payload;
+    setGameParticipants(state, action: PayloadAction<GameParticipant[]>) {
+      state.gameParticipants = action.payload;
     },
-    addParticipant(state, action: PayloadAction<Participant>) {
-      state.participants.push(action.payload);
-      state.currentPlayerCount = state.participants.length; // 참여자 수 업데이트
-    },
-    removeParticipant(state, action: PayloadAction<number>) {
-      state.participants = state.participants.filter(
-        (participant) => participant.id !== action.payload,
-      );
-      state.currentPlayerCount = state.participants.length; // 참여자 수 업데이트
-    },
+
     setIsPrivate(state, action: PayloadAction<boolean>) {
       state.isPrivate = action.payload;
     },
@@ -64,9 +60,7 @@ export const {
   setRoomId,
   setRoomName,
   setHostId,
-  setParticipants,
-  addParticipant,
-  removeParticipant,
+  setGameParticipants,
   setIsPrivate,
   setPassword,
 } = roomSlice.actions;

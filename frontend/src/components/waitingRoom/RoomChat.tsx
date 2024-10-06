@@ -20,7 +20,7 @@ function RoomChat({ messages, socket }: RoomInfoProps) {
   const userId = useSelector((state: RootState) => state.user.id);
   const roomId = useSelector((state: RootState) => state.room.roomId);
   const participants = useSelector(
-    (state: RootState) => state.room.participants,
+    (state: RootState) => state.room.gameParticipants,
   );
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -31,7 +31,7 @@ function RoomChat({ messages, socket }: RoomInfoProps) {
   }, [messages]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
     // 컴포넌트가 언마운트될 때 이벤트 리스너를 제거
     return () => {
