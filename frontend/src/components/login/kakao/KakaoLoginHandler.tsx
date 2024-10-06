@@ -37,6 +37,7 @@ function KakaoLoginHandler() {
       // access token을 디코딩해 userId 추출, store에 저장
       const decodedToken = jwtDecode<DecodedToken>(accessToken);
       const userId = decodedToken.userId;
+      console.log(userId);
       dispatch(setUserId(userId));
 
       // 회원가입이 필요한 경우
