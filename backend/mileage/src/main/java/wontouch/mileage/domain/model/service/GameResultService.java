@@ -15,6 +15,7 @@ public class GameResultService {
 
     private final MileageService mileageService;
     private final TierPointService tierPointService;
+    private final GameHistoryService gameHistoryService;
 
     public void earnPoints(Map<String, Map<String, Integer>> resultTable) {
 
@@ -44,6 +45,9 @@ public class GameResultService {
                     .amount(tierPoint)
                     .build();
             tierPointService.createTierPoint(tierPointDto);
+
+            // 게임 전적 생성
+            gameHistoryService.createGameHistory(userId, rank, totalGold);
         }
     }
 }
