@@ -16,7 +16,14 @@ import KakaoToSignup from './components/login/kakao/KakaoToSignup';
 import SignupWithKakao from './components/signup/kakao/SignupWithKakao';
 import Setting from './pages/Setting';
 import CommonBG from './components/common/CommonBG';
-import Header from './components/Header';
+import { useDispatch } from 'react-redux';
+import { setToken } from './redux/slices/authSlice';
+import { setUserId } from './redux/slices/userSlice';
+import { jwtDecode } from 'jwt-decode';
+
+interface DecodedToken {
+  userId: number;
+}
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const navigate = useNavigate();
@@ -32,6 +39,17 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
 }
 
 function AppRouter() {
+  const dispatch = useDispatch();
+  const token = localStorage.getItem('access_token');
+
+  useEffect(() => {
+    if (token) {
+      dispatch(setToken(token));
+      const decodedToken = jwtDecode<DecodedToken>(token);
+      dispatch(setUserId(decodedToken.userId));
+    }
+  }, [token, dispatch]);
+
   return (
     <Router>
       <Content />

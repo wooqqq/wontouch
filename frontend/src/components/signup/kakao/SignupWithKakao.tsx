@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 
 import boy from '../../../assets/background/characters/stand/boy.png';
-import './SignupWithKakao.css';
 
 const API_LINK = import.meta.env.VITE_API_URL;
 
@@ -76,9 +75,9 @@ function SignupWithKakao() {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="mint-title">캐릭터생성</div>
+      <div className="mint-title text-5xl mb-8">캐릭터생성</div>
       <div className="yellow-box flex flex-col items-center w-[800px] h-[480px]">
-        <div className="profile-img w-[200px] h-[200px] flex items-center justify-center p-4">
+        <div className="profile-img w-[230px] h-[230px] flex items-center justify-center p-4">
           <img
             className="w-full h-full object-contain"
             src={boy}
@@ -86,47 +85,45 @@ function SignupWithKakao() {
           />
         </div>
 
-        <div className="w-full flex flex-col items-center">
-          <form onSubmit={signupWithKakao} className="w-full max-w-lg">
-            <div className="flex items-center justify-center space-x-4 mb-2">
-              <label htmlFor="nickname" className="text-green-700 text-2xl">
-                닉네임
-              </label>
-              <input
-                className="font-['Galmuri11'] w-[400px]"
-                id="nickname"
-                placeholder="한글, 숫자, 영문 입력 가능 (한글 기준 최대 6자)"
-                value={nickname}
-                onChange={(event) => setNickname(event.target.value)}
-              />
-              <button
-                type="button"
-                className="ready-button w-[130px] h-[30px] text-2xl"
-                onClick={handleCheckNickname}
-              >
-                중복확인
-              </button>
-            </div>
+        <form onSubmit={signupWithKakao}>
+          <div className="flex items-center justify-between mt-6">
+            <label htmlFor="nickname" className="text-[#10AB7D] text-3xl mr-8">
+              닉네임
+            </label>
+            <input
+              className="font-['Galmuri11'] w-[420px] mr-6 p-3 signup-input"
+              id="nickname"
+              placeholder="한글, 숫자, 영문 입력 가능 (한글 기준 최대 6자)"
+              value={nickname}
+              onChange={(event) => setNickname(event.target.value)}
+            />
+            <button
+              type="button"
+              className="ready-button w-[130px] h-[15px] text-2xl border-[#10AB7D] border-4"
+              onClick={handleCheckNickname}
+            >
+              중복확인
+            </button>
+          </div>
 
-            <div className="text-left ml-4 font-['Galmuri11'] mb-4">
-              {isNicknameAvailable === true && (
-                <p className="text-green-600">사용 가능한 닉네임입니다.</p>
-              )}
-              {isNicknameAvailable === false && (
-                <p className="text-red-600">이미 사용 중인 닉네임입니다.</p>
-              )}
-            </div>
+          <div className="text-left ml-32 font-['Galmuri11'] min-h-[24px]">
+            {isNicknameAvailable === true && (
+              <p className="text-green-600">사용 가능한 닉네임입니다.</p>
+            )}
+            {isNicknameAvailable === false && (
+              <p className="text-red-600">이미 사용 중인 닉네임입니다.</p>
+            )}
+          </div>
 
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                className="ready-button w-[180px] h-[50px] text-3xl"
-              >
-                생성
-              </button>
-            </div>
-          </form>
-        </div>
+          <div className="flex justify-center mt-6">
+            <button
+              type="submit"
+              className="ready-button w-[200px] h-[30px] text-3xl border-[#10AB7D] border-4"
+            >
+              생성
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

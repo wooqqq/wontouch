@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ProfileImg from '../common/ProfileImg';
 import Nickname from '../common/Nickname';
 import Mail from '../common/Mail';
-import Setting from '../common/Setting';
+import Setting from '../lobby/Setting';
 import Modal from './Modal';
 
 import mail from '../../assets/icon/mail.png';
@@ -31,19 +31,15 @@ export default function Header() {
   };
 
   return (
-    <div className="flex items-center space-x-4 p-3 justify-end">
-      <div className="brown-box w-12 h-12">
-        <ProfileImg />
-      </div>
-      <div className="brown-box w-44 h-12">
-        <Nickname />
-      </div>
-      <div onClick={openMail} className="brown-box w-12 h-12 p-1">
+    <div className="flex items-center space-x-3 p-3 justify-end">
+      <ProfileImg />
+      <Nickname />
+      <button onClick={openMail} className="brown-box w-12 h-12 p-1">
         <img src={mail} alt="" />
-      </div>
-      <div onClick={openSetting} className="brown-box w-12 h-12 p-1">
+      </button>
+      <button onClick={openSetting} className="brown-box w-12 h-12 p-1">
         <img src={setting} alt="" />
-      </div>
+      </button>
 
       {showMail && (
         <Modal>

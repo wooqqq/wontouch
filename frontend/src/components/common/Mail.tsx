@@ -10,25 +10,22 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
     <div className="yellow-box w-1/2 h-[470px] p-6 px-10 pb-10 border-[#36EAB5]">
       <div className="relative mb-4">
         <div className="flex justify-center mint-title text-5xl">메일함</div>
-        <div
+        <button
           className="absolute right-0 top-1/2 transform -translate-y-1/2"
           onClick={closeMail}
         >
           <img src={cancel} alt="메일함 닫기" />
-        </div>
+        </button>
       </div>
 
       <div className="list-box h-5/6 p-4">
-        <div className="flex p-4 relative">
+        <div className="flex p-4">
           <div>
             <img src={mail} alt="" />
           </div>
-          <div className="flex items-center white-text text-xl mx-5">
+          <button className="flex items-center white-text text-xl mx-5">
             태태태쏭 님에게 친구 요청이 도착했습니다.
-          </div>
-          <div className="absolute right-3">
-            <img src={confirm} alt="" />
-          </div>
+          </button>
         </div>
         {/* 삭제할 부분 */}
         <div className="flex p-4 relative">

@@ -28,10 +28,10 @@
 body {
   margin: 0;
   display: flex;
+  justify-content: center;
   place-items: center;
   min-width: 720px;
   min-height: 100vh;
-  /* overflow: hidden; */
 
   /* 드래그 방지 */
   -webkit-user-select: none;
@@ -47,14 +47,6 @@ button:hover {
 }
 
 button:active {
-  cursor: url('assets/icon/cursor_focus.png'), auto;
-}
-
-img:hover {
-  cursor: url('assets/icon/cursor_hover.png'), auto;
-}
-
-img:active {
   cursor: url('assets/icon/cursor_focus.png'), auto;
 }
 
@@ -223,6 +215,7 @@ img:active {
   .ready-button {
     display: flex;
     flex-shrink: 0;
+    width: 100%;
     height: 100px;
     padding: 26px 0px;
     justify-content: center;
@@ -235,6 +228,25 @@ img:active {
     text-align: center;
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: #10ab7d;
+    font-size: 48px;
+  }
+  /* 준비 안됨 버튼 */
+  .unready-button {
+    display: flex;
+    flex-shrink: 0;
+    height: 100px;
+    width: 100%;
+    padding: 26px 0px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    border: 5px solid #fff;
+    background: #999;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    color: #fff;
+    text-align: center;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: #555;
     font-size: 48px;
   }
 
@@ -274,15 +286,15 @@ img:active {
 
 /* 프로필 이미지 */
 .profile-img {
-  background-color: #efeaa0;
+  background-color: #fffffe;
   border-radius: 50%;
-  border: #896a65 3px;
+  border: #ffffff solid 5px;
+  box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.25);
 }
 
 /* 갈색 박스 */
 .brown-box {
   display: flex;
-  justify-content: center;
   align-items: center;
   flex-shrink: 0;
   border-radius: 20px;
@@ -338,7 +350,6 @@ img:active {
   -webkit-text-stroke-width: 2px;
   -webkit-text-stroke-color: #10ab7d;
   background-color: #fffff8;
-  margin: 10%;
   padding: 2%;
   border-radius: 20px;
 }
@@ -348,7 +359,6 @@ img:active {
   -webkit-text-stroke-width: 2px;
   -webkit-text-stroke-color: black;
   background-color: #fffff8;
-  margin: 10%;
   padding: 2%;
   border-radius: 20px;
 }
@@ -367,4 +377,66 @@ img:active {
   border: #896a65 solid 3px;
   background: #dac2a8;
   padding-left: 5%;
+}
+
+.plus-friend {
+  color: #dac2a8;
+  text-align: end;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #896a65;
+}
+
+.friend-search-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  border: white solid 5px;
+  background: #e8e7e2;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.can-search-text {
+  color: #36eab5;
+  text-align: center;
+  -webkit-text-stroke-width: 0.9px;
+  -webkit-text-stroke-color: #000;
+  font-size: x-large;
+}
+
+.cant-search-text {
+  color: #d95353;
+  text-align: center;
+  -webkit-text-stroke-width: 0.8px;
+  -webkit-text-stroke-color: #000;
+  font-size: x-large;
+}
+
+.exp-background {
+  background-color: #fff;
+  border-radius: 20px;
+  border: 2px solid #fff;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.exp {
+  background-color: #36eab5;
+  border-radius: 20px;
+  border: 2px solid #fff;
+}
+
+.exp-text {
+  color: white;
+  text-align: center;
+  -webkit-text-stroke-width: 0.8px;
+  -webkit-text-stroke-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-input {
+  border-radius: 20px;
+  border: 1px solid #10ab7d;
+  background: #fff;
 }
