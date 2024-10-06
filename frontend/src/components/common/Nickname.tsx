@@ -8,9 +8,9 @@ export default function Nickname() {
   const userTierPoint = useSelector((state: RootState) => state.user.tierPoint);
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center brown-box w-48 h-12 justify-between px-4">
       <span className="white-text text-2xl">{userNickname}</span>
-      <div className="w-7 ml-6">
+      <div className="w-8">
         <LevelImg tierPoint={userTierPoint ? userTierPoint : 0} />
       </div>
     </div>
