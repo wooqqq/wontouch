@@ -109,6 +109,7 @@ export default function FriendProfile({
           <FriendDelete
             closeDeleteModal={closeDeleteModal}
             friendId={friendId}
+            nickname={nickname}
           />
         </Modal>
       )}

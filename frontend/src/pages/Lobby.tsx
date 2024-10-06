@@ -18,6 +18,11 @@ import hammer from '../assets/icon/hammer.png';
 function Lobby() {
   const [showMakeRoom, setShowMakeRoom] = useState<boolean>(false);
   const [showFindRoom, setShowFindRoom] = useState<boolean>(false);
+  const [notificationCount, setNotificationCount] = useState<number>(0);
+  const API_LINK = import.meta.env.VITE_API_URL;
+
+  const userId = useSelector((state: RootState) => state.user.id);
+  const accessToken = localStorage.getItem('access_token');
 
   // 방 생성 모달
   const openMakeRoom = () => {
@@ -37,9 +42,33 @@ function Lobby() {
     setShowFindRoom(false);
   };
 
+  const getNotifications = async () => {
+    try {
+      const response = await axios.get(
+        `${API_LINK}/notification/list/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      const data = response.data.data;
+      if (data) {
+        setNotificationCount(data.length);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getNotifications();
+  }, []);
+
   return (
     <div>
-      <Header />
+      <Header notificationCount={notificationCount} />
       <div className="flex justify-between">
         <div className="yellow-box w-8/12 h-5/6 flex flex-col justify-center p-2 px-6 ml-10">
           <div className="flex space-x-4 mb-4">

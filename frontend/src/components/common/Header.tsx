@@ -10,10 +10,13 @@ import Modal from './Modal';
 import mail from '../../assets/icon/mail.png';
 import setting from '../../assets/icon/setting.png';
 
-export default function Header() {
+export default function Header({
+  notificationCount,
+}: {
+  notificationCount: number;
+}) {
   const [showMail, setShowMail] = useState<boolean>(false);
   const [showSetting, setShowSetting] = useState<boolean>(false);
-  const [notificationCount, setNotificationCount] = useState<number>(0); // 알림 수
 
   // 메일함 모달
   const openMail = () => {
@@ -57,10 +60,7 @@ export default function Header() {
 
       {showMail && (
         <Modal>
-          <Mail
-            closeMail={closeMail}
-            setNotificationCount={setNotificationCount}
-          />
+          <Mail closeMail={closeMail} />
         </Modal>
       )}
 

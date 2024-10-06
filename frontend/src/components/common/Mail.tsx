@@ -4,30 +4,13 @@ import { RootState } from '../../redux/store';
 import { useEffect } from 'react';
 import axios from 'axios';
 import Modal from './Modal';
+import ProfileImg from './ProfileImg';
+import LevelImg from './LevelImg';
+import LevelText from './LevelText';
 
 import mail from '../../assets/icon/mail.png';
 import cancel from '../../assets/icon/cancel.png';
 import confirm from '../../assets/icon/confirm.png';
-import boy from '../../assets/background/characters/stand/boy.png';
-import curlyhairBoy from '../../assets/background/characters/stand/curlyhair_boy.png';
-import flowerGirl from '../../assets/background/characters/stand/flower_girl.png';
-import girl from '../../assets/background/characters/stand/girl.png';
-import goblin from '../../assets/background/characters/stand/goblin.png';
-import kingGoblin from '../../assets/background/characters/stand/king_goblin.png';
-import ninjaSkeleton from '../../assets/background/characters/stand/ninja_skeleton.png';
-import skeleton from '../../assets/background/characters/stand/skeleton.png';
-
-// 이미지 매핑 객체 생성
-const characterImages: { [key: string]: string } = {
-  boy: boy,
-  curlyhair_boy: curlyhairBoy,
-  flower_girl: flowerGirl,
-  girl: girl,
-  goblin: goblin,
-  king_goblin: kingGoblin,
-  ninja_skeleton: ninjaSkeleton,
-  skeleton: skeleton,
-};
 
 interface Notification {
   id: string;
@@ -44,13 +27,7 @@ interface requestInfo {
   fromUserCharacterName: string;
 }
 
-export default function Mail({
-  closeMail,
-  setNotificationCount,
-}: {
-  closeMail: () => void;
-  setNotificationCount: (count: number) => void;
-}) {
+export default function Mail({ closeMail }: { closeMail: () => void }) {
   const API_LINK = import.meta.env.VITE_API_URL;
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -79,7 +56,6 @@ export default function Mail({
       console.log(data);
       if (data) {
         setNotifications(data);
-        setNotificationCount(data.length);
       }
     } catch (error) {
       console.log(error);
@@ -98,7 +74,6 @@ export default function Mail({
     try {
       await axios.post(
         `${API_LINK}/friend/request-accept`,
-
         {
           userId: userId,
           fromUserId: senderId,
@@ -112,7 +87,9 @@ export default function Mail({
       );
       alert('친구 요청을 수락했습니다!');
       setShowModal(false);
-      getNotifications();
+      setNotifications((prev) =>
+        prev.filter((notification) => notification.id !== notificationId),
+      );
     } catch (error) {
       console.log(error);
     }
@@ -124,23 +101,21 @@ export default function Mail({
     notificationId: string,
   ) => {
     try {
-      await axios.post(
-        `${API_LINK}/friend/request-reject`,
-
-        {
+      await axios.delete(`${API_LINK}/friend/request-reject`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        data: {
           userId: userId,
           fromUserId: senderId,
           notificationId: notificationId,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
+      });
       alert('친구 요청을 거절했습니다!');
       setShowModal(false);
-      getNotifications();
+      setNotifications((prev) =>
+        prev.filter((notification) => notification.id !== notificationId),
+      );
     } catch (error) {
       console.log(error);
     }
@@ -213,19 +188,26 @@ export default function Mail({
             <div className="yellow-box w-1/2 h-[400px] p-6 border-[#36EAB5] bg-[#fffeee]">
               <div className="mint-title mb-5">친구 요청</div>
               <div className="mb-5 flex justify-center items-center">
-                <div className="friend-search-box w-36 h-36 rounded-full mr-10">
+                <div className="friend-search-box w-36 h-36 rounded-full mr-10 p-5">
                   {requestInfo?.fromUserCharacterName && (
-                    <img
-                      src={characterImages[requestInfo.fromUserCharacterName]}
-                      alt=""
-                      className="p-6"
+                    <ProfileImg
+                      characterName={requestInfo.fromUserCharacterName}
                     />
                   )}
                 </div>
                 <div className="friend-search-box w-56 h-[100px] rounded-3xl flex items-center justify-center">
                   {requestInfo?.fromUserNickname && (
                     <div>
-                      <div>남작</div>
+                      <div className="flex justify-between items-center">
+                        <div className="text-xl level-text mr-2">
+                          <LevelText
+                            tierPoint={requestInfo.fromUserTierPoint}
+                          />
+                        </div>
+                        <div className="w-8 ">
+                          <LevelImg tierPoint={requestInfo.fromUserTierPoint} />
+                        </div>
+                      </div>
                       <div className="white-text text-2xl">
                         {requestInfo.fromUserNickname}
                       </div>
