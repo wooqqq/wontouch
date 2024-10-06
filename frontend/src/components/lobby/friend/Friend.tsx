@@ -45,9 +45,9 @@ export default function Friend() {
   };
 
   return (
-    <div className="yellow-box w-11/12 h-[218px] ml-6">
+    <div className="yellow-box w-11/12 h-[208px] ml-6">
       <div className="relative">
-        <div className="flex justify-center mint-title">친구 목록</div>
+        <div className="flex justify-center mint-title my-1">친구 목록</div>
         <div
           className="absolute right-2 plus-friend text-5xl top-1/2 transform -translate-y-1/2"
           onClick={openFindFriend}
@@ -58,8 +58,8 @@ export default function Friend() {
       <div className="mx-8">
         {friends.map((friend) => (
           <FriendInfo
-            key={friend.friendId}
-            friendId={friend.friendId} // friendId를 key로 사용
+            key={friend.friendId} // friendId를 key로 사용
+            friendId={friend.friendId}
             nickname={friend.nickname} // nickname을 name으로 매핑
             description={friend.description}
             characterName={friend.characterName} // characterName을 character로 매핑

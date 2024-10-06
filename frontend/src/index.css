@@ -370,7 +370,7 @@ button:active {
 
 .ranking-box {
   display: flex;
-  justify-content: start;
+  /* justify-content: start; */
   align-items: center;
   flex-shrink: 0;
   border-radius: 10px;
