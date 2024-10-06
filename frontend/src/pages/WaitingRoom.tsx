@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { RootState } from '../redux/store';
@@ -43,6 +43,7 @@ function WaitingRoom() {
   const API_LINK = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem('access_token');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { roomId: roomIdFromParams } = useParams();
   const roomId = useSelector((state: RootState) => state.room.roomId);
@@ -137,6 +138,9 @@ function WaitingRoom() {
                 console.log('준비: ', receivedMessage.content.ready);
                 console.log('모두 준비: ', receivedMessage.content.allReady);
               }
+              break;
+            case 'ROUND_START':
+              navigate(`/game/${roomId}`);
           }
         } catch (error) {
           console.error('JSON 파싱 오류:', error);
