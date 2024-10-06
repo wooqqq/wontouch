@@ -20,6 +20,7 @@ import { useDispatch } from 'react-redux';
 import { setToken } from './redux/slices/authSlice';
 import { setUserId } from './redux/slices/userSlice';
 import { jwtDecode } from 'jwt-decode';
+import Header from './components/common/Header';
 
 interface DecodedToken {
   userId: number;
