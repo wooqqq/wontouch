@@ -1,6 +1,3 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-
 import { RoomUserInfo } from './RoomUserInfo';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
@@ -8,48 +5,13 @@ import { RootState } from '../../redux/store';
 interface RoomUserListProps {
   onOpen: () => void;
   socket: WebSocket | null;
+  users: any[];
 }
 
-function RoomUserList({ onOpen }: RoomUserListProps) {
-  const API_LINK = import.meta.env.VITE_API_URL;
-  const token = localStorage.getItem('access_token');
-  const participants = useSelector(
-    (state: RootState) => state.room.participants,
-  );
-  const hostId = useSelector((state: RootState) => state.room.HostId);
+function RoomUserList({ onOpen, socket, users }: RoomUserListProps) {
+  const hostId = useSelector((state: RootState) => state.room.hostId);
   // 고정된 유저 수 (8명)
   const totalUsers = 8;
-  const [users, setUsers] = useState<any[]>([]);
-
-  // 참가자 정보 가져오기 API
-  const fetchUsersInfo = async () => {
-    try {
-      // 기존 유저 데이터 초기화
-      setUsers([]);
-
-      // participants가 존재하는지 체크
-      if (!participants || participants.length === 0) return;
-      console.log(participants);
-      const fetchUsers = await Promise.all(
-        participants.map(async (userId) => {
-          const userResponse = await axios.get(`${API_LINK}/user/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          return userResponse.data.data;
-        }),
-      );
-      setUsers(fetchUsers);
-      console.log(fetchUsers);
-    } catch (error) {
-      console.error('유저 정보를 가져오는 중 오류 발생: ', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsersInfo();
-  }, [participants]);
 
   // 고정된 길이의 배열 생성
   const userList = Array.from({ length: totalUsers }, (_, index) => {
@@ -57,7 +19,11 @@ function RoomUserList({ onOpen }: RoomUserListProps) {
     const user = users[index] || {
       isHost: false,
       playerId: undefined,
+      nickname: '',
+      characterName: '',
       isReady: false,
+      tierPoint: 0,
+      mileage: 0,
     };
     return user;
   });

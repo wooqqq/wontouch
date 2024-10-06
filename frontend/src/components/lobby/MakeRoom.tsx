@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { RootState } from '../../redux/store';
-import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -79,7 +78,6 @@ export default function MakeRoomModal({
 
       // 방 생성 후 생성한 방으로 바로 이동
       navigate(`/wait/${createdRoomId}`);
-      console.log(userId);
     } catch (error) {
       console.error('방 생성 중 에러 발생', error);
     }
