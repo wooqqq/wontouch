@@ -23,7 +23,12 @@ const characterImages: { [key: string]: string } = {
   skeleton: skeleton,
 };
 
-export default function ProfileImg() {
+// props 타입 정의
+interface ProfileImgProps {
+  characterName: string;
+}
+
+export default function ProfileImg({ characterName }: ProfileImgProps) {
   const userCharacterName = useSelector(
     (state: RootState) => state.user.characterName,
   );
@@ -35,7 +40,7 @@ export default function ProfileImg() {
       : null;
 
   return (
-    <div className="brown-box w-12 h-12">
+    <div>
       {profileImgSrc ? (
         <img src={profileImgSrc} className="p-1.5" />
       ) : (

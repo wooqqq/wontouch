@@ -440,3 +440,10 @@ button:active {
   border: 1px solid #10ab7d;
   background: #fff;
 }
+
+.level-text {
+  color: #fe0;
+  text-align: center;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #555;
+}

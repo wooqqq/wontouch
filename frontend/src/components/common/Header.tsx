@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 import ProfileImg from '../common/ProfileImg';
 import Nickname from '../common/Nickname';
 import Mail from '../common/Mail';
@@ -31,9 +33,15 @@ export default function Header() {
     setShowSetting(false);
   };
 
+  const userCharacterName = useSelector(
+    (state: RootState) => state.user.characterName,
+  );
+
   return (
     <div className="flex items-center space-x-3 p-3 justify-end">
-      <ProfileImg />
+      <div className="brown-box w-12 h-12">
+        <ProfileImg characterName={userCharacterName} />
+      </div>
       <Nickname />
       <button onClick={openMail} className="brown-box w-12 h-12 p-1">
         <img src={mail} alt="" />

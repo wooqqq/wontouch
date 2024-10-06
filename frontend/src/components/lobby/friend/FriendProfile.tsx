@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import Modal from '../../common/Modal';
 import FriendDelete from './FriendDelete';
+import LevelImg from '../../common/LevelImg';
+import LevelText from '../../common/LevelText';
 
 import boy from '../../../assets/background/characters/stand/boy.png';
 import curlyhairBoy from '../../../assets/background/characters/stand/curlyhair_boy.png';
@@ -39,8 +41,9 @@ export default function FriendProfile({
   const API_LINK = import.meta.env.VITE_API_URL;
   const userId = useSelector((state: RootState) => state.user.id);
 
-  const [nickname, setNickname] = useState();
-  const [description, setDescription] = useState();
+  const [nickname, setNickname] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [level, setLevel] = useState<string>('');
   const [searchedCharacter, setSearchedCharacter] = useState<string>('');
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
 
@@ -49,6 +52,7 @@ export default function FriendProfile({
       const response = await axios.get(`${API_LINK}/user/${friendId}`);
       setNickname(response.data.data.nickname);
       setDescription(response.data.data.description);
+      setLevel(response.data.data.tierPoint);
       const characterName = response.data.data.characterName;
 
       // 검색된 사용자의 프로필 사징 매핑
@@ -99,7 +103,14 @@ export default function FriendProfile({
           </div>
           <div className="flex flex-col items-center">
             <div className="friend-search-box w-56 h-[100px] rounded-3xl flex-col mt-4">
-              <div>남작</div>
+              <div className="flex items-center mb-2">
+                <div className="mr-2 text-xl level-text">
+                  <LevelText tierPoint={Number(level)} />
+                </div>
+                <div className="w-6">
+                  <LevelImg tierPoint={Number(level)} />
+                </div>
+              </div>
               <div className="white-text text-3xl">{nickname}</div>
             </div>
             <div className="relative mt-6 w-80 h-[35px]">

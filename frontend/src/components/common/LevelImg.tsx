@@ -57,45 +57,43 @@ function calculateLevel(tierPoint: number): number {
     return 5; // 레벨 05
   } else if (tierPoint >= 500 && tierPoint <= 599) {
     return 6; // 레벨 06
-  } else if (tierPoint >= 500 && tierPoint <= 599) {
-    return 7; // 레벨 07
   } else if (tierPoint >= 600 && tierPoint <= 699) {
-    return 8; // 레벨 08
+    return 7; // 레벨 07
   } else if (tierPoint >= 700 && tierPoint <= 799) {
-    return 9; // 레벨 09
+    return 8; // 레벨 08
   } else if (tierPoint >= 800 && tierPoint <= 899) {
-    return 10; // 레벨 10
+    return 9; // 레벨 09
   } else if (tierPoint >= 900 && tierPoint <= 999) {
-    return 11; // 레벨 11
+    return 10; // 레벨 10
   } else if (tierPoint >= 1000 && tierPoint <= 1099) {
-    return 12; // 레벨 12
+    return 11; // 레벨 11
   } else if (tierPoint >= 1100 && tierPoint <= 1199) {
-    return 13; // 레벨 13
+    return 12; // 레벨 12
   } else if (tierPoint >= 1200 && tierPoint <= 1299) {
-    return 14; // 레벨 14
+    return 13; // 레벨 13
   } else if (tierPoint >= 1300 && tierPoint <= 1399) {
-    return 15; // 레벨 15
+    return 14; // 레벨 14
   } else if (tierPoint >= 1400 && tierPoint <= 1499) {
-    return 16; // 레벨 16
+    return 15; // 레벨 15
   } else if (tierPoint >= 1500 && tierPoint <= 1599) {
-    return 17; // 레벨 17
+    return 16; // 레벨 16
   } else if (tierPoint >= 1600 && tierPoint <= 1699) {
-    return 18; // 레벨 18
+    return 17; // 레벨 17
   } else if (tierPoint >= 1700 && tierPoint <= 1799) {
-    return 19; // 레벨 19
+    return 18; // 레벨 18
   } else if (tierPoint >= 1800 && tierPoint <= 1899) {
-    return 20; // 레벨 20
+    return 19; // 레벨 19
   } else if (tierPoint >= 1900 && tierPoint <= 1999) {
+    return 20; // 레벨 20
+  } else if (tierPoint >= 2000 && tierPoint <= 2099) {
     return 21; // 레벨 21
-  } else if (tierPoint >= 2000) {
+  } else if (tierPoint >= 2100) {
     return 22; // 레벨 22
   }
   return 1; // 기본 값 (1 레벨)
 }
 
-function LevelImg({ tierPoint }: { tierPoint: number }) {
+export default function LevelImg({ tierPoint }: { tierPoint: number }) {
   const level = calculateLevel(tierPoint);
   return <img src={levelImages[level]} alt={`Level ${level}`} />;
 }
-
-export default LevelImg;
