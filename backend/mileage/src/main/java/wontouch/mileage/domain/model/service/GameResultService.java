@@ -30,6 +30,8 @@ public class GameResultService {
 
             int mileage = userStats.getOrDefault("mileage", 0);
             int tierPoint = userStats.getOrDefault("tierPoint", 0);
+            int rank = userStats.getOrDefault("rank", -1);
+            int totalGold = userStats.getOrDefault("totalGold", 0);
 
             MileageCreateRequestDto mileageDto = MileageCreateRequestDto.builder()
                     .userId(userId)

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface MileageLogRepository extends MongoRepository<MileageLog, Integer> {
+public interface MileageLogRepository extends MongoRepository<MileageLog, String> {
 
     boolean existsByUserId(int userId);
     Optional<List<MileageLog>> findByUserId(int userId);
