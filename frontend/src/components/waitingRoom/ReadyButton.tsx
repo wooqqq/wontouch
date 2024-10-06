@@ -4,6 +4,16 @@ import { useRef, useState } from 'react';
 import axios from 'axios';
 import Modal from '../common/Modal';
 
+interface GameParticipant {
+  userId: number;
+  isReady: boolean;
+  nickname: string;
+  description: string;
+  characterName: string;
+  tierPoint: number;
+  mileage: number;
+}
+
 interface roomInfoProps {
   socket: WebSocket | null;
   isAllReady: boolean;
@@ -46,10 +56,12 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
     }
 
     // participants에서 필요한 정보만 추출
-    const gameStartParticipants = gameParticipants.map((gameParticipant) => ({
-      id: Number(gameParticipant.userId),
-      nickname: gameParticipant.nickname,
-    }));
+    const gameStartParticipants = gameParticipants.map(
+      (gameParticipant: GameParticipant) => ({
+        id: Number(gameParticipant.userId),
+        nickname: gameParticipant.nickname,
+      }),
+    );
 
     try {
       const response = await axios.post(

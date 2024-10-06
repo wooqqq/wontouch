@@ -20,6 +20,16 @@ import RoomHowTo from '../components/waitingRoom/RoomHowTo';
 import RoomTitle from '../components/waitingRoom/RoomTitle';
 import RoomUserList from '../components/waitingRoom/RoomUserList';
 
+interface GameParticipant {
+  userId: number;
+  isReady: boolean;
+  nickname: string;
+  description: string;
+  characterName: string;
+  tierPoint: number;
+  mileage: number;
+}
+
 interface Message {
   type: string;
   content: {
@@ -198,7 +208,7 @@ function WaitingRoom() {
         if (!gameParticipants || gameParticipants.length === 0) return;
 
         const fetchUsers = await Promise.all(
-          gameParticipants.map(async (gameParticipant) => {
+          gameParticipants.map(async (gameParticipant: GameParticipant) => {
             const userId = gameParticipant.userId;
             const userResponse = await axios.get(`${API_LINK}/user/${userId}`, {
               headers: {
