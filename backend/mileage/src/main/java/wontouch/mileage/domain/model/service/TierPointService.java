@@ -82,6 +82,7 @@ public class TierPointService {
     }
 
     // 티어 포인트 삭제
+    @Transactional
     public void deleteByUserId(int userId) {
         tierPointLogRepository.deleteByUserId(userId);
     }
