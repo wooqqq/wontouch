@@ -32,7 +32,12 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
   const gameParticipants = useSelector(
     (state: RootState) => state.room.gameParticipants,
   );
-  const [isReady, setIsReady] = useState(false);
+  // 현재 로그인한 사용자의 isReady 상태 가져오기
+  const currentUser = gameParticipants.find(
+    (participant) => participant.userId === userId,
+  );
+  const isReady = currentUser?.isReady || false;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const readyStateRef = useRef(isReady); // useRef로 상태 참조
@@ -48,7 +53,6 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
     };
 
     socket.send(JSON.stringify(readyRequest));
-    setIsReady(!isReady);
 
     console.log('준비완료~!!');
     const readyParticipants = gameParticipants.map((participant) => {
@@ -67,7 +71,12 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
 
   // 게임 시작 버튼 클릭 시
   const handleStartGame = async () => {
-    if (!roomId || !gameParticipants || gameParticipants.length === 1) return;
+    if (!roomId || !gameParticipants) return;
+
+    if (gameParticipants.length === 1) {
+      alert('플레이어가 2명 이상 있어야 게임 시작이 가능합니다.');
+      return;
+    }
 
     if (!isAllReady) {
       setIsModalOpen(true);
