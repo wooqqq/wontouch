@@ -5,6 +5,7 @@ import axios from 'axios';
 import Modal from '../common/Modal';
 import { useNavigate } from 'react-router-dom';
 import { setGameParticipants } from '../../redux/slices/roomSlice';
+import check from '../../assets/icon/confirm.png';
 
 interface GameParticipant {
   userId: number;
@@ -39,6 +40,7 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
   const isReady = currentUser?.isReady || false;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAloneModalOpen, setIsAloneModalOpen] = useState(false);
 
   const readyStateRef = useRef(isReady); // useRef로 상태 참조
   readyStateRef.current = isReady; // 항상 최신 상태로 업데이트
@@ -73,11 +75,13 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
   const handleStartGame = async () => {
     if (!roomId || !gameParticipants) return;
 
+    // 혼자일 때
     if (gameParticipants.length === 1) {
-      alert('플레이어가 2명 이상 있어야 게임 시작이 가능합니다.');
+      setIsAloneModalOpen(true);
       return;
     }
 
+    // 모두 준비 X
     if (!isAllReady) {
       setIsModalOpen(true);
       return;
@@ -106,8 +110,14 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
     }
   };
 
+  // 모두 준비 X
   const closeModal = () => {
     setIsModalOpen(false); // 모달 닫기
+  };
+
+  // 방에 혼자
+  const closeAloneModal = () => {
+    setIsAloneModalOpen(false); // 모달 닫기
   };
 
   return (
@@ -131,7 +141,20 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
         <Modal>
           <div className="yellow-box p-10">
             <p className="mb-7">모두 준비 완료 상태에서만 시작 가능합니다.</p>
-            <button onClick={closeModal}>OK</button>
+            <button onClick={closeModal}>
+              <img src={check} alt="확인" />
+            </button>
+          </div>
+        </Modal>
+      )}
+      {/* 모달이 열릴 때만 렌더링 */}
+      {isAloneModalOpen && (
+        <Modal>
+          <div className="yellow-box p-10">
+            <p className="mb-7">2명 이상 있어야 게임 시작이 가능합니다.</p>
+            <button onClick={closeAloneModal}>
+              <img src={check} alt="확인" />
+            </button>
           </div>
         </Modal>
       )}
