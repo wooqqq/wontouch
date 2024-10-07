@@ -8,6 +8,6 @@ import lombok.Getter;
 public class NicknameCheckRequestDto {
 
     @NotBlank(message = "닉네임은 필수 입력 사항 입니다.")
-    @Size(min = 2, max = 6, message = "닉네임은 한글 기준 2자 이상 6자 이하로 설정해주세요.")
+    @Size(min = 2, max = 30)
     private String nickname;
 }
