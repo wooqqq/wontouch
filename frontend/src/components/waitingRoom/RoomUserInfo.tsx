@@ -8,14 +8,16 @@ import ninjaSkeleton from '../../assets/background/characters/stand/ninja_skelet
 import skeleton from '../../assets/background/characters/stand/skeleton.png';
 
 import LevelImg from '../common/LevelImg';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 interface UserInfoProps {
   isHost: boolean; // 방장 여부
-  playerId: string | undefined; // 사용자 (없으면 undefined)
+  playerId: number; // 사용자
   nickname: string | undefined;
   isReady: boolean; // 준비 여부
   character: string | undefined;
-  tierPoint: string | undefined;
+  tierPoint: number;
 }
 
 // 대기방 접속자 정보
@@ -27,6 +29,23 @@ function RoomUserInfo({
   nickname,
   tierPoint,
 }: UserInfoProps) {
+  const gameParticipants = useSelector(
+    (state: RootState) => state.room.gameParticipants,
+  );
+
+  const participant = gameParticipants.find(
+    (participant) => participant.userId === Number(playerId),
+  );
+
+  if (!participant) {
+    // 유저가 없을 경우 (친구 초대 버튼)
+    return (
+      <div className="w-[157px] h-[178px] rounded-[20px] border-[#FFF] border-[5px] bg-[#FFF2D1] px-[21px] py-[10px] flex items-center justify-center">
+        <div className="plus-invite">+</div>
+      </div>
+    );
+  }
+
   const characterImages: { [key: string]: string } = {
     boy: boy,
     girl: girl,

@@ -22,7 +22,6 @@ export default function Ranking() {
           size: 7,
         },
       });
-      console.log(response.data.data);
       setRanking(response.data.data);
     } catch (error) {
       console.log(error);
@@ -36,7 +35,7 @@ export default function Ranking() {
   return (
     <div className="yellow-box w-11/12 ml-6 mb-6 h-[390px]">
       <div className="mint-title my-1">주간 랭킹 TOP7</div>
-      <div className="mx-8">
+      <div className="mx-6">
         {ranking.map((user) => (
           <RankingList
             key={user.userId}

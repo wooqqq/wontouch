@@ -52,20 +52,35 @@ function SignupWithKakao() {
       alert('닉네임을 입력해주세요.');
       return;
     }
+
+    const isKorean = /^[가-힣]*$/.test(nickname); // 한글만
+    const isEnglish = /[a-zA-Z]*$/.test(nickname); // 영어만
+    const isValidNickname = /^[가-힣a-zA-Z]*$/.test(nickname); // 한글, 영어 혼용
+
+    console.log(nickname);
+
+    // 유효성 검사
+    if (isKorean && nickname.length > 6) {
+      alert('한글은 최대 6자까지 입력할 수 있습니다.');
+      return;
+    } else if (isEnglish && nickname.length > 10) {
+      alert('영어는 최대 10자까지 입력할 수 있습니다.');
+      return;
+    } else if (isValidNickname && nickname.length > 10) {
+      alert('한글, 영어 혼합은 최대 10자까지 입력할 수 있습니다.');
+      return;
+    }
+
     if (isNicknameAvailable === false) {
       alert('중복된 닉네임입니다. 다른 닉네임을 입력해주세요.');
       return;
     }
 
-    console.log(userId);
-    console.log(nickname);
-
     try {
-      const res = await axios.post(`${API_LINK}/user-profile/join`, {
+      await axios.post(`${API_LINK}/user-profile/join`, {
         userId: userId,
         nickname: nickname,
       });
-      console.log(res.data);
       navigate('/');
     } catch (error) {
       console.error('회원가입 중 오류 발생:', error);
@@ -93,7 +108,7 @@ function SignupWithKakao() {
             <input
               className="font-['Galmuri11'] w-[420px] mr-6 p-3 signup-input"
               id="nickname"
-              placeholder="한글, 숫자, 영문 입력 가능 (한글 기준 최대 6자)"
+              placeholder="한글 6자, 영어 10자, 혼용 10자 제한"
               value={nickname}
               onChange={(event) => setNickname(event.target.value)}
             />
