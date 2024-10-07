@@ -185,7 +185,6 @@ button:active {
     -webkit-text-stroke-width: 0.5px;
     -webkit-text-stroke-color: #555;
     font-size: 20px;
-    /* width: 50px; */
     white-space: nowrap;
     overflow: hidden;
   }
@@ -369,7 +368,6 @@ button:active {
 
 .ranking-box {
   display: flex;
-  /* justify-content: start; */
   align-items: center;
   flex-shrink: 0;
   border-radius: 10px;
@@ -445,4 +443,24 @@ button:active {
   text-align: center;
   -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: #555;
+}
+
+.cancel-button {
+  border-radius: 20px;
+  border: 3px solid #ff4242;
+  background: #fff;
+  color: #fff;
+  text-align: center;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #ff4242;
+}
+
+.logout-button {
+  border-radius: 20px;
+  border: 3px solid #10ab7d;
+  background: #36eab5;
+  color: #fff;
+  text-align: center;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #10ab7d;
 }

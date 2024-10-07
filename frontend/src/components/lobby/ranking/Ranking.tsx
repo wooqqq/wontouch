@@ -22,7 +22,6 @@ export default function Ranking() {
           size: 7,
         },
       });
-      console.log(response.data.data);
       setRanking(response.data.data);
     } catch (error) {
       console.log(error);

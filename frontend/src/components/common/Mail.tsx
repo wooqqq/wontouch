@@ -86,6 +86,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
         },
       );
       alert('친구 요청을 수락했습니다!');
+      window.location.reload();
       setShowModal(false);
       setNotifications((prev) =>
         prev.filter((notification) => notification.id !== notificationId),
