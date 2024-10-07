@@ -50,7 +50,7 @@ const PhaserGame = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [round, setRound] = useState(1);
-  const timerRef = useRef(5); // 타이머 값을 useRef로 관리
+  const timerRef = useRef<number>(40); // 타이머 값을 useRef로 관리
   const timeTextRef = useRef<Phaser.GameObjects.Text | null>(null);
   const roundTextRef = useRef<Phaser.GameObjects.Text | null>(null);
 
@@ -69,12 +69,20 @@ const PhaserGame = () => {
   //웹소켓 넘기기
   const gameSocketRef = useRef<WebSocket | null>(null);
 
+  //라운드 넘어가기..?
+  const readyPlayerRef = useRef<number>(0);
+  const nextTimerRef = useRef<number>(60);
+  const totalPlayerRef = useRef<number>(0);
+  const [isAllReady, setIsAllReady] = useState<boolean>(false);
+
   // 로컬스토리지에서 토큰 읽어오기
-  if (token) {
-    dispatch(setToken(token));
-    const decodedToken = jwtDecode<DecodedToken>(token);
-    dispatch(setUserId(decodedToken.userId));
-  }
+  useEffect(() => {
+    if (token) {
+      dispatch(setToken(token));
+      const decodedToken = jwtDecode<DecodedToken>(token);
+      dispatch(setUserId(decodedToken.userId));
+    }
+  }, [])
 
   useEffect(() => {
     const connectWebSocket = () => {
@@ -94,24 +102,45 @@ const PhaserGame = () => {
             const data = JSON.parse(message);
             console.log(data.type);
 
+            if (message.type === 'ROUND_START') {
+              const { duration, round } = message.content;
+
+              // 새로운 duration 값으로 타이머 초기화
+              timerRef.current = duration;
+              nextTimerRef.current = 60; // 각 라운드마다 60초 제한 초기화
+              setRound(round); // 현재 라운드 설정
+              roundTextRef.current?.setText(`${round}R`);
+            }
+
             if (data.type === 'ROUND_READY') {
-              console.log("들어오더라")
-              const { allReady, totalPlayers, readyPlayers } = data.content;
-              console.log(allReady);
+              //총 플레이어 수를 저장
+              totalPlayerRef.current = data.content.totalPlayers;
+              readyPlayerRef.current += 1;
 
-              console.log(`Total Players: ${totalPlayers}, Ready Players: ${readyPlayers}`);
+              //다 준비했으면 다음 라운드로..
+              if (readyPlayerRef.current >= totalPlayerRef.current) {
+                setIsAllReady(true);
+              }
 
-              if (allReady) {
-                console.log('All players are ready. Moving to the next round.');
+              if (isAllReady) {
+                console.log('다음라운드로~');
                 // 다음 단계로 이동하는 로직
-                timerRef.current = 5; // 타이머 초기화
+                timerRef.current = 40; // 타이머 초기화
                 setRound((prev) => prev + 1);
+                //애들 초기화하기
+                setIsAllReady(false);
+                readyPlayerRef.current = 0;
+                console.log(readyPlayerRef.current);
                 setShowModal(false);
               } else {
-                console.log(`Waiting for more players. Ready players: ${readyPlayers}`);
-                // 아직 레디되지 않은 플레이어가 있을 때 처리
+                console.log(totalPlayerRef.current, "지금은", readyPlayerRef.current);
               }
             }
+
+            if (data.type === 'ROUND_READY') {
+              console.log("드러와");
+            }
+
             // 새로운 플레이어가 입장했을 때
             if (data.type === 'NOTIFY') {
               const otherPlayerId = extractPlayerIdFromMessage(data.content);
@@ -132,25 +161,41 @@ const PhaserGame = () => {
               const otherPlayerId = data.content.playerId;
               const scene = sceneRef.current;
 
-              // 상대방 플레이어가 이미 존재하는지 확인하고 위치 업데이트
               if (scene && otherPlayerId !== String(playerId)) {
+                const targetX = data.content.x;
+                const targetY = data.content.y;
+
                 if (playerSpritesRef.current[otherPlayerId]) {
-                  // 이미 존재하는 경우 위치 업데이트
-                  playerSpritesRef.current[otherPlayerId].setPosition(data.content.x, data.content.y);
-                  if (data.content.dir === 'left') {
-                    playerSpritesRef.current[otherPlayerId].flipX = true;
-                  } else if (data.content.dir === 'right') {
-                    playerSpritesRef.current[otherPlayerId].flipX = false;
+                  const otherPlayer = playerSpritesRef.current[otherPlayerId];
+
+                  // 다른 플레이어가 이동할 때 애니메이션 재생
+                  if (!otherPlayer.anims.isPlaying || otherPlayer.anims.currentAnim?.key !== 'walk') {
+                    otherPlayer.anims.play('walk', true);
                   }
-                  console.log(`Player ${otherPlayerId} position updated:`, data.content.x, data.content.y);
-                } else {
-                  // 존재하지 않는 경우 새로 생성
-                  const newPlayer = scene.physics.add.sprite(data.content.x, data.content.y, 'player');
-                  playerSpritesRef.current[otherPlayerId] = newPlayer;
-                  console.log(`New player created for ${otherPlayerId} at position:`, data.content.x, data.content.y);
+
+                  // Tween으로 부드럽게 이동
+                  scene.tweens.add({
+                    targets: otherPlayer,
+                    x: targetX,
+                    y: targetY,
+                    duration: Phaser.Math.Distance.Between(otherPlayer.x, otherPlayer.y, targetX, targetY) * 10, // 거리 기반으로 시간 조절
+                    onComplete: () => {
+                      // 도착하면 애니메이션 멈춤
+                      otherPlayer.anims.stop();
+                    },
+                  });
+
+                  // 방향에 따른 좌우 반전 처리
+                  if (data.content.dir === 'left') {
+                    otherPlayer.flipX = true; // 왼쪽으로 이동하면 좌우 반전
+                  } else if (data.content.dir === 'right') {
+                    otherPlayer.flipX = false; // 오른쪽으로 이동하면 정상 방향
+                  }
+                  otherPlayer.anims.play('walk', true);
                 }
               }
             }
+
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
@@ -166,8 +211,17 @@ const PhaserGame = () => {
 
       gameSocketRef.current = gameSocket; // WebSocket을 gameSocketRef에 저장
 
+      // beforeunload 이벤트를 이용해 새로 고침 또는 창 닫기 시 웹소켓 연결 해제
+      const handleBeforeUnload = () => {
+        gameSocket.close();
+      };
+
+      window.addEventListener('beforeunload', handleBeforeUnload);
+
       return () => {
-        gameSocket.close(); // 컴포넌트가 언마운트될 때 WebSocket 닫기
+        // 컴포넌트 언마운트 시 웹소켓 연결 해제 및 이벤트 리스너 제거
+        gameSocket.close();
+        window.removeEventListener('beforeunload', handleBeforeUnload);
       };
     };
 
@@ -450,21 +504,29 @@ const PhaserGame = () => {
     timeTextRef.current = timeText;
 
     // 타이머 이벤트
-    this.time.addEvent({
-      delay: 1000,
-      callback: () => {
-        if (timerRef.current > 0) {
-          timerRef.current -= 1; // timerRef.current 값을 직접 수정
-        } else {
-          setShowModal(true); // 타이머가 0이 되면 모달을 보여줌
-        }
-        // 타이머 텍스트 업데이트
+    // 타이머 이벤트 시작 시점 기록
+    const startTime = Date.now();
+    const duration = timerRef.current * 1000; // 밀리초 단위로 변환하여 초기 타이머 시간 설정
+    console.log(duration);
+
+    this.events.on('update', () => {
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = duration - elapsedTime;
+
+      if (remainingTime > 0) {
+        // 남은 시간을 분과 초로 변환하여 타이머 텍스트 업데이트
+        const minutes = Math.floor(remainingTime / 60000);
+        const seconds = Math.floor((remainingTime % 60000) / 1000);
         timeTextRef.current?.setText(
-          `${Math.floor(timerRef.current / 60)} : ${timerRef.current % 60 < 10 ? '0' : ''}${timerRef.current % 60}`,
+          `${minutes} : ${seconds < 10 ? '0' : ''}${seconds}`
         );
-      },
-      loop: true,
+      } else {
+        // 타이머가 종료되면 모달을 표시하고 이벤트 중지
+        setShowModal(true);
+        this.events.off('update'); // update 이벤트 해제
+      }
     });
+
 
     //지도열기 설정
     mKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.M);
@@ -550,18 +612,44 @@ const PhaserGame = () => {
 
     console.log("ROUND_READY 메시지 보내기 시작");
 
-    const round = {
+    const roundReadyMessage = {
       type: 'ROUND_READY',
     };
-    gameSocketRef.current?.send(JSON.stringify(round));
+    gameSocketRef.current?.send(JSON.stringify(roundReadyMessage));
 
-    isRoundReadySent = true; // 메시지를 보냈으므로 true로 설정
+    isRoundReadySent = true; // 메시지 보냈음을 표시
 
     setTimeout(() => {
-      isRoundReadySent = false; // 일정 시간이 지나면 다시 전송 가능
+      isRoundReadySent = false; // 재전송 가능하게 초기화
       console.log("3초 후 다시 메시지 전송 가능");
-    }, 3000); // 3초 후 다시 메시지 전송 가능
+    }, 3000); // 3초 후 초기화
   };
+
+  useEffect(() => {
+    const countdown = setInterval(() => {
+      if (nextTimerRef.current > 0) {
+        nextTimerRef.current--; // 타이머 1초 감소
+      } else {
+        console.log("60초 경과, 강제로 라운드를 넘깁니다.");
+        clearInterval(countdown); // 타이머 종료
+        proceedToNextRound(); // 강제로 라운드 넘기기
+      }
+    }, 1000);
+
+    return () => clearInterval(countdown); // 컴포넌트 언마운트 시 타이머 정리
+  }, [round]); // round가 변경될 때마다 타이머 재설정
+
+
+  const proceedToNextRound = () => {
+    // 라운드 진행 시 타이머와 준비 완료 인원 초기화
+    readyPlayerRef.current = 0; // 준비 완료 인원 초기화
+    nextTimerRef.current = 60; // 60초 제한 타이머 초기화
+
+    setRound((prev) => prev + 1); // 라운드 증가
+    setShowModal(false); // 모달 닫기
+  };
+
+
 
   const closeModal = () => {
     setHouseNum(null);

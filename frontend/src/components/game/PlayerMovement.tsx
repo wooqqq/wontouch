@@ -16,29 +16,29 @@ export const createPlayerMovement = (
 
   player.setVelocity(0);
   let moving = false;
-  let direction = '';
+  let direction = -1;
 
   if (cursors.left.isDown) {
     vx = -baseSpeed;
     player.flipX = true;
     moving = true;
-    direction = 'left';
+    direction = 2;
   }
   if (cursors.right.isDown) {
     vx = baseSpeed;
     player.flipX = false;
     moving = true;
-    direction = 'right';
+    direction = 3;
   }
   if (cursors.up.isDown) {
     vy = -baseSpeed;
     moving = true;
-    direction = 'up';
+    direction = 0;
   }
   if (cursors.down.isDown) {
     vy = baseSpeed;
     moving = true;
-    direction = 'down';
+    direction = 1;
   }
 
   if (vx !== 0 && vy !== 0) {
@@ -46,12 +46,13 @@ export const createPlayerMovement = (
     vy *= Math.SQRT1_2;
   }
 
+
   // 속도에 델타 적용
   player.setVelocity(vx * clampedDelta, vy * clampedDelta);
 
   const currentTime = Date.now();
-  const sendInterval = 1000; // 1초마다 데이터 전송
-  const positionThreshold = 16; // 최소 변화량 (32픽셀 이상 차이날 때만 전송)
+  const sendInterval = 350; // 1초마다 데이터 전송
+  const positionThreshold = 16; // 최소 변화량 (16픽셀 이상 차이날 때만 전송)
 
   // 현재 좌표 정수화
   const currentPosition = { x: Math.round(player.x), y: Math.round(player.y) };

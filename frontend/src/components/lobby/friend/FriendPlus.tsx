@@ -3,30 +3,13 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { useState } from 'react';
+import LevelImg from '../../common/LevelImg';
+import LevelText from '../../common/LevelText';
+import ProfileImg from '../../common/ProfileImg';
 
-import boy from '../../../assets/background/characters/stand/boy.png';
-import curlyhairBoy from '../../../assets/background/characters/stand/curlyhair_boy.png';
-import flowerGirl from '../../../assets/background/characters/stand/flower_girl.png';
-import girl from '../../../assets/background/characters/stand/girl.png';
-import goblin from '../../../assets/background/characters/stand/goblin.png';
-import kingGoblin from '../../../assets/background/characters/stand/king_goblin.png';
-import ninjaSkeleton from '../../../assets/background/characters/stand/ninja_skeleton.png';
-import skeleton from '../../../assets/background/characters/stand/skeleton.png';
 import search from '../../../assets/icon/search.png';
 import cancel from '../../../assets/icon/cancel.png';
 import confirm from '../../../assets/icon/confirm.png';
-
-// 이미지 매핑 객체 생성
-const characterImages: { [key: string]: string } = {
-  boy: boy,
-  curlyhair_boy: curlyhairBoy,
-  flower_girl: flowerGirl,
-  girl: girl,
-  goblin: goblin,
-  king_goblin: kingGoblin,
-  ninja_skeleton: ninjaSkeleton,
-  skeleton: skeleton,
-};
 
 export default function FriendPlus({
   closeFriend,
@@ -36,6 +19,7 @@ export default function FriendPlus({
   const API_LINK = import.meta.env.VITE_API_URL;
   const [id, setId] = useState<number>();
   const [nickname, setNickname] = useState<string>('');
+  const [level, setLevel] = useState<string>('');
   const [searchedNickname, setSearchedNickname] = useState<string>('');
   const [searchedCharacter, setSearchedCharacter] = useState<string>('');
   const [state, setState] = useState<'init' | 'success' | 'fail' | 'friend'>(
@@ -50,13 +34,9 @@ export default function FriendPlus({
         userId: userId,
         nickname: nickname,
       });
-      const characterName = response.data.data.characterName;
       setSearchedNickname(response.data.data.nickname);
-
-      // 검색된 사용자의 프로필 사징 매핑
-      if (characterImages[characterName]) {
-        setSearchedCharacter(characterImages[characterName]);
-      }
+      setLevel(response.data.data.tierPoint);
+      setSearchedCharacter(response.data.data.characterName);
 
       const isFriend = response.data.data.friend;
       const friendId = response.data.data.friendId;
@@ -118,11 +98,18 @@ export default function FriendPlus({
       {state === 'success' && (
         <div className="h-[160px] mb-4">
           <div className="flex justify-between px-36 mb-6">
-            <div className="friend-search-box w-24 h-24 rounded-full overflow-hidden">
-              <img src={searchedCharacter} alt="" className="p-4" />
+            <div className="friend-search-box w-24 h-24 rounded-full overflow-hidden p-3">
+              <ProfileImg characterName={searchedCharacter} />
             </div>
-            <div className="friend-search-box w-56 rounded-3xl flex-col">
-              <div>남작</div>
+            <div className="friend-search-box w-56 rounded-3xl flex-col ">
+              <div className="flex items-center mb-1">
+                <div className="mr-2 text-xl level-text">
+                  <LevelText tierPoint={Number(level)} />
+                </div>
+                <div className="w-6">
+                  <LevelImg tierPoint={Number(level)} />
+                </div>
+              </div>
               <div className="white-text text-3xl">{searchedNickname}</div>
             </div>
           </div>
@@ -145,11 +132,18 @@ export default function FriendPlus({
       {state === 'friend' && (
         <div className="h-[160px] mb-4">
           <div className="flex justify-between px-36 mb-6">
-            <div className="friend-search-box w-24 h-24 rounded-full overflow-hidden">
-              <img src={searchedCharacter} alt="" className="p-4" />
+            <div className="friend-search-box w-24 h-24 rounded-full overflow-hidden p-3">
+              <ProfileImg characterName={searchedCharacter} />
             </div>
-            <div className="friend-search-box w-56 rounded-3xl flex-col">
-              <div>남작</div>
+            <div className="friend-search-box w-56 rounded-3xl flex-col ">
+              <div className="flex items-center mb-1">
+                <div className="mr-2 text-xl level-text">
+                  <LevelText tierPoint={Number(level)} />
+                </div>
+                <div className="w-6">
+                  <LevelImg tierPoint={Number(level)} />
+                </div>
+              </div>
               <div className="white-text text-3xl">{searchedNickname}</div>
             </div>
           </div>

@@ -18,7 +18,6 @@ export default function RoomList() {
   const getRoomList = async () => {
     const response = await axios.get(`${API_LINK}/lobby/list`);
     setRoomList(response.data.data);
-    console.log(response.data.data[0]);
   };
 
   useEffect(() => {
@@ -37,36 +36,34 @@ export default function RoomList() {
           .slice()
           .reverse()
           .map((room, index) => (
-            <button>
-              <div
-                key={room.roomId}
-                className="room-box m-3 p-2"
-                onClick={() => clickRoom(room.roomId)}
-              >
-                <div className="room-info p-0.5 px-4 mb-2 flex justify-start">
-                  <span className="text-lg font-['Galmuri11-bold'] text-yellow-300 mr-4">
-                    {(index + 1).toString().padStart(3, '0')}
-                  </span>
-                  <span className="text-lg font-['Galmuri11'] text-white text-center">
-                    {room.roomName}
-                  </span>
-                </div>
-                <div className="room-info flex p-2 mx-auto">
-                  <span className="mr-4 h-16 overflow-hidden">
-                    <img src={map} alt="맵 미리보기" className="w-72" />
-                  </span>
-                  <div className="flex flex-col items-center justify-center">
-                    {room.secret ? (
-                      <div>
-                        <img src={lock} alt="" className="w-6 h-8" />
-                      </div>
-                    ) : (
-                      <div className="w-6 h-8"></div>
-                    )}
+            <button
+              key={room.roomId}
+              className="room-box m-3 p-2"
+              onClick={() => clickRoom(room.roomId)}
+            >
+              <div className="room-info p-0.5 px-4 mb-2 flex justify-start">
+                <span className="text-lg font-['Galmuri11-bold'] text-yellow-300 mr-4">
+                  {(index + 1).toString().padStart(3, '0')}
+                </span>
+                <span className="text-lg font-['Galmuri11'] text-white text-center">
+                  {room.roomName}
+                </span>
+              </div>
+              <div className="room-info flex p-2 mx-auto">
+                <span className="mr-4 h-16 overflow-hidden">
+                  <img src={map} alt="맵 미리보기" className="w-72" />
+                </span>
+                <div className="flex flex-col items-center justify-center">
+                  {room.secret ? (
                     <div>
-                      <div className="white-text mt-2">
-                        {room.currentPlayersCount}/8
-                      </div>
+                      <img src={lock} alt="" className="w-6 h-8" />
+                    </div>
+                  ) : (
+                    <div className="w-6 h-8"></div>
+                  )}
+                  <div>
+                    <div className="white-text mt-2">
+                      {room.currentPlayersCount}/8
                     </div>
                   </div>
                 </div>
