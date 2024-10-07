@@ -82,5 +82,7 @@ public class TierPointService {
     }
 
     // 티어 포인트 삭제
-
+    public void deleteByUserId(int userId) {
+        tierPointLogRepository.deleteByUserId(userId);
+    }
 }
