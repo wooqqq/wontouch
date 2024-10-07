@@ -40,4 +40,11 @@ public class UserService {
 
         return user.getEmail();
     }
+
+    public void deleteUser(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        userRepository.delete(user);
+    }
 }

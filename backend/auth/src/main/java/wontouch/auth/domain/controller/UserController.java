@@ -3,10 +3,7 @@ package wontouch.auth.domain.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import wontouch.auth.domain.dto.UserDto;
 import wontouch.auth.domain.model.service.UserService;
 import wontouch.auth.global.util.dto.ResponseDto;
@@ -32,6 +29,7 @@ public class UserController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    // 사용자 이메일 조회
     @GetMapping("/email/{userId}")
     public ResponseEntity<?> getUserEmail(@PathVariable int userId) {
         String userEmail = userService.getUserEmail(userId);
@@ -40,6 +38,20 @@ public class UserController {
                 .status(HttpStatus.OK.value())
                 .message("사용자 이메일 조회 성공")
                 .data(userEmail)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<?> deleteKakaoUser(@PathVariable int userId) {
+        userService.deleteUser(userId);
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("회원 탈퇴 성공")
+                .data(null)
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
