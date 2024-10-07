@@ -97,6 +97,7 @@ public class GameServerController {
     @PostMapping("/crop-list")
     public ResponseEntity<?> cropList(@RequestBody Map<String, Object> messageData) {
         String roomId = (String) messageData.get("roomId");
+        log.debug("작물 정보를 불러오기 위한 roomId", roomId);
         //log.debug("CROP LIST!!: {}", messageData);
         try {
             sessionService.broadcastMessage(roomId, MessageType.CROP_LIST, messageData);

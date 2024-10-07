@@ -8,5 +8,4 @@ import lombok.Data;
 public class ReadyStateDto {
     private long playerId;
     private boolean isReady;
-    private boolean isAllReady;
 }

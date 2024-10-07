@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
+import wontouch.socket.dto.lobby.ReadyDto;
 import wontouch.socket.dto.lobby.ReadyStateDto;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class LobbyServerService {
         this.sessionService = sessionService;
     }
 
-    public ReadyStateDto sendPreparationInfo(String roomId, String playerId,
+    public ReadyDto sendPreparationInfo(String roomId, String playerId,
                                              Map<String, Object> preparationInfo) {
         String readyUrl = lobbyServerUrl + "/ready/toggle";
         log.debug("readyUrl:{}", readyUrl);
@@ -33,7 +34,7 @@ public class LobbyServerService {
         preparationInfo.put("roomId", roomId);
         log.debug("preparationInfo:{}", preparationInfo);
         System.out.println("Sending preparation info to Lobby Server: " + preparationInfo);
-        ReadyStateDto state = restTemplate.postForObject(readyUrl, preparationInfo, ReadyStateDto.class);
+        ReadyDto state = restTemplate.postForObject(readyUrl, preparationInfo, ReadyDto.class);
         return state;
     }
 

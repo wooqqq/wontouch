@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wontouch.lobby.dto.ReadyStateDto;
+import wontouch.lobby.dto.ready.ReadyDto;
+import wontouch.lobby.dto.ready.ReadyStateDto;
 import wontouch.lobby.dto.ResponseDto;
 import wontouch.lobby.repository.room.RoomRepository;
 import wontouch.lobby.service.ReadyService;
@@ -28,9 +29,9 @@ public class ReadyController {
     }
 
     @PostMapping("/toggle")
-    public ReadyStateDto ready(@RequestBody Map<String, Object> preparationInfo) {
+    public ReadyDto ready(@RequestBody Map<String, Object> preparationInfo) {
         System.out.println(preparationInfo);
-        ReadyStateDto state = readyService.updateReadyState(preparationInfo);
+        ReadyDto state = readyService.updateReadyState(preparationInfo);
         log.debug("ready: {}", state);
         return state;
     }
