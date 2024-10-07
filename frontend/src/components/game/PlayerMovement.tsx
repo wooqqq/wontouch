@@ -6,7 +6,8 @@ export const createPlayerMovement = (
   player: Phaser.Physics.Arcade.Sprite,
   cursors: Phaser.Types.Input.Keyboard.CursorKeys,
   delta: number, // 델타 타임 추가
-  gameSocketRef: React.RefObject<WebSocket | null>
+  gameSocketRef: React.RefObject<WebSocket | null>,
+  playerKey: string // playerKey를 추가로 받음
 ) => {
   const baseSpeed = 1; // 기본 속도 (필요시 조정)
   const maxDelta = 200; // 최대 delta 값 제한 (100ms = 10 FPS)
@@ -46,7 +47,6 @@ export const createPlayerMovement = (
     vy *= Math.SQRT1_2;
   }
 
-
   // 속도에 델타 적용
   player.setVelocity(vx * clampedDelta, vy * clampedDelta);
 
@@ -77,10 +77,10 @@ export const createPlayerMovement = (
     }
   }
 
-
   if (moving) {
-    if (!player.anims.isPlaying || player.anims.currentAnim?.key !== 'walk') {
-      player.anims.play('walk', true);
+    // 애니메이션을 실행할 때 playerKey를 사용하여 애니메이션을 찾음
+    if (!player.anims.isPlaying || player.anims.currentAnim?.key !== `walk_${playerKey}`) {
+      player.anims.play(`walk_${playerKey}`, true);
     }
   } else {
     player.anims.stop();

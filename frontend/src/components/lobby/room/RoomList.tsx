@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
@@ -8,8 +7,6 @@ import Modal from '../../common/Modal';
 import map from '../../../assets/map/map.png';
 import lock from '../../../assets/icon/lock.png';
 import cancel from '../../../assets/icon/cancel.png';
-
-interface RoomList {}
 
 export default function RoomList() {
   const API_LINK = import.meta.env.VITE_API_URL;
@@ -25,7 +22,7 @@ export default function RoomList() {
   const getRoomList = async () => {
     const response = await axios.get(`${API_LINK}/lobby/list`);
     setRoomList(response.data.data);
-    console.log(response.data.data[0]);
+    console.log(response.data.data);
   };
 
   useEffect(() => {
@@ -33,7 +30,16 @@ export default function RoomList() {
   }, []);
 
   // 방 클릭
-  const clickRoom = (roomId: string, secret: boolean) => {
+  const clickRoom = (
+    roomId: string,
+    secret: boolean,
+    currentPlayersCount: number,
+  ) => {
+    if (currentPlayersCount === 8) {
+      alert('인원이 꽉 찼습니다!');
+      return;
+    }
+
     // 비밀방이면 비밀번호 입력 모달 띄우기
     if (secret) {
       setSelectedRoomId(roomId);
@@ -84,7 +90,13 @@ export default function RoomList() {
                   <div className="w-1/2 m-4">
                     <button
                       className="room-box p-2"
-                      onClick={() => clickRoom(room.roomId, room.secret)}
+                      onClick={() =>
+                        clickRoom(
+                          room.roomId,
+                          room.secret,
+                          room.currentPlayersCount,
+                        )
+                      }
                     >
                       <div className="room-info p-0.5 px-4 mb-2 flex justify-start">
                         <span className="text-lg font-['Galmuri11-bold'] text-yellow-300 mr-4">
@@ -124,6 +136,7 @@ export default function RoomList() {
                           clickRoom(
                             roomList[index + 1].roomId,
                             roomList[index + 1].secret,
+                            roomList[index + 1].currentPlayersCount,
                           )
                         }
                       >

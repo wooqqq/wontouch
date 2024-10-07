@@ -5,12 +5,23 @@ import { createPlayerMovement } from './PlayerMovement';
 import InteractionModal from './InteractionModal';
 import MapModal from './MapModal';
 import ResultModal from './ResultModal';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { setUserId } from '../../redux/slices/userSlice';
 import { setToken } from '../../redux/slices/authSlice';
 import { jwtDecode } from 'jwt-decode';
+
+interface GameParticipant {
+  userId: number;
+  email?: string;
+  nickname: string;
+  description: string | null;
+  characterName: string;
+  tierPoint: number;
+  mileage: number;
+}
+
 
 interface MapLayers {
   backgroundLayer: Phaser.Tilemaps.TilemapLayer | null;
@@ -44,27 +55,30 @@ interface DecodedToken {
 }
 
 const PhaserGame = () => {
+  //라운드 정보 가져오기
+  const location = useLocation();
+  const { roundDuration, roundNumber } = location.state || {};
+
   const [houseNum, setHouseNum] = useState<number | null>(null);
   const [openMap, setOpenMap] = useState<boolean>(false);
   const houseNumRef = useRef<number | null>(houseNum);
 
   const [showModal, setShowModal] = useState(false);
-  const [round, setRound] = useState(1);
-  const timerRef = useRef<number>(40); // 타이머 값을 useRef로 관리
+  const [round, setRound] = useState(roundNumber);
+  const timerRef = useRef<number>(roundDuration); // 타이머 값을 useRef로 관리
   const timeTextRef = useRef<Phaser.GameObjects.Text | null>(null);
   const roundTextRef = useRef<Phaser.GameObjects.Text | null>(null);
 
   //웹소켓 관련
   const { roomId } = useParams();
   const playerId = useSelector((state: RootState) => state.user.id);
-  //console.log(roomId, playerId);
   const token = localStorage.getItem('access_token');
   const dispatch = useDispatch();
-  //const gameRef = useRef<Phaser.Game | null>(null); // Phaser Game 객체를 저장하는 Ref
   const sceneRef = useRef<Phaser.Scene | null>(null); // Phaser Scene 객체를 저장하는 Ref
 
   //캐릭터 모음..
   const playerSpritesRef = useRef<{ [key: string]: Phaser.Physics.Arcade.Sprite }>({});
+  const playerRef = useRef<Phaser.Physics.Arcade.Sprite | null>(null); // 본인 스프라이트 저장
 
   //웹소켓 넘기기
   const gameSocketRef = useRef<WebSocket | null>(null);
@@ -73,7 +87,49 @@ const PhaserGame = () => {
   const readyPlayerRef = useRef<number>(0);
   const nextTimerRef = useRef<number>(60);
   const totalPlayerRef = useRef<number>(0);
-  const [isAllReady, setIsAllReady] = useState<boolean>(false);
+
+  //사람들 정보 불러오기?
+  const roomData = useSelector((state: RootState) => state.room.gameParticipants);
+  console.log("룸데이터는 이거에용", roomData);
+
+  // 작물 리스트 응답을 저장할 상태
+  const [cropList, setCropList] = useState(null);
+
+  // 캐릭터 텍스처 맵핑
+  const getCharacterTexture = (characterName: string) => {
+    let frameW = 15; // 기본 프레임 너비
+    let frameH = 19; // 기본 프레임 높이
+
+    switch (characterName) {
+      case 'curlyhair_boy':
+        frameW = 19;
+        frameH = 19;
+        return { texture: 'curlyhair_boy', frameW, frameH };
+      case 'flower_girl':
+        frameW = 16;
+        frameH = 19;
+        return { texture: 'flower_girl', frameW, frameH };
+      case 'girl':
+        frameW = 16;
+        frameH = 19;
+        return { texture: 'girl', frameW, frameH };
+      case 'goblin':
+        frameW = 20;
+        frameH = 16;
+        return { texture: 'goblin', frameW, frameH };
+      case 'king_goblin':
+        frameW = 20;
+        frameH = 20;
+        return { texture: 'king_goblin', frameW, frameH };
+      case 'ninja_skeleton':
+        frameW = 16;
+        frameH = 19;
+        return { texture: 'ninja_skeleton', frameW, frameH };
+      default:
+        return { texture: 'boy', frameW, frameH }; // 기본 캐릭터
+    }
+  };
+
 
   // 로컬스토리지에서 토큰 읽어오기
   useEffect(() => {
@@ -82,7 +138,7 @@ const PhaserGame = () => {
       const decodedToken = jwtDecode<DecodedToken>(token);
       dispatch(setUserId(decodedToken.userId));
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     const connectWebSocket = () => {
@@ -102,75 +158,61 @@ const PhaserGame = () => {
             const data = JSON.parse(message);
             console.log(data.type);
 
-            if (message.type === 'ROUND_START') {
-              const { duration, round } = message.content;
+            if (data.type === 'ROUND_START') {
+              const { duration, round } = data.content;
 
-              // 새로운 duration 값으로 타이머 초기화
+              // 서버에서 받은 새로운 duration 값으로 타이머 초기화
               timerRef.current = duration;
+              console.log("설정된 값은", duration);
               nextTimerRef.current = 60; // 각 라운드마다 60초 제한 초기화
               setRound(round); // 현재 라운드 설정
               roundTextRef.current?.setText(`${round}R`);
+              console.log(`새로운 라운드 ${round}, 타이머: ${duration}초`);
+            }
+
+            if (data.type === "TOWN_CROP_LIST") {
+              console.log(data.content);
+              setCropList(data.content);
             }
 
             if (data.type === 'ROUND_READY') {
-              //총 플레이어 수를 저장
+              // 준비된 인원 수와 총 플레이어 수 업데이트
               totalPlayerRef.current = data.content.totalPlayers;
-              readyPlayerRef.current += 1;
+              readyPlayerRef.current = data.content.readyPlayers;
 
-              //다 준비했으면 다음 라운드로..
-              if (readyPlayerRef.current >= totalPlayerRef.current) {
-                setIsAllReady(true);
-              }
-
-              if (isAllReady) {
-                console.log('다음라운드로~');
-                // 다음 단계로 이동하는 로직
-                timerRef.current = 40; // 타이머 초기화
-                setRound((prev) => prev + 1);
-                //애들 초기화하기
-                setIsAllReady(false);
-                readyPlayerRef.current = 0;
-                console.log(readyPlayerRef.current);
-                setShowModal(false);
+              // 모든 플레이어가 준비되었을 때만 다음 라운드로
+              if (readyPlayerRef.current === totalPlayerRef.current) {
+                console.log('모두 준비됨, 다음 라운드로 진행');
+                proceedToNextRound();  // 라운드 진행 함수 호출
               } else {
-                console.log(totalPlayerRef.current, "지금은", readyPlayerRef.current);
+                console.log(`${readyPlayerRef.current}명이 준비됨 / 총 ${totalPlayerRef.current}명`);
               }
             }
 
-            if (data.type === 'ROUND_READY') {
-              console.log("드러와");
-            }
-
-            // 새로운 플레이어가 입장했을 때
-            if (data.type === 'NOTIFY') {
-              const otherPlayerId = extractPlayerIdFromMessage(data.content);
-
-              // 자신의 캐릭터는 생성하지 않음
-              if (otherPlayerId && otherPlayerId !== String(playerId) && !playerSpritesRef.current[otherPlayerId]) {
-                const scene = sceneRef.current;
-                if (scene) {
-                  const newPlayer = scene.physics.add.sprite(4000, 300, 'player');
-                  playerSpritesRef.current[otherPlayerId] = newPlayer;
-                  console.log(`New player created: ${otherPlayerId}`, newPlayer);
-                }
-              }
-            }
-
-            // 상대방 플레이어의 MOVE 이벤트 처리
+            // 플레이어의 MOVE 이벤트 처리
             if (data.type === 'MOVE') {
               const otherPlayerId = data.content.playerId;
               const scene = sceneRef.current;
 
+              console.log(`otherPlayerId: ${otherPlayerId}, playerId: ${playerId}`);
               if (scene && otherPlayerId !== String(playerId)) {
+
                 const targetX = data.content.x;
                 const targetY = data.content.y;
 
                 if (playerSpritesRef.current[otherPlayerId]) {
                   const otherPlayer = playerSpritesRef.current[otherPlayerId];
 
+                  // roomData에서 해당 플레이어의 캐릭터 정보 찾기
+                  const otherPlayerData = roomData.find(player => player.userId === parseInt(otherPlayerId));
+                  const characterName = otherPlayerData ? otherPlayerData.characterName : 'boy'; // 기본 캐릭터는 'boy'로 설정
+
+                  // 애니메이션 키를 캐릭터에 맞게 동적으로 설정
+                  const walkAnimationKey = `walk_${characterName}_${otherPlayerId}`;
+
                   // 다른 플레이어가 이동할 때 애니메이션 재생
-                  if (!otherPlayer.anims.isPlaying || otherPlayer.anims.currentAnim?.key !== 'walk') {
-                    otherPlayer.anims.play('walk', true);
+                  if (!otherPlayer.anims.isPlaying || otherPlayer.anims.currentAnim?.key !== walkAnimationKey) {
+                    otherPlayer.anims.play(walkAnimationKey, true);
                   }
 
                   // Tween으로 부드럽게 이동
@@ -186,15 +228,17 @@ const PhaserGame = () => {
                   });
 
                   // 방향에 따른 좌우 반전 처리
-                  if (data.content.dir === 'left') {
+                  if (data.content.dir === 2) {
                     otherPlayer.flipX = true; // 왼쪽으로 이동하면 좌우 반전
-                  } else if (data.content.dir === 'right') {
+                  } else if (data.content.dir === 3) {
                     otherPlayer.flipX = false; // 오른쪽으로 이동하면 정상 방향
                   }
-                  otherPlayer.anims.play('walk', true);
+
+                  //otherPlayer.anims.play(walkAnimationKey, true); // 동적으로 설정된 애니메이션 키 사용
                 }
               }
             }
+
 
           }
         } catch (error) {
@@ -228,14 +272,6 @@ const PhaserGame = () => {
     connectWebSocket();
   }, [roomId, playerId]);
 
-  // Phaser에서 메시지에서 ID 추출하는 함수
-  const extractPlayerIdFromMessage = (message: string): string => {
-    // 메시지에서 playerId를 추출하는 로직을 여기에 작성하세요
-    // 예시: "Player 1이 입장하였습니다." -> "1" 추출
-    return message.match(/\d+/)?.[0] || '';
-  };
-
-
   // houseNum이 변경될 때마다 houseNumRef를 업데이트
   useEffect(() => {
     houseNumRef.current = houseNum;
@@ -247,7 +283,6 @@ const PhaserGame = () => {
       roundTextRef.current.setText(`${round}R`);
     }
   }, [round]);
-
 
   useEffect(() => {
     const config: Phaser.Types.Core.GameConfig = {
@@ -289,13 +324,21 @@ const PhaserGame = () => {
     };
   }, []);
 
-  let player: Phaser.Physics.Arcade.Sprite;
   let cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   let spaceBar: Phaser.Input.Keyboard.Key;
   let mapLayers: MapLayers | undefined | null;
   let mKey: Phaser.Input.Keyboard.Key | undefined | null;
 
   function preload(this: Phaser.Scene) {
+
+    roomData.forEach((player: GameParticipant) => {
+      const { texture, frameW, frameH } = getCharacterTexture(player.characterName);
+      this.load.spritesheet(`${player.characterName}_${player.userId}`, `../src/assets/background/characters/move/${texture}.png`, {
+        frameWidth: frameW,
+        frameHeight: frameH,
+      });
+    });
+
     this.load.tilemapTiledJSON('map', '../src/assets/background/testmap.json');
     this.load.image(
       'tileset',
@@ -367,17 +410,6 @@ const PhaserGame = () => {
       'chimneysmoke_05_01_image',
       '../src/assets/background/others/chimneysmoke_05_strip30_01.png',
     );
-
-    // 플레이어 텍스처 로드
-    this.load.spritesheet(
-      'player',
-      '../src/assets/background/characters/move/ninja_skeleton.png',
-      {
-        frameWidth: 16,
-        frameHeight: 19,
-      },
-    );
-
     this.load.image('collides', '../src/assets/background/collides.png');
     this.load.image(
       'timerBackground',
@@ -427,29 +459,44 @@ const PhaserGame = () => {
     void house_topLayer;
     void river_lakeLayer;
 
-    player = this.physics.add.sprite(4000, 300, 'player');
-    player.setCollideWorldBounds(true);
-    player.setScale(1);
+    let sprite: Phaser.Physics.Arcade.Sprite;
+
+    roomData.forEach((player: GameParticipant) => {
+      const spriteKey = `${player.characterName}_${player.userId}`;
+      console.log(spriteKey);
+
+      // 스프라이트 생성
+      sprite = this.physics.add.sprite(4000, 300, spriteKey);
+      sprite.setScale(1);
+      sprite.setCollideWorldBounds(true);
+      playerSpritesRef.current[player.userId] = sprite;
+
+      // 본인 플레이어 저장
+      if (player.userId === playerId) {
+        playerRef.current = sprite;  // 본인 스프라이트를 playerRef에 저장
+        this.cameras.main.startFollow(sprite, true, 0.5, 0.5);
+        this.cameras.main.setZoom(2, 2);
+      }
+
+      // 애니메이션 생성
+      this.anims.create({
+        key: `walk_${spriteKey}`, // 애니메이션의 키를 스프라이트와 동일하게
+        frames: this.anims.generateFrameNumbers(spriteKey, { start: 0, end: 7 }), // 프레임 번호 설정
+        frameRate: 10,
+        repeat: -1,
+      });
+    });
 
     // 충돌 설정
     //this.physics.add.collider(player, collidesLayer as Phaser.Tilemaps.TilemapLayer);
 
     this.physics.world.setBounds(0, 0, 4480, 2560);
     this.cameras.main.setBounds(0, 0, 4480, 2560);
-    this.cameras.main.startFollow(player, true, 0.5, 0.5);
-    this.cameras.main.setZoom(2, 2);
 
     cursors = this.input.keyboard!.createCursorKeys();
     spaceBar = this.input.keyboard!.addKey(
       Phaser.Input.Keyboard.KeyCodes.SPACE,
     );
-
-    this.anims.create({
-      key: 'walk',
-      frames: this.anims.generateFrameNumbers('player', { start: 0, end: 7 }),
-      frameRate: 10,
-      repeat: -1,
-    });
 
     const { width, height } = this.scale;
 
@@ -507,7 +554,6 @@ const PhaserGame = () => {
     // 타이머 이벤트 시작 시점 기록
     const startTime = Date.now();
     const duration = timerRef.current * 1000; // 밀리초 단위로 변환하여 초기 타이머 시간 설정
-    console.log(duration);
 
     this.events.on('update', () => {
       const elapsedTime = Date.now() - startTime;
@@ -543,7 +589,10 @@ const PhaserGame = () => {
   //업데이트
   function update(this: Phaser.Scene, delta: number) {
     if (houseNumRef.current === null) {
-      createPlayerMovement(this, player, cursors, delta, gameSocketRef);
+      if (playerRef.current) {
+        const playerKey = `${roomData.find(player => player.userId === playerId)?.characterName}_${playerId}`;
+        createPlayerMovement(this, playerRef.current, cursors, delta, gameSocketRef, playerKey); // playerKey를 추가로 넘겨줌
+      }
     }
 
     //지도 열기 기능
@@ -563,8 +612,8 @@ const PhaserGame = () => {
         exchangeLayer,
       } = mapLayers;
 
-      const playerTileX = Math.floor(player.x / 16);
-      const playerTileY = Math.floor(player.y / 16);
+      const playerTileX = Math.floor(playerRef.current!.x / 16);
+      const playerTileY = Math.floor(playerRef.current!.y / 16);
 
       const house1Tile = house1Layer?.hasTileAt(playerTileX, playerTileY);
       const house2Tile = house2Layer?.hasTileAt(playerTileX, playerTileY);
@@ -604,6 +653,7 @@ const PhaserGame = () => {
 
   let isRoundReadySent = false; // 메시지 전송 여부를 관리하는 변수
 
+  // ROUND_READY 메시지를 보내는 함수
   const handleNextRound = () => {
     if (isRoundReadySent) {
       console.log("이미 ROUND_READY 메시지를 보냈습니다.");
@@ -621,8 +671,8 @@ const PhaserGame = () => {
 
     setTimeout(() => {
       isRoundReadySent = false; // 재전송 가능하게 초기화
-      console.log("3초 후 다시 메시지 전송 가능");
-    }, 3000); // 3초 후 초기화
+      console.log("이번라운드에 완료버튼을 이미 눌렀어요.");
+    }, 60000); // 3초 후 초기화
   };
 
   useEffect(() => {
@@ -645,11 +695,9 @@ const PhaserGame = () => {
     readyPlayerRef.current = 0; // 준비 완료 인원 초기화
     nextTimerRef.current = 60; // 60초 제한 타이머 초기화
 
-    setRound((prev) => prev + 1); // 라운드 증가
+    setRound((prev: number) => prev + 1); // 라운드 증가
     setShowModal(false); // 모달 닫기
   };
-
-
 
   const closeModal = () => {
     setHouseNum(null);
@@ -662,7 +710,7 @@ const PhaserGame = () => {
   return (
     <div>
       <div id="phaser-game-container" />
-      {<InteractionModal houseNum={houseNum} closeModal={closeModal} />}
+      {<InteractionModal houseNum={houseNum} closeModal={closeModal} gameSocket={gameSocketRef.current} cropList={cropList ?? undefined} />}
       {openMap && <MapModal closeMapModal={closeMapModal} />}
       {showModal && <ResultModal round={round} onNextRound={handleNextRound} />}
     </div>
