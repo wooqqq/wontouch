@@ -13,7 +13,8 @@ import Login from './pages/Login';
 import KakaoLoginHandler from './components/login/kakao/KakaoLoginHandler';
 import KakaoToSignup from './components/login/kakao/KakaoToSignup';
 import SignupWithKakao from './components/signup/kakao/SignupWithKakao';
-import Setting from './pages/Setting';
+import EditProfile from './pages/EditProfile';
+import EditCharacter from './pages/EditCharacter';
 import CommonBG from './components/common/CommonBG';
 import { useDispatch } from 'react-redux';
 import { setToken } from './redux/slices/authSlice';
@@ -84,10 +85,18 @@ function AppRouter() {
             }
           />
           <Route
-            path="setting"
+            path="edit/profile"
             element={
               <ProtectedRoute>
-                <Setting />
+                <EditProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="edit/character"
+            element={
+              <ProtectedRoute>
+                <EditCharacter />
               </ProtectedRoute>
             }
           />
