@@ -314,7 +314,7 @@ function WaitingRoom() {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <div className="flex relative">
         {isLoading && (
           <Modal>
