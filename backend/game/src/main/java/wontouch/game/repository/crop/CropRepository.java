@@ -10,8 +10,11 @@ import java.util.Optional;
 public interface CropRepository extends MongoRepository<Crop, String>, CropCustomRepository {
     Optional<Crop> findByName(String name);
 
+
     List<Crop> findByType(String type);
 
+    @Query(value = "{ 'type': ?0 }", fields = "{ 'articleList': 0 }")
+    List<Crop> findByTypeExcludingArticleList(String type);
     @Query(value = "{ '_id': ?0, 'articleList._id': ?1 }", fields = "{ 'articleList.$': 1 }")
     Optional<Crop> findCropByArticleId(String cropId, String articleId);
 
