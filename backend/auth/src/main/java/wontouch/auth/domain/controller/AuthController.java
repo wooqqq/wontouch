@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import wontouch.auth.domain.dto.request.GoogleRequestDto;
 import wontouch.auth.domain.dto.request.KakaoLogoutRequestDto;
 import wontouch.auth.domain.dto.request.KakaoRequestDto;
+import wontouch.auth.domain.dto.response.LoginTokenResponseDto;
 import wontouch.auth.global.util.dto.JwtResponseDto;
 import wontouch.auth.domain.model.service.AuthService;
 import wontouch.auth.global.util.dto.ResponseDto;
@@ -43,7 +44,7 @@ public class AuthController {
     @PostMapping("/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestBody KakaoRequestDto requestDto) {
 
-        JwtResponseDto.TokenInfo tokenInfo = authService.kakaoCallback(requestDto.getCode());
+        LoginTokenResponseDto tokenInfo = authService.kakaoCallback(requestDto.getCode());
 
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())

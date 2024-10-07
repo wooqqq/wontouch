@@ -16,6 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import wontouch.auth.domain.dto.request.GoogleRequestDto;
 import wontouch.auth.domain.dto.request.KakaoLogoutRequestDto;
+import wontouch.auth.domain.dto.response.LoginTokenResponseDto;
 import wontouch.auth.global.util.dto.JwtResponseDto;
 import wontouch.auth.domain.dto.response.KakaoResponseDto;
 import wontouch.auth.domain.entity.Token;
@@ -56,7 +57,6 @@ public class AuthService {
         String username = requestDto.getUsername();
         Optional<User> loginUser = userRepository.findByEmail(email);
 
-        Token token;
         JwtResponseDto.TokenInfo tokenInfo;
 
         // 회원가입
@@ -67,43 +67,10 @@ public class AuthService {
             tokenInfo = jwtProvider.generateToken(savedUser.getId());
             tokenInfo.updateFirstLogin();
 
-            token = Token.builder()
-                    .accessToken(tokenInfo.getAccessToken())
-                    .refreshToken(tokenInfo.getRefreshToken())
-                    .user(savedUser)
-                    .build();
-
-            tokenRepository.save(token);
-
-            // refresh token은 Redis 에 저장
-//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(savedUser.getId()), tokenInfo.getRefreshToken());
-
             return tokenInfo;
         } else {    // 기존 회원 로그인
             User user = loginUser.get();
             tokenInfo = jwtProvider.generateToken(user.getId());
-
-            // 기존 토큰 확인
-            Optional<Token> existingToken = tokenRepository.findTokenByUserId(user.getId());
-
-            if (existingToken.isPresent()) {
-                // 기존 토큰이 있으면 업데이트
-                token = existingToken.get();
-                token.updateAccessToken(tokenInfo.getAccessToken());
-                token.updateRefreshToken(tokenInfo.getRefreshToken());
-            } else {
-                // 새로운 토큰 생성
-                token = Token.builder()
-                        .accessToken(tokenInfo.getAccessToken())
-                        .refreshToken(tokenInfo.getRefreshToken())
-                        .user(user)
-                        .build();
-            }
-
-            tokenRepository.save(token);
-
-            // refresh token은 Redis 에 저장
-//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(user.getId()), tokenInfo.getRefreshToken());
 
             return tokenInfo;
         }
@@ -112,7 +79,7 @@ public class AuthService {
     /**
      * 카카오 콜백 메서드
      */
-    public JwtResponseDto.TokenInfo kakaoCallback(String kakaoCode) {
+    public LoginTokenResponseDto kakaoCallback(String kakaoCode) {
         String accessToken = getKakaoToken(kakaoCode);
         KakaoResponseDto kakaoResponseDto = getKakaoUserInfo(accessToken);
         String email = kakaoResponseDto.getEmail();
@@ -127,50 +94,25 @@ public class AuthService {
             JwtResponseDto.TokenInfo tokenInfo = jwtProvider.generateToken(savedUser.getId());
             tokenInfo.updateFirstLogin();
 
-            Token token = Token.builder()
-                    .accessToken(tokenInfo.getAccessToken())
-                    .refreshToken(tokenInfo.getRefreshToken())
-                    .user(savedUser)
-                    .build();
-            tokenRepository.save(token);
-
-            // refresh token은 Redis 에 저장
-//            redisTemplate.opsForValue().set("refresh_token:" +savedUser.getId(), tokenInfo.getRefreshToken());
-
             if (savedUser.getEmail().equals("") || savedUser.getUsername().equals("")) {
                 String message = "마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
                 // 메시지 후처리 필요
             }
 
-            return tokenInfo;
+            return LoginTokenResponseDto.builder()
+                    .kakaoAccessToken(accessToken)
+                    .accessToken(tokenInfo.getAccessToken())
+                    .isFirstLogin(tokenInfo.isFirstLogin())
+                    .build();
         } else { // 기존 회원이 로그인하는 경우
             User user = loginUser.get();
             JwtResponseDto.TokenInfo tokenInfo = jwtProvider.generateToken(user.getId());
 
-            // 기존 토큰 확인
-            Optional<Token> existingToken = tokenRepository.findTokenByUserId(user.getId());
-            Token token;
-
-            if (existingToken.isPresent()) {
-                // 기존 토큰이 있으면 업데이트
-                token = existingToken.get();
-                token.updateAccessToken(tokenInfo.getAccessToken());
-                token.updateRefreshToken(tokenInfo.getRefreshToken());
-            } else {
-                // 새로운 토큰 생성
-                token = Token.builder()
-                        .accessToken(tokenInfo.getAccessToken())
-                        .refreshToken(tokenInfo.getRefreshToken())
-                        .user(user)
-                        .build();
-            }
-
-            tokenRepository.save(token);
-
-            // refresh token은 Redis 에 저장
-//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(user.getId()), tokenInfo.getRefreshToken());
-
-            return tokenInfo;
+            return LoginTokenResponseDto.builder()
+                    .kakaoAccessToken(accessToken)
+                    .accessToken(tokenInfo.getAccessToken())
+                    .isFirstLogin(tokenInfo.isFirstLogin())
+                    .build();
         }
     }
 
