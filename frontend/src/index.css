@@ -370,7 +370,7 @@ button:active {
 
 .ranking-box {
   display: flex;
-  justify-content: start;
+  /* justify-content: start; */
   align-items: center;
   flex-shrink: 0;
   border-radius: 10px;
@@ -439,4 +439,11 @@ button:active {
   border-radius: 20px;
   border: 1px solid #10ab7d;
   background: #fff;
+}
+
+.level-text {
+  color: #fe0;
+  text-align: center;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #555;
 }

@@ -7,7 +7,7 @@ import Modal from '../components/common/Modal';
 import MakeRoom from '../components/lobby/room/MakeRoom';
 import FindRoom from '../components/lobby/room/FindRoom';
 import Header from '../components/common/Header';
-import Ranking from '../components/lobby/Ranking';
+import Ranking from '../components/lobby/ranking/Ranking';
 import RoomList from '../components/lobby/room/RoomList';
 import Friend from '../components/lobby/friend/Friend';
 import FriendProfile from '../components/lobby/friend/FriendProfile';
@@ -18,6 +18,11 @@ import hammer from '../assets/icon/hammer.png';
 function Lobby() {
   const [showMakeRoom, setShowMakeRoom] = useState<boolean>(false);
   const [showFindRoom, setShowFindRoom] = useState<boolean>(false);
+  const [notificationCount, setNotificationCount] = useState<number>(0);
+  const API_LINK = import.meta.env.VITE_API_URL;
+
+  const userId = useSelector((state: RootState) => state.user.id);
+  const accessToken = localStorage.getItem('access_token');
 
   // 방 생성 모달
   const openMakeRoom = () => {
@@ -37,11 +42,35 @@ function Lobby() {
     setShowFindRoom(false);
   };
 
+  const getNotifications = async () => {
+    try {
+      const response = await axios.get(
+        `${API_LINK}/notification/list/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      const data = response.data.data;
+      if (data) {
+        setNotificationCount(data.length);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getNotifications();
+  }, []);
+
   return (
     <div>
-      <Header />
+      <Header notificationCount={notificationCount} />
       <div className="flex justify-between">
-        <div className="yellow-box w-8/12 h-5/6 flex flex-col justify-center p-2 px-6">
+        <div className="yellow-box w-8/12 h-5/6 flex flex-col justify-center p-2 px-6 ml-10">
           <div className="flex space-x-4 mb-4">
             <div>
               <button
@@ -62,7 +91,7 @@ function Lobby() {
               </button>
             </div>
           </div>
-          <div className="list-box overflow-auto flex flex-wrap justify-between p-2 w-full h-[540px]">
+          <div className="list-box overflow-auto flex flex-wrap justify-between p-2 w-full h-[530px]">
             <RoomList />
           </div>
         </div>
