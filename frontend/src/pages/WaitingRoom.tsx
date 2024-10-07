@@ -19,6 +19,7 @@ import RoomChat from '../components/waitingRoom/RoomChat';
 import RoomHowTo from '../components/waitingRoom/RoomHowTo';
 import RoomTitle from '../components/waitingRoom/RoomTitle';
 import RoomUserList from '../components/waitingRoom/RoomUserList';
+import Header from '../components/common/Header';
 
 interface GameParticipant {
   userId: number;
@@ -41,6 +42,7 @@ interface Message {
 
 function WaitingRoom() {
   const API_LINK = import.meta.env.VITE_API_URL;
+  const SOCKET_LINK = import.meta.env.VITE_SOCKET_URL;
   const token = localStorage.getItem('access_token');
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -77,7 +79,7 @@ function WaitingRoom() {
 
     // 웹소켓 생성
     const newSocket = new WebSocket(
-      `ws://localhost:8082/socket/ws/game/${roomId}?playerId=${playerId}`,
+      `ws://${SOCKET_LINK}/ws/game/${roomId}?playerId=${playerId}`,
     );
 
     // 웹소켓 연결
@@ -118,26 +120,26 @@ function WaitingRoom() {
               // 누군가의 입장
               console.log('누군가의 입장으로 1초 뒤에 정보 가져오기');
 
-              // 1초 뒤에 정보 다시 가져오기
-              setTimeout(() => {
-                fetchRoomData();
-              }, 1000);
+              // 정보 다시 가져오기
+              // setTimeout(() => {
+              fetchRoomData();
+              // }, 1000);
               break;
             case 'READY':
               // 응답에서 플레이어 준비 상태 업데이트
-              if (receivedMessage.content.playerId === playerId) {
-                if (
-                  receivedMessage.content.playerId === hostId &&
-                  receivedMessage.content.ready === false
-                ) {
-                  // 보낸 사람의 아이디가 호스트아이디이고, 레디가 안된 상태면 강제 레디
-                  hostReady();
-                }
-                setIsReady(receivedMessage.content.ready);
-                setIsAllReady(receivedMessage.content.allReady);
-                console.log('준비: ', receivedMessage.content.ready);
-                console.log('모두 준비: ', receivedMessage.content.allReady);
+              // if (receivedMessage.content.playerId === playerId) {
+              if (
+                receivedMessage.content.playerId === hostId &&
+                receivedMessage.content.ready === false
+              ) {
+                // 보낸 사람의 아이디가 호스트아이디이고, 레디가 안된 상태면 강제 레디
+                hostReady();
               }
+              setIsReady(receivedMessage.content.ready);
+              setIsAllReady(receivedMessage.content.allReady);
+              console.log('준비: ', receivedMessage.content.ready);
+              console.log('모두 준비: ', receivedMessage.content.allReady);
+              // }
               break;
             case 'ROUND_START':
               navigate(`/game/${roomId}`);
@@ -175,8 +177,6 @@ function WaitingRoom() {
 
           console.log('1번-방정보 가져오기', formattedParticipants);
 
-          // 방 정보 토대로 유저 가져오기
-          fetchUsersInfo();
           // 호스트 레디상태 변경
           hostReady();
         } else {
@@ -202,38 +202,6 @@ function WaitingRoom() {
     };
 
     ///////////////////////////////////////
-    // 참가자 정보 가져오기 API
-    const fetchUsersInfo = async () => {
-      try {
-        // 기존 유저 데이터 초기화
-        setUsers([]);
-
-        // participants가 존재하는지 체크
-        if (!gameParticipants || gameParticipants.length === 0) return;
-
-        const fetchUsers = await Promise.all(
-          gameParticipants.map(async (gameParticipant: GameParticipant) => {
-            const userId = gameParticipant.userId;
-            const userResponse = await axios.get(`${API_LINK}/user/${userId}`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            return userResponse.data.data;
-          }),
-        );
-        setUsers(fetchUsers);
-        dispatch(setGameParticipants(fetchUsers));
-        console.log('2번-방정보 토대로 유저 정보 가져오기');
-      } catch (error) {
-        console.error('유저 정보를 가져오는 중 오류 발생: ', error);
-      }
-    };
-
-    ///////////////////////////////////////
-    // 방 퇴장 시 게임방 정보 새로 가져오기(방장, 리스트 바뀜)
-
-    ///////////////////////////////////////
     // 3초 뒤에 로딩 끝내기
     const delay = setTimeout(() => {
       if (isLoading) {
@@ -242,10 +210,42 @@ function WaitingRoom() {
     }, 3000);
 
     ///////////////////////////////////////
-    // 페이지 떠날 때 경고 알림창 추가
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    // 방 퇴장 시 방 퇴장 및 소켓 종료 & 게임방 정보 새로 가져오기(방장, 리스트 바뀜)
+    // 뒤로가기, 새로고침, 창닫기, 탭닫기 시 방 떠나기
+    // 페이지 떠날 때 경고 알림창
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
       event.preventDefault();
       event.returnValue = '';
+
+      try {
+        // 방 퇴장 API 호출
+        const response = await axios.post(`${API_LINK}/room/exit/${roomId}`, {
+          playerId: playerId,
+        });
+        if (response.status === 200) {
+          console.log('방 퇴장 완료');
+
+          // 최신화된 participants로 상태 업데이트
+          const gameParticipants = response.data.data.participants;
+          const updatedParticipants = Object.entries(gameParticipants).map(
+            ([userId, isReady]) => ({
+              userId: Number(userId), // userId는 숫자로 변환
+              isReady: Boolean(isReady), // 준비 상태 Boolean으로 변환
+              nickname: '',
+              description: '',
+              characterName: '',
+              tierPoint: 0,
+              mileage: 0,
+            }),
+          );
+          dispatch(setGameParticipants(updatedParticipants));
+          dispatch(setHostId(response.data.data.hostId));
+          console.log('퇴장 시 참가자 정보 갱신: ', updatedParticipants);
+          navigate('/lobby');
+        }
+      } catch (error) {
+        console.log('방 퇴장 중 오류 발생: ', error);
+      }
     };
 
     // 이벤트 리스너 추가
@@ -263,44 +263,93 @@ function WaitingRoom() {
     };
   }, [roomId, playerId, hostId]);
 
+  ///////////////////////////////////////
+  // 참가자 정보 가져오기 API
+  const fetchUsersInfo = async () => {
+    try {
+      // 기존 유저 데이터 초기화
+      setUsers([]);
+
+      // participants가 존재하는지 체크
+      // if (!gameParticipants || gameParticipants.length === 0) return;
+      const fetchUsers = await Promise.all(
+        gameParticipants.map(async (gameParticipant: GameParticipant) => {
+          const userId = gameParticipant.userId;
+          const userResponse = await axios.get(`${API_LINK}/user/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          return {
+            ...gameParticipant, // 기존 정보 유지
+            nickname: userResponse.data.data.nickname || '', // 새로 가져온 정보 병합
+            description: userResponse.data.data.description || '',
+            characterName: userResponse.data.data.characterName || '',
+            tierPoint: userResponse.data.data.tierPoint || 0,
+            mileage: userResponse.data.data.mileage || 0,
+          };
+        }),
+      );
+      setUsers(fetchUsers);
+      // 새로 받아온 유저 정보가 기존 정보와 다른 경우에만 dispatch 실행
+      if (JSON.stringify(fetchUsers) !== JSON.stringify(gameParticipants)) {
+        dispatch(setGameParticipants(fetchUsers));
+      }
+      // dispatch(setGameParticipants(fetchUsers));
+      console.log('2번-방정보 토대로 유저 정보 가져오기: ', gameParticipants);
+    } catch (error) {
+      console.error('유저 정보를 가져오는 중 오류 발생: ', error);
+    }
+  };
+
+  // gameParticipants가 업데이트될 때마다 유저 정보를 가져오는 useEffect 추가
+  useEffect(() => {
+    if (gameParticipants && gameParticipants.length > 0) {
+      fetchUsersInfo();
+    }
+  }, [gameParticipants]);
+
   const handleOpenModal = () => setIsModalOpen(true); // 모달 열기
   const handleCloseModal = () => setIsModalOpen(false); // 모달 닫기
 
   return (
-    <div className="flex relative">
-      {isLoading && (
-        <Modal>
-          <div className="text-center">
-            <p className="white-title">방 들어가는 중...</p>
-          </div>
-        </Modal>
-      )}
+    <>
+      {/* <Header /> */}
+      <div className="flex relative">
+        {isLoading && (
+          <Modal>
+            <div className="text-center">
+              <p className="white-title">방 들어가는 중...</p>
+            </div>
+          </Modal>
+        )}
 
-      {/* 왼쪽 섹션 (방제목/게임 참여자 리스트/채팅) */}
-      <section className="w-2/3">
-        <RoomTitle roomName={roomName} roomId={roomId} />
-        {/* 게임 참여 대기자 리스트 */}
-        <RoomUserList
-          onOpen={handleOpenModal}
-          socket={socket.current}
-          users={users}
-        />
-        <RoomChat messages={messages} socket={socket.current} />
-      </section>
+        {/* 왼쪽 섹션 (방제목/게임 참여자 리스트/채팅) */}
+        <section className="w-2/3">
+          <RoomTitle roomName={roomName} roomId={roomId} />
+          {/* 게임 참여 대기자 리스트 */}
+          <RoomUserList
+            onOpen={handleOpenModal}
+            socket={socket.current}
+            users={users}
+          />
+          <RoomChat messages={messages} socket={socket.current} />
+        </section>
 
-      {/* 오른쪽 섹션 (맵/게임방법/준비버튼) */}
-      <section className="w-1/3">
-        <MapInfo />
-        <RoomHowTo />
-        <ReadyButton socket={socket.current} isAllReady={isAllReady} />
-      </section>
+        {/* 오른쪽 섹션 (맵/게임방법/준비버튼) */}
+        <section className="w-1/3">
+          <MapInfo />
+          <RoomHowTo />
+          <ReadyButton socket={socket.current} isAllReady={isAllReady} />
+        </section>
 
-      {isModalOpen && (
-        <Modal>
-          <FriendInvite onClose={handleCloseModal} />
-        </Modal>
-      )}
-    </div>
+        {isModalOpen && (
+          <Modal>
+            <FriendInvite onClose={handleCloseModal} />
+          </Modal>
+        )}
+      </div>
+    </>
   );
 }
 

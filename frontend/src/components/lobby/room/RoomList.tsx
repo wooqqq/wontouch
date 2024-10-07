@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import Modal from '../../common/Modal';
-
+import map from '../../../assets/map/map.png';
 import lock from '../../../assets/icon/lock.png';
 import cancel from '../../../assets/icon/cancel.png';
 
@@ -94,13 +94,9 @@ export default function RoomList() {
                           {room.roomName}
                         </span>
                       </div>
-                      <div className="room-info flex p-2">
-                        <span className="mr-4">
-                          <img
-                            src="src/assets/tmp.png"
-                            alt=""
-                            className="w-72 h-16"
-                          />
+                      <div className="room-info flex p-2 mx-auto">
+                        <span className="mr-4 h-16 overflow-hidden">
+                          <img src={map} alt="맵 미리보기" className="w-72" />
                         </span>
                         <div className="flex flex-col items-center justify-center">
                           {room.secret ? (
@@ -139,13 +135,9 @@ export default function RoomList() {
                             {roomList[index + 1].roomName}
                           </span>
                         </div>
-                        <div className="room-info flex p-2">
-                          <span className="mr-4">
-                            <img
-                              src="src/assets/tmp.png"
-                              alt=""
-                              className="w-72 h-16"
-                            />
+                        <div className="room-info flex p-2 mx-auto">
+                          <span className="mr-4 h-16 overflow-hidden">
+                            <img src={map} alt="맵 미리보기" className="w-72" />
                           </span>
                           <div className="flex flex-col items-center justify-center">
                             {roomList[index + 1].secret ? (
@@ -204,7 +196,7 @@ export default function RoomList() {
             </div>
           ))
       ) : (
-        <div>생성된 방이 없습니다 ㅠㅠ</div>
+        <div className="white-title">생성된 방이 없습니다.</div>
       )}
     </div>
   );

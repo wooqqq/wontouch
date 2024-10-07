@@ -1,4 +1,12 @@
 import boy from '../../assets/background/characters/stand/boy.png';
+import girl from '../../assets/background/characters/stand/girl.png';
+import curlyhairBoy from '../../assets/background/characters/stand/curlyhair_boy.png';
+import flowerGirl from '../../assets/background/characters/stand/flower_girl.png';
+import goblin from '../../assets/background/characters/stand/goblin.png';
+import kingGoblin from '../../assets/background/characters/stand/king_goblin.png';
+import ninjaSkeleton from '../../assets/background/characters/stand/ninja_skeleton.png';
+import skeleton from '../../assets/background/characters/stand/skeleton.png';
+
 import LevelImg from '../common/LevelImg';
 
 interface UserInfoProps {
@@ -21,6 +29,13 @@ function RoomUserInfo({
 }: UserInfoProps) {
   const characterImages: { [key: string]: string } = {
     boy: boy,
+    girl: girl,
+    curlyhair_boy: curlyhairBoy,
+    flower_girl: flowerGirl,
+    goblin: goblin,
+    king_goblin: kingGoblin,
+    ninja_skeleton: ninjaSkeleton,
+    skeleton: skeleton,
   };
 
   if (!playerId) {
