@@ -87,10 +87,16 @@ public class MileageService {
         mileageLogRepository.save(mileageLog);
     }
 
-    // 마일리지 삭제
+    // 오래된 마일리지 삭제
     @Transactional
     public void deleteOldEarnMileageLogs(int userId) {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minus(1, ChronoUnit.MONTHS);
         mileageLogRepository.deleteByUserIdAndMileageLogTypeAndCreateAtBefore(userId, MileageLogType.EARN, oneMonthAgo);
+    }
+
+    // 사용자 ID를 통한 마일리지 삭제
+    @Transactional
+    public void deleteByUserId(int userId) {
+        mileageLogRepository.deleteByUserId(userId);
     }
 }

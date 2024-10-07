@@ -90,4 +90,17 @@ public class MileageController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<?> deleteByUserId(@PathVariable int userId) {
+        mileageService.deleteByUserId(userId);
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("마일리지 삭제 성공")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
 }
