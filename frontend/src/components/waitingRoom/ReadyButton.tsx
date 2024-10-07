@@ -67,7 +67,7 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
 
   // 게임 시작 버튼 클릭 시
   const handleStartGame = async () => {
-    if (!roomId || !gameParticipants || gameParticipants.length === 1) return;
+    if (!roomId || !gameParticipants || gameParticipants.length === 0) return;
 
     if (!isAllReady) {
       setIsModalOpen(true);

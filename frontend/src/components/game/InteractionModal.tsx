@@ -7,6 +7,8 @@ import cancle from '../../assets/icon/cancel.png';
 //import confirm from '../../assets/icon/confirm.png';
 import leftArrow from '../../assets/icon/arrow_left.png'; // 좌측 화살표 이미지
 import rightArrow from '../../assets/icon/arrow_right.png'; // 우측 화살표 이미지
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 interface CropList {
   [cropName: string]: number;
@@ -16,7 +18,7 @@ interface ModalProps {
   houseNum: number | null;
   closeModal: () => void;
   gameSocket: WebSocket | null;
-  cropList?: CropList;
+  cropList?: CropList | null; // null을 허용
 }
 
 // 이미지 파일을 동적으로 가져오기
@@ -25,12 +27,43 @@ const cropImages = import.meta.glob('../../assets/crops/*.png');
 const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSocket, cropList }) => {
   const [count, setCount] = useState(0);
   const [purchaseModal, setPurchaseModal] = useState(false);
+  const userId = useSelector((state: RootState) => state.user.id);
 
   //작물 인덱스 보기
   const [currentCropIndex, setCurrentCropIndex] = useState(0);
   const [currentImageSrc, setCurrentImageSrc] = useState<string | null>(null);
   // cropList 배열 생성 (Object.entries를 사용하여 객체를 배열로 변환)
   const crops = Object?.entries(cropList ?? {});
+  const allCrops = useSelector((state: RootState) => state.crop.crops);
+
+  // houseNum에 맞는 작물 필터링
+  const getFilteredCropsByHouse = (houseNum: number | null) => {
+    let townType = '';
+    switch (houseNum) {
+      case 1:
+        townType = 'DOMESTIC_FRUITS';
+        break;
+      case 2:
+        townType = 'VEGETABLES_1';
+        break;
+      case 3:
+        townType = 'MUSHROOMS_MEDICINAL';
+        break;
+      case 4:
+        townType = 'IMPORTED_FRUITS';
+        break;
+      case 5:
+        townType = 'VEGETABLES_2';
+        break;
+      default:
+        townType = 'GRAINS_NUTS';
+        break;
+    }
+    return allCrops.filter((crop) => crop.type === townType);
+  };
+
+  const filteredCrops = getFilteredCropsByHouse(houseNum);
+  const currentCrop = filteredCrops[currentCropIndex] || { name: '', price: 0 };
 
   const handlePrev = () => {
     if (currentCropIndex === 0) {
@@ -64,11 +97,11 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   //   setPurchaseModal(false);
   // }
 
+  // 이미지 동적 로딩
   useEffect(() => {
-    if (crops.length > 0) {
-      const [cropName] = crops[currentCropIndex];
+    if (filteredCrops.length > 0) {
+      const cropName = currentCrop.id;
 
-      // 이미지 경로 동적으로 설정
       const loadImage = async () => {
         const imagePath = cropImages[`../../assets/crops/${cropName}.png`];
         if (imagePath) {
@@ -77,10 +110,21 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
         }
       };
 
+      if (gameSocket?.readyState === 1) {
+
+        const cropChart = {
+          type: "CROP_CHART",
+          cropId: currentCrop.id
+        }
+        //차트 작성하고 데이터 보내기
+        gameSocket?.send(JSON.stringify(cropChart));
+        console.log("보냈쉉!!!");
+      }
+
+
       loadImage();
     }
-  }, [currentCropIndex, crops]);
-
+  }, [currentCropIndex, filteredCrops]);
 
   useEffect(() => {
     if (houseNum !== null && houseNum !== 0 && gameSocket) {
@@ -133,6 +177,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       closeModal();
+      setCount(0);
     }
   };
 
@@ -149,6 +194,35 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   if (houseNum === null || crops.length === 0) return null;
   // 현재 선택된 작물 정보 가져오기
   const [cropName, cropAmount] = crops[currentCropIndex];
+
+  const sellCrop = () => {
+    //판매 양식
+    const reqSellCrop = {
+      type: "SELL_CROP",
+      cropId: cropName,
+      quantity: count,
+      playerId: userId
+    }
+    gameSocket?.send(JSON.stringify(reqSellCrop));
+    setCount(0);
+  }
+
+  const buyCrop = () => {
+    //구매 양식
+    const reqBuyCrop = {
+      type: "BUY_CROP",
+      cropId: cropName,
+      quantity: count,
+      playerId: userId
+    };
+    if (gameSocket?.readyState === WebSocket.OPEN) {
+      console.log(reqBuyCrop);
+      gameSocket.send(JSON.stringify(reqBuyCrop)); // 같은 WebSocket을 통해 메시지 전송
+    } else {
+      console.error("WebSocket이 열려있지 않습니다.");
+    }
+    setCount(0);
+  }
 
   return (
     <>
@@ -186,18 +260,19 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
               <div className="flex items-center justify-start mb-[5%]">
                 <img
                   src={currentImageSrc ?? undefined} // 현재 작물에 맞는 이미지를 선택해야 함
-                  alt={`${cropName} 이미지`}
+                  alt={`${filteredCrops[currentCropIndex].id} 이미지`}
                   className="w-[20%] h-[20%] border border-black p-8 rounded-md"
                 />
                 <div className="ml-[5%]">
-                  <p className="text-[36px] font-semibold">{cropName}</p> {/* 작물 이름 */}
+                  <p className="text-[36px] font-semibold">{filteredCrops[currentCropIndex].name}</p> {/* 작물 이름 */}
+                  <p>{filteredCrops[currentCropIndex].description}</p>
                   <p className="text-2xl text-gray-600">남은 수량: {cropAmount} 상자</p> {/* 남은 수량 */}
-                  <p className="text-[32px] font-bold text-yellow-500">50,000 코인</p> {/* 가격은 임의 */}
+                  <p className="text-[32px] font-bold text-yellow-500">{filteredCrops[currentCropIndex].price} 코인</p> {/* 가격은 임의 */}
                 </div>
               </div>
 
               {/* 좌우 화살표 추가 */}
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center mb-8">
                 <button onClick={handlePrev}>
                   <img src={leftArrow} alt="이전 작물" />
                 </button>
@@ -228,7 +303,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                         </button>
                       </div>
                       <div className="mt-4 flex items-center ml-1 mr-auto w-full">
-                        <button className="bg-blue-500 text-white py-1 px-3 rounded-2xl">
+                        <button className="bg-blue-500 text-white py-1 px-3 rounded-2xl" onClick={sellCrop}>
                           매도
                         </button>
                         <button
@@ -237,7 +312,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                         >
                           초기화
                         </button>
-                        <button className="bg-red-500 text-white py-1 px-3 rounded-2xl ml-1">
+                        <button className="bg-red-500 text-white py-1 px-3 rounded-2xl ml-1" onClick={buyCrop}>
                           매수
                         </button>
                       </div>

@@ -7,6 +7,7 @@ import { persistReducer, persistStore } from 'redux-persist'; // 상태 지속�
 import userSlice from './slices/userSlice';
 import authSlice from './slices/authSlice';
 import roomSlice from './slices/roomSlice';
+import cropSlice from './slices/cropSlice';
 
 // persist 설정
 const persistConfig = {
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   auth: authSlice,
   user: userSlice,
   room: roomSlice,
+  crop: cropSlice,
 });
 
 // persistReducer로 rootReducer를 래핑
