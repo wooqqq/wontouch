@@ -4,7 +4,6 @@ import {
   Route,
   Navigate,
   useNavigate,
-  useLocation,
 } from 'react-router-dom';
 import { useEffect } from 'react';
 import Lobby from './pages/Lobby';
@@ -20,7 +19,6 @@ import { useDispatch } from 'react-redux';
 import { setToken } from './redux/slices/authSlice';
 import { setUserId } from './redux/slices/userSlice';
 import { jwtDecode } from 'jwt-decode';
-import Header from './components/common/Header';
 
 interface DecodedToken {
   userId: number;
@@ -53,18 +51,6 @@ function AppRouter() {
 
   return (
     <Router>
-      <Content />
-    </Router>
-  );
-}
-
-function Content() {
-  const location = useLocation();
-  const isGame = location.pathname.startsWith('/game');
-
-  return (
-    <>
-      {!isGame && <Header />}
       <Routes>
         <Route
           path="/"
@@ -116,7 +102,7 @@ function Content() {
           }
         />
       </Routes>
-    </>
+    </Router>
   );
 }
 
