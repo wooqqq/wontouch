@@ -1,7 +1,11 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import Modal from '../common/Modal';
 
 import cancel from '../../assets/icon/cancel.png';
+import axios from 'axios';
+
+const AUTH_LINK = import.meta.env.VITE_AUTH_URL;
 
 export default function Setting({
   closeSetting,
@@ -9,8 +13,55 @@ export default function Setting({
   closeSetting: () => void;
 }) {
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState<boolean>(false);
+
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
   const changeInfo = () => {
     navigate('/setting');
+  };
+
+  const handleLogout = async () => {
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      console.log(accessToken);
+      await axios.post(`${AUTH_LINK}/oauth/kakao/logout`, {
+        accessToken: accessToken,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    try {
+      const kakaoAccessToken = localStorage.getItem('kakao_access_token');
+      console.log(kakaoAccessToken);
+      await axios.post(
+        'https://kapi.kakao.com/v1/user/logout',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${kakaoAccessToken}`,
+          },
+        },
+      );
+      setShowModal(false);
+
+      // localStorage에 저장된 것 모두 지우기
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('kakao_access_token');
+      localStorage.removeItem('persist:root');
+
+      // 로그인 화면으로 이동
+      navigate('/');
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div className="setting-box w-1/3 h-[600px] p-5">
@@ -39,9 +90,38 @@ export default function Setting({
         >
           회원 정보 수정
         </button>
-        <button className="setting-list text-3xl w-4/5 my-6">로그아웃</button>
+        <button
+          className="setting-list text-3xl w-4/5 my-6"
+          onClick={openModal}
+        >
+          로그아웃
+        </button>
       </div>
       <div className="version text-2xl mt-6">version 0.0.1</div>
+
+      {showModal && (
+        <Modal>
+          <div className="yellow-box w-2/5 h-[200px] p-6 bg-[#fffeee] border-[#36EAB5]">
+            <div className="mint-title mint-title text-4xl">
+              로그아웃 하시겠습니까?
+            </div>
+            <div className="flex justify-between px-12">
+              <button
+                onClick={closeModal}
+                className="cancel-button w-5/12 h-[50px] text-2xl mt-10"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleLogout}
+                className="logout-button w-5/12 h-[50px] text-2xl mt-10"
+              >
+                로그아웃
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -32,9 +32,13 @@ function KakaoLoginHandler() {
         code: code,
       });
 
-      // access token을 local storage에 저장
+      console.log(userRes.data.data);
+
+      // access token, kakao access token을 local storage에 저장
       const accessToken = userRes.data.data.accessToken;
+      const kakaoAccessToken = userRes.data.data.kakaoAccessToken;
       localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('kakao_access_token', kakaoAccessToken);
 
       // access token을 디코딩해 userId 추출, store에 저장
       const decodedToken = jwtDecode<DecodedToken>(accessToken);

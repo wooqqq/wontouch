@@ -447,3 +447,23 @@ button:active {
   -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: #555;
 }
+
+.cancel-button {
+  border-radius: 20px;
+  border: 3px solid #ff4242;
+  background: #fff;
+  color: #fff;
+  text-align: center;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #ff4242;
+}
+
+.logout-button {
+  border-radius: 20px;
+  border: 3px solid #10ab7d;
+  background: #36eab5;
+  color: #fff;
+  text-align: center;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: #10ab7d;
+}
