@@ -62,6 +62,8 @@ public class RoomController {
             // 로비 서버로 roomId를 POST 요청으로 전송
             responseDto = restTemplate.postForObject(targetUrl, createRoomRequestDto, ResponseDto.class);
             log.info("Room ID sent to Lobby Server: {}", createRoomRequestDto.getRoomId());
+        } catch (HttpClientErrorException.Conflict e) {
+            throw new ExceptionResponse(CustomException.ALREADY_EXIST_REQUEST_EXCEPTION);
         } catch (Exception e) {
             log.error("Failed to send Room ID to Lobby Server: {}", e.getMessage());
             throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);

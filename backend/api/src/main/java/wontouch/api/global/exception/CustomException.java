@@ -56,8 +56,8 @@ public enum CustomException {
     ACCESS_DENIEND_EXCEPTION(403,"AccessDeniendException","권한이 없습니다"),
 
     // 409
-    NO_AVAILABLE_ROOM_EXCEPTION(409, "NO_AVAILABLE_ROOM_EXCEPTION", "방에 빈자리가 없습니다.");
-
+    NO_AVAILABLE_ROOM_EXCEPTION(409, "NO_AVAILABLE_ROOM_EXCEPTION", "방에 빈자리가 없습니다."),
+    ROOM_ALREADY_EXISTS_EXCEPTION(409, "ROOM_ALREADY_EXISTS_EXCEPTION", "이미 존재하는 방입니다");
     private int statusNum;
     private String errorCode;
     private String errorMessage;

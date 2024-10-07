@@ -32,6 +32,11 @@ public class RoomRepository {
         String roomId = room.getRoomId();
         String roomName = room.getRoomName();
 
+        // 이미 방이 존재하는지 확인
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
+            throw new ExceptionResponse(CustomException.ROOM_ALREADY_EXISTS_EXCEPTION);
+        }
+
         redisTemplate.opsForHash().put(key, "roomId", roomId);
         redisTemplate.opsForHash().put(key, "roomName", roomName);
         redisTemplate.opsForHash().put(key, "secret", room.isSecret());
