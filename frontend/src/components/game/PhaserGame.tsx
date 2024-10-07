@@ -695,7 +695,7 @@ const PhaserGame = () => {
     readyPlayerRef.current = 0; // 준비 완료 인원 초기화
     nextTimerRef.current = 60; // 60초 제한 타이머 초기화
 
-    setRound((prev) => prev + 1); // 라운드 증가
+    setRound((prev: number) => prev + 1); // 라운드 증가
     setShowModal(false); // 모달 닫기
   };
 
@@ -710,7 +710,7 @@ const PhaserGame = () => {
   return (
     <div>
       <div id="phaser-game-container" />
-      {<InteractionModal houseNum={houseNum} closeModal={closeModal} gameSocket={gameSocketRef.current} cropList={cropList} />}
+      {<InteractionModal houseNum={houseNum} closeModal={closeModal} gameSocket={gameSocketRef.current} cropList={cropList ?? undefined} />}
       {openMap && <MapModal closeMapModal={closeMapModal} />}
       {showModal && <ResultModal round={round} onNextRound={handleNextRound} />}
     </div>
