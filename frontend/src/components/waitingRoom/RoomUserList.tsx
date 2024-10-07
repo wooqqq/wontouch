@@ -5,20 +5,22 @@ import { RootState } from '../../redux/store';
 interface RoomUserListProps {
   onOpen: () => void;
   socket: WebSocket | null;
-  users: any[];
 }
 
-function RoomUserList({ onOpen, socket, users }: RoomUserListProps) {
+function RoomUserList({ onOpen, socket }: RoomUserListProps) {
   const hostId = useSelector((state: RootState) => state.room.hostId);
+  const gameParticipants = useSelector(
+    (state: RootState) => state.room.gameParticipants,
+  );
   // 고정된 유저 수 (8명)
   const totalUsers = 8;
 
   // 고정된 길이의 배열 생성
   const userList = Array.from({ length: totalUsers }, (_, index) => {
     // 실제 유저 데이터로 대체
-    const user = users[index] || {
+    const user = gameParticipants[index] || {
       isHost: false,
-      playerId: undefined,
+      playerId: 0,
       nickname: '',
       characterName: '',
       isReady: false,
@@ -46,11 +48,11 @@ function RoomUserList({ onOpen, socket, users }: RoomUserListProps) {
             <button onClick={onOpen}>
               <RoomUserInfo
                 isHost={false}
-                playerId={undefined}
+                playerId={0}
                 nickname={undefined}
                 character={undefined}
                 isReady={false}
-                tierPoint="0"
+                tierPoint={0}
               />
             </button>
           )}

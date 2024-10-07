@@ -40,6 +40,11 @@ interface Message {
   };
 }
 
+interface Player {
+  playerId: number;
+  ready: boolean;
+}
+
 function WaitingRoom() {
   const API_LINK = import.meta.env.VITE_API_URL;
   const SOCKET_LINK = import.meta.env.VITE_SOCKET_URL;
@@ -50,7 +55,7 @@ function WaitingRoom() {
   const { roomId: roomIdFromParams } = useParams();
   const roomId = useSelector((state: RootState) => state.room.roomId);
   const hostId = useSelector((state: RootState) => state.room.hostId);
-  const playerId = useSelector((state: RootState) => state.user.id);
+  const userId = useSelector((state: RootState) => state.user.id);
   const roomName = useSelector((state: RootState) => state.room.roomName);
   const gameParticipants = useSelector(
     (state: RootState) => state.room.gameParticipants,
@@ -58,9 +63,7 @@ function WaitingRoom() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isReady, setIsReady] = useState(false);
   const [isAllReady, setIsAllReady] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const socket = useRef<WebSocket | null>(null);
 
@@ -79,13 +82,13 @@ function WaitingRoom() {
 
     // 웹소켓 생성
     const newSocket = new WebSocket(
-      `ws://${SOCKET_LINK}/ws/game/${roomId}?playerId=${playerId}`,
+      `${SOCKET_LINK}/ws/game/${roomId}?playerId=${userId}`,
     );
 
     // 웹소켓 연결
     newSocket.onopen = async () => {
       console.log(
-        '웹소켓 연결 성공 - roomId: ' + roomId + ', playerId: ' + playerId,
+        '웹소켓 연결 성공 - roomId: ' + roomId + ', playerId: ' + userId,
       );
     };
 
@@ -95,7 +98,7 @@ function WaitingRoom() {
       setTimeout(() => {
         console.log('재연결 시도 중...');
         socket.current = new WebSocket(
-          `ws://localhost:8082/socket/ws/game/${roomId}?playerId=${playerId}`,
+          `${SOCKET_LINK}/ws/game/${roomId}?playerId=${userId}`,
         );
         setIsLoading(false);
       }, 5000);
@@ -112,10 +115,13 @@ function WaitingRoom() {
           const receivedMessage = JSON.parse(event.data);
           console.log(receivedMessage);
 
+          // 소켓에 수신된 메시지에 따라..
           switch (receivedMessage.type) {
+            // 채팅
             case 'CHAT':
               setMessages((prevMessages) => [...prevMessages, receivedMessage]);
               break;
+            // 공지 (입퇴장)
             case 'NOTIFY':
               // 누군가의 입장
               console.log('누군가의 입장으로 1초 뒤에 정보 가져오기');
@@ -125,22 +131,42 @@ function WaitingRoom() {
               fetchRoomData();
               // }, 1000);
               break;
+            // 준비 / 준비완료
             case 'READY':
+              const { readyStateList, allReady } = receivedMessage.content;
+              console.log('tetete', gameParticipants);
+              // 유저 정보 업데이트
+              const readyParticipants = gameParticipants.map((participant) => {
+                const player = readyStateList.find(
+                  (p: Player) => p.playerId === participant.userId,
+                );
+
+                // player가 있는 경우
+                if (player) {
+                  return {
+                    ...participant,
+                    isReady: player.ready,
+                  };
+                }
+                // player가 없는 경우
+                return participant;
+              });
+
               // 응답에서 플레이어 준비 상태 업데이트
-              // if (receivedMessage.content.playerId === playerId) {
-              if (
-                receivedMessage.content.playerId === hostId &&
-                receivedMessage.content.ready === false
-              ) {
-                // 보낸 사람의 아이디가 호스트아이디이고, 레디가 안된 상태면 강제 레디
-                hostReady();
+              if (readyStateList.playerId === hostId) {
+                console.log('준비: ', readyStateList.ready);
+                if (readyStateList.ready === false) {
+                  // 보낸 사람의 아이디가 호스트아이디이고, 레디가 안된 상태면 강제 레디
+                  hostReady();
+                }
               }
-              setIsReady(receivedMessage.content.ready);
-              setIsAllReady(receivedMessage.content.allReady);
-              console.log('준비: ', receivedMessage.content.ready);
-              console.log('모두 준비: ', receivedMessage.content.allReady);
-              // }
+
+              console.log('레디유저', readyParticipants);
+              setGameParticipants(readyParticipants);
+              setIsAllReady(allReady);
+              console.log('모두 준비: ', allReady);
               break;
+            // 게임 시작
             case 'ROUND_START':
               navigate(`/game/${roomId}`);
           }
@@ -155,7 +181,7 @@ function WaitingRoom() {
     const fetchRoomData = async () => {
       try {
         const response = await axios.post(`${API_LINK}/room/join/${roomId}`, {
-          playerId: playerId,
+          playerId: userId,
         });
         if (response.data && response.data.data) {
           const gameParticipants = response.data.data.participants;
@@ -201,7 +227,7 @@ function WaitingRoom() {
     ///////////////////////////////////////
     // 방장id와 유저 id가 같으면 방장은 알아서 ready준비가 되게 전송
     const hostReady = () => {
-      if (hostId === playerId) {
+      if (hostId === userId) {
         const readyRequest = {
           type: 'READY',
         };
@@ -229,7 +255,7 @@ function WaitingRoom() {
       try {
         // 방 퇴장 API 호출
         const response = await axios.post(`${API_LINK}/room/exit/${roomId}`, {
-          playerId: playerId,
+          playerId: userId,
         });
         if (response.status === 200) {
           console.log('방 퇴장 완료');
@@ -263,21 +289,24 @@ function WaitingRoom() {
     // 컴포넌트 언마운트 시 타이머 및 웹소켓 연결 정리
     return () => {
       clearTimeout(delay);
-      if (socket.current) {
-        socket.current.close();
-        console.log('웹소켓 연결 닫기');
+      // 현재 페이지가 game 페이지로 이동하는 경우가 아니면 웹소켓 닫기
+      if (!window.location.pathname.startsWith(`/game/${roomId}`)) {
+        if (socket.current) {
+          socket.current.close();
+          console.log('웹소켓 연결 닫기');
+        }
       }
       // 컴포넌트 언마운트 시 이벤트 리스너 제거
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [roomId, playerId, hostId]);
+  }, [roomId, userId, hostId]);
 
   ///////////////////////////////////////
   // 참가자 정보 가져오기 API
   const fetchUsersInfo = async () => {
     try {
-      // 기존 유저 데이터 초기화
-      setUsers([]);
+      // // 기존 유저 데이터 초기화
+      // setUsers([]);
 
       // participants가 존재하는지 체크
       // if (!gameParticipants || gameParticipants.length === 0) return;
@@ -299,7 +328,7 @@ function WaitingRoom() {
           };
         }),
       );
-      setUsers(fetchUsers);
+      // setUsers(fetchUsers);
       // 새로 받아온 유저 정보가 기존 정보와 다른 경우에만 dispatch 실행
       if (JSON.stringify(fetchUsers) !== JSON.stringify(gameParticipants)) {
         dispatch(setGameParticipants(fetchUsers));
@@ -337,11 +366,7 @@ function WaitingRoom() {
         <section className="w-2/3">
           <RoomTitle roomName={roomName} roomId={roomId} />
           {/* 게임 참여 대기자 리스트 */}
-          <RoomUserList
-            onOpen={handleOpenModal}
-            socket={socket.current}
-            users={users}
-          />
+          <RoomUserList onOpen={handleOpenModal} socket={socket.current} />
           <RoomChat messages={messages} socket={socket.current} />
         </section>
 

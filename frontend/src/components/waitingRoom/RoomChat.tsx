@@ -57,6 +57,11 @@ function RoomChat({ messages, socket }: RoomInfoProps) {
     setMessage(''); // 메시지 전송 후 입력창 초기화
   };
 
+  const getNicknameById = (id: string) => {
+    const participant = participants.find((p) => String(p.userId) === id);
+    return participant ? participant.nickname : id;
+  };
+
   return (
     <div className="waitingroom-brown-box py-0 pl-3 h-[180px]">
       <section className="font-galmuri11 h-[70%] mt-2 mr-2 pl-2 pb-2 overflow-scroll overflow-x-hidden">
@@ -66,7 +71,7 @@ function RoomChat({ messages, socket }: RoomInfoProps) {
               <p className="text-[#10ab7d]">{msg.content.message}</p>
             ) : (
               <p>
-                {msg.content.playerId} : {msg.content.message}
+                {getNicknameById(msg.content.playerId)} : {msg.content.message}
               </p>
             )}
             <div ref={messagesEndRef} />
