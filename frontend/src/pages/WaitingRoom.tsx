@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -182,8 +182,17 @@ function WaitingRoom() {
         } else {
           console.error('응답 데이터에 participants가 없습니다.');
         }
-      } catch (error) {
-        console.error('방 정보 가져오는 중 에러 발생: ', error);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          if (error.response && error.response.status === 404) {
+            alert('방을 찾을 수 없습니다.');
+            navigate('/lobby');
+          } else {
+            console.error('방 정보 가져오는 중 에러 발생: ', error);
+          }
+        } else {
+          console.error('예상치 못한 오류 발생: ', error);
+        }
       }
     };
     // 방 정보 가져오기

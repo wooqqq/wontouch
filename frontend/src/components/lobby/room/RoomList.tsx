@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
@@ -8,8 +7,6 @@ import Modal from '../../common/Modal';
 import map from '../../../assets/map/map.png';
 import lock from '../../../assets/icon/lock.png';
 import cancel from '../../../assets/icon/cancel.png';
-
-interface RoomList {}
 
 export default function RoomList() {
   const API_LINK = import.meta.env.VITE_API_URL;
@@ -25,7 +22,7 @@ export default function RoomList() {
   const getRoomList = async () => {
     const response = await axios.get(`${API_LINK}/lobby/list`);
     setRoomList(response.data.data);
-    console.log(response.data.data[0]);
+    console.log(response.data.data);
   };
 
   useEffect(() => {
