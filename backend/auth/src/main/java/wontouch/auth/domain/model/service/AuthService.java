@@ -1,6 +1,7 @@
 package wontouch.auth.domain.model.service;
 
 import com.nimbusds.jose.shaded.gson.Gson;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import wontouch.auth.domain.dto.request.GoogleRequestDto;
+import wontouch.auth.domain.dto.request.KakaoLogoutRequestDto;
 import wontouch.auth.global.util.dto.JwtResponseDto;
 import wontouch.auth.domain.dto.response.KakaoResponseDto;
 import wontouch.auth.domain.entity.Token;
@@ -133,7 +135,7 @@ public class AuthService {
             tokenRepository.save(token);
 
             // refresh token은 Redis 에 저장
-//            redisTemplate.opsForHash().put("refresh_token:", String.valueOf(savedUser.getId()), tokenInfo.getRefreshToken());
+//            redisTemplate.opsForValue().set("refresh_token:" +savedUser.getId(), tokenInfo.getRefreshToken());
 
             if (savedUser.getEmail().equals("") || savedUser.getUsername().equals("")) {
                 String message = "마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
@@ -266,6 +268,34 @@ public class AuthService {
         }
 
         return new KakaoResponseDto(email, nickName);
+    }
+
+    /**
+     * 카카오 로그아웃 처리
+     */
+    public boolean kakaoLogout(KakaoLogoutRequestDto requestDto) {
+        String accessToken = requestDto.getAccessToken();
+
+        try {
+            // accessToken에서 userId 추출
+            Claims claims = jwtProvider.parseClaims(accessToken);
+            int userId = claims.get("userId", Integer.class);
+            String redisKey = "refresh_token:" + userId;
+
+            // Redis 에서 해당 유저의 refresh token 조회
+            String currentToken = redisTemplate.opsForValue().get(redisKey);
+            log.info("현재 Redis에 저장된 refresh token: " + currentToken);
+
+            // Redis에서 해당 유저의 refresh token 삭제
+            redisTemplate.delete(redisKey);
+            log.info("삭제된 후 Redis에 저장된 refresh token: " + redisTemplate.opsForValue().get(redisKey));
+
+            log.info("카카오 로그아웃 성공: userId = " + userId);
+            return true;
+        } catch (Exception e) {
+            log.error("카카오 로그아웃 실패", e);
+            return false;
+        }
     }
 
 }

@@ -57,6 +57,7 @@ public class AuthController {
     // 카카오 로그아웃
     @PostMapping("/kakao/logout")
     public ResponseEntity<?> kakaoLogout(@RequestBody KakaoLogoutRequestDto requestDto) {
+        authService.kakaoLogout(requestDto);
 
         ResponseDto<String> responseDto = ResponseDto.<String>builder()
                 .status(HttpStatus.OK.value())
