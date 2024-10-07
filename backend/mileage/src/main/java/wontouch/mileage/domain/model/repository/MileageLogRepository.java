@@ -12,5 +12,6 @@ public interface MileageLogRepository extends MongoRepository<MileageLog, Intege
 
     boolean existsByUserId(int userId);
     Optional<List<MileageLog>> findByUserId(int userId);
+    void deleteByUserId(int userId);
     void deleteByUserIdAndMileageLogTypeAndCreateAtBefore(int userId, MileageLogType mileageLogType, LocalDateTime createAt);
 }

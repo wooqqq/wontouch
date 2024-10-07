@@ -12,4 +12,5 @@ public interface FriendRepository extends JpaRepository<Friend, Integer> {
     Optional<List<Friend>> findByFromUserId(int fromUserId);
     Optional<Friend> findByFromUserIdAndToUserId(int fromUesrId, int toUserId);
     Optional<List<Friend>> findByFromUserIdOrToUserId(int fromUserId, int toUserId);
+    void deleteByFromUserIdOrToUserId(int fromUserId, int toUserId);
 }
