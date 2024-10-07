@@ -61,6 +61,9 @@ public class RoomRepository {
         long playerId = roomRequestDto.getPlayerId();
         String participantsKey = "game_lobby:" + roomId + ":participants";
         Room room = getRoomById(roomId);
+        if (room == null) {
+            throw new ExceptionResponse(CustomException.ROOM_NOT_FOUND);
+        }
         if (room.getCurrentPlayersCount() >= MAX_PLAYER) {
             throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
         }
