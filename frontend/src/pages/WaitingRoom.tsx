@@ -82,7 +82,7 @@ function WaitingRoom() {
 
     // 웹소켓 생성
     const newSocket = new WebSocket(
-      `ws://${SOCKET_LINK}/ws/game/${roomId}?playerId=${userId}`,
+      `${SOCKET_LINK}/ws/game/${roomId}?playerId=${userId}`,
     );
 
     // 웹소켓 연결
@@ -98,7 +98,7 @@ function WaitingRoom() {
       setTimeout(() => {
         console.log('재연결 시도 중...');
         socket.current = new WebSocket(
-          `ws://${SOCKET_LINK}/ws/game/${roomId}?playerId=${userId}`,
+          `${SOCKET_LINK}/ws/game/${roomId}?playerId=${userId}`,
         );
         setIsLoading(false);
       }, 5000);
@@ -134,19 +134,21 @@ function WaitingRoom() {
             // 준비 / 준비완료
             case 'READY':
               const { readyStateList, allReady } = receivedMessage.content;
-
+              console.log('tetete', gameParticipants);
               // 유저 정보 업데이트
               const readyParticipants = gameParticipants.map((participant) => {
                 const player = readyStateList.find(
                   (p: Player) => p.playerId === participant.userId,
                 );
 
+                // player가 있는 경우
                 if (player) {
                   return {
                     ...participant,
                     isReady: player.ready,
                   };
                 }
+                // player가 없는 경우
                 return participant;
               });
 
@@ -159,6 +161,7 @@ function WaitingRoom() {
                 }
               }
 
+              console.log('레디유저', readyParticipants);
               setGameParticipants(readyParticipants);
               setIsAllReady(allReady);
               console.log('모두 준비: ', allReady);
