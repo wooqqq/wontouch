@@ -134,7 +134,7 @@ function WaitingRoom() {
             // 준비 / 준비완료
             case 'READY':
               const { readyStateList, allReady } = receivedMessage.content;
-              console.log('tetete', gameParticipants);
+              console.log('유저정보 업데이트 전', gameParticipants);
               // 유저 정보 업데이트
               const readyParticipants = gameParticipants.map((participant) => {
                 const player = readyStateList.find(
@@ -163,6 +163,7 @@ function WaitingRoom() {
 
               console.log('레디유저', readyParticipants);
               setGameParticipants(readyParticipants);
+              console.log('패치 후', gameParticipants);
               setIsAllReady(allReady);
               console.log('모두 준비: ', allReady);
               break;
