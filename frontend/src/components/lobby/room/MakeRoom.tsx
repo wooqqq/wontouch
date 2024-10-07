@@ -115,7 +115,7 @@ export default function MakeRoomModal({
           }}
         />
       </div>
-      <div className="mt-12 flex justify-between px-48">
+      <div className="mt-12 mx-6 flex justify-evenly">
         <button onClick={closeMakeRoom}>
           <img src={cancel} alt="모달 닫기" />
         </button>

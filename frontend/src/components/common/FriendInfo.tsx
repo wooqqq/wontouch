@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import Modal from './Modal';
 import FriendProfile from '../lobby/friend/FriendProfile';
+import LevelImg from './LevelImg';
 
 interface FriendInfoProps {
   friendId: number;
@@ -30,14 +31,14 @@ export default function FriendInfo({
   };
 
   return (
-    <div className="relative">
+    <div>
       <button
-        className="ranking-box white-text text-2xl h-[40px] w-full mb-1"
+        className="ranking-box white-text text-2xl h-[40px] w-full mb-1 flex justify-between px-2"
         onClick={openProfile}
       >
-        {nickname}
-        <div className="absolute right-4">
-          {/* <img src={character} alt="메달" className="w-6 h-7" /> */}
+        <div>{nickname}</div>
+        <div className="w-6 h-6">
+          <LevelImg tierPoint={tierPoint} />
         </div>
       </button>
 

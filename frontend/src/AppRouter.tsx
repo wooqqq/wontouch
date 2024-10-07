@@ -51,15 +51,6 @@ function AppRouter() {
 
   return (
     <Router>
-      <Content />
-    </Router>
-  );
-}
-
-function Content() {
-
-  return (
-    <>
       <Routes>
         <Route
           path="/"
@@ -111,7 +102,7 @@ function Content() {
           }
         />
       </Routes>
-    </>
+    </Router>
   );
 }
 
