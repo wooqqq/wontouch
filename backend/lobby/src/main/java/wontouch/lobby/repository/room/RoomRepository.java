@@ -60,6 +60,7 @@ public class RoomRepository {
     public RoomResponseDto joinRoom(String roomId, RoomRequestDto roomRequestDto) {
         long playerId = roomRequestDto.getPlayerId();
         String participantsKey = "game_lobby:" + roomId + ":participants";
+        log.debug("join roomId:{}", roomId);
         Room room = getRoomById(roomId);
         if (room == null) {
             throw new ExceptionResponse(CustomException.ROOM_NOT_FOUND);
@@ -232,7 +233,7 @@ public class RoomRepository {
     public Room getRoomById(String roomId) {
         String roomKey = "game_lobby:" + roomId + ":info";
         Map<Object, Object> roomData = redisTemplate.opsForHash().entries(roomKey);
-
+        log.debug("roomData:{}", roomData);
         if (roomData.isEmpty()) {
             return null;
         }

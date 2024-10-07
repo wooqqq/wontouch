@@ -3,12 +3,10 @@ package wontouch.lobby.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import wontouch.lobby.dto.ReadyStateDto;
-import wontouch.lobby.dto.ResponseDto;
+import wontouch.lobby.dto.ready.ReadyDto;
+import wontouch.lobby.dto.ready.ReadyStateDto;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 // 게임의 준비 시작을 담당하는 레포지토리 레이어
@@ -22,7 +20,7 @@ public class ReadyRepository {
         this.redisTemplate = redisTemplate;
     }
 
-    public ReadyStateDto readyStatusChange(String roomId, long playerId) {
+    public ReadyDto readyStatusChange(String roomId, long playerId) {
         String participantsKey = "game_lobby:" + roomId + ":participants";
         // 1. 기존 값 불러오기
         String field = Long.toString(playerId);
@@ -38,11 +36,30 @@ public class ReadyRepository {
 
         log.info("Updated value for field '" + field + "' in hash '" + participantsKey + "': " + !isReady);
 
-        boolean isAllReady = isAllReady(roomId);
-        return new ReadyStateDto(playerId, !isReady, isAllReady);
+        return getReadyStatus(roomId);
     }
 
-    public boolean isAllReady(String roomId) {
+//    public boolean isAllReady(String roomId) {
+//        String participantsKey = "game_lobby:" + roomId + ":participants";
+//
+//        // Hash에서 참여자 목록 가져오기
+//        Map<Object, Object> participantsMap = redisTemplate.opsForHash().entries(participantsKey);
+//
+//        // 참가자가 없는 경우 처리
+//        if (participantsMap == null || participantsMap.isEmpty()) {
+//            // 참가자가 없으면 모두 준비되지 않은 것으로 반환
+//            return false;
+//        }
+//
+//        // 모든 참가자의 readyState가 true인지 확인
+//        return participantsMap.entrySet().stream()
+//                .allMatch(entry -> {
+//                    Object value = entry.getValue();
+//                    return Boolean.parseBoolean(value.toString());
+//                });
+//    }
+
+    public ReadyDto getReadyStatus(String roomId) {
         String participantsKey = "game_lobby:" + roomId + ":participants";
 
         // Hash에서 참여자 목록 가져오기
@@ -50,16 +67,25 @@ public class ReadyRepository {
 
         // 참가자가 없는 경우 처리
         if (participantsMap == null || participantsMap.isEmpty()) {
-            // 참가자가 없으면 모두 준비되지 않은 것으로 반환
-            return false;
+            // 참가자가 없으면 빈 리스트와 isAllReady=false 반환
+            return new ReadyDto(new ArrayList<>(), false);
         }
 
-        // 모든 참가자의 readyState가 true인지 확인
-        return participantsMap.entrySet().stream()
-                .allMatch(entry -> {
-                    Object value = entry.getValue();
-                    return Boolean.parseBoolean(value.toString());
-                });
+        // ReadyStateDto 리스트 생성
+        List<ReadyStateDto> readyStateList = participantsMap.entrySet().stream()
+                .map(entry -> {
+                    long playerId = Long.parseLong(entry.getKey().toString());
+                    boolean isReady = Boolean.parseBoolean(entry.getValue().toString());
+                    return new ReadyStateDto(playerId, isReady);
+                })
+                .collect(Collectors.toList());
+
+        // 모든 참가자가 준비되었는지 확인
+        boolean isAllReady = readyStateList.stream()
+                .allMatch(ReadyStateDto::isReady);
+
+        // ReadyDto 객체로 반환
+        return new ReadyDto(readyStateList, isAllReady);
     }
 
     public boolean kickUser(String roomId, String requestId, String playerId) {

@@ -1,4 +1,4 @@
-package wontouch.lobby.dto;
+package wontouch.lobby.dto.ready;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,5 +8,4 @@ import lombok.Data;
 public class ReadyStateDto {
     private long playerId;
     private boolean isReady;
-    private boolean isAllReady;
 }
