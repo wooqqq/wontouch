@@ -77,8 +77,6 @@ public class JwtProvider {
                 .compact();
 
         String redisKey = "refresh_token:" + userId;
-
-        System.out.println(redisKey);
         redisTemplate.opsForValue().set(redisKey, refreshToken, REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
 
         System.out.println(redisTemplate.opsForValue().get(redisKey));

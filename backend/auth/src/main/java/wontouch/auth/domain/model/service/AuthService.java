@@ -19,9 +19,7 @@ import wontouch.auth.domain.dto.request.KakaoLogoutRequestDto;
 import wontouch.auth.domain.dto.response.LoginTokenResponseDto;
 import wontouch.auth.global.util.dto.JwtResponseDto;
 import wontouch.auth.domain.dto.response.KakaoResponseDto;
-import wontouch.auth.domain.entity.Token;
 import wontouch.auth.domain.entity.User;
-import wontouch.auth.domain.model.repository.TokenRepository;
 import wontouch.auth.domain.model.repository.UserRepository;
 import wontouch.auth.global.util.jwt.JwtProvider;
 
@@ -34,7 +32,6 @@ import java.util.Optional;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
     private final RedisTemplate<String, String> redisTemplate;
 
