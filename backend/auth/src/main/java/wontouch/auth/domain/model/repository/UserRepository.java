@@ -1,7 +1,7 @@
-package wontouch.auth.repository;
+package wontouch.auth.domain.model.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import wontouch.auth.entity.User;
+import wontouch.auth.domain.entity.User;
 
 import java.util.Optional;
 

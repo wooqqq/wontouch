@@ -1,4 +1,4 @@
-package wontouch.auth.config;
+package wontouch.auth.global.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,8 +12,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import wontouch.auth.global.handler.CustomSuccessHandler;
-import wontouch.auth.util.jwt.JwtFilter;
-import wontouch.auth.util.jwt.JwtProvider;
+import wontouch.auth.global.util.jwt.JwtFilter;
+import wontouch.auth.global.util.jwt.JwtProvider;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -1,14 +1,16 @@
-package wontouch.auth.controller;
+package wontouch.auth.domain.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wontouch.auth.dto.request.GoogleRequestDto;
-import wontouch.auth.dto.request.KakaoRequestDto;
-import wontouch.auth.dto.response.JwtResponseDto;
-import wontouch.auth.service.AuthService;
-import wontouch.auth.util.ResponseDto;
+import wontouch.auth.domain.dto.request.GoogleRequestDto;
+import wontouch.auth.domain.dto.request.KakaoLogoutRequestDto;
+import wontouch.auth.domain.dto.request.KakaoRequestDto;
+import wontouch.auth.domain.dto.response.LoginTokenResponseDto;
+import wontouch.auth.global.util.dto.JwtResponseDto;
+import wontouch.auth.domain.model.service.AuthService;
+import wontouch.auth.global.util.dto.ResponseDto;
 
 @RestController
 @RequestMapping("/oauth")
@@ -42,12 +44,26 @@ public class AuthController {
     @PostMapping("/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestBody KakaoRequestDto requestDto) {
 
-        JwtResponseDto.TokenInfo tokenInfo = authService.kakaoCallback(requestDto.getCode());
+        LoginTokenResponseDto tokenInfo = authService.kakaoCallback(requestDto.getCode());
 
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())
                 .message("카카오 소셜 로그인")
                 .data(tokenInfo)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    // 카카오 로그아웃
+    @PostMapping("/kakao/logout")
+    public ResponseEntity<?> kakaoLogout(@RequestBody KakaoLogoutRequestDto requestDto) {
+        authService.kakaoLogout(requestDto);
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("카카오 로그아웃 성공")
+                .data(null)
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);

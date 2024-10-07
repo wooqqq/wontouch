@@ -1,15 +1,18 @@
-package wontouch.auth.util.jwt;
+package wontouch.auth.global.util.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import wontouch.auth.dto.response.JwtResponseDto;
+import wontouch.auth.global.util.dto.JwtResponseDto;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -20,10 +23,12 @@ public class JwtProvider {
     private static final String BEARER_TYPE = "Bearer";
 
     private final SecretKey secretKey;
+    private final RedisTemplate redisTemplate;
 
     // application.properties 에 있는 평문 secret key 를 가져와 초기화
-    public JwtProvider(@Value("${spring.jwt.secret}") String secret) {
+    public JwtProvider(@Value("${spring.jwt.secret}") String secret, @Qualifier("redisTemplate") RedisTemplate redisTemplate) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secret));
+        this.redisTemplate = redisTemplate;
     }
 
     // 토큰 생성 메소드
@@ -71,6 +76,11 @@ public class JwtProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
 
+        String redisKey = "refresh_token:" + userId;
+        redisTemplate.opsForValue().set(redisKey, refreshToken, REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+
+        System.out.println(redisTemplate.opsForValue().get(redisKey));
+
         return JwtResponseDto.TokenInfo.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -79,7 +89,7 @@ public class JwtProvider {
 
     // access token 을 통해 claims 얻는 방법
     // 여기에서 get("userId", String.class)를 통해 값 불러올 수 있음
-    private Claims parseClaims(String accessToken) {
+    public Claims parseClaims(String accessToken) {
         try {
             return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(accessToken).getPayload();
         } catch (ExpiredJwtException e) {
