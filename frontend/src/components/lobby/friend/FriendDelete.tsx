@@ -20,7 +20,7 @@ export default function FriendDelete({
   // 삭제 요청
   const deleteFriend = async () => {
     try {
-      const response = await axios.delete(`${API_LINK}/friend/delete`, {
+      await axios.delete(`${API_LINK}/friend/delete`, {
         data: {
           userId: userId,
           friendId: friendId,
@@ -40,12 +40,12 @@ export default function FriendDelete({
         {nickname} 님과 친구를 끊겠습니까?
       </div>
       <div className="flex justify-between px-36">
-        <div>
+        <button>
           <img src={cancel} alt="취소" onClick={closeDeleteModal} />
-        </div>
-        <div>
+        </button>
+        <button>
           <img src={confirm} alt="친구 삭제" onClick={deleteFriend} />
-        </div>
+        </button>
       </div>
     </div>
   );
