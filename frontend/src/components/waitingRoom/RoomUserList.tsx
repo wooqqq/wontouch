@@ -1,6 +1,10 @@
 import { RoomUserInfo } from './RoomUserInfo';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import selectboxBL from '../../assets/icon/selectbox_bl.png';
+import selectboxBR from '../../assets/icon/selectbox_br.png';
+import selectboxTL from '../../assets/icon/selectbox_tl.png';
+import selectboxTR from '../../assets/icon/selectbox_tr.png';
 
 interface RoomUserListProps {
   onOpen: () => void;
@@ -31,7 +35,17 @@ function RoomUserList({ onOpen, socket }: RoomUserListProps) {
   });
 
   return (
-    <div className="waitingroom-brown-box flex flex-wrap justify-center gap-9">
+    <div className="waitingroom-brown-box flex flex-wrap justify-center gap-9 mt-8 mb-6">
+      <img
+        src={selectboxBL}
+        alt="박스 왼쪽 하단"
+        className="absolute left-[-10px] top-[460px]"
+      />
+      <img
+        src={selectboxTR}
+        alt="박스 오른쪽 상단"
+        className="absolute right-[400px] top-[18px]"
+      />
       {userList.map((user, index) => (
         <div key={index} className="flex-shrink-0">
           {/* playerId가 없을 경우에만 클릭 이벤트를 허용 */}
