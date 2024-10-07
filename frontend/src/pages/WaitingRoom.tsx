@@ -62,6 +62,10 @@ function WaitingRoom() {
   const [messages, setMessages] = useState<Message[]>([]);
   const socket = useRef<WebSocket | null>(null);
 
+  //라운드와 타이머 시간 
+  const [roundDuration, setRoundDuration] = useState<number>(0); // duration 저장
+  const [roundNumber, setRoundNumber] = useState<number>(0);     // round 저장
+
   // roomId 저장
   useEffect(() => {
     console.log(roomIdFromParams);
@@ -119,8 +123,8 @@ function WaitingRoom() {
               console.log('누군가의 입장으로 1초 뒤에 정보 가져오기');
 
               // 1초 뒤에 정보 다시 가져오기
-              setTimeout(() => {
-                fetchRoomData();
+              setTimeout(async () => {
+                await fetchRoomData();
               }, 1000);
               break;
             case 'READY':
@@ -139,8 +143,18 @@ function WaitingRoom() {
                 console.log('모두 준비: ', receivedMessage.content.allReady);
               }
               break;
-            case 'ROUND_START':
-              navigate(`/game/${roomId}`);
+            case 'ROUND_START': {
+              const { duration, round } = receivedMessage.content;
+              console.log(duration, round);
+
+              // 받은 duration과 round를 상태로 설정
+              setRoundDuration(duration);
+              setRoundNumber(round);
+
+              // 게임 페이지로 이동하면서 round와 duration을 넘김
+              navigate(`/game/${roomId}`, { state: { roundDuration: duration, roundNumber: round } });
+              break;
+            }
           }
         } catch (error) {
           console.error('JSON 파싱 오류:', error);
@@ -155,19 +169,27 @@ function WaitingRoom() {
         const response = await axios.post(`${API_LINK}/room/join/${roomId}`, {
           playerId: playerId,
         });
+
+        console.log("확인해", response.data);
+
         if (response.data && response.data.data) {
           const gameParticipants = response.data.data.participants;
-          const formattedParticipants = Object.entries(gameParticipants).map(
-            ([userId, isReady]) => ({
-              userId: Number(userId), // userId는 숫자로 변환
-              isReady: Boolean(isReady), // 준비 상태 Boolean으로 변환
-              nickname: '',
-              description: '',
-              characterName: '',
-              tierPoint: 0,
-              mileage: 0,
-            }),
-          );
+          console.log("지금 입장자들은", gameParticipants);
+
+          const formattedParticipants = Object.entries(gameParticipants)
+            .map(([idx, userId]) => {
+              console.log(`Idx: ${idx}, userId: ${userId}`); // 각 엔트리 확인
+              return {
+                userId: Number(userId), // userId는 숫자로 변환
+                isReady: false, // 준비 상태 Boolean으로 변환
+                nickname: '',
+                description: '',
+                characterName: '',
+                tierPoint: 0,
+                mileage: 0,
+              };
+            });
+          console.log('필터링된 참가자 목록:', formattedParticipants);
 
           dispatch(setGameParticipants(formattedParticipants));
           dispatch(setRoomName(response.data.data.roomName));
@@ -175,9 +197,7 @@ function WaitingRoom() {
 
           console.log('1번-방정보 가져오기', formattedParticipants);
 
-          // 방 정보 토대로 유저 가져오기
           fetchUsersInfo();
-          // 호스트 레디상태 변경
           hostReady();
         } else {
           console.error('응답 데이터에 participants가 없습니다.');
@@ -208,23 +228,31 @@ function WaitingRoom() {
         // 기존 유저 데이터 초기화
         setUsers([]);
 
-        // participants가 존재하는지 체크
+        // participants가 존재하는지 체크하고, null이나 undefined 또는 userId가 0인 항목을 제외한 올바른 항목만 필터링
         if (!gameParticipants || gameParticipants.length === 0) return;
 
+        const validParticipants = gameParticipants.filter((participant) => {
+          return participant && participant.userId > 0; // userId가 0이 아닌 항목만 포함
+        });
+
+        console.log(validParticipants);
+
         const fetchUsers = await Promise.all(
-          gameParticipants.map(async (gameParticipant: GameParticipant) => {
+          validParticipants.map(async (gameParticipant: GameParticipant) => {
             const userId = gameParticipant.userId;
             const userResponse = await axios.get(`${API_LINK}/user/${userId}`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             });
+            console.log(userResponse.data);
             return userResponse.data.data;
           }),
         );
+
         setUsers(fetchUsers);
         dispatch(setGameParticipants(fetchUsers));
-        console.log('2번-방정보 토대로 유저 정보 가져오기');
+        console.log('유저 정보 가져오기 완료');
       } catch (error) {
         console.error('유저 정보를 가져오는 중 오류 발생: ', error);
       }

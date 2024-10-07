@@ -12,7 +12,7 @@ import roomSlice from './slices/roomSlice';
 const persistConfig = {
   key: 'root', // key는 로컬 스토리지에 저장되는 이름
   storage, // 사용할 스토리지 (localStorage)
-  whitelist: ['user', 'auth', 'room'], // 유지할 슬라이스 지정
+  whitelist: ['user', 'auth'], // 유지할 슬라이스 지정
 };
 
 // 여러 슬라이스를 결합

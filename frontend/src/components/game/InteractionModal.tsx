@@ -2,19 +2,55 @@ import React, { useEffect, useState } from 'react';
 import lock from '../../assets/icon/lock.png';
 import board from '../../assets/game/board.png';
 import npc from '../../assets/background/npc.png';
-import apple from '../../assets/crops/apple.png';
 import up from '../../assets/icon/arrow_up.png';
 import cancle from '../../assets/icon/cancel.png';
-import confirm from '../../assets/icon/confirm.png';
+//import confirm from '../../assets/icon/confirm.png';
+import leftArrow from '../../assets/icon/arrow_left.png'; // 좌측 화살표 이미지
+import rightArrow from '../../assets/icon/arrow_right.png'; // 우측 화살표 이미지
+
+interface CropList {
+  [cropName: string]: number;
+}
 
 interface ModalProps {
   houseNum: number | null;
   closeModal: () => void;
+  gameSocket: WebSocket | null;
+  cropList?: CropList;
 }
 
-const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal }) => {
+// 이미지 파일을 동적으로 가져오기
+const cropImages = import.meta.glob('../../assets/crops/*.png');
+
+const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSocket, cropList }) => {
   const [count, setCount] = useState(0);
   const [purchaseModal, setPurchaseModal] = useState(false);
+
+  //작물 인덱스 보기
+  const [currentCropIndex, setCurrentCropIndex] = useState(0);
+  const [currentImageSrc, setCurrentImageSrc] = useState<string | null>(null);
+  // cropList 배열 생성 (Object.entries를 사용하여 객체를 배열로 변환)
+  const crops = Object?.entries(cropList ?? {});
+
+  const handlePrev = () => {
+    if (currentCropIndex === 0) {
+      // 첫 번째 작물에서 이전으로 가려면 마지막 작물로 이동
+      setCurrentCropIndex(crops.length - 1);
+    } else {
+      // 그렇지 않으면 이전 작물로 이동
+      setCurrentCropIndex(currentCropIndex - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentCropIndex === crops.length - 1) {
+      // 마지막 작물에서 다음으로 가려면 첫 번째 작물로 이동
+      setCurrentCropIndex(0);
+    } else {
+      // 그렇지 않으면 다음 작물로 이동
+      setCurrentCropIndex(currentCropIndex + 1);
+    }
+  };
 
   const openPurchaseModal = () => {
     setPurchaseModal(true);
@@ -27,6 +63,59 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal }) => {
   // const closePurchaseModal = () => {
   //   setPurchaseModal(false);
   // }
+
+  useEffect(() => {
+    if (crops.length > 0) {
+      const [cropName] = crops[currentCropIndex];
+
+      // 이미지 경로 동적으로 설정
+      const loadImage = async () => {
+        const imagePath = cropImages[`../../assets/crops/${cropName}.png`];
+        if (imagePath) {
+          const imageModule = await (imagePath as () => Promise<{ default: string }>)();
+          setCurrentImageSrc(imageModule.default);
+        }
+      };
+
+      loadImage();
+    }
+  }, [currentCropIndex, crops]);
+
+
+  useEffect(() => {
+    if (houseNum !== null && houseNum !== 0 && gameSocket) {
+      let townName = '';
+      switch (houseNum) {
+        case 1:
+          townName = 'DOMESTIC_FRUITS';
+          break;
+        case 2:
+          townName = "VEGETABLES_1";
+          break;
+        case 3:
+          townName = "MUSHROOMS_MEDICINAL";
+          break;
+        case 4:
+          townName = "IMPORTED_FRUITS";
+          break;
+        case 5:
+          townName = "VEGETABLES_2";
+          break;
+        default:
+          townName = "GRAINS_NUTS";
+          break;
+      }
+
+      // 모달이 열렸을 때, TOWN_CROP_LIST 요청 전송
+      const townCropMessage = {
+        type: "TOWN_CROP_LIST",
+        townName: townName
+      };
+
+      gameSocket.send(JSON.stringify(townCropMessage));
+      console.log("TOWN_CROP_LIST 요청을 보냈습니다.");
+    }
+  }, [houseNum, gameSocket]);
 
   const minusCount = () => {
     if (count > 0) {
@@ -57,7 +146,9 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal }) => {
     };
   }, []);
 
-  if (houseNum === null) return null;
+  if (houseNum === null || crops.length === 0) return null;
+  // 현재 선택된 작물 정보 가져오기
+  const [cropName, cropAmount] = crops[currentCropIndex];
 
   return (
     <>
@@ -76,6 +167,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal }) => {
             <img
               src={board}
               alt="보드 이미지"
+
               className="absolute top-0 left-[25%] w-full h-full z-10"
             />
 
@@ -90,20 +182,29 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal }) => {
                 </button>
               </div>
 
-              {/* 아이템 정보 */}
+              {/* 작물 정보 */}
               <div className="flex items-center justify-start mb-[5%]">
                 <img
-                  src={apple}
-                  alt="아이템 이미지"
+                  src={currentImageSrc ?? undefined} // 현재 작물에 맞는 이미지를 선택해야 함
+                  alt={`${cropName} 이미지`}
                   className="w-[20%] h-[20%] border border-black p-8 rounded-md"
                 />
                 <div className="ml-[5%]">
-                  <p className="text-[36px] font-semibold">사과</p>
-                  <p className="text-2xl text-gray-600">남은 수량: 50 상자</p>
-                  <p className="text-[32px] font-bold text-yellow-500">
-                    50,000 코인
-                  </p>
+                  <p className="text-[36px] font-semibold">{cropName}</p> {/* 작물 이름 */}
+                  <p className="text-2xl text-gray-600">남은 수량: {cropAmount} 상자</p> {/* 남은 수량 */}
+                  <p className="text-[32px] font-bold text-yellow-500">50,000 코인</p> {/* 가격은 임의 */}
                 </div>
+              </div>
+
+              {/* 좌우 화살표 추가 */}
+              <div className="flex justify-between items-center">
+                <button onClick={handlePrev}>
+                  <img src={leftArrow} alt="이전 작물" />
+                </button>
+
+                <button onClick={handleNext}>
+                  <img src={rightArrow} alt="다음 작물" />
+                </button>
               </div>
 
               <div>
@@ -240,7 +341,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal }) => {
                 <button
                   onClick={closePurchaseModal}
                 >
-                  <img src={cancle} alt='아이이잉'/>
+                  <img src={cancle} alt='아이이잉' />
                 </button>
               </div>
             </div>

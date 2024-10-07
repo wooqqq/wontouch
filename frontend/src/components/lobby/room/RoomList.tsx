@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import lock from '../../../assets/icon/lock.png';
-
-interface RoomList {}
 
 export default function RoomList() {
   const API_LINK = import.meta.env.VITE_API_URL;
@@ -17,7 +14,7 @@ export default function RoomList() {
   const getRoomList = async () => {
     const response = await axios.get(`${API_LINK}/lobby/list`);
     setRoomList(response.data.data);
-    console.log(response.data.data[0]);
+    console.log(response.data.data);
   };
 
   useEffect(() => {
@@ -36,9 +33,9 @@ export default function RoomList() {
           .slice()
           .reverse()
           .map((room, index) => (
-            <button>
+            // key prop을 button에 추가
+            <button key={room.roomId}>
               <div
-                key={room.roomId}
                 className="room-box m-3 p-2"
                 onClick={() => clickRoom(room.roomId)}
               >

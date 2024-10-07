@@ -65,6 +65,8 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
       }),
     );
 
+    console.log(gameStartParticipants);
+
     try {
       const response = await axios.post(
         `${API_LINK}/room/start/${roomId}`,
