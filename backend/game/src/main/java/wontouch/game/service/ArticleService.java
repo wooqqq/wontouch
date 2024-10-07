@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.game.entity.Article;
 import wontouch.game.entity.Crop;
+import wontouch.game.entity.SpecialArticle;
 import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
@@ -55,6 +56,26 @@ public class ArticleService {
         } else {
             // 기존 Article 리스트가 있으면 새로 받은 리스트를 추가
             currentArticleList.addAll(articleList);
+        }
+
+        return cropRepository.save(crop);
+    }
+
+    public Crop updateSpecialArticles(String cropId, List<SpecialArticle> specialArticles) {
+        Optional<Crop> cropOptional = cropRepository.findById(cropId);
+        Crop crop = findCropOrThrow(cropOptional);
+        List<SpecialArticle> existedSpecialArticles = crop.getSpecialArticleList();
+
+        for (SpecialArticle specialArticle : specialArticles) {
+            if (specialArticle.getId() == null || specialArticle.getId().isEmpty()) {
+                specialArticle.setId(UUID.randomUUID().toString());
+            }
+        }
+
+        if (existedSpecialArticles == null) {
+            crop.setSpecialArticleList(specialArticles);
+        } else {
+            existedSpecialArticles.addAll(specialArticles);
         }
 
         return cropRepository.save(crop);

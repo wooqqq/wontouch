@@ -19,4 +19,5 @@ public class Crop {
     private final String imgUrl;
 
     private List<Article> articleList;
+    private List<SpecialArticle> specialArticleList;
 }

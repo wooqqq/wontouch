@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import wontouch.game.dto.article.ArticleTransactionResult;
 import wontouch.game.entity.Article;
 import wontouch.game.entity.Crop;
+import wontouch.game.entity.SpecialArticle;
 import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.service.ArticleService;
 import wontouch.game.service.CropService;
@@ -34,6 +35,12 @@ public class ArticleController {
         log.debug("articleList: {}", articleList);
         Crop crop = articleService.updateArticleList(cropId, articleList);
         log.debug("crop: {}", crop.toString());
+        return ResponseEntity.ok(crop);
+    }
+
+    @PostMapping("/special/{cropId}")
+    public ResponseEntity<Crop> updateSpecialArticles(@PathVariable String cropId, @RequestBody List<SpecialArticle> specialArticles) {
+        Crop crop = articleService.updateSpecialArticles(cropId, specialArticles);
         return ResponseEntity.ok(crop);
     }
 
