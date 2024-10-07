@@ -1,6 +1,5 @@
 package wontouch.socket.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import wontouch.socket.dto.MessageType;
@@ -32,7 +31,7 @@ public class SocketServerService {
 
         lock.lock();
         try {
-            String newDir = (String) msgMap.get("dir");
+            int newDir = (Integer) msgMap.get("dir");
             int newX = (Integer) msgMap.get("x");
             int newY = (Integer) msgMap.get("y");
 

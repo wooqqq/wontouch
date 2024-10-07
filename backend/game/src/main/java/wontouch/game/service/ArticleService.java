@@ -90,7 +90,7 @@ public class ArticleService {
         for (Object cropId : allCrops) {
             // Crop에서 Article의 ID만 가져옴
             Optional<Crop> findCrop = cropRepository.findCropWithArticleIdsOnly((String) cropId);
-            log.debug("findCrop:{}", findCrop);
+            //log.debug("findCrop:{}", findCrop);
             Crop crop = findCropOrThrow(findCrop);
             List<String> articleIds = crop.getArticleList() != null ?
                     crop.getArticleList().stream()

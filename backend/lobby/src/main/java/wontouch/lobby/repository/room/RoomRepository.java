@@ -170,13 +170,15 @@ public class RoomRepository {
     }
 
     // 방 삭제 메서드
-    private void deleteRoom(String roomId) {
+    public void deleteRoom(String roomId) {
         String roomKey = "game_lobby:" + roomId + ":info";
         String participantsKey = "game_lobby:" + roomId + ":participants";
+        String sessionKey = "game_lobby:" + roomId + ":sessions";
         String roomListKey = "game_lobby:rooms";
         // 방 정보와 참가자 목록을 삭제
         redisTemplate.delete(roomKey);
         redisTemplate.delete(participantsKey);
+        redisTemplate.delete(sessionKey);
         redisTemplate.opsForZSet().remove(roomListKey, roomId);
 
         log.debug("Room " + roomId + " has been deleted due to no participants.");
