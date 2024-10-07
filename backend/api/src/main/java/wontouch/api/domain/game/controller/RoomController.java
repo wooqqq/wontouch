@@ -81,12 +81,13 @@ public class RoomController {
             ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, roomRequestDto, ResponseDto.class);
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         } catch (HttpClientErrorException.Unauthorized e) {
-//          일단 뭉뚱그린 예외 처리
             e.printStackTrace();
             throw new ExceptionResponse(CustomException.INVALID_PASSWORD_EXCEPTION);
         } catch (HttpClientErrorException.Conflict exception) {
             exception.printStackTrace();
             throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
+        } catch (HttpClientErrorException.NotFound exception) {
+            throw new ExceptionResponse(CustomException.ROOM_NOT_FOUND);
         }
     }
 
