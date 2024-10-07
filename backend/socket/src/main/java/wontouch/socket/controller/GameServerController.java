@@ -99,7 +99,7 @@ public class GameServerController {
         String roomId = (String) messageData.get("roomId");
         //log.debug("CROP LIST!!: {}", messageData);
         try {
-            sessionService.broadcastMessage(roomId, MessageType.NOTIFY, messageData);
+            sessionService.broadcastMessage(roomId, MessageType.CROP_LIST, messageData);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
