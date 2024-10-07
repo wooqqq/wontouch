@@ -1,4 +1,4 @@
-package wontouch.auth.service;
+package wontouch.auth.domain.model.service;
 
 import com.nimbusds.jose.shaded.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import wontouch.auth.dto.request.GoogleRequestDto;
-import wontouch.auth.dto.response.JwtResponseDto;
-import wontouch.auth.dto.response.KakaoResponseDto;
-import wontouch.auth.entity.Token;
-import wontouch.auth.entity.User;
-import wontouch.auth.repository.TokenRepository;
-import wontouch.auth.repository.UserRepository;
-import wontouch.auth.util.jwt.JwtProvider;
+import wontouch.auth.domain.dto.request.GoogleRequestDto;
+import wontouch.auth.global.util.dto.JwtResponseDto;
+import wontouch.auth.domain.dto.response.KakaoResponseDto;
+import wontouch.auth.domain.entity.Token;
+import wontouch.auth.domain.entity.User;
+import wontouch.auth.domain.model.repository.TokenRepository;
+import wontouch.auth.domain.model.repository.UserRepository;
+import wontouch.auth.global.util.jwt.JwtProvider;
 
 import java.util.Map;
 import java.util.Optional;

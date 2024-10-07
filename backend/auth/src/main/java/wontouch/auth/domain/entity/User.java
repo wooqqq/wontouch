@@ -1,4 +1,4 @@
-package wontouch.auth.entity;
+package wontouch.auth.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

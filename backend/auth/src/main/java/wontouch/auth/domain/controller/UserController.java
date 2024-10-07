@@ -1,4 +1,4 @@
-package wontouch.auth.controller;
+package wontouch.auth.domain.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import wontouch.auth.dto.UserDto;
-import wontouch.auth.service.UserService;
-import wontouch.auth.util.ResponseDto;
+import wontouch.auth.domain.dto.UserDto;
+import wontouch.auth.domain.model.service.UserService;
+import wontouch.auth.global.util.dto.ResponseDto;
 
 @RestController
 @RequestMapping("/user")

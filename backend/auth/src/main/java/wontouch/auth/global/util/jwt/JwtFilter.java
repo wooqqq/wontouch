@@ -1,4 +1,4 @@
-package wontouch.auth.util.jwt;
+package wontouch.auth.global.util.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

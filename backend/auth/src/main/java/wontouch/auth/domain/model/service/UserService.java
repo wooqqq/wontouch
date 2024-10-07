@@ -1,13 +1,13 @@
-package wontouch.auth.service;
+package wontouch.auth.domain.model.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import wontouch.auth.dto.UserDto;
-import wontouch.auth.entity.User;
+import wontouch.auth.domain.dto.UserDto;
+import wontouch.auth.domain.entity.User;
 import wontouch.auth.global.exception.CustomException;
 import wontouch.auth.global.exception.ExceptionResponse;
-import wontouch.auth.repository.UserRepository;
-import wontouch.auth.util.jwt.JwtProvider;
+import wontouch.auth.domain.model.repository.UserRepository;
+import wontouch.auth.global.util.jwt.JwtProvider;
 
 @Service
 @RequiredArgsConstructor

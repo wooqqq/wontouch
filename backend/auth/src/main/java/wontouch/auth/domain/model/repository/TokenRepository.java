@@ -1,11 +1,11 @@
-package wontouch.auth.repository;
+package wontouch.auth.domain.model.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import wontouch.auth.entity.Token;
-import wontouch.auth.entity.User;
+import wontouch.auth.domain.entity.Token;
+import wontouch.auth.domain.entity.User;
 
 import java.util.Optional;
 

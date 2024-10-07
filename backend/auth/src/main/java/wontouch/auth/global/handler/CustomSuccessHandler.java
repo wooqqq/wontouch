@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import wontouch.auth.dto.response.JwtResponseDto;
-import wontouch.auth.entity.User;
-import wontouch.auth.util.jwt.JwtProvider;
+import wontouch.auth.global.util.dto.JwtResponseDto;
+import wontouch.auth.domain.entity.User;
+import wontouch.auth.global.util.jwt.JwtProvider;
 
 import java.io.IOException;
 

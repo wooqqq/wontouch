@@ -1,4 +1,4 @@
-package wontouch.auth.dto.request;
+package wontouch.auth.domain.dto.request;
 
 import lombok.Getter;
 

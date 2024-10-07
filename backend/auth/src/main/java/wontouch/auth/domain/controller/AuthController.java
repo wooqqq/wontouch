@@ -1,15 +1,15 @@
-package wontouch.auth.controller;
+package wontouch.auth.domain.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wontouch.auth.dto.request.GoogleRequestDto;
-import wontouch.auth.dto.request.KakaoLogoutRequestDto;
-import wontouch.auth.dto.request.KakaoRequestDto;
-import wontouch.auth.dto.response.JwtResponseDto;
-import wontouch.auth.service.AuthService;
-import wontouch.auth.util.ResponseDto;
+import wontouch.auth.domain.dto.request.GoogleRequestDto;
+import wontouch.auth.domain.dto.request.KakaoLogoutRequestDto;
+import wontouch.auth.domain.dto.request.KakaoRequestDto;
+import wontouch.auth.global.util.dto.JwtResponseDto;
+import wontouch.auth.domain.model.service.AuthService;
+import wontouch.auth.global.util.dto.ResponseDto;
 
 @RestController
 @RequestMapping("/oauth")

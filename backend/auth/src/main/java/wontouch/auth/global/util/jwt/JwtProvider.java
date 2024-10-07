@@ -1,4 +1,4 @@
-package wontouch.auth.util.jwt;
+package wontouch.auth.global.util.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -6,7 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import wontouch.auth.dto.response.JwtResponseDto;
+import wontouch.auth.global.util.dto.JwtResponseDto;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
