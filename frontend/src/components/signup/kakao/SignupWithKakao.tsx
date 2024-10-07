@@ -52,20 +52,37 @@ function SignupWithKakao() {
       alert('닉네임을 입력해주세요.');
       return;
     }
+
+    const isKorean = /^[가-힣]{1,6}$/.test(nickname); // 한글만
+    const isEnglish = /[a-zA-Z]{1,6}$/.test(nickname); // 영어만
+    const isValidNickname = /^[가-힣a-zA-Z]{1,10}$/.test(nickname); // 한글, 영어 혼용
+
+    // 유효성 검사
+    if (isKorean && nickname.length > 6) {
+      alert('한글은 최대 6자까지 입력할 수 있습니다.');
+      return;
+    }
+
+    if (isEnglish && nickname.length > 10) {
+      alert('영어는 최대 10자까지 입력할 수 있습니다.');
+      return;
+    }
+
+    if (isValidNickname && nickname.length > 10) {
+      alert('한글, 영어 혼합은 최대 10자까지 입력할 수 있습니다.');
+      return;
+    }
+
     if (isNicknameAvailable === false) {
       alert('중복된 닉네임입니다. 다른 닉네임을 입력해주세요.');
       return;
     }
 
-    console.log(userId);
-    console.log(nickname);
-
     try {
-      const res = await axios.post(`${API_LINK}/user-profile/join`, {
+      await axios.post(`${API_LINK}/user-profile/join`, {
         userId: userId,
         nickname: nickname,
       });
-      console.log(res.data);
       navigate('/');
     } catch (error) {
       console.error('회원가입 중 오류 발생:', error);
