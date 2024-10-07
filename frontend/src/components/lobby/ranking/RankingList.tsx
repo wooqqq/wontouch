@@ -17,10 +17,10 @@ export default function RankingList({
 }: RankingInfoProps) {
   return (
     <div className="flex justify-between items-center">
-      <div className="text-3xl font-['Galmuri11-bold'] text-yellow-500 mr-1">
+      <div className="text-3xl font-['Galmuri11-bold'] text-yellow-500">
         {rank}.
       </div>
-      <div className="ranking-box white-text text-2xl h-[40px] w-10/12 my-0.5 flex justify-between px-2">
+      <div className="ranking-box white-text text-2xl h-[40px] w-10/12 my-0.5 flex justify-between px-1">
         <div>{nickname}</div>
         <div className="w-6 h-6 ">
           <LevelImg tierPoint={tierPoint} />
