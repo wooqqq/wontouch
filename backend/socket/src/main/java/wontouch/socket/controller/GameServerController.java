@@ -87,7 +87,7 @@ public class GameServerController {
         String roomId = (String) messageData.get("roomId");
         log.debug("START PREPARATION!!: {}", messageData);
         try {
-            sessionService.broadcastMessage(roomId, MessageType.NOTIFY, "Preparation Start successfully");
+            sessionService.broadcastMessage(roomId, MessageType.PREPARATION_START, messageData);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -49,6 +49,13 @@ public class RoomService {
         roomRepository.saveSession(sessionSaveDto);
     }
 
+    public void removeSession(SessionDeleteDto sessionDeleteDto) {
+        String roomId = sessionDeleteDto.getRoomId();
+        String playerId = sessionDeleteDto.getPlayerId();
+        roomRepository.exitRoom(roomId, playerId);
+        roomRepository.removeSession(roomId, sessionDeleteDto.getSessionId());
+    }
+
     private void notifyToSocketServer(NotifyMessageDto notifyMessageDto) {
         String notifyUrl = socketServerUrl + "/notify";
         restTemplate.postForObject(notifyUrl, notifyMessageDto, void.class);

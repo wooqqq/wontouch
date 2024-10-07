@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.lobby.domain.Room;
-import wontouch.lobby.dto.CreateRoomRequestDto;
-import wontouch.lobby.dto.RoomRequestDto;
-import wontouch.lobby.dto.RoomResponseDto;
-import wontouch.lobby.dto.SessionSaveDto;
+import wontouch.lobby.dto.*;
 import wontouch.lobby.exception.CustomException;
 import wontouch.lobby.exception.ExceptionResponse;
 
@@ -31,6 +28,11 @@ public class RoomRepository {
         String playerId = Long.toString(room.getHostPlayerId());
         String roomId = room.getRoomId();
         String roomName = room.getRoomName();
+
+        // 이미 방이 존재하는지 확인
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
+            throw new ExceptionResponse(CustomException.ROOM_ALREADY_EXISTS_EXCEPTION);
+        }
 
         redisTemplate.opsForHash().put(key, "roomId", roomId);
         redisTemplate.opsForHash().put(key, "roomName", roomName);
@@ -190,6 +192,12 @@ public class RoomRepository {
         String roomId = sessionSaveDto.getRoomId();
         String participantsKey = "game_lobby:" + roomId + ":sessions";
         redisTemplate.opsForSet().add(participantsKey, sessionId);
+    }
+
+    // 방에 해당하는 세션 삭제
+    public void removeSession(String sessionId, String roomId) {
+        String participantsKey = "game_lobby:" + roomId + ":sessions";
+        redisTemplate.opsForSet().remove(participantsKey, sessionId);
     }
 
     // 방 목록 조회
