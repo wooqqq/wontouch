@@ -1,8 +1,7 @@
-import { RootState } from '../redux/store';
-import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setNotificationCount } from '../redux/slices/notificationSlice';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import Modal from '../components/common/Modal';
 import MakeRoom from '../components/lobby/room/MakeRoom';
 import FindRoom from '../components/lobby/room/FindRoom';
@@ -10,39 +9,44 @@ import Header from '../components/common/Header';
 import Ranking from '../components/lobby/ranking/Ranking';
 import RoomList from '../components/lobby/room/RoomList';
 import Friend from '../components/lobby/friend/Friend';
-import FriendProfile from '../components/lobby/friend/FriendProfile';
 
 import search from '../assets/icon/search.png';
 import hammer from '../assets/icon/hammer.png';
+import { RootState } from '../redux/store';
+
+const API_LINK = import.meta.env.VITE_API_URL;
 
 function Lobby() {
   const [showMakeRoom, setShowMakeRoom] = useState<boolean>(false);
   const [showFindRoom, setShowFindRoom] = useState<boolean>(false);
-  const [notificationCount, setNotificationCount] = useState<number>(0);
-  const API_LINK = import.meta.env.VITE_API_URL;
+
+  const dispatch = useDispatch(); // dispatch 훅 사용
+  const notificationCount = useSelector(
+    (state: RootState) => state.notification.count,
+  ); // Redux에서 알림 수 가져오기
 
   const userId = useSelector((state: RootState) => state.user.id);
   const accessToken = localStorage.getItem('access_token');
 
-  // 방 생성 모달
-  const openMakeRoom = () => {
-    setShowMakeRoom(true);
+  // SSE 연결
+  const setupSSE = async (userId: number, accessToken: string) => {
+    try {
+      const eventSource = new EventSource(
+        `${API_LINK}/notification/subscribe/${userId}`,
+      );
+
+      // 알림 수신 시 api 호출
+      eventSource.onmessage = async (event) => {
+        console.log(event.data);
+        await getNotifications(userId, accessToken);
+      };
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const closeMakeRoom = () => {
-    setShowMakeRoom(false);
-  };
-
-  // 방 찾기 모달
-  const openFindRoom = () => {
-    setShowFindRoom(true);
-  };
-
-  const closeFindRoom = () => {
-    setShowFindRoom(false);
-  };
-
-  const getNotifications = async () => {
+  // 알림 목록 호출
+  const getNotifications = async (userId: number, accessToken: string) => {
     try {
       const response = await axios.get(
         `${API_LINK}/notification/list/${userId}`,
@@ -55,16 +59,28 @@ function Lobby() {
 
       const data = response.data.data;
       if (data) {
-        setNotificationCount(data.length);
+        console.log(data.length);
+        dispatch(setNotificationCount(data.length)); // Redux 액션으로 알림 수 업데이트
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
   useEffect(() => {
-    getNotifications();
-  }, []);
+    if (userId && accessToken) {
+      setupSSE(userId, accessToken);
+      getNotifications(userId, accessToken); // 초기 알림 목록 호출
+    }
+  }, [userId, accessToken]);
+
+  // 방 생성 모달
+  const openMakeRoom = () => setShowMakeRoom(true);
+  const closeMakeRoom = () => setShowMakeRoom(false);
+
+  // 방 찾기 모달
+  const openFindRoom = () => setShowFindRoom(true);
+  const closeFindRoom = () => setShowFindRoom(false);
 
   return (
     <div>
@@ -78,7 +94,7 @@ function Lobby() {
                 className="ready-button w-52 h-14 text-3xl"
               >
                 방 만들기
-                <img src={hammer} alt="" />
+                <img src={hammer} alt="Create Room" />
               </button>
             </div>
             <div>
@@ -87,7 +103,7 @@ function Lobby() {
                 className="ready-button w-52 h-14 text-3xl"
               >
                 방 찾기
-                <img src={search} alt="" />
+                <img src={search} alt="Find Room" />
               </button>
             </div>
           </div>

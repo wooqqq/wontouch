@@ -22,7 +22,6 @@ export default function RoomList() {
   const getRoomList = async () => {
     const response = await axios.get(`${API_LINK}/lobby/list`);
     setRoomList(response.data.data);
-    console.log(response.data.data);
   };
 
   useEffect(() => {

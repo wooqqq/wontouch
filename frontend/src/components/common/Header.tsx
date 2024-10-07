@@ -10,14 +10,17 @@ import Modal from './Modal';
 import mail from '../../assets/icon/mail.png';
 import setting from '../../assets/icon/setting.png';
 
-export default function Header({
-  notificationCount,
-}: {
+interface HeaderProps {
   notificationCount: number;
-}) {
+}
+
+export default function Header({ notificationCount }: HeaderProps) {
   const [showMail, setShowMail] = useState<boolean>(false);
   const [showSetting, setShowSetting] = useState<boolean>(false);
 
+  const userCharacterName = useSelector(
+    (state: RootState) => state.user.characterName,
+  );
   // 메일함 모달
   const openMail = () => {
     setShowMail(true);
@@ -35,10 +38,6 @@ export default function Header({
   const closeSetting = () => {
     setShowSetting(false);
   };
-
-  const userCharacterName = useSelector(
-    (state: RootState) => state.user.characterName,
-  );
 
   return (
     <div className="flex items-center space-x-3 p-3 justify-end">

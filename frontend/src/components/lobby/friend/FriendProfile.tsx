@@ -48,20 +48,6 @@ export default function FriendProfile({
     setDeleteModal(false);
   };
 
-  // 삭제 요청
-  const deleteFriend = async () => {
-    try {
-      const response = await axios.delete(`${API_LINK}/friend/delete`, {
-        data: {
-          userId: userId,
-          friendId: friendId,
-        },
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
     getFriendProfile();
   }, []);

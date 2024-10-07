@@ -11,6 +11,7 @@ import {
 import { jwtDecode } from 'jwt-decode';
 
 import flowerGirl from '../../../assets/background/characters/stand/flower_girl.png';
+import { setNotificationCount } from '../../../redux/slices/notificationSlice';
 
 interface DecodedToken {
   userId: number;
@@ -32,8 +33,6 @@ function KakaoLoginHandler() {
         code: code,
       });
 
-      console.log(userRes.data.data);
-
       // access token, kakao access token을 local storage에 저장
       const accessToken = userRes.data.data.accessToken;
       const kakaoAccessToken = userRes.data.data.kakaoAccessToken;
@@ -43,7 +42,6 @@ function KakaoLoginHandler() {
       // access token을 디코딩해 userId 추출, store에 저장
       const decodedToken = jwtDecode<DecodedToken>(accessToken);
       const userId = decodedToken.userId;
-      console.log(userId);
       dispatch(setUserId(userId));
 
       // 회원가입이 필요한 경우
@@ -76,11 +74,6 @@ function KakaoLoginHandler() {
       dispatch(setUserNickname(response.data.data.nickname));
       dispatch(setUserDescription(response.data.data.description));
       dispatch(setUserCharacterName(response.data.data.characterName));
-
-      // SSE는 EventSource를 사용
-      const eventSource = new EventSource(
-        `${API_LINK}/notification/subscribe/${userId}`,
-      );
 
       // 로비로 이동
       navigate('/lobby');

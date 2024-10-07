@@ -185,7 +185,6 @@ button:active {
     -webkit-text-stroke-width: 0.5px;
     -webkit-text-stroke-color: #555;
     font-size: 20px;
-    /* width: 50px; */
     white-space: nowrap;
     overflow: hidden;
   }
@@ -207,7 +206,6 @@ button:active {
     text-align: center;
     -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: #10ab7d;
-    font-family: 'DNF Bit Bit v2';
     font-size: 36px;
   }
 
@@ -370,7 +368,6 @@ button:active {
 
 .ranking-box {
   display: flex;
-  /* justify-content: start; */
   align-items: center;
   flex-shrink: 0;
   border-radius: 10px;
