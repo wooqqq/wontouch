@@ -233,7 +233,9 @@ export default function EditProfile() {
       {complete && (
         <Modal>
           <div className="yellow-box w-2/5 h-[200px] border-[#36EAB5] bg-[#FFFEEE] p-8">
-            <div className="white-text text-4xl mb-10">수정이 완료되었습니다!</div>
+            <div className="white-text text-4xl mb-10">
+              수정이 완료되었습니다!
+            </div>
             <button onClick={goBack}>
               <img src={confirm} alt="" />
             </button>
