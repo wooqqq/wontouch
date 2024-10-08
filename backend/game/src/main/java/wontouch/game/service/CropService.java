@@ -96,4 +96,14 @@ public class CropService {
         Random random = new Random();
         return (String) crops.get(random.nextInt(allCrops.size()));
     }
+
+    public List<Crop> getDefaultCropInfo(String roomId) {
+        Set<Object> allCrops = cropRedisRepository.getAllCrops(roomId);
+        List<Crop> defaultCrops = new ArrayList<>();
+        for (Object cropId : allCrops) {
+            Crop crop = cropRepository.findByIdExcludingArticleList((String) cropId);
+            defaultCrops.add(crop);
+        }
+        return defaultCrops;
+    }
 }
