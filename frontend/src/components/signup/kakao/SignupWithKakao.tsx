@@ -57,8 +57,6 @@ function SignupWithKakao() {
     const isEnglish = /[a-zA-Z]*$/.test(nickname); // 영어만
     const isValidNickname = /^[가-힣a-zA-Z]*$/.test(nickname); // 한글, 영어 혼용
 
-    console.log(nickname);
-
     // 유효성 검사
     if (isKorean && nickname.length > 6) {
       alert('한글은 최대 6자까지 입력할 수 있습니다.');
