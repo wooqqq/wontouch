@@ -10,6 +10,7 @@ import wontouch.lobby.dto.CreateRoomRequestDto;
 import wontouch.lobby.dto.RoomRequestDto;
 import wontouch.lobby.dto.ResponseDto;
 import wontouch.lobby.dto.RoomResponseDto;
+import wontouch.lobby.repository.room.RoomRepository;
 import wontouch.lobby.service.RoomService;
 
 import java.util.List;
@@ -20,10 +21,12 @@ import java.util.List;
 public class RoomController {
 
     private final RoomService roomService;
+    private final RoomRepository roomRepository;
 
     @Autowired
-    public RoomController(RoomService roomService) {
+    public RoomController(RoomService roomService, RoomRepository roomRepository) {
         this.roomService = roomService;
+        this.roomRepository = roomRepository;
     }
 
     // 방 생성 요청 처리
@@ -74,6 +77,17 @@ public class RoomController {
                 .status(HttpStatus.OK.value())
                 .message("방 퇴장 완료")
                 .data(roomResponseDto)
+                .build();
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/info/{roomId}")
+    public ResponseEntity<ResponseDto<RoomResponseDto>> getRoomInfo(@PathVariable String roomId) {
+        RoomResponseDto roomInfo = roomService.getRoomInfo(roomId);
+        ResponseDto<RoomResponseDto> responseDto = ResponseDto.<RoomResponseDto>builder()
+                .status(HttpStatus.OK.value())
+                .message("조회 완료")
+                .data(roomInfo)
                 .build();
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
