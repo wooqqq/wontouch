@@ -23,8 +23,10 @@ import wontouch.auth.domain.entity.User;
 import wontouch.auth.domain.model.repository.UserRepository;
 import wontouch.auth.global.util.jwt.JwtProvider;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -96,6 +98,9 @@ public class AuthService {
                 // 메시지 후처리 필요
             }
 
+            // 로그인 시 활동 시간 저장
+            saveUserActivity(savedUser.getId());
+
             return LoginTokenResponseDto.builder()
                     .kakaoAccessToken(accessToken)
                     .accessToken(tokenInfo.getAccessToken())
@@ -104,6 +109,9 @@ public class AuthService {
         } else { // 기존 회원이 로그인하는 경우
             User user = loginUser.get();
             JwtResponseDto.TokenInfo tokenInfo = jwtProvider.generateToken(user.getId());
+
+            // 로그인 시 활동 시간 저장
+            saveUserActivity(user.getId());
 
             return LoginTokenResponseDto.builder()
                     .kakaoAccessToken(accessToken)
@@ -235,6 +243,23 @@ public class AuthService {
             log.error("카카오 로그아웃 실패", e);
             return false;
         }
+    }
+
+    /**
+     * 사용자 활동 저장
+     */
+    public void saveUserActivity(int userId) {
+        // Redis key 설정
+        String redisKey = "user_activity:" + userId;
+
+        // 현재 시간을 저장
+        String currentTime = LocalDateTime.now().toString();
+
+        // TTL 설정 (6시간)
+        long ttl = 6 * 60 * 60;
+
+        // Redis에 현재 시간을 value로 저장 및 TTL 설정
+        redisTemplate.opsForValue().set(redisKey, currentTime, ttl, TimeUnit.SECONDS);
     }
 
 }
