@@ -237,6 +237,9 @@ public class AuthService {
             redisTemplate.delete(redisKey);
             log.info("삭제된 후 Redis에 저장된 refresh token: " + redisTemplate.opsForValue().get(redisKey));
 
+            // 로그아웃 시 활동 기록 삭제
+            deleteUserActivity(userId);
+
             log.info("카카오 로그아웃 성공: userId = " + userId);
             return true;
         } catch (Exception e) {
@@ -260,6 +263,23 @@ public class AuthService {
 
         // Redis에 현재 시간을 value로 저장 및 TTL 설정
         redisTemplate.opsForValue().set(redisKey, currentTime, ttl, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 사용자 활동 삭제
+     */
+    public void deleteUserActivity(int userId) {
+        // Redis key 설정
+        String redisKey = "user_activity:" + userId;
+
+        // Redis 에서 해당 키 삭제
+        boolean isDeleted = redisTemplate.delete(redisKey);
+
+        if (isDeleted) {
+            log.info("User activity deleted successfully.");
+        } else {
+            log.error("Failed to delete user activity.");
+        }
     }
 
 }
