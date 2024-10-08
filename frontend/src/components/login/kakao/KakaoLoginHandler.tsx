@@ -7,6 +7,8 @@ import {
   setUserNickname,
   setUserDescription,
   setUserCharacterName,
+  setUserMileage,
+  setUserTierPoint,
 } from '../../../redux/slices/userSlice';
 import { jwtDecode } from 'jwt-decode';
 
@@ -73,6 +75,8 @@ function KakaoLoginHandler() {
       dispatch(setUserNickname(response.data.data.nickname));
       dispatch(setUserDescription(response.data.data.description));
       dispatch(setUserCharacterName(response.data.data.characterName));
+      dispatch(setUserMileage(response.data.data.mileage));
+      dispatch(setUserTierPoint(response.data.data.tierPoint));
 
       // 로비로 이동
       navigate('/lobby');

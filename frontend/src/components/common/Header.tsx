@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import ProfileImg from '../common/ProfileImg';
 import Nickname from '../common/Nickname';
+import Mileage from './Mileage';
 import Mail from '../common/Mail';
 import Setting from '../lobby/Setting';
 import Modal from './Modal';
@@ -70,6 +71,7 @@ export default function Header() {
         <ProfileImg characterName={userCharacterName} />
       </div>
       <Nickname />
+      <Mileage />
       <button onClick={openMail} className="brown-box w-12 h-12 p-1">
         <img src={mail} alt="" />
         {notificationCount > 0 && (
