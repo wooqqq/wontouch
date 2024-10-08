@@ -65,6 +65,7 @@ public class CropRedisRepository {
     // 작물 가격 조회
     public int getCropPrice(String roomId, Object cropId) {
         String redisKey = "game:" + roomId + ":crop:" + cropId + ":info";
+        log.debug("key:{}", redisKey);
         return (Integer) redisTemplate.opsForHash().get(redisKey, "price");
     }
 
