@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.game.dto.response.RoomInviteResponseDto;
 import wontouch.api.domain.notification.dto.request.GameInviteRequestDto;
-import wontouch.api.global.dto.ResponseDto;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +22,6 @@ public class RoomService {
     private String lobbyServerUrl;
 
     public GameInviteRequestDto inviteFriend(GameInviteRequestDto requestDto) {
-
         // lobby 서버에서 roomId를 통해 Room 정보 불러오기
         String lobbyUrl = String.format("%s/rooms/invite-info/%s", lobbyServerUrl, requestDto.getRoomId());
 
@@ -34,8 +32,6 @@ public class RoomService {
             if (response.getStatusCode() == HttpStatus.OK) {
                 // JSON 응답에서 RoomInviteResponseDto 추출
                 JsonNode jsonResponse = objectMapper.readTree(response.getBody());
-
-                System.out.println(jsonResponse);
 
                 RoomInviteResponseDto inviteResponseDto = RoomInviteResponseDto.builder()
                         .roomId(jsonResponse.get("data").get("roomId").asText())
