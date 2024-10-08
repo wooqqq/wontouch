@@ -54,10 +54,25 @@ interface DecodedToken {
   userId: number;
 }
 
+interface Crop {
+  id: string;
+  type: string;
+  name: string;
+  price: number;
+  description: string;
+  imgUrl: string;
+}
+
+interface GameState {
+  roundDuration: number;
+  roundNumber: number;
+  crops: Crop[];
+}
+
 const PhaserGame = () => {
   //라운드 정보 가져오기
   const location = useLocation();
-  const { roundDuration, roundNumber } = location.state || {};
+  const { roundDuration, roundNumber } = location.state || {} as GameState;
 
   const [houseNum, setHouseNum] = useState<number | null>(null);
   const [openMap, setOpenMap] = useState<boolean>(false);
@@ -88,12 +103,69 @@ const PhaserGame = () => {
   const nextTimerRef = useRef<number>(60);
   const totalPlayerRef = useRef<number>(0);
 
+  //모든 작물의 정보 불러오기
+  const allCropList = useSelector((state: RootState) => state.crop.crops);
+  console.log(allCropList);
+
   //사람들 정보 불러오기?
   const roomData = useSelector((state: RootState) => state.room.gameParticipants);
   console.log("룸데이터는 이거에용", roomData);
 
   // 작물 리스트 응답을 저장할 상태
   const [cropList, setCropList] = useState(null);
+
+
+  let countdownInterval: number | null = null;
+
+  // 타이머 카운트다운 함수
+  const startCountdown = () => {
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    nextTimerRef.current = 60; // 60초 타이머 초기화
+    countdownInterval = setInterval(() => {
+      if (nextTimerRef.current > 0) {
+        nextTimerRef.current--;
+        // console.log(`타이머: ${nextTimerRef.current}`);
+      } else {
+        console.log('60초 경과, 라운드를 넘깁니다.');
+        clearInterval(countdownInterval!); // 타이머 종료
+        proceedToNextRound(); // 강제로 라운드 넘기기
+      }
+    }, 1000);
+  };
+
+
+  let isRoundReadySent = false; // 메시지 전송 여부를 관리하는 변수
+
+  // ROUND_READY 메시지를 보내는 함수
+  const handleNextRound = () => {
+    if (isRoundReadySent) {
+      console.log("이미 ROUND_READY 메시지를 보냈습니다.");
+      return; // 이미 메시지를 보낸 경우 실행되지 않음
+    }
+
+    console.log("ROUND_READY 메시지 보내기 시작");
+
+    const roundReadyMessage = {
+      type: 'ROUND_READY',
+    };
+    gameSocketRef.current?.send(JSON.stringify(roundReadyMessage));
+
+    isRoundReadySent = true; // 메시지 보냈음을 표시
+
+    setTimeout(() => {
+      isRoundReadySent = false; // 재전송 가능하게 초기화
+      console.log("이번라운드에 완료버튼을 이미 눌렀어요.");
+    }, 60000); // 3초 후 초기화
+  };
+
+
+  const proceedToNextRound = () => {
+    // 라운드 진행 시 타이머와 준비 완료 인원 초기화
+    readyPlayerRef.current = 0; // 준비 완료 인원 초기화
+    nextTimerRef.current = 60; // 60초 제한 타이머 초기화
+    setShowModal(false); // 모달 닫기
+  };
 
   // 캐릭터 텍스처 맵핑
   const getCharacterTexture = (characterName: string) => {
@@ -130,7 +202,6 @@ const PhaserGame = () => {
     }
   };
 
-
   // 로컬스토리지에서 토큰 읽어오기
   useEffect(() => {
     if (token) {
@@ -163,17 +234,39 @@ const PhaserGame = () => {
 
               // 서버에서 받은 새로운 duration 값으로 타이머 초기화
               timerRef.current = duration;
-              console.log("설정된 값은", duration);
               nextTimerRef.current = 60; // 각 라운드마다 60초 제한 초기화
               setRound(round); // 현재 라운드 설정
+              setShowModal(false); //모달 열려있으면 꺼줘야해.
               roundTextRef.current?.setText(`${round}R`);
+
               console.log(`새로운 라운드 ${round}, 타이머: ${duration}초`);
+            }
+
+            if (data.type === 'ROUND_END') {
+              console.log('ROUND_END 메시지 수신, 카운트다운 시작');
             }
 
             if (data.type === "TOWN_CROP_LIST") {
               console.log(data.content);
               setCropList(data.content);
             }
+
+            if (data.type === "CROP_LIST") {
+              console.log("왓쒀요");
+            }
+
+            if (data.type === "CROP_CHART") {
+              console.log(data.content);
+            }
+
+            if (data.type === "SELL_CROP") {
+              console.log(data.content);
+            }
+
+            if (data.type === "BUY_CROP") {
+              console.log(data.content);
+            }
+
 
             if (data.type === 'ROUND_READY') {
               // 준비된 인원 수와 총 플레이어 수 업데이트
@@ -187,6 +280,19 @@ const PhaserGame = () => {
               } else {
                 console.log(`${readyPlayerRef.current}명이 준비됨 / 총 ${totalPlayerRef.current}명`);
               }
+            }
+
+            if (data.type === "PREPARATION_START") {
+              console.log(data.content);
+              startCountdown();  // 60초 타이머를 실행하는 함수 호출
+            }
+
+            if (data.type === "ROUND_RESULT") {
+              console.log(data.content);
+            }
+
+            if (data.type === "ARTICLE_RESULT") {
+              console.log(data.content);
             }
 
             // 플레이어의 MOVE 이벤트 처리
@@ -204,7 +310,7 @@ const PhaserGame = () => {
                   const otherPlayer = playerSpritesRef.current[otherPlayerId];
 
                   // roomData에서 해당 플레이어의 캐릭터 정보 찾기
-                  const otherPlayerData = roomData.find(player => player.userId === parseInt(otherPlayerId));
+                  const otherPlayerData = roomData?.find(player => player.userId === parseInt(otherPlayerId));
                   const characterName = otherPlayerData ? otherPlayerData.characterName : 'boy'; // 기본 캐릭터는 'boy'로 설정
 
                   // 애니메이션 키를 캐릭터에 맞게 동적으로 설정
@@ -271,6 +377,43 @@ const PhaserGame = () => {
 
     connectWebSocket();
   }, [roomId, playerId]);
+
+  // 업데이트 함수를 밖으로 빼서 필요할 때 호출
+  const handleUpdate = (scene: Phaser.Scene, startTime: number, roundDuration: number) => {
+    // 기존 이벤트 제거
+    scene.events.off('update');
+
+    scene.events.on('update', () => {
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = roundDuration - elapsedTime;
+
+      if (remainingTime > 0) {
+        const minutes = Math.floor(remainingTime / 60000);
+        const seconds = Math.floor((remainingTime % 60000) / 1000);
+        timeTextRef.current?.setText(`${minutes} : ${seconds < 10 ? '0' : ''}${seconds}`);
+      } else {
+        setShowModal(true);  // 모달 표시
+        scene.events.off('update'); // update 이벤트 해제
+      }
+    });
+  };
+
+  // Phaser에서 'create'나 'preload' 함수 내에서 이벤트를 등록하는 대신
+  useEffect(() => {
+    if (sceneRef.current) {
+      const scene = sceneRef.current;
+      const startTime = Date.now();  // 타이머 시작 시간
+      const roundDuration = timerRef.current * 1000; // 밀리초 단위의 라운드 시간
+
+      // 업데이트 핸들러를 외부에서 등록
+      handleUpdate(scene, startTime, roundDuration);
+
+      return () => {
+        // 컴포넌트 언마운트 시 이벤트 해제
+        scene.events.off('update');
+      };
+    }
+  }, [round]);
 
   // houseNum이 변경될 때마다 houseNumRef를 업데이트
   useEffect(() => {
@@ -550,29 +693,6 @@ const PhaserGame = () => {
 
     timeTextRef.current = timeText;
 
-    // 타이머 이벤트
-    // 타이머 이벤트 시작 시점 기록
-    const startTime = Date.now();
-    const duration = timerRef.current * 1000; // 밀리초 단위로 변환하여 초기 타이머 시간 설정
-
-    this.events.on('update', () => {
-      const elapsedTime = Date.now() - startTime;
-      const remainingTime = duration - elapsedTime;
-
-      if (remainingTime > 0) {
-        // 남은 시간을 분과 초로 변환하여 타이머 텍스트 업데이트
-        const minutes = Math.floor(remainingTime / 60000);
-        const seconds = Math.floor((remainingTime % 60000) / 1000);
-        timeTextRef.current?.setText(
-          `${minutes} : ${seconds < 10 ? '0' : ''}${seconds}`
-        );
-      } else {
-        // 타이머가 종료되면 모달을 표시하고 이벤트 중지
-        setShowModal(true);
-        this.events.off('update'); // update 이벤트 해제
-      }
-    });
-
 
     //지도열기 설정
     mKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.M);
@@ -650,54 +770,6 @@ const PhaserGame = () => {
       }
     }
   }
-
-  let isRoundReadySent = false; // 메시지 전송 여부를 관리하는 변수
-
-  // ROUND_READY 메시지를 보내는 함수
-  const handleNextRound = () => {
-    if (isRoundReadySent) {
-      console.log("이미 ROUND_READY 메시지를 보냈습니다.");
-      return; // 이미 메시지를 보낸 경우 실행되지 않음
-    }
-
-    console.log("ROUND_READY 메시지 보내기 시작");
-
-    const roundReadyMessage = {
-      type: 'ROUND_READY',
-    };
-    gameSocketRef.current?.send(JSON.stringify(roundReadyMessage));
-
-    isRoundReadySent = true; // 메시지 보냈음을 표시
-
-    setTimeout(() => {
-      isRoundReadySent = false; // 재전송 가능하게 초기화
-      console.log("이번라운드에 완료버튼을 이미 눌렀어요.");
-    }, 60000); // 3초 후 초기화
-  };
-
-  useEffect(() => {
-    const countdown = setInterval(() => {
-      if (nextTimerRef.current > 0) {
-        nextTimerRef.current--; // 타이머 1초 감소
-      } else {
-        console.log("60초 경과, 강제로 라운드를 넘깁니다.");
-        clearInterval(countdown); // 타이머 종료
-        proceedToNextRound(); // 강제로 라운드 넘기기
-      }
-    }, 1000);
-
-    return () => clearInterval(countdown); // 컴포넌트 언마운트 시 타이머 정리
-  }, [round]); // round가 변경될 때마다 타이머 재설정
-
-
-  const proceedToNextRound = () => {
-    // 라운드 진행 시 타이머와 준비 완료 인원 초기화
-    readyPlayerRef.current = 0; // 준비 완료 인원 초기화
-    nextTimerRef.current = 60; // 60초 제한 타이머 초기화
-
-    setRound((prev: number) => prev + 1); // 라운드 증가
-    setShowModal(false); // 모달 닫기
-  };
 
   const closeModal = () => {
     setHouseNum(null);
