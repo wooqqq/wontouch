@@ -10,6 +10,7 @@ import ProfileImg from '../../common/ProfileImg';
 import search from '../../../assets/icon/search.png';
 import cancel from '../../../assets/icon/cancel.png';
 import confirm from '../../../assets/icon/confirm.png';
+import Modal from '../../common/Modal';
 
 export default function FriendPlus({
   closeFriend,
@@ -25,6 +26,7 @@ export default function FriendPlus({
   const [state, setState] = useState<'init' | 'success' | 'fail' | 'friend'>(
     'init',
   );
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   const userId = useSelector((state: RootState) => state.user.id);
 
@@ -40,7 +42,6 @@ export default function FriendPlus({
 
       const isFriend = response.data.data.friend;
       const friendId = response.data.data.friendId;
-      console.log(response.data.data.friendId);
 
       // 성공 시 상태 업데이트
       if (isFriend === false) {
@@ -57,14 +58,18 @@ export default function FriendPlus({
   };
 
   const handleConfirm = async () => {
-    console.log(userId);
-    console.log(id);
     try {
       const response = await axios.post(`${API_LINK}/friend/request`, {
         fromUserId: userId,
         toUserId: id,
       });
+      setOpenModal(true);
     } catch {}
+  };
+
+  const handleMessage = () => {
+    setOpenModal(false);
+    closeFriend();
   };
 
   return (
@@ -160,6 +165,18 @@ export default function FriendPlus({
           <img src={confirm} alt="친구 추가" onClick={handleConfirm} />
         </button>
       </div>
+      {openModal && (
+        <Modal>
+          <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
+            <div className="white-text text-4xl p-6">
+              친구 요청을 보냈습니다!
+            </div>
+            <button onClick={handleMessage}>
+              <img src={confirm} alt="" />
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
