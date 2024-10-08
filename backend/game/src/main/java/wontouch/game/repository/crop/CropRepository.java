@@ -32,6 +32,6 @@ public interface CropRepository extends MongoRepository<Crop, String>, CropCusto
     @Query(value = "{ '_id': ?0 }", fields = "{ 'articleList._id': 1, '_id': 1 }")
     Optional<Crop> findCropWithArticleIdsOnly(String cropId);
 
-    @Query(value = "{'_id':  ?0}", fields = "{'articleList':0, 'specialArticleList': 1}")
+    @Query(value = "{'_id':  ?0}", fields = "{'specialArticleList': 1}")
     Optional<Crop> findCropWithSpecialArticlesOnly(String cropId);
 }

@@ -85,7 +85,7 @@ public class RoomRepository {
             if (room.isSecret()) {
                 if (room.getPassword().equals(roomRequestDto.getPassword())) {
                     redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
-                    return new RoomResponseDto(room);
+                    return new RoomResponseDto(getRoomById(room.getRoomId()));
                 } else {
                     throw new ExceptionResponse(CustomException.INVALID_PASSWORD_EXCEPTION);
                 }
