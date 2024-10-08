@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -11,7 +11,6 @@ import {
 import { jwtDecode } from 'jwt-decode';
 
 import flowerGirl from '../../../assets/background/characters/stand/flower_girl.png';
-import { setNotificationCount } from '../../../redux/slices/notificationSlice';
 
 interface DecodedToken {
   userId: number;
