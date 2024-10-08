@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ public class FriendService {
     private final AvatarRepository avatarRepository;
     private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${mileage.server.name}:${mileage.server.path}")
     private String mileageServerUrl;
@@ -62,24 +64,43 @@ public class FriendService {
 
         // Friend를 FriendResponseDto로 변환
         return friendList.stream()
-                .map(friend -> {
-                    // 친구의 ID가 자신인지 상대인지에 따라 처리
-                    int friendId = (friend.getFromUserId() == userId) ? friend.getToUserId() : friend.getFromUserId();
-
-                    // 친구의 UserProfile 조회
-                    UserProfile friendProfile = userProfileRepository.findByUserId(friendId)
-                            .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
-
-                    // FriendResponseDto로 변환
-                    return FriendResponseDto.builder()
-                            .friendId(friendId)
-                            .nickname(friendProfile.getNickname())
-                            .description(friendProfile.getDescription())
-                            .characterName(getCharacterNameByUserId(friendProfile.getUserId())) // 캐릭터 이름을 가져오는 로직
-                            .tierPoint(getTierByUserId(friendProfile.getUserId())) // 티어를 가져오는 로직
-                            .build();
-                })
+                .map(friend -> convertToFriendResponseDto(friend, userId))
                 .collect(Collectors.toList());
+    }
+
+    // 온라인인 친구 목록 조회
+    public List<FriendResponseDto> getOnlineFriendList(int userId) {
+        // 모든 친구 목록 조회
+        List<FriendResponseDto> friendList = getFriendList(userId);
+
+        // 온라인 친구만 필터링
+        return friendList.stream()
+                .filter(FriendResponseDto::isOnline)
+                .collect(Collectors.toList());
+    }
+
+    // Friend -> FriendResponseDto 로 변환하는 메서드
+    private FriendResponseDto convertToFriendResponseDto(Friend friend, int userId) {
+        // 친구의 ID가 자신인지 상대인지에 따라 처리
+        int friendId = (friend.getFromUserId() == userId) ? friend.getToUserId() : friend.getFromUserId();
+
+        // 온라인 여부 조회
+        String redisKey = "user_activity:" + friendId;
+        Boolean isOnline = redisTemplate.hasKey(redisKey);
+
+        // 친구의 UserProfile 조회
+        UserProfile friendProfile = userProfileRepository.findByUserId(friendId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        // FriendResponseDto로 변환
+        return FriendResponseDto.builder()
+                .friendId(friendId)
+                .nickname(friendProfile.getNickname())
+                .description(friendProfile.getDescription())
+                .characterName(getCharacterNameByUserId(friendProfile.getUserId())) // 캐릭터 이름을 가져오는 로직
+                .tierPoint(getTierByUserId(friendProfile.getUserId())) // 티어를 가져오는 로직
+                .isOnline(isOnline != null && isOnline)
+                .build();
     }
 
     // 친구 신청
