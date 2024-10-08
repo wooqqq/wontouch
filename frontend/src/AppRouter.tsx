@@ -84,7 +84,7 @@ function AppRouter() {
             }
           />
           <Route
-            path="setting"
+            path="setting/*"
             element={
               <ProtectedRoute>
                 <Setting />
