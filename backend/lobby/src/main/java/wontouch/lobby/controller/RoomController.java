@@ -79,8 +79,6 @@ public class RoomController {
     public ResponseEntity<?> inviteFriend(@PathVariable String roomId) {
         RoomInviteResponseDto inviteResponseDto = roomService.inviteFriend(roomId);
 
-        System.out.println("여기는 컨트롤러 : " + inviteResponseDto.getRoomId());
-
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())
                 .message("게임방 정보 조회 성공")
