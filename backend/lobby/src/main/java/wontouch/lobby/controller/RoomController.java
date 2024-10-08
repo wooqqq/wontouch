@@ -6,10 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wontouch.lobby.dto.CreateRoomRequestDto;
-import wontouch.lobby.dto.RoomRequestDto;
-import wontouch.lobby.dto.ResponseDto;
-import wontouch.lobby.dto.RoomResponseDto;
+import wontouch.lobby.dto.*;
 import wontouch.lobby.service.RoomService;
 
 import java.util.List;
@@ -76,5 +73,18 @@ public class RoomController {
                 .data(roomResponseDto)
                 .build();
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @PostMapping("/invite")
+    public ResponseEntity<?> inviteFriend(@RequestBody RoomInviteRequestDto requestDto) {
+        roomService.inviteFriend(requestDto);
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("게임방 친구 초대 완료")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 }
