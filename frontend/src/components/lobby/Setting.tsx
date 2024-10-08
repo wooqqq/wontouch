@@ -23,8 +23,12 @@ export default function Setting({
     setShowModal(false);
   };
 
-  const changeInfo = () => {
-    navigate('/setting');
+  const editProfile = () => {
+    navigate('/edit/profile');
+  };
+
+  const editCharacter = () => {
+    navigate('/edit/character');
   };
 
   const handleLogout = async () => {
@@ -80,13 +84,13 @@ export default function Setting({
         </button>
         <button
           className="setting-list text-3xl w-4/5 my-6"
-          onClick={changeInfo}
+          onClick={editCharacter}
         >
           캐릭터 수정
         </button>
         <button
           className="setting-list text-3xl w-4/5 my-6"
-          onClick={changeInfo}
+          onClick={editProfile}
         >
           회원 정보 수정
         </button>
