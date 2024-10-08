@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import selectboxBL from '../../assets/icon/selectbox_bl.png';
+import selectboxBR from '../../assets/icon/selectbox_br.png';
+import selectboxTL from '../../assets/icon/selectbox_tl.png';
+import selectboxTR from '../../assets/icon/selectbox_tr.png';
 
 interface Message {
   type: string;
@@ -63,7 +67,17 @@ function RoomChat({ messages, socket }: RoomInfoProps) {
   };
 
   return (
-    <div className="waitingroom-brown-box py-0 pl-3 h-[180px]">
+    <div className="waitingroom-brown-box py-0 pl-6 h-[200px]">
+      <img
+        src={selectboxBL}
+        alt="박스 왼쪽 하단"
+        className="absolute left-[-10px] bottom-[-11px]"
+      />
+      <img
+        src={selectboxTR}
+        alt="박스 오른쪽 상단"
+        className="absolute right-[400px] bottom-[170px]"
+      />
       <section className="font-galmuri11 h-[70%] mt-2 mr-2 pl-2 pb-2 overflow-scroll overflow-x-hidden">
         {messages.map((msg, index) => (
           <div key={index}>
@@ -85,9 +99,14 @@ function RoomChat({ messages, socket }: RoomInfoProps) {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="메시지를 입력하세요"
-          className="bg-[#FFF2D1] font-galmuri11 rounded-[10px] p-2 w-4/5 focus:outline-none"
+          className="bg-[#FFF2D1] font-galmuri11 rounded-[10px] p-3 mr-2 w-[88%] focus:outline-none"
         />
-        <button type="submit">전송</button>
+        <button
+          type="submit"
+          className="bg-[#896a65] py-2 px-3 rounded-[10px] white-text"
+        >
+          전송
+        </button>
       </form>
     </div>
   );
