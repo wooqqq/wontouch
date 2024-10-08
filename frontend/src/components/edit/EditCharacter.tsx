@@ -1,4 +1,4 @@
-function CharacterUpdate() {
+function EditCharacter() {
   return (
     <>
       <h1 className="mint-title">캐릭터 수정</h1>
@@ -19,4 +19,4 @@ function CharacterUpdate() {
   );
 }
 
-export default CharacterUpdate;
+export default EditCharacter;
