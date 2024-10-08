@@ -12,10 +12,14 @@ import java.util.List;
 @Service
 public class RoomService {
 
-    @Value("${socket.server.name}:${socket.server.path}")
-    private String socketServerUrl;
     private final RestTemplate restTemplate;
     private final RoomRepository roomRepository;
+
+    @Value("${socket.server.name}:${socket.server.path}")
+    private String socketServerUrl;
+
+    @Value("${api.server.name}:${api.server.path}")
+    private String apiServerUrl;
 
     public RoomService(RoomRepository roomRepository) {
         this.restTemplate = new RestTemplate();
@@ -60,5 +64,11 @@ public class RoomService {
         String notifyUrl = socketServerUrl + "/notify";
         restTemplate.postForObject(notifyUrl, notifyMessageDto, void.class);
 
+    }
+
+    public void inviteFriend(RoomInviteRequestDto requestDto) {
+        RoomInviteResponseDto inviteDto = roomRepository.inviteFriend(requestDto);
+
+        // api 서버 호출하여 알림 보내기
     }
 }
