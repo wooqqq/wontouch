@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import wontouch.api.domain.notification.dto.request.GameInviteRequestDto;
 import wontouch.api.domain.notification.dto.request.NotificationDeleteRequestDto;
 import wontouch.api.domain.notification.dto.response.NotificationListResponseDto;
 import wontouch.api.domain.notification.model.service.NotificationService;
@@ -37,11 +36,6 @@ public class NotificationController {
     @PostMapping("/friend-request")
     public void sendFriendRequestNofication(@RequestParam String receiverNickname, @RequestBody int senderId) {
         notificationService.notifyFriendRequest(receiverNickname, senderId);
-    }
-
-    @PostMapping("/game-invite")
-    public void sendGameInviteNotification(@RequestBody GameInviteRequestDto requestDto) {
-        notificationService.notifyGameInvite(requestDto);
     }
 
     // 알림 목록 조회 기능
