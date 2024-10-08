@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -20,7 +20,7 @@ import RoomChat from '../components/waitingRoom/RoomChat';
 import RoomHowTo from '../components/waitingRoom/RoomHowTo';
 import RoomTitle from '../components/waitingRoom/RoomTitle';
 import RoomUserList from '../components/waitingRoom/RoomUserList';
-import Header from '../components/common/Header';
+import { setCrops } from '../redux/slices/cropSlice';
 
 interface GameParticipant {
   userId: number;
@@ -173,15 +173,41 @@ function WaitingRoom() {
               setIsAllReady(allReady);
               console.log('모두 준비: ', allReady);
               break;
-            // 게임 시작
-            case 'ROUND_START':
-              navigate(`/game/${roomId}`);
+            case 'ROUND_START': {
+              const { duration, round } = receivedMessage.content;
+
+              // 상태값이 잘 설정되었는지 확인
+              console.log('Round Duration:', duration, 'Round Number:', round);
+
+              // 페이지 이동 전 상태값 확인
+              if (duration && round) {
+                navigate(`/game/${roomId}`, {
+                  state: { roundDuration: duration, roundNumber: round },
+                });
+              } else {
+                alert('게임 시작에 필요한 정보가 부족합니다.');
+              }
+              break;
+            }
+            case 'CROP_LIST': {
+              const { cropList } = receivedMessage.content;
+
+              // cropList가 존재하는지 확인 후 상태 업데이트
+              if (cropList && Array.isArray(cropList)) {
+                dispatch(setCrops(cropList));
+                console.log('Crop List Received:', cropList); // 데이터가 올바르게 수신되었는지 확인
+              } else {
+                console.error('Invalid Crop List:', cropList);
+              }
+              break;
+            }
           }
         } catch (error) {
           console.error('JSON 파싱 오류:', error);
         }
       }
     };
+
 
     ///////////////////////////////////////
     // 게임방 정보 가져오기 (방 입장 API)
