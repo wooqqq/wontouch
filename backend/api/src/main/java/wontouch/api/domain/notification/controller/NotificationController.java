@@ -77,4 +77,16 @@ public class NotificationController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<?> getNotificationDetail(@PathVariable String id) {
+
+        ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
+                .status(HttpStatus.OK.value())
+                .message("알림 조회 성공")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
 }

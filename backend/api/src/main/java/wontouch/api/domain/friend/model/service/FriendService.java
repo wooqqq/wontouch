@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.friend.dto.request.FriendDeleteRequestDto;
 import wontouch.api.domain.friend.dto.request.FriendRequestActionDto;
-import wontouch.api.domain.friend.dto.request.FriendRequestDto;
 import wontouch.api.domain.friend.dto.request.SendFriendRequestDto;
 import wontouch.api.domain.friend.dto.response.FriendResponseDto;
 import wontouch.api.domain.friend.dto.response.ReceiveFriendRequestDto;
