@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
+import { decreaseNotificationCount } from '../../redux/slices/notificationSlice';
+import { addFriend } from '../../redux/slices/friendSlice';
 import axios from 'axios';
 import Modal from './Modal';
 import ProfileImg from './ProfileImg';
@@ -12,7 +14,6 @@ import LevelText from './LevelText';
 import mail from '../../assets/icon/mail.png';
 import cancel from '../../assets/icon/cancel.png';
 import confirm from '../../assets/icon/confirm.png';
-import { decreaseNotificationCount } from '../../redux/slices/notificationSlice';
 
 // 알림 전체 조회
 interface Notification {
@@ -31,6 +32,15 @@ interface requestInfo {
   fromUserCharacterName: string;
 }
 
+// 친구 추가
+interface Friend {
+  friendId: number;
+  nickname: string;
+  description: string;
+  characterName: string;
+  tierPoint: number;
+}
+
 export default function Mail({ closeMail }: { closeMail: () => void }) {
   const dispatch = useDispatch();
 
@@ -43,6 +53,8 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
     useState<Notification | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [requestInfo, setRequestInfo] = useState<requestInfo>();
+  const [acceptModal, setAcceptModal] = useState<boolean>(false);
+  const [rejectModal, setRejectModal] = useState<boolean>(false);
 
   // 1. 알림 불러오기
   const getNotifications = async () => {
@@ -116,9 +128,22 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
           },
         },
       );
-      alert('친구 요청을 수락했습니다!');
-      // window.location.reload();
-      // 새로고침이 아닌 Friend를 리렌더링하면 좋겠는데..
+
+      // 친구 상세 정보 불러오기
+      const response = await axios.get(`${API_LINK}/user/${senderId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const newFriend: Friend = {
+        friendId: response.data.data.userId,
+        nickname: response.data.data.nickname,
+        description: response.data.data.description,
+        characterName: response.data.data.characterName,
+        tierPoint: response.data.data.tierPoint,
+      };
+
       setShowModal(false);
 
       // 읽은 알림 화면에서 삭제
@@ -128,10 +153,18 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
 
       // 알림 수 변경
       dispatch(decreaseNotificationCount());
+
+      // 친구 수 변경
+      dispatch(addFriend(newFriend));
+
+      // 확인 모달
+      setAcceptModal(true);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handleAcceptModal = () => setAcceptModal(false);
 
   // 5. 친구 요청 거절
   const rejectFriendRequest = async (
@@ -149,7 +182,6 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
           notificationId: notificationId,
         },
       });
-      alert('친구 요청을 거절했습니다!');
       setShowModal(false);
 
       setNotifications((prev) =>
@@ -158,10 +190,15 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
 
       // 알림 수 변경
       dispatch(decreaseNotificationCount());
+
+      // 확인 모달
+      setRejectModal(true);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handleRejectModal = () => setRejectModal(false);
 
   return (
     <div className="yellow-box w-1/2 h-[470px] p-6 px-10 pb-10 border-[#36EAB5] bg-[#fffeee]">
@@ -261,6 +298,30 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
           ) : (
             <div>게임 초대..</div>
           )}
+        </Modal>
+      )}
+      {acceptModal && (
+        <Modal>
+          <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
+            <div className="white-text text-4xl p-6">
+              친구 신청을 수락하였습니다!
+            </div>
+            <button onClick={handleAcceptModal}>
+              <img src={confirm} alt="" />
+            </button>
+          </div>
+        </Modal>
+      )}
+      {rejectModal && (
+        <Modal>
+          <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
+            <div className="white-text text-4xl p-6">
+              친구 신청을 거절하였습니다!
+            </div>
+            <button onClick={handleRejectModal}>
+              <img src={confirm} alt="" />
+            </button>
+          </div>
         </Modal>
       )}
     </div>
