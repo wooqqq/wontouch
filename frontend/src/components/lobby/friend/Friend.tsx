@@ -1,4 +1,5 @@
-import React from 'react';
+import { useDispatch } from 'react-redux';
+import { setFriends } from '../../../redux/slices/friendSlice';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
@@ -8,33 +9,26 @@ import Modal from '../../common/Modal';
 import FriendPlus from './FriendPlus';
 import axios from 'axios';
 
-interface FriendInfoProps {
-  friendId: number;
-  nickname: string;
-  description: string;
-  characterName: string;
-  tierPoint: number;
-}
-
-const API_LINK = import.meta.env.VITE_API_URL;
-
 export default function Friend() {
-  const [friends, setFriends] = useState<FriendInfoProps[]>([]);
+  const API_LINK = import.meta.env.VITE_API_URL;
+  const dispatch = useDispatch();
+
   const [findFriend, setFindFriend] = useState<boolean>(false);
 
   const userId = useSelector((state: RootState) => state.user.id);
+  const friends = useSelector((state: RootState) => state.friend.friends);
 
   // 친구 목록 불러오기
   const getFriendsList = async () => {
     try {
       const response = await axios.get(`${API_LINK}/friend/${userId}`);
-      setFriends(response.data.data);
+      dispatch(setFriends(response.data.data));
     } catch {}
   };
 
   useEffect(() => {
     getFriendsList();
-  }, []);
+  }, [userId]);
 
   const openFindFriend = () => {
     setFindFriend(true);
