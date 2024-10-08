@@ -15,7 +15,7 @@ function GoogleLoginTwo() {
 
   const handleGoogleLogin = () => {
     // 본인 구글 토큰 입력
-    const accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjIsImlhdCI6MTcyNzA3NjMxNywiZXhwIjoxNzI3MTE5NTE3fQ.DlHGGexD4BmDs6l_L_5TGXE6qCFweLxF0WRb7dDoBFI';
+    const accessToken = import.meta.env.VITE_GOOGLE_TOKEN_TWO;
 
     localStorage.setItem('access_token', accessToken);
     const decodedToken = jwtDecode<DecodedToken>(accessToken);

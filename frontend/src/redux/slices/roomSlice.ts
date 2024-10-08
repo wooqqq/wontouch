@@ -53,6 +53,15 @@ const roomSlice = createSlice({
     setPassword(state, action: PayloadAction<string | ''>) {
       state.password = action.payload;
     },
+    updateParticipantReadyState: (state, action) => {
+      const { playerId, isReady } = action.payload;
+      const participant = state.gameParticipants.find(
+        (p) => p.userId === playerId,
+      );
+      if (participant) {
+        participant.isReady = isReady;
+      }
+    },
   },
 });
 
@@ -63,5 +72,6 @@ export const {
   setGameParticipants,
   setIsPrivate,
   setPassword,
+  updateParticipantReadyState,
 } = roomSlice.actions;
 export default roomSlice.reducer;

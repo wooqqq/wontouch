@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -9,6 +9,7 @@ import {
   setRoomName,
   setHostId,
   setGameParticipants,
+  updateParticipantReadyState,
 } from '../redux/slices/roomSlice';
 
 import Modal from '../components/common/Modal';
@@ -19,7 +20,7 @@ import RoomChat from '../components/waitingRoom/RoomChat';
 import RoomHowTo from '../components/waitingRoom/RoomHowTo';
 import RoomTitle from '../components/waitingRoom/RoomTitle';
 import RoomUserList from '../components/waitingRoom/RoomUserList';
-import Header from '../components/common/Header';
+import { setCrops } from '../redux/slices/cropSlice';
 
 interface GameParticipant {
   userId: number;
@@ -134,47 +135,79 @@ function WaitingRoom() {
             // 준비 / 준비완료
             case 'READY':
               const { readyStateList, allReady } = receivedMessage.content;
-              console.log('tetete', gameParticipants);
               // 유저 정보 업데이트
-              const readyParticipants = gameParticipants.map((participant) => {
-                const player = readyStateList.find(
-                  (p: Player) => p.playerId === participant.userId,
-                );
+              // const readyParticipants = gameParticipants.map((participant) => {
+              //   const player = readyStateList.find(
+              //     (p: Player) => p.playerId === participant.userId,
+              //   );
 
-                // player가 있는 경우
-                if (player) {
-                  return {
-                    ...participant,
-                    isReady: player.ready,
-                  };
+              //   // player가 있는 경우
+              //   if (player) {
+              //     return {
+              //       ...participant,
+              //       isReady: player.ready,
+              //     };
+              //   }
+              //   // player가 없는 경우
+              //   return participant;
+              // });
+
+              // 배열의 각 요소를 순회하면서 상태를 확인
+              readyStateList.forEach((player: Player) => {
+                if (player.playerId === hostId) {
+                  console.log('준비: ', player.ready);
+                  if (player.ready === false) {
+                    // 보낸 사람의 아이디가 호스트아이디이고, 레디가 안된 상태면 강제 레디
+                    hostReady();
+                    console.log('방장의 상태2:', player.ready);
+                  }
+                } else {
+                  dispatch(
+                    updateParticipantReadyState({
+                      playerId: player.playerId,
+                      isReady: player.ready,
+                    }),
+                  );
                 }
-                // player가 없는 경우
-                return participant;
               });
-
-              // 응답에서 플레이어 준비 상태 업데이트
-              if (readyStateList.playerId === hostId) {
-                console.log('준비: ', readyStateList.ready);
-                if (readyStateList.ready === false) {
-                  // 보낸 사람의 아이디가 호스트아이디이고, 레디가 안된 상태면 강제 레디
-                  hostReady();
-                }
-              }
-
-              console.log('레디유저', readyParticipants);
-              setGameParticipants(readyParticipants);
               setIsAllReady(allReady);
               console.log('모두 준비: ', allReady);
               break;
-            // 게임 시작
-            case 'ROUND_START':
-              navigate(`/game/${roomId}`);
+            case 'ROUND_START': {
+              const { duration, round } = receivedMessage.content;
+
+              // 상태값이 잘 설정되었는지 확인
+              console.log('Round Duration:', duration, 'Round Number:', round);
+
+              // 페이지 이동 전 상태값 확인
+              if (duration && round) {
+                navigate(`/game/${roomId}`, {
+                  state: { roundDuration: duration, roundNumber: round },
+                });
+              } else {
+                alert('게임 시작에 필요한 정보가 부족합니다.');
+              }
+              break;
+            }
+            case 'CROP_LIST': {
+              const { cropList } = receivedMessage.content;
+
+              // cropList가 존재하는지 확인 후 상태 업데이트
+              if (cropList && Array.isArray(cropList)) {
+                dispatch(setCrops(cropList));
+                console.log('Crop List Received:', cropList); // 데이터가 올바르게 수신되었는지 확인
+              } else {
+                console.error('Invalid Crop List:', cropList);
+              }
+              break;
+            }
           }
         } catch (error) {
           console.error('JSON 파싱 오류:', error);
         }
       }
     };
+
 
     ///////////////////////////////////////
     // 게임방 정보 가져오기 (방 입장 API)
@@ -353,7 +386,7 @@ function WaitingRoom() {
   return (
     <>
       {/* <Header /> */}
-      <div className="flex relative">
+      <div className="flex relative w-[1200px] justify-center mx-auto">
         {isLoading && (
           <Modal>
             <div className="text-center">
@@ -363,7 +396,7 @@ function WaitingRoom() {
         )}
 
         {/* 왼쪽 섹션 (방제목/게임 참여자 리스트/채팅) */}
-        <section className="w-2/3">
+        <section className="w-2/3 mr-4">
           <RoomTitle roomName={roomName} roomId={roomId} />
           {/* 게임 참여 대기자 리스트 */}
           <RoomUserList onOpen={handleOpenModal} socket={socket.current} />
