@@ -12,15 +12,15 @@ const notificationSlice = createSlice({
   name: 'notification',
   initialState,
   reducers: {
-    updateNotificationCount(state) {
+    increaseNotificationCount(state) {
       state.count += 1;
     },
-    setNotificationCount(state, action: PayloadAction<number>) {
-      state.count = action.payload;
+    decreaseNotificationCount(state) {
+      state.count -= 1;
     },
   },
 });
 
-export const { updateNotificationCount, setNotificationCount } =
+export const { increaseNotificationCount, decreaseNotificationCount } =
   notificationSlice.actions;
 export default notificationSlice.reducer;
