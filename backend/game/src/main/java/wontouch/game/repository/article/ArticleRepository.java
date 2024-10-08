@@ -174,9 +174,9 @@ public class ArticleRepository {
         naturalRate = naturalRate / totalRate * 0.99;
 
         // speciallll eeeeevent test 를 위함
-        positiveRate = 0;
-        negativeRate = 0;
-        naturalRate = 0;
+//        positiveRate = 0;
+//        negativeRate = 0;
+//        naturalRate = 0;
 
         log.debug("RANDOM VALUE: {}, positiveRate: {}, negativeRate: {}, naturalRate: {}", randomValue, positiveRate, negativeRate, naturalRate);
         if (randomValue < positiveRate) {
