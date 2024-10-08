@@ -54,7 +54,9 @@ export default function DeleteUser({
       {finish && (
         <Modal>
           <div className="yellow-box w-1/2 h-[200px] border-[#36EAB5] bg-[#FFFEEE] p-8">
-            <div className="white-text text-4xl mb-10">회원 탈퇴가 완료되었습니다.</div>
+            <div className="white-text text-4xl mb-10">
+              회원 탈퇴가 완료되었습니다.
+            </div>
             <button onClick={goLogin}>
               <img src={confirm} alt="" />
             </button>
