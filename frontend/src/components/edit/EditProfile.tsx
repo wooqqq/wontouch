@@ -10,7 +10,7 @@ import Experience from '../common/Experience';
 import Modal from '../common/Modal';
 import DeleteUser from './DeleteUser';
 
-import confirm from '../assets/icon/confirm.png';
+import confirm from '../../assets/icon/confirm.png';
 import {
   setUserDescription,
   setUserNickname,

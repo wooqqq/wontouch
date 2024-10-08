@@ -68,7 +68,7 @@ function WaitingRoom() {
   const [messages, setMessages] = useState<Message[]>([]);
   const socket = useRef<WebSocket | null>(null);
 
-  // roomId 저장
+  // ❗❗❗❗❗❗❗❗ roomId 저장 useEffect ❗❗❗❗❗❗❗❗
   useEffect(() => {
     console.log(roomIdFromParams);
     if (roomIdFromParams) {
@@ -76,24 +76,24 @@ function WaitingRoom() {
     }
   }, [roomIdFromParams, dispatch]);
 
-  ///////////////useEffect//////////////
+  //❗❗❗❗❗❗❗❗useEffect❗❗❗❗❗❗❗❗
   useEffect(() => {
     // roomId가 없으면 실행 X
     if (!roomId) return;
 
-    // 웹소켓 생성
+    // ✅ 웹소켓 생성
     const newSocket = new WebSocket(
       `${SOCKET_LINK}/ws/game/${roomId}?playerId=${userId}`,
     );
 
-    // 웹소켓 연결
+    // ✅ 웹소켓 연결
     newSocket.onopen = async () => {
       console.log(
         '웹소켓 연결 성공 - roomId: ' + roomId + ', playerId: ' + userId,
       );
     };
 
-    // 웹소켓 연결 오류 시 재연결 시도
+    // ✅ 웹소켓 연결 오류 시 재연결 시도
     newSocket.onerror = (error) => {
       console.error('웹소켓 연결 오류: ', error);
       setTimeout(() => {
@@ -108,7 +108,7 @@ function WaitingRoom() {
     socket.current = newSocket;
 
     ///////////////////////////////////////
-    // 소켓에서 메시지를 수신할 때
+    // ✅소켓 메시지를 수신
     newSocket.onmessage = (event) => {
       // 메시지가 JSON 형식인지 확인
       if (event.data.startsWith('{') && event.data.endsWith('}')) {
@@ -118,21 +118,17 @@ function WaitingRoom() {
 
           // 소켓에 수신된 메시지에 따라..
           switch (receivedMessage.type) {
-            // 채팅
+            // ✅ 채팅
             case 'CHAT':
               setMessages((prevMessages) => [...prevMessages, receivedMessage]);
               break;
-            // 공지 (입퇴장)
+            // ✅ 공지 (입퇴장)
             case 'NOTIFY':
-              // 누군가의 입장
-              console.log('누군가의 입장으로 정보 가져오기');
-
-              // 정보 다시 가져오기
-              // setTimeout(() => {
+              // 누군가의 입장으로 방 정보 다시 가져오기
               fetchRoomData();
-              // }, 1000);
+              console.log('누군가의 입장으로 정보 가져오기 함수 실행!');
               break;
-            // 준비 / 준비완료
+            // ✅ 준비 / 준비완료
             case 'READY':
               const { readyStateList, allReady } = receivedMessage.content;
 
@@ -153,6 +149,7 @@ function WaitingRoom() {
               setIsAllReady(allReady);
               console.log('모두 준비: ', allReady);
               break;
+            // ✅ 게임 시작
             case 'ROUND_START': {
               const { duration, round } = receivedMessage.content;
 
@@ -169,6 +166,7 @@ function WaitingRoom() {
               }
               break;
             }
+            // ✅ 작물 리스트
             case 'CROP_LIST': {
               const { cropList } = receivedMessage.content;
 
@@ -189,18 +187,19 @@ function WaitingRoom() {
     };
 
     ///////////////////////////////////////
-    // 게임방 정보 가져오기 (방 입장 API)
+    // ✅ 게임방 정보 조회 API
     const fetchRoomData = async () => {
       try {
-        const response = await axios.post(`${API_LINK}/room/join/${roomId}`, {
-          playerId: userId,
-        });
+        const response = await axios.get(`${API_LINK}/room/info/${roomId}`);
+
         if (response.data && response.data.data) {
           const gameParticipants = response.data.data.participants;
+          console.log('1번 - participants: ', gameParticipants);
+
           const formattedParticipants = Object.entries(gameParticipants).map(
             ([userId, isReady]) => ({
               userId: Number(userId), // userId는 숫자로 변환
-              isReady: Boolean(isReady), // 준비 상태 Boolean으로 변환
+              isReady: Boolean(isReady), // 준비 상태 Boolean으로 변환 (방장은 항상 true)
               nickname: '',
               description: '',
               characterName: '',
@@ -208,12 +207,40 @@ function WaitingRoom() {
               mileage: 0,
             }),
           );
+          console.log('2번 - formattedParticipants: ', formattedParticipants);
 
-          dispatch(setGameParticipants(formattedParticipants));
+          const fetchUsers = await Promise.all(
+            formattedParticipants.map(
+              async (gameParticipant: GameParticipant) => {
+                const userId = gameParticipant.userId;
+                const userResponse = await axios.get(
+                  `${API_LINK}/user/${userId}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  },
+                );
+
+                return {
+                  ...gameParticipant, // 기존 정보 유지
+                  nickname: userResponse.data.data.nickname || '', // 새로 가져온 정보 병합
+                  description: userResponse.data.data.description || '',
+                  characterName: userResponse.data.data.characterName || '',
+                  tierPoint: userResponse.data.data.tierPoint || 0,
+                  mileage: userResponse.data.data.mileage || 0,
+                };
+              },
+            ),
+          );
+
+          dispatch(setGameParticipants(fetchUsers));
           dispatch(setRoomName(response.data.data.roomName));
           dispatch(setHostId(response.data.data.hostId));
-
-          console.log('1번-방정보 가져오기', formattedParticipants);
+          console.log(
+            '3번 - GameParticipants에 저장할 fetchUsers: ',
+            fetchUsers,
+          );
         } else {
           console.error('응답 데이터에 participants가 없습니다.');
         }
@@ -221,11 +248,12 @@ function WaitingRoom() {
         console.error('방 정보 가져오는 중 에러 발생: ', error);
       }
     };
-    // 방 정보 가져오기
+
+    // 🔵 방 정보 가져오기 함수 실행
     fetchRoomData();
 
     ///////////////////////////////////////
-    // 3초 뒤에 로딩 끝내기 (입장 중 화면)
+    // ✅ 3초 뒤에 로딩 끝내기 (입장 중 화면)
     const delay = setTimeout(() => {
       if (isLoading) {
         setIsLoading(false);
@@ -233,7 +261,7 @@ function WaitingRoom() {
     }, 3000);
 
     ///////////////////////////////////////
-    // 방 퇴장 시 방 퇴장 및 소켓 종료 & 게임방 정보 새로 가져오기(방장, 리스트 바뀜)
+    // ✅ 방 퇴장 시 방 퇴장 및 소켓 종료 & 게임방 정보 새로 가져오기(방장, 리스트 바뀜)
     // 뒤로가기, 새로고침, 창닫기, 탭닫기 시 방 떠나기
     // 페이지 떠날 때 경고 알림창
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
@@ -254,7 +282,7 @@ function WaitingRoom() {
             console.log('방장이 위임되었습니다:', response.data.data.hostId);
           } else {
             // 방장이 위임되지 않은 경우
-            alert('방을 찾을 수 없습니다.');
+            alert('방장이 없습니다.');
             navigate('/lobby');
           }
         }
@@ -272,12 +300,10 @@ function WaitingRoom() {
       }
     };
 
-    // 이벤트 리스너 추가
-    // window.addEventListener('beforeunload', handleBeforeUnload);
-
+    // 🔵 이벤트 리스너 추가
     window.addEventListener('beforeunload', handleBeforeUnload);
 
-    // 컴포넌트 언마운트 시 타이머 및 웹소켓 연결 정리
+    // ✅ 컴포넌트 언마운트 시 타이머 및 웹소켓 연결 정리
     return () => {
       clearTimeout(delay);
       // 현재 페이지가 game 페이지로 이동하는 경우가 아니면 웹소켓 닫기
@@ -287,56 +313,10 @@ function WaitingRoom() {
           console.log('웹소켓 연결 닫기');
         }
       }
-      // 컴포넌트 언마운트 시 이벤트 리스너 제거
+      // 이벤트 리스너 제거
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [roomId, userId, hostId]);
-
-  ///////////////////////////////////////
-  // 참가자 정보 가져오기 API
-  const fetchUsersInfo = async () => {
-    try {
-      // // 기존 유저 데이터 초기화
-      // setUsers([]);
-
-      // participants가 존재하는지 체크
-      // if (!gameParticipants || gameParticipants.length === 0) return;
-      const fetchUsers = await Promise.all(
-        gameParticipants.map(async (gameParticipant: GameParticipant) => {
-          const userId = gameParticipant.userId;
-          const userResponse = await axios.get(`${API_LINK}/user/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          return {
-            ...gameParticipant, // 기존 정보 유지
-            nickname: userResponse.data.data.nickname || '', // 새로 가져온 정보 병합
-            description: userResponse.data.data.description || '',
-            characterName: userResponse.data.data.characterName || '',
-            tierPoint: userResponse.data.data.tierPoint || 0,
-            mileage: userResponse.data.data.mileage || 0,
-          };
-        }),
-      );
-      // setUsers(fetchUsers);
-      // 새로 받아온 유저 정보가 기존 정보와 다른 경우에만 dispatch 실행
-      if (JSON.stringify(fetchUsers) !== JSON.stringify(gameParticipants)) {
-        dispatch(setGameParticipants(fetchUsers));
-      }
-      // dispatch(setGameParticipants(fetchUsers));
-      console.log('2번-방정보 토대로 유저 정보 가져오기: ', gameParticipants);
-    } catch (error) {
-      console.error('유저 정보를 가져오는 중 오류 발생: ', error);
-    }
-  };
-
-  // gameParticipants가 업데이트될 때마다 유저 정보를 가져오는 useEffect 추가
-  useEffect(() => {
-    if (gameParticipants && gameParticipants.length > 0) {
-      fetchUsersInfo();
-    }
-  }, [gameParticipants]);
 
   const handleOpenModal = () => setIsModalOpen(true); // 모달 열기
   const handleCloseModal = () => setIsModalOpen(false); // 모달 닫기
