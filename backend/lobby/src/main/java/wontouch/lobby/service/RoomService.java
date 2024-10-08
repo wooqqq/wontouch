@@ -1,15 +1,18 @@
 package wontouch.lobby.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import wontouch.lobby.domain.Room;
 import wontouch.lobby.dto.*;
 import wontouch.lobby.repository.room.RoomRepository;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class RoomService {
 
     @Value("${socket.server.name}:${socket.server.path}")
@@ -45,6 +48,11 @@ public class RoomService {
         return roomRepository.exitRoom(roomId, id);
     }
 
+    public RoomResponseDto getRoomInfo(String roomId) {
+        Room room = roomRepository.getRoomById(roomId);
+        return new RoomResponseDto(room);
+    }
+
     public void addSession(SessionSaveDto sessionSaveDto) {
         roomRepository.saveSession(sessionSaveDto);
     }
@@ -52,7 +60,8 @@ public class RoomService {
     public void removeSession(SessionDeleteDto sessionDeleteDto) {
         String roomId = sessionDeleteDto.getRoomId();
         String playerId = sessionDeleteDto.getPlayerId();
-        roomRepository.exitRoom(roomId, playerId);
+        RoomResponseDto roomResponseDto = roomRepository.exitRoom(roomId, playerId);
+        log.debug("Remove Session log in Service: {}", roomResponseDto);
         roomRepository.removeSession(roomId, sessionDeleteDto.getSessionId());
     }
 

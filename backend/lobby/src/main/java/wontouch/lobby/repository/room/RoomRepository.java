@@ -1,6 +1,8 @@
 package wontouch.lobby.repository.room;
 
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import wontouch.lobby.domain.Room;
@@ -17,67 +19,82 @@ import java.util.stream.Collectors;
 public class RoomRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedissonClient redissonClient;
     private static final int MAX_PLAYER = 8;
-    public RoomRepository(RedisTemplate<String, Object> redisTemplate) {
+    public RoomRepository(RedisTemplate<String, Object> redisTemplate, RedissonClient redissonClient) {
         this.redisTemplate = redisTemplate;
+        this.redissonClient = redissonClient;
     }
 
     // 방을 만들고 레디스에 저장
     public RoomResponseDto saveRoom(CreateRoomRequestDto room) {
-        String key = "game_lobby:" + room.getRoomId() + ":info";
-        String playerId = Long.toString(room.getHostPlayerId());
-        String roomId = room.getRoomId();
-        String roomName = room.getRoomName();
+        RLock lock = redissonClient.getLock("roomLock:" + room.getRoomId());
+        try {
+            lock.lock();
+            String key = "game_lobby:" + room.getRoomId() + ":info";
+            String playerId = Long.toString(room.getHostPlayerId());
+            String roomId = room.getRoomId();
+            String roomName = room.getRoomName();
 
-        // 이미 방이 존재하는지 확인
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
-            throw new ExceptionResponse(CustomException.ROOM_ALREADY_EXISTS_EXCEPTION);
+
+            // 이미 방이 존재하는지 확인
+            if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
+                throw new ExceptionResponse(CustomException.ROOM_ALREADY_EXISTS_EXCEPTION);
+            }
+
+            redisTemplate.opsForHash().put(key, "roomId", roomId);
+            redisTemplate.opsForHash().put(key, "roomName", roomName);
+            redisTemplate.opsForHash().put(key, "secret", room.isSecret());
+            redisTemplate.opsForHash().put(key, "hostId", playerId);
+            if (room.isSecret()) {
+                redisTemplate.opsForHash().put(key, "password", room.getPassword());
+            }
+
+            // 방 목록 Sorted Set에 방 ID 추가 (생성 시간을 score로 사용)
+            String roomListKey = "game_lobby:rooms";
+            double score = System.currentTimeMillis(); // 현재 시간을 밀리초로 가져옴
+            redisTemplate.opsForZSet().add(roomListKey, room.getRoomId(), score);
+
+            // 추가 필드 작성
+
+            // 참여자 목록에 방 생성자 삽입
+            String participantsKey = "game_lobby:" + room.getRoomId() + ":participants";
+            redisTemplate.opsForHash().put(participantsKey, playerId, "true");
+            log.debug("save Room Completed: {}", redisTemplate.opsForHash().get(participantsKey, playerId));
+            return new RoomResponseDto(getRoomById(room.getRoomId()));
+        } finally {
+            lock.unlock();
         }
-
-        redisTemplate.opsForHash().put(key, "roomId", roomId);
-        redisTemplate.opsForHash().put(key, "roomName", roomName);
-        redisTemplate.opsForHash().put(key, "secret", room.isSecret());
-        redisTemplate.opsForHash().put(key, "hostId", playerId);
-        if (room.isSecret()) {
-            redisTemplate.opsForHash().put(key, "password", room.getPassword());
-        }
-
-        // 방 목록 Sorted Set에 방 ID 추가 (생성 시간을 score로 사용)
-        String roomListKey = "game_lobby:rooms";
-        double score = System.currentTimeMillis(); // 현재 시간을 밀리초로 가져옴
-        redisTemplate.opsForZSet().add(roomListKey, room.getRoomId(), score);
-
-        // 추가 필드 작성
-
-        // 참여자 목록에 방 생성자 삽입
-        String participantsKey = "game_lobby:" + room.getRoomId() + ":participants";
-        redisTemplate.opsForHash().put(participantsKey, playerId, true);
-
-        return new RoomResponseDto(getRoomById(room.getRoomId()));
     }
 
     // 방 입장
     public RoomResponseDto joinRoom(String roomId, RoomRequestDto roomRequestDto) {
-        long playerId = roomRequestDto.getPlayerId();
-        String participantsKey = "game_lobby:" + roomId + ":participants";
-        log.debug("join roomId:{}", roomId);
-        Room room = getRoomById(roomId);
-        if (room == null) {
-            throw new ExceptionResponse(CustomException.ROOM_NOT_FOUND);
-        }
-        if (room.getCurrentPlayersCount() >= MAX_PLAYER) {
-            throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
-        }
-        if (room.isSecret()) {
-            if (room.getPassword().equals(roomRequestDto.getPassword())) {
-                redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
-                return new RoomResponseDto(room);
-            } else {
-                throw new ExceptionResponse(CustomException.INVALID_PASSWORD_EXCEPTION);
+        RLock lock = redissonClient.getLock("roomJoinLock:" + roomId);
+        try {
+            lock.lock();
+            long playerId = roomRequestDto.getPlayerId();
+            String participantsKey = "game_lobby:" + roomId + ":participants";
+            log.debug("join roomId:{}", roomId);
+            Room room = getRoomById(roomId);
+            if (room == null) {
+                throw new ExceptionResponse(CustomException.ROOM_NOT_FOUND);
             }
+            if (room.getCurrentPlayersCount() >= MAX_PLAYER) {
+                throw new ExceptionResponse(CustomException.NO_AVAILABLE_ROOM_EXCEPTION);
+            }
+            if (room.isSecret()) {
+                if (room.getPassword().equals(roomRequestDto.getPassword())) {
+                    redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
+                    return new RoomResponseDto(room);
+                } else {
+                    throw new ExceptionResponse(CustomException.INVALID_PASSWORD_EXCEPTION);
+                }
+            }
+            redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
+            return new RoomResponseDto(getRoomById(room.getRoomId()));
+        } finally {
+            lock.unlock();
         }
-        redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
-        return new RoomResponseDto(getRoomById(room.getRoomId()));
     }
 
     // 빠른 입장
@@ -200,8 +217,12 @@ public class RoomRepository {
 
     // 방에 해당하는 세션 삭제
     public void removeSession(String sessionId, String roomId) {
-        String participantsKey = "game_lobby:" + roomId + ":sessions";
-        redisTemplate.opsForSet().remove(participantsKey, sessionId);
+        try {
+            String participantsKey = "game_lobby:" + roomId + ":sessions";
+            redisTemplate.opsForSet().remove(participantsKey, sessionId);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // 방 목록 조회

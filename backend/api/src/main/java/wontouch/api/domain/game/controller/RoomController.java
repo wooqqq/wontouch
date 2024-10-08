@@ -79,6 +79,7 @@ public class RoomController {
         log.debug("roomRequestDto: {}", roomRequestDto);
         try {
             ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, roomRequestDto, ResponseDto.class);
+            log.debug("방 입장 결과 확인: {}", response);
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         } catch (HttpClientErrorException.Unauthorized e) {
             e.printStackTrace();
@@ -146,5 +147,19 @@ public class RoomController {
         restTemplate.postForObject(lobbyUrl, null, Object.class);
         restTemplate.postForEntity(targetUrl, players, Object.class);
         return null;
+    }
+
+    // 특정 게임방의 정보 불러오기
+    @GetMapping("/info/{roomId}")
+    public ResponseEntity<?> getRoomInfos(@PathVariable String roomId) {
+        String targetUrl = String.format("%s/rooms/info/%s", lobbyServerUrl, roomId);
+        ResponseEntity<ResponseDto<?>> response = restTemplate.exchange(
+                targetUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<ResponseDto<?>>() {
+                }
+        );
+        return response;
     }
 }
