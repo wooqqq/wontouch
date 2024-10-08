@@ -161,7 +161,7 @@ public class NotificationService {
         List<NotificationListResponseDto> responseDtoList = notifications.stream()
                 .map(notification -> NotificationListResponseDto.builder()
                         .id(notification.getId())
-                        .senderId(userProfileRepository.findByNickname(notification.getSender()).get().getUserId())
+                        .senderId(userId.intValue())
                         .senderNickname(notification.getSender())
                         .createAt(notification.getCreateAt().format(formatter))
                         .content(notification.getContent())
