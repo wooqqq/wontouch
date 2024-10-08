@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.lobby.domain.Room;
 import wontouch.lobby.dto.*;
+import wontouch.lobby.exception.CustomException;
+import wontouch.lobby.exception.ExceptionResponse;
 import wontouch.lobby.repository.room.RoomRepository;
 
 import java.util.List;
@@ -50,6 +52,9 @@ public class RoomService {
 
     public RoomResponseDto getRoomInfo(String roomId) {
         Room room = roomRepository.getRoomById(roomId);
+        if (room == null) {
+            throw new ExceptionResponse(CustomException.ROOM_NOT_FOUND);
+        }
         return new RoomResponseDto(room);
     }
 

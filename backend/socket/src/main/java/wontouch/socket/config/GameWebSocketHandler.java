@@ -49,6 +49,13 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         String roomId = getRoomIdFromSession(session);
         String playerId = getPlayerIdFromQueryParams(session);
 
+        // 기존에 접속된 방이 있다면 해당 세션 종료
+        if (sessionService.isPlayerInAnotherRoom(playerId, roomId)) {
+            log.warn("Player {} is already connected in another room, closing existing session.", playerId);
+            sessionService.closeExistingSession(playerId);  // 기존 세션 종료
+        }
+
+
         session.getAttributes().put("playerId", playerId);
 
         // session추가
