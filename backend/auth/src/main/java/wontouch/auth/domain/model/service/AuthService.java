@@ -66,10 +66,16 @@ public class AuthService {
             tokenInfo = jwtProvider.generateToken(savedUser.getId());
             tokenInfo.updateFirstLogin();
 
+            // 로그인 시 활동 시간 저장
+            saveUserActivity(savedUser.getId());
+
             return tokenInfo;
         } else {    // 기존 회원 로그인
             User user = loginUser.get();
             tokenInfo = jwtProvider.generateToken(user.getId());
+
+            // 로그인 시 활동 시간 저장
+            saveUserActivity(user.getId());
 
             return tokenInfo;
         }
