@@ -75,16 +75,18 @@ public class RoomController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @PostMapping("/invite")
-    public ResponseEntity<?> inviteFriend(@RequestBody RoomInviteRequestDto requestDto) {
-        roomService.inviteFriend(requestDto);
+    @GetMapping("/invite-info/{roomId}")
+    public ResponseEntity<?> inviteFriend(@PathVariable String roomId) {
+        RoomInviteResponseDto inviteResponseDto = roomService.inviteFriend(roomId);
 
-        ResponseDto<String> responseDto = ResponseDto.<String>builder()
-                .status(HttpStatus.CREATED.value())
-                .message("게임방 친구 초대 완료")
-                .data(null)
+        System.out.println("여기는 컨트롤러 : " + inviteResponseDto.getRoomId());
+
+        ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
+                .status(HttpStatus.OK.value())
+                .message("게임방 정보 조회 성공")
+                .data(inviteResponseDto)
                 .build();
 
-        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

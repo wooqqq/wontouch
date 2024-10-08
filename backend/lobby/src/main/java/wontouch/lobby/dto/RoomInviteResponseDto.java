@@ -8,16 +8,12 @@ import wontouch.lobby.domain.Room;
 @NoArgsConstructor
 public class RoomInviteResponseDto {
 
-    private long receiverId;
-    private long senderId;
     private String roomId;
     private String roomName;
     private boolean secret;
     private String password;
 
-    public RoomInviteResponseDto(long senderId, long receiverId, Room room) {
-        this.receiverId = receiverId;
-        this.senderId = senderId;
+    public RoomInviteResponseDto(Room room) {
         this.roomId = room.getRoomId();
         this.roomName = room.getRoomName();
         this.secret = room.isSecret();

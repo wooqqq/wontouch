@@ -276,10 +276,10 @@ public class RoomRepository {
         return redisTemplate.opsForSet().size(participantsKey);
     }
 
-    public RoomInviteResponseDto inviteFriend(RoomInviteRequestDto requestDto) {
+    public RoomInviteResponseDto inviteFriend(String roomId) {
         // 방 정보 찾기
-        Room room = getRoomById(requestDto.getRoomId());
+        Room room = getRoomById(roomId);
 
-        return new RoomInviteResponseDto(requestDto.getUserId(), requestDto.getFriendId(), room);
+        return new RoomInviteResponseDto(room);
     }
 }
