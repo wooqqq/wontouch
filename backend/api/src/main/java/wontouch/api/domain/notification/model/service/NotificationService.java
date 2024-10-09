@@ -251,35 +251,6 @@ public class NotificationService {
                 .build();
     }
 
-
-
-//    public Object getNotification(String id) {
-//        Notification notification = notificationRepository.findById(id)
-//                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_NOTIFICATION_EXCEPTION));
-//
-//        if (notification.getNotificationType() == NotificationType.FRIEND_REQUEST) {
-//            return getFriendRequest()
-//        } else if (notification.getNotificationType() == NotificationType.GAME_INVITE) {
-//            return null;
-//        }
-//
-//        return null;
-//    }
-//
-//    // 친구 신청 상세 조회 메서드
-//    public ReceiveFriendRequestDto getFriendRequest(int fromUserId, int toUserId) {
-//        return friendService.getFriendRequest(fromUserId, toUserId);
-//    }
-//
-//    // 게임 초대 상세 조회 메서드
-//    public RoomInviteResponseDto getGameInvite(Notification notification) {
-//        // 알림에서 필요한 정보를 가져와서 DTO를 생성
-//        return RoomInviteResponseDto.builder()
-//                .roomId(notification.getRoomId()) // 알림에서 roomId 가져오기
-//                .roomName(notification.getRoomName()) // 알림에서 roomName 가져오기
-//                .build();
-//    }
-
     @Transactional
     public void deleteNotification(NotificationDeleteRequestDto requestDto) {
         System.out.println("알림 String id : " + requestDto.getId());
