@@ -74,6 +74,7 @@ public class RoomRepository {
             lock.lock();
             long playerId = roomRequestDto.getPlayerId();
             String participantsKey = "game_lobby:" + roomId + ":participants";
+            String roomListKey = "game_lobby:" + roomId + ":info";
             log.debug("join roomId:{}", roomId);
             Room room = getRoomById(roomId);
             if (room == null) {
@@ -84,16 +85,27 @@ public class RoomRepository {
             }
             if (room.isSecret()) {
                 if (room.getPassword().equals(roomRequestDto.getPassword())) {
-                    redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
+                    setDefaultReadyState(roomId, String.valueOf(playerId));
                     return new RoomResponseDto(getRoomById(room.getRoomId()));
                 } else {
                     throw new ExceptionResponse(CustomException.INVALID_PASSWORD_EXCEPTION);
                 }
             }
-            redisTemplate.opsForHash().put(participantsKey, Long.toString(playerId), false);
+            setDefaultReadyState(roomId, String.valueOf(playerId));
             return new RoomResponseDto(getRoomById(room.getRoomId()));
         } finally {
             lock.unlock();
+        }
+    }
+
+    private void setDefaultReadyState(String roomId, String playerId) {
+        String participantsKey = "game_lobby:" + roomId + ":participants";
+        String roomListKey = "game_lobby:" + roomId + ":info";
+        Object hostId = redisTemplate.opsForHash().get(roomListKey, "hostId");
+        if (playerId.equals(hostId)) {
+            redisTemplate.opsForHash().put(participantsKey, playerId, true);
+        } else {
+            redisTemplate.opsForHash().put(participantsKey, playerId, false);
         }
     }
 
