@@ -14,6 +14,9 @@ import friendSlice from './slices/friendSlice';
 import chatSlice from './slices/chatSlice';
 import articleResultSlice from './slices/articleResultSlice';
 import cropResultSlice from './slices/cropResultSlice';
+import timeSlice from './slices/timeSlice';
+import cropQuantitySlice from './slices/cropQuantitySlice';
+import gameResultSlice from './slices/gameResultSlice';
 
 // persist 설정
 const persistConfig = {
@@ -34,6 +37,9 @@ const rootReducer = combineReducers({
   chat: chatSlice,
   articleResult: articleResultSlice,
   cropResult: cropResultSlice,
+  time: timeSlice,
+  cropQuantity: cropQuantitySlice,
+  gameResult: gameResultSlice,
 });
 
 // persistReducer로 rootReducer를 래핑

@@ -1,5 +1,5 @@
 let lastSendTime = 0; // 마지막으로 데이터를 전송한 시간
-let lastPosition = { x: 4000, y: 300 }; // 마지막으로 전송한 위치 정보
+let lastPosition = { x: 2240, y: 1280 }; // 마지막으로 전송한 위치 정보
 
 export const createPlayerMovement = (
   _scene: Phaser.Scene,
