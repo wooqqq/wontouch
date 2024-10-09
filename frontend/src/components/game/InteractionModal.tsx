@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import lock from '../../assets/icon/lock.png';
+//import lock from '../../assets/icon/lock.png';
 import board from '../../assets/game/board.png';
 import npc from '../../assets/background/npc.png';
 import up from '../../assets/icon/arrow_up.png';
@@ -119,10 +119,6 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
       // 그렇지 않으면 다음 작물로 이동
       setCurrentCropIndex(currentCropIndex + 1);
     }
-  };
-
-  const openPurchaseModal = () => {
-    setPurchaseModal(true);
   };
 
   const closePurchaseModal = () => {
@@ -456,12 +452,12 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                   <button
                     className={`p-2 bg-gray-300 text-gray-700 rounded-lg ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-400'}`}
                     onClick={prevPage}
-                    disabled={currentPage === 1}
+                    disabled={currentPage === 1 || currentPage === 0}
                   >
                     이전
                   </button>
 
-                  <span className="text-gray-600">{currentPage} / {totalPages}</span>
+                  {purchasedArticles.length === 0 ? '' : <span className="text-gray-600"> {currentPage} / {totalPages}</span>}
 
                   <button
                     className={`p-2 bg-gray-300 text-gray-700 rounded-lg ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-400'}`}

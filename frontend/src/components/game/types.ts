@@ -111,3 +111,26 @@ export interface Article {
   info: ArticleInfo | null; // info 속성 추가, null일 수 있으므로 | null 처리
   playerGold: number;
 }
+
+export interface ArticleResult {
+  title: string;
+  body: string;
+  author: string;
+  change_rate: number;
+  spawn_rate: number;
+  sub_crops: Array<{ id: string; name: string; change_rate: number }>;
+}
+
+export interface ArticleState {
+  purchasedArticles: ArticleResult[];
+  articleResults: ArticleResult[]; // 새로운 상태 추가
+}
+
+export interface CropPriceMap {
+  [cropName: string]: number;
+}
+
+export interface CropResultState {
+  originPriceMap: CropPriceMap;
+  newPriceMap: CropPriceMap;
+}
