@@ -14,7 +14,8 @@ import KakaoLoginHandler from './components/login/kakao/KakaoLoginHandler';
 import KakaoToSignup from './components/login/kakao/KakaoToSignup';
 import SignupWithKakao from './components/signup/kakao/SignupWithKakao';
 import CommonBG from './components/common/CommonBG';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from './redux/store';
 import { setToken } from './redux/slices/authSlice';
 import { setUserId } from './redux/slices/userSlice';
 import { jwtDecode } from 'jwt-decode';
@@ -24,6 +25,7 @@ interface DecodedToken {
   userId: number;
 }
 
+// 로그인 하지 않은 사용자의 다른 페이지 접근 방지
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const navigate = useNavigate();
   const token = localStorage.getItem('access_token');
@@ -62,11 +64,25 @@ function AppRouter() {
         />
 
         <Route path="/login" element={<Login />} />
-        <Route path="/auth/kakao" element={<KakaoLoginHandler />} />
-        <Route path="/signup" element={<KakaoToSignup />} />
-        <Route path="/signup/kakao" element={<SignupWithKakao />} />
 
         <Route path="/*" element={<CommonBG />}>
+          <Route path="auth/kakao" element={<KakaoLoginHandler />} />
+          <Route
+            path="signup"
+            element={
+              <ProtectedRoute>
+                <KakaoToSignup />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="signup/kakao"
+            element={
+              <ProtectedRoute>
+                <SignupWithKakao />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="lobby"
             element={

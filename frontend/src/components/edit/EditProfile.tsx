@@ -14,6 +14,8 @@ import {
   setUserNickname,
   postUserMileage,
 } from '../../redux/slices/userSlice';
+import { CheckNicknameDuplicate } from '../../utils/CheckNicknameDuplicate';
+import { CheckSetNickname } from '../../utils/CheckSetNickname';
 
 import confirm from '../../assets/icon/confirm.png';
 import alterd from '../../assets/icon/expression_alerted.png';
@@ -55,84 +57,62 @@ export default function EditProfile() {
     setDescription(userDescription);
   }, [userNickname, userDescription]);
 
-  // 닉네임 중복 체크
+  // 닉네임이 변경되었다면 닉네임 중복 체크
   const handleCheckNickname = async () => {
-    if (!nickname) {
-      alert('닉네임을 입력해주세요.');
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        `${API_LINK}/user-profile/nickname/duplicate-check`,
-        {
-          nickname: nickname,
-        },
-      );
-
-      // response.data.data가 false로 나와야 닉네임 중복을 피함.
-      if (response.data.data) {
-        setIsNicknameAvailable(false);
-      } else {
-        setIsNicknameAvailable(true);
-      }
-    } catch (error) {
-      console.log('닉네임 중복 확인 불가', error);
+    if (userNickname !== nickname) {
+      const availability = await CheckNicknameDuplicate(nickname);
+      setIsNicknameAvailable(availability);
     }
   };
 
   // 닉네임, 한 줄 소개 변경
   const patchInfo = async () => {
-    if (!nickname) {
-      alert('닉네임을 입력해주세요.');
-      return;
-    }
-
     if (description.length > 15) {
       alert('한 줄 소개는 15자를 넘을 수 없습니다.');
       return;
     }
 
-    if (isNicknameAvailable === false) {
-      alert('중복된 닉네임입니다. 다른 닉네임을 입력해주세요.');
-      return;
-    }
-
-    const isKorean = /^[가-힣]*$/.test(nickname); // 한글만
-    const isEnglish = /[a-zA-Z]*$/.test(nickname); // 영어만
-    const isValidNickname = /^[가-힣a-zA-Z]*$/.test(nickname); // 한글, 영어 혼용
-
-    // 유효성 검사
-    if (isKorean && nickname.length > 6) {
-      alert('한글은 최대 6자까지 입력할 수 있습니다.');
-      return;
-    } else if (isEnglish && nickname.length > 10) {
-      alert('영어는 최대 10자까지 입력할 수 있습니다.');
-      return;
-    } else if (isValidNickname && nickname.length > 10) {
-      alert('한글, 영어 혼합은 최대 10자까지 입력할 수 있습니다.');
-      return;
-    }
-
     // 닉네임이 변경되었다면
     if (userNickname !== nickname) {
-      try {
-        await axios.patch(`${API_LINK}/user-profile/nickname/update`, {
-          userId: userId,
-          nickname: nickname,
-        });
-        dispatch(setUserNickname(nickname));
-
-        // 닉네임 변경 시 10000 마일리지 차감
-        dispatch(postUserMileage(10000));
-      } catch (error) {
-        setMileageModal(true);
+      // 닉네임이 비어있는 경우
+      if (!nickname) {
+        alert('닉네임을 입력해주세요.');
         return;
+      }
+
+      // 닉네임이 중복된 경우
+      if (isNicknameAvailable === false) {
+        alert('중복된 닉네임입니다. 다른 닉네임을 입력해주세요.');
+        return;
+      }
+
+      // 유효성 검사
+      const checkNickname = CheckSetNickname(nickname);
+      if (checkNickname) {
+        try {
+          await axios.patch(`${API_LINK}/user-profile/nickname/update`, {
+            userId: userId,
+            nickname: nickname,
+          });
+          dispatch(setUserNickname(nickname));
+
+          // 닉네임 변경 시 10000 마일리지 차감
+          dispatch(postUserMileage(10000));
+        } catch (error) {
+          setMileageModal(true);
+          setNickname(userNickname);
+          setIsNicknameAvailable(null);
+          setDescription(userDescription);
+          return;
+        }
       }
     }
 
     // 한 줄 소개가 변경되었다면
-    if (userDescription !== description) {
+    if (
+      userDescription !== description &&
+      !(userDescription === null && description === null)
+    ) {
       try {
         await axios.patch(`${API_LINK}/user-profile/description`, {
           userId: userId,
@@ -142,6 +122,7 @@ export default function EditProfile() {
       } catch {}
     }
 
+    // 수정 완료되었다는 모달
     setComplete(true);
   };
 
@@ -199,7 +180,7 @@ export default function EditProfile() {
           </div>
           <div className="text-left ml-56 font-['Galmuri11'] min-h-[24px] mb-6">
             {isNicknameAvailable === true && (
-              <p className="text-green-600">사용 가능한 닉네임입니다.</p>
+              <p className="text-green-600">중복되지 않은 닉네임입니다.</p>
             )}
             {isNicknameAvailable === false && (
               <p className="text-red-600">이미 사용 중인 닉네임입니다.</p>
