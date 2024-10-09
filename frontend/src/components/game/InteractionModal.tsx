@@ -11,6 +11,7 @@ import rightArrow from '../../assets/icon/arrow_right.png'; // 우측 화살표 
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { ModalProps, Article } from './types';
+import { updateCount } from '../../redux/slices/cropQuantitySlice';
 
 
 // 이미지 파일을 동적으로 가져오기
@@ -18,6 +19,7 @@ const cropImages = import.meta.glob('../../assets/crops/*.png');
 
 const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSocket, cropList, dataChart }) => {
   const [count, setCount] = useState(0);
+  const countRef = useRef(count);
   const [purchaseModal, setPurchaseModal] = useState(false);
   const userId = useSelector((state: RootState) => state.user.id);
 
@@ -32,6 +34,9 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   const [checkModal, setCheckModal] = useState<boolean>(false);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null); // 선택된 기사 상태
   const [articleDetailModal, setArticleDetailModal] = useState<boolean>(false);
+
+  // 현재 작물의 수량을 Redux에서 가져옴
+  const cropQuantities = useSelector((state: RootState) => state.cropQuantity.cropsQuantities);
 
   //기사 가져오기
   const dispatch = useDispatch();
@@ -63,6 +68,11 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
       setCurrentPage(currentPage - 1);
     }
   };
+
+  useEffect(() => {
+    countRef.current = count;
+    console.log(countRef.current);
+  }, [count])
 
 
   useEffect(() => {
@@ -101,24 +111,25 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   const filteredCrops = getFilteredCropsByHouse(houseNum);
   const currentCrop = filteredCrops[currentCropIndex] || { name: '', price: 0 };
 
+  //현재 작물 가져오기
+  const currentCropQuantity = cropQuantities.find(crop => crop.id === currentCrop.id)?.quantity ?? 0;
+
+  useEffect(() => {
+    console.log(currentCropIndex);
+  }, [currentCropIndex]);
+
   const handlePrev = () => {
-    if (currentCropIndex === 0) {
-      // 첫 번째 작물에서 이전으로 가려면 마지막 작물로 이동
-      setCurrentCropIndex(crops.length - 1);
-    } else {
-      // 그렇지 않으면 이전 작물로 이동
+    if (currentCropIndex > 0) {
       setCurrentCropIndex(currentCropIndex - 1);
     }
   };
 
   const handleNext = () => {
-    if (currentCropIndex === crops.length - 1) {
+    if (currentCropIndex < crops.length - 1) {
       // 마지막 작물에서 다음으로 가려면 첫 번째 작물로 이동
-      setCurrentCropIndex(0);
-    } else {
-      // 그렇지 않으면 다음 작물로 이동
       setCurrentCropIndex(currentCropIndex + 1);
     }
+    console.log(currentCropIndex);
   };
 
   const closePurchaseModal = () => {
@@ -231,37 +242,46 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   }, []);
 
   if (houseNum === null || crops.length === 0) return null;
-  // 현재 선택된 작물 정보 가져오기
-  const [cropName, cropAmount] = crops[currentCropIndex];
 
   const sellCrop = () => {
+    const cropName = filteredCrops[currentCropIndex].id; // 현재 작물의 ID를 가져옴
     //판매 양식
     const reqSellCrop = {
       type: "SELL_CROP",
       cropId: cropName,
-      quantity: count,
+      quantity: countRef.current,
       playerId: userId
+    };
+
+    if (gameSocket?.readyState === WebSocket.OPEN) {
+      // 수량 업데이트
+      dispatch(updateCount({ id: cropName, newCount: countRef.current }));
+      // 웹소켓으로 메시지 전송
+      gameSocket?.send(JSON.stringify(reqSellCrop));
+    } else {
+      console.error("WebSocket이 열려있지 않습니다.");
     }
-    gameSocket?.send(JSON.stringify(reqSellCrop));
-    setCount(0);
-  }
+  };
 
   const buyCrop = () => {
+    const cropName = filteredCrops[currentCropIndex].id; // 현재 작물의 ID를 가져옴
     //구매 양식
     const reqBuyCrop = {
       type: "BUY_CROP",
       cropId: cropName,
-      quantity: count,
+      quantity: countRef.current,
       playerId: userId
     };
+    console.log(reqBuyCrop);
+
     if (gameSocket?.readyState === WebSocket.OPEN) {
-      console.log(reqBuyCrop);
-      gameSocket.send(JSON.stringify(reqBuyCrop)); // 같은 WebSocket을 통해 메시지 전송
+      dispatch(updateCount({ id: cropName, newCount: countRef.current }));
+      // 웹소켓으로 메시지 전송
+      gameSocket.send(JSON.stringify(reqBuyCrop));
     } else {
       console.error("WebSocket이 열려있지 않습니다.");
     }
-    setCount(0);
-  }
+  };
 
   const handleRandomPurchase = () => {
     setCheckModal(true);
@@ -337,7 +357,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                 <div className="ml-[5%]">
                   <p className="text-[36px] font-semibold">{filteredCrops[currentCropIndex].name}</p> {/* 작물 이름 */}
                   <p>{filteredCrops[currentCropIndex].description}</p>
-                  <p className="text-2xl text-gray-600">남은 수량: {cropAmount} 상자</p> {/* 남은 수량 */}
+                  <p className="text-2xl text-gray-600">남은 수량: {currentCropQuantity} 상자</p> {/* 남은 수량 */}
                   <p className="text-[32px] font-bold text-yellow-500">{chartArray[chartArray.length - 1]} 코인</p> {/* 가격은 임의 */}
                 </div>
               </div>

@@ -1,17 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface Crop {
-  id: string;
-  type: string;
-  name: string;
-  price: number;
-  description: string;
-  imgUrl: string;
-}
-
-interface CropsState {
-  crops: Crop[];
-}
+import { Crop, CropsState } from '../../components/game/types';
 
 const initialState: CropsState = {
   crops: [],

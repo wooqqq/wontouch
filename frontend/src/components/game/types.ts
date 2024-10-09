@@ -134,3 +134,43 @@ export interface CropResultState {
   originPriceMap: CropPriceMap;
   newPriceMap: CropPriceMap;
 }
+
+export interface Message {
+  type: string;
+  content: {
+    type: string;
+    message: string;
+    playerId: string;
+  };
+}
+
+export interface TimeState {
+  duration: number;
+  round: number;
+  timerRunning: boolean;
+  preparationTime: number; // 대기시간을 위한 상태 추가
+  isPreparation: boolean; // 대기시간이 진행 중인지 여부
+}
+
+export interface Crop {
+  id: string;
+  type: string;
+  name: string;
+  price: number;
+  description: string;
+  imgUrl: string;
+}
+
+export interface CropsState {
+  crops: Crop[];
+}
+
+export interface CropQuantity {
+  id: string;
+  quantity: number;
+  count: number;
+}
+
+export interface CropQuantityState {
+  cropsQuantities: CropQuantity[];
+}
