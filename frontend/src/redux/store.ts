@@ -9,6 +9,7 @@ import authSlice from './slices/authSlice';
 import roomSlice from './slices/roomSlice';
 import cropSlice from './slices/cropSlice';
 import notificationSlice from './slices/notificationSlice';
+import chatSlice from './slices/chatSlice';
 
 // persist 설정
 const persistConfig = {
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   room: roomSlice,
   crop: cropSlice,
   notification: notificationSlice,
+  chat: chatSlice,
 });
 
 // persistReducer로 rootReducer를 래핑
