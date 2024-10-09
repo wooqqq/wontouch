@@ -3,11 +3,10 @@ package wontouch.api.domain.game.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.game.dto.request.PlayerRequestDto;
 import wontouch.api.domain.game.dto.request.CreateRoomRequestDto;
@@ -151,15 +150,29 @@ public class RoomController {
 
     // 특정 게임방의 정보 불러오기
     @GetMapping("/info/{roomId}")
-    public ResponseEntity<?> getRoomInfos(@PathVariable String roomId) {
+    public ResponseEntity<ResponseDto<?>> getRoomInfos(@PathVariable String roomId) {
         String targetUrl = String.format("%s/rooms/info/%s", lobbyServerUrl, roomId);
-        ResponseEntity<ResponseDto<?>> response = restTemplate.exchange(
-                targetUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<ResponseDto<?>>() {
-                }
-        );
-        return response;
+
+        // 요청을 명시적으로 구성 (필요 시 헤더 추가 가능)
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", MediaType.APPLICATION_JSON_VALUE); // 헤더를 명시적으로 설정
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            // 응답을 받을 때 필요한 타입 명시
+            ResponseEntity<ResponseDto<?>> response = restTemplate.exchange(
+                    targetUrl,
+                    HttpMethod.GET,
+                    entity, // HttpEntity를 통해 요청을 명시
+                    new ParameterizedTypeReference<ResponseDto<?>>() {}
+            );
+
+            return response; // 추가적인 변환 없이 바로 응답 반환
+        } catch (RestClientException e) {
+            // 에러 핸들링: 예외 발생 시 적절한 상태와 메시지 반환
+            //
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDto<>(500, e.getMessage(), null));
+        }
     }
 }
