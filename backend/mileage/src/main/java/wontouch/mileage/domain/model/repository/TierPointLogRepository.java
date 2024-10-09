@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface TierPointLogRepository extends MongoRepository<TierPointLog, Integer> {
+public interface TierPointLogRepository extends MongoRepository<TierPointLog, String> {
 
     boolean existsByUserId(int userId);
     Optional<List<TierPointLog>> findByUserId(int userId);
