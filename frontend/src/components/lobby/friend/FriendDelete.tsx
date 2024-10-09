@@ -17,7 +17,7 @@ export default function FriendDelete({
   nickname: string;
 }) {
   const API_LINK = import.meta.env.VITE_API_URL;
-  const navigate = useDispatch();
+  const dispatch = useDispatch();
   const userId = useSelector((state: RootState) => state.user.id);
 
   // 삭제 요청
@@ -30,7 +30,7 @@ export default function FriendDelete({
         },
       });
       // store 친구 목록 업데이트
-      navigate(removeFriend(friendId));
+      dispatch(removeFriend(friendId));
     } catch (error) {
       console.log(error);
     }
