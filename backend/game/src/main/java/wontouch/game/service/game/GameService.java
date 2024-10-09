@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import wontouch.game.domain.Player;
 import wontouch.game.domain.PlayerStatus;
+import wontouch.game.dto.SessionDeleteDto;
 import wontouch.game.entity.Crop;
 import wontouch.game.repository.GameRepository;
 import wontouch.game.repository.article.ArticleRepository;

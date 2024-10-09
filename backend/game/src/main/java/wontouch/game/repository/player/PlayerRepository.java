@@ -122,14 +122,21 @@ public class PlayerRepository {
         }
     }
 
-    public void freePlayerMemory(String roomId) {
+    // 플레이어들의 메모리 할당 해제
+    public void freeAllPlayerMemory(String roomId) {
         Set<Object> players = getPlayersFromGame(roomId);
         for (Object player : players) {
-            String infoKey = PLAYER_PREFIX + player + INFO_SUFFIX;
-            redisTemplate.delete(infoKey);
-            String cropKey = PLAYER_PREFIX + player + CROP_SUFFIX;
-            redisTemplate.delete(cropKey);
+            freePlayerMemory(roomId, (String)player);
         }
         freePlayerArticle(roomId);
+    }
+
+    public void freePlayerMemory(String roomId, String playerId) {
+        String infoKey = PLAYER_PREFIX + playerId + INFO_SUFFIX;
+        redisTemplate.delete(infoKey);
+        String cropKey = PLAYER_PREFIX + playerId + CROP_SUFFIX;
+        redisTemplate.delete(cropKey);
+        String playerKey = GAME_PREFIX + roomId + PLAYER_SUFFIX;
+        redisTemplate.opsForHash().delete(playerKey, playerId);
     }
 }

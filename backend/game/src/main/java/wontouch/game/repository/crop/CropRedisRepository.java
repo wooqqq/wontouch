@@ -76,6 +76,11 @@ public class CropRedisRepository {
         return newCropPrice;
     }
 
+    public String getCropNameFromCropId(String roomId, String cropId) {
+        String redisKey = "game:" + roomId + ":crop:" + cropId + ":info";
+        return (String) redisTemplate.opsForHash().get(redisKey, "name");
+    }
+
     // 구매한 만큼 재고 감소
     public void updateCropQuantity(String roomId, Object cropId, int purchaseQuantity) {
         String cropKey = GAME_PREFIX + roomId + CROP_INFIX + cropId;

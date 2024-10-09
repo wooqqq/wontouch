@@ -5,11 +5,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import wontouch.game.domain.Player;
+import wontouch.game.dto.SessionDeleteDto;
 import wontouch.game.entity.Crop;
 import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
 import wontouch.game.service.ArticleService;
 import wontouch.game.service.CropService;
+import wontouch.game.service.PlayerService;
 import wontouch.game.service.game.GameService;
 import wontouch.game.service.game.TimerService;
 
@@ -25,6 +27,7 @@ public class GameController {
 
     private final CropRepository cropRepository;
     private final CropRedisRepository cropRedisRepository;
+    private final PlayerService playerService;
     @Value("${socket.server.name}:${socket.server.path}")
     private String socketServerUrl;
 
@@ -35,13 +38,14 @@ public class GameController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public GameController(GameService gameService, TimerService timerService,
-                          CropService cropService, ArticleService articleService, CropRepository cropRepository, CropRedisRepository cropRedisRepository) {
+                          CropService cropService, ArticleService articleService, CropRepository cropRepository, CropRedisRepository cropRedisRepository, PlayerService playerService) {
         this.gameService = gameService;
         this.timerService = timerService;
         this.cropService = cropService;
         this.articleService = articleService;
         this.cropRepository = cropRepository;
         this.cropRedisRepository = cropRedisRepository;
+        this.playerService = playerService;
     }
 
     // 게임 시작 시에 기본 정보 세팅
@@ -81,5 +85,16 @@ public class GameController {
         List<Crop> defaultCropInfo = cropService.getDefaultCropInfo(roomId);
         log.debug("defaultCropInfo:{}", defaultCropInfo.toString());
         return defaultCropInfo;
+    }
+
+    @PostMapping("/session/remove")
+    public void removeSessionFromGame(@RequestBody SessionDeleteDto session) {
+        log.debug("session:{}", session.toString());
+        try {
+            playerService.removePlayerInfo(session);
+        } catch (Exception e) {
+            log.error("test");
+            e.printStackTrace();
+        }
     }
 }
