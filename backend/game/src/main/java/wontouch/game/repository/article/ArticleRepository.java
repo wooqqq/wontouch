@@ -9,6 +9,7 @@ import wontouch.game.dto.TransactionStatusType;
 import wontouch.game.entity.*;
 import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
+import wontouch.game.repository.player.PlayerRepository;
 
 import java.util.*;
 
@@ -22,11 +23,13 @@ public class ArticleRepository {
     private final CropRedisRepository cropRedisRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final int ARTICLE_PRICE_INCREMENT = 200;
+    private final PlayerRepository playerRepository;
 
-    public ArticleRepository(CropRepository cropRepository, CropRedisRepository cropRedisRepository, RedisTemplate<String, Object> redisTemplate) {
+    public ArticleRepository(CropRepository cropRepository, CropRedisRepository cropRedisRepository, RedisTemplate<String, Object> redisTemplate, PlayerRepository playerRepository) {
         this.cropRepository = cropRepository;
         this.cropRedisRepository = cropRedisRepository;
         this.redisTemplate = redisTemplate;
+        this.playerRepository = playerRepository;
     }
 
     // 기사 내용 획득
@@ -50,7 +53,7 @@ public class ArticleRepository {
         int articlePrice = (Integer) redisTemplate.opsForHash().get(playerInfoKey, "articlePrice");
         Integer gold = (Integer) redisTemplate.opsForHash().get(playerInfoKey, "gold");
         if (gold == null || gold < articlePrice) {
-            return new ArticleTransactionResult(TransactionStatusType.INSUFFICIENT_GOLDS, null);
+            return new ArticleTransactionResult(TransactionStatusType.INSUFFICIENT_GOLDS, null, gold);
         }
 
         Set<Object> articleIds = redisTemplate.opsForSet().members(articleKey);
@@ -74,7 +77,8 @@ public class ArticleRepository {
             try {
                 Article article = getArticle(cropId, (String) articleId);
                 article.setFutureArticles(null);
-                return new ArticleTransactionResult(TransactionStatusType.SUCCESS, article);
+                int playerGold = playerRepository.getPlayerGold(playerId);
+                return new ArticleTransactionResult(TransactionStatusType.SUCCESS, article, playerGold);
             } catch (Exception e) {
                 e.printStackTrace();
             }
