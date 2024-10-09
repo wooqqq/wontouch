@@ -84,7 +84,7 @@ export default function RoomList() {
             <div key={room.roomId}>
               {/* Create a flex container for every two rooms */}
               {index % 2 === 0 && (
-                <div className="flex justify-between">
+                <div>
                   {/* First room */}
                   <div className="w-1/2 m-4">
                     <button
