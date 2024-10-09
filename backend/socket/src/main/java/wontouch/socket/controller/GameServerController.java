@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import wontouch.socket.dto.MessageType;
+import wontouch.socket.dto.game.crop.CropPriceResultDto;
 import wontouch.socket.service.WebSocketSessionService;
 
 import java.io.IOException;
@@ -76,8 +77,13 @@ public class GameServerController {
                 log.error(e.getMessage());
             }
         }
+
+        CropPriceResultDto cropPriceResultDto = new CropPriceResultDto(
+                (Map<String, Object>) messageData.get("originPriceMap"),
+                (Map<String, Object>) messageData.get("newPriceMap"));
+
         webSocketSessionService.broadcastMessage(roomId, MessageType.ROUND_RESULT,
-                messageData.get("newPriceMap"));
+                cropPriceResultDto);
         return null;
     }
 

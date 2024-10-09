@@ -161,7 +161,7 @@ public class ArticleRepository {
                 }
             }
         }
-        return new RoundResultDto(newPriceMap, articleResults, null);
+        return new RoundResultDto(priceMap, newPriceMap, articleResults, null);
     }
 
     // 결과 확률적으로 선택
@@ -179,11 +179,6 @@ public class ArticleRepository {
         positiveRate = positiveRate / totalRate * 0.99;
         negativeRate = negativeRate / totalRate * 0.99;
         naturalRate = naturalRate / totalRate * 0.99;
-
-        // speciallll eeeeevent test 를 위함
-        positiveRate = 0;
-        negativeRate = 0;
-        naturalRate = 0;
 
         log.debug("RANDOM VALUE: {}, positiveRate: {}, negativeRate: {}, naturalRate: {}", randomValue, positiveRate, negativeRate, naturalRate);
         if (randomValue < positiveRate) {
