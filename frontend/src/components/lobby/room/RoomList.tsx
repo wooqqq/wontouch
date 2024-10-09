@@ -21,6 +21,7 @@ export default function RoomList() {
   // 방 목록 호출 api
   const getRoomList = async () => {
     const response = await axios.get(`${API_LINK}/lobby/list`);
+    console.log(response.data.data);
     setRoomList(response.data.data);
   };
 
@@ -75,34 +76,73 @@ export default function RoomList() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col">
       {roomList.length > 0 ? (
-        roomList
-          .slice()
-          .reverse()
-          .map((room, index) => (
-            <div key={room.roomId}>
-              {/* Create a flex container for every two rooms */}
-              {index % 2 === 0 && (
-                <div>
-                  {/* First room */}
-                  <div className="w-1/2 m-4">
+        roomList.reverse().map(
+          (room, index) =>
+            index % 2 === 0 && (
+              <div key={room.roomId} className="flex w-full m-1.5 mx-2">
+                {/* First room */}
+                <div className="w-1/2 p-2">
+                  <button
+                    className="room-box p-2"
+                    onClick={() =>
+                      clickRoom(
+                        room.roomId,
+                        room.secret,
+                        room.currentPlayersCount,
+                      )
+                    }
+                  >
+                    <div className="room-info p-0.5 px-4 mb-2 flex justify-start">
+                      <span className="text-lg font-['Galmuri11-bold'] text-yellow-300 mr-3">
+                        {(index + 1).toString().padStart(3, '0')}
+                      </span>
+                      <span className="text-lg font-['Galmuri11'] text-white text-center">
+                        {room.roomName}
+                      </span>
+                    </div>
+                    <div className="room-info flex p-2 mx-auto">
+                      <span className="mr-4 h-16 overflow-hidden">
+                        <img src={map} alt="맵 미리보기" className="w-72" />
+                      </span>
+                      <div className="flex flex-col items-center justify-center">
+                        {room.secret ? (
+                          <div>
+                            <img src={lock} alt="" className="w-6 h-8" />
+                          </div>
+                        ) : (
+                          <div className="w-6 h-8"></div>
+                        )}
+                        <div>
+                          <div className="white-text mt-2">
+                            {room.currentPlayersCount}/8
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Second room (if it exists) */}
+                {roomList[index + 1] && (
+                  <div className="w-1/2 p-2">
                     <button
                       className="room-box p-2"
                       onClick={() =>
                         clickRoom(
-                          room.roomId,
-                          room.secret,
-                          room.currentPlayersCount,
+                          roomList[index + 1].roomId,
+                          roomList[index + 1].secret,
+                          roomList[index + 1].currentPlayersCount,
                         )
                       }
                     >
                       <div className="room-info p-0.5 px-4 mb-2 flex justify-start">
-                        <span className="text-lg font-['Galmuri11-bold'] text-yellow-300 mr-4">
-                          {(index + 1).toString().padStart(3, '0')}
+                        <span className="text-lg font-['Galmuri11-bold'] text-yellow-300 mr-3">
+                          {(index + 2).toString().padStart(3, '0')}
                         </span>
                         <span className="text-lg font-['Galmuri11'] text-white text-center">
-                          {room.roomName}
+                          {roomList[index + 1].roomName}
                         </span>
                       </div>
                       <div className="room-info flex p-2 mx-auto">
@@ -110,7 +150,7 @@ export default function RoomList() {
                           <img src={map} alt="맵 미리보기" className="w-72" />
                         </span>
                         <div className="flex flex-col items-center justify-center">
-                          {room.secret ? (
+                          {roomList[index + 1].secret ? (
                             <div>
                               <img src={lock} alt="" className="w-6 h-8" />
                             </div>
@@ -119,96 +159,56 @@ export default function RoomList() {
                           )}
                           <div>
                             <div className="white-text mt-2">
-                              {room.currentPlayersCount}/8
+                              {roomList[index + 1].currentPlayersCount}/8
                             </div>
                           </div>
                         </div>
                       </div>
                     </button>
                   </div>
-                  {/* Second room (if it exists) */}
-                  {roomList[index + 1] && (
-                    <div className="w-1/2 m-4">
-                      <button
-                        className="room-box p-2"
-                        onClick={() =>
-                          clickRoom(
-                            roomList[index + 1].roomId,
-                            roomList[index + 1].secret,
-                            roomList[index + 1].currentPlayersCount,
-                          )
-                        }
-                      >
-                        <div className="room-info p-0.5 px-4 mb-2 flex justify-start">
-                          <span className="text-lg font-['Galmuri11-bold'] text-yellow-300 mr-4">
-                            {(index + 2).toString().padStart(3, '0')}
-                          </span>
-                          <span className="text-lg font-['Galmuri11'] text-white text-center">
-                            {roomList[index + 1].roomName}
-                          </span>
-                        </div>
-                        <div className="room-info flex p-2 mx-auto">
-                          <span className="mr-4 h-16 overflow-hidden">
-                            <img src={map} alt="맵 미리보기" className="w-72" />
-                          </span>
-                          <div className="flex flex-col items-center justify-center">
-                            {roomList[index + 1].secret ? (
-                              <div>
-                                <img src={lock} alt="" className="w-6 h-8" />
-                              </div>
-                            ) : (
-                              <div className="w-6 h-8"></div>
-                            )}
-                            <div>
-                              <div className="white-text mt-2">
-                                {roomList[index + 1].currentPlayersCount}/8
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {showPasswordModal && selectedRoomId === room.roomId && (
-                <Modal>
-                  <div className="yellow-box w-2/5 h-[250px] p-4 bg-[#fffeee] border-[#36EAB5]">
-                    <div className="relative">
-                      <div className="mint-title text-4xl mb-6">
-                        비밀번호를 입력하세요.
-                      </div>
-                      <button
-                        className="absolute right-0"
-                        onClick={() => {
-                          setShowPasswordModal(false);
-                          setPassword('');
-                        }}
-                      >
-                        <img src={cancel} alt="" />
-                      </button>
-                    </div>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="비밀번호"
-                      className="input-tag font-['Galmuri11'] w-4/5 h-[60px] p-4 text-2xl"
-                    />
-                    <button
-                      onClick={clickEnter}
-                      className="ready-button w-4/12 h-[50px] text-2xl mt-4"
-                    >
-                      입장하기
-                    </button>
-                  </div>
-                </Modal>
-              )}
-            </div>
-          ))
+                )}
+              </div>
+            ),
+        )
       ) : (
-        <div className="white-title">생성된 방이 없습니다.</div>
+        <div className="white-title text-3xl mx-10 my-6">
+          생성된 방이 없습니다.
+        </div>
+      )}  
+
+      {/* Modal for entering password if the room is private */}
+      {showPasswordModal && (
+        <Modal>
+          <div className="yellow-box w-2/5 h-[250px] p-4 bg-[#fffeee] border-[#36EAB5]">
+            <div className="relative">
+              <div className="mint-title text-4xl mb-6">
+                비밀번호를 입력하세요.
+              </div>
+              <button
+                className="absolute right-0"
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setPassword('');
+                }}
+              >
+                <img src={cancel} alt="" />
+              </button>
+            </div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="비밀번호"
+              className="input-tag font-['Galmuri11'] w-4/5 h-[60px] p-4 text-2xl"
+            />
+            <button
+              onClick={clickEnter}
+              className="ready-button w-4/12 h-[50px] text-2xl mt-4"
+            >
+              입장하기
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );

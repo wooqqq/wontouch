@@ -77,6 +77,11 @@ export default function MakeRoomModal({
       dispatch(setIsPrivate(isPrivateState));
       dispatch(setPassword(passwordState));
 
+      // 바로 생성한 방으로 이동
+      await axios.post(`${API_LINK}/room/join/${createdRoomId}`, {
+        playerId: userId,
+        password: passwordState,
+      });
       navigate(`/wait/${createdRoomId}`);
     } catch (error) {
       console.error('방 생성 중 에러 발생', error);
