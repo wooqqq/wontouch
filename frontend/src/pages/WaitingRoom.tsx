@@ -62,7 +62,7 @@ function WaitingRoom() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAllReady, setIsAllReady] = useState(false);
+  const [isAllReady, setIsAllReady] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const socket = useRef<WebSocket | null>(null);
 
@@ -136,7 +136,7 @@ function WaitingRoom() {
               console.log('입퇴장 시 방 정보 가져오기 함수 실행');
               break;
             // ✅ 준비 / 준비완료
-            case 'READY':
+            case 'READY': {
               const { readyStateList, allReady } = receivedMessage.content;
 
               // 배열의 각 요소를 순회하면서 상태를 확인
@@ -156,6 +156,7 @@ function WaitingRoom() {
               setIsAllReady(allReady);
               console.log('모두 준비: ', allReady);
               break;
+            }
             // ✅ 게임 시작
             case 'ROUND_START': {
               const { duration, round } = receivedMessage.content;
