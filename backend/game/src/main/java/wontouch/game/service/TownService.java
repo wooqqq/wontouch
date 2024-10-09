@@ -25,6 +25,7 @@ public class TownService {
     }
 
     // 플레이어가 특정 작물을 구매
+    // TODO Redisson Lock을 사용할지 결정
     public synchronized CropTransactionResult buyCrop(String roomId, CropTransactionRequestDto cropTransactionRequestDto) {
         String cropId = cropTransactionRequestDto.getCropId();
         String playerId = String.valueOf(cropTransactionRequestDto.getPlayerId());

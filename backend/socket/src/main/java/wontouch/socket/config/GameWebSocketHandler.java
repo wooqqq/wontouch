@@ -49,6 +49,13 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         String roomId = getRoomIdFromSession(session);
         String playerId = getPlayerIdFromQueryParams(session);
 
+        // 기존에 접속된 방이 있다면 해당 세션 종료
+        if (sessionService.isPlayerInAnotherRoom(playerId, roomId)) {
+            log.warn("Player {} is already connected in another room, closing existing session.", playerId);
+            sessionService.closeExistingSession(playerId);  // 기존 세션 종료
+        }
+
+
         session.getAttributes().put("playerId", playerId);
 
         // session추가
@@ -75,20 +82,24 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String roomId = getRoomIdFromSession(session);
         String playerId = (String) session.getAttributes().get("playerId");
-
+        log.debug("SESSION CLOSE STATUS: {}", status);
         // session 삭제
         sessionService.removeSession(roomId, session);
 
         // player의 lock 해제
         socketServerService.removePlayerLock(playerId);
 
-        // session 정보를 로비 서버로 전송
-        String sessionUrl = lobbyServerUrl + "/api/session/remove";
-        Map<String, Object> sessionInfo = new ConcurrentHashMap<>();
-        sessionInfo.put("roomId", roomId);
-        sessionInfo.put("playerId", playerId);
-        sessionInfo.put("sessionId", session.getId());
-        restTemplate.postForObject(sessionUrl, sessionInfo, String.class);
+        try {
+            // session 정보를 로비 서버로 전송
+            String sessionUrl = lobbyServerUrl + "/api/session/remove";
+            Map<String, Object> sessionInfo = new ConcurrentHashMap<>();
+            sessionInfo.put("roomId", roomId);
+            sessionInfo.put("playerId", playerId);
+            sessionInfo.put("sessionId", session.getId());
+            restTemplate.postForObject(sessionUrl, sessionInfo, String.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         sessionService.broadcastMessage(roomId, MessageType.NOTIFY, playerId + "이 퇴장하였습니다.");
         log.debug("Session " + session.getId() + " left room " + roomId);
@@ -103,7 +114,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         Map<String, Object> msgMap = WebSocketMessageParser.parseMessage(payload);
         Object content = null;
         MessageType messageType = MessageType.valueOf((String) msgMap.get("type"));
-        log.debug(messageType.toString());
+        log.debug("HANDLE MESSAGE: {}, {}", messageType.toString(), payload);
         switch (messageType) {
             case CHAT:
                 // 채팅 메시지 즉시 브로드캐스트
@@ -125,6 +136,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             case TOWN_CROP_LIST:
             case CROP_CHART:
             case BUY_RANDOM_ARTICLE:
+            case BUY_CROP_ARTICLE:
                 content = messageHandlerFactory.handleMessage(roomId, playerId ,messageType, msgMap);
                 sessionService.unicastMessage(roomId, playerId, messageType, content);
                 break;

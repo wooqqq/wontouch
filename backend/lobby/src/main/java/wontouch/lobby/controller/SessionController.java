@@ -29,7 +29,12 @@ public class SessionController {
 
     @PostMapping("/remove")
     public void remove(@RequestBody SessionDeleteDto session) {
-        log.debug("Removing session: {}", session);
-        roomService.removeSession(session);
+        try {
+            log.debug("Removing session: {}", session);
+            roomService.removeSession(session);
+            log.debug("Removed session: {}", session);
+        }catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 }

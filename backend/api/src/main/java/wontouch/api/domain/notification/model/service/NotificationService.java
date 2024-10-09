@@ -213,14 +213,23 @@ public class NotificationService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         List<NotificationListResponseDto> responseDtoList = notifications.stream()
-                .map(notification -> NotificationListResponseDto.builder()
-                        .id(notification.getId())
-                        .senderId(userProfileRepository.findByNickname(notification.getSender()).get().getUserId())
-                        .senderNickname(notification.getSender())
-                        .createAt(notification.getCreateAt().format(formatter))
-                        .content(notification.getContent())
-                        .notificationType(notification.getNotificationType().name())
-                        .build())
+                .map(notification -> {
+                    String senderNickname = notification.getSender();
+                    UserProfile sender = userProfileRepository.findByNickname(senderNickname)
+                            .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
+                    int senderId = sender.getUserId();
+
+                    NotificationListResponseDto listResponseDto = NotificationListResponseDto.builder()
+                            .id(notification.getId())
+                            .senderId(senderId)
+                            .senderNickname(notification.getSender())
+                            .createAt(notification.getCreateAt().format(formatter))
+                            .content(notification.getContent())
+                            .notificationType(notification.getNotificationType().name())
+                            .build();
+
+                    return listResponseDto;
+                })
                 .toList();
 
         return responseDtoList;

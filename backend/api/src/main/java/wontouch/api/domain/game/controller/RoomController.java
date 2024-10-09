@@ -152,6 +152,20 @@ public class RoomController {
         return null;
     }
 
+    // 특정 게임방의 정보 불러오기
+    @GetMapping("/info/{roomId}")
+    public ResponseEntity<?> getRoomInfos(@PathVariable String roomId) {
+        String targetUrl = String.format("%s/rooms/info/%s", lobbyServerUrl, roomId);
+        ResponseEntity<ResponseDto<?>> response = restTemplate.exchange(
+                targetUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<ResponseDto<?>>() {
+                }
+        );
+        return response;
+    }
+
     @PostMapping("/invite")
     public ResponseEntity<?> inviteFriend(@RequestBody GameInviteRequestDto requestDto) {
         GameInviteRequestDto inviteRequestDto = roomService.inviteFriend(requestDto);
