@@ -6,6 +6,7 @@ import { ResultModalProps } from './types';
 
 const ResultModal: React.FC<ResultModalProps> = ({ round, onNextRound }) => {
   const articleResults = useSelector((state: RootState) => state.articleResult.articleResults);
+  const preparationTime = useSelector((state: RootState) => state.time.preparationTime);
 
   const [expandedArticleIndex, setExpandedArticleIndex] = useState<number | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -32,7 +33,7 @@ const ResultModal: React.FC<ResultModalProps> = ({ round, onNextRound }) => {
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="bg-white p-6 lg:p-8 rounded-lg shadow-lg w-full max-w-4xl">
         <h2 className="text-2xl font-bold text-center">Round {round} 종료!</h2>
-        <p className="text-center mb-6">60초 뒤, 다음 라운드로 넘어갑니다.</p>
+        <p className="text-center mb-6">{preparationTime}초 뒤, 다음 라운드로 넘어갑니다.</p>
 
         <div className="space-y-6 overflow-y-auto max-h-96">
           {articleResults.length > 0 ? (

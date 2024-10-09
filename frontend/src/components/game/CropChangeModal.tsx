@@ -27,8 +27,8 @@ const CropChangeModal: React.FC<CropChangeModalProps> = ({ onClose }) => {
             Object.keys(cropResults.newPriceMap).map(cropName => (
               <div key={cropName} className="p-4 border rounded-lg shadow-md bg-white">
                 <h3 className="font-semibold">{cropName}</h3>
-                <p className={Number(getChangeRate(cropName)) >= 0 ? 'text-blue-600' : 'text-red-600'}> {cropResults.newPriceMap[cropName]}원</p>
-                <p>변동률: {getChangeRate(cropName)}%</p>
+                <p className={Number(getChangeRate(cropName)) >= 0 ? 'text-blue-600' : 'text-red-600'}> {cropResults.originPriceMap[cropName]} {'->'} {cropResults.newPriceMap[cropName]}원</p>
+                <p>변동률: {getChangeRate(cropName)}% {cropResults.newPriceMap[cropName] - cropResults.originPriceMap[cropName] > 0 ? '상승' : cropResults.newPriceMap[cropName] - cropResults.originPriceMap[cropName] === 0 ? '동결' : '하락'}</p>
               </div>
             ))
           ) : (
