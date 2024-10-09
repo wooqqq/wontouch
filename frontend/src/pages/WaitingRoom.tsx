@@ -133,7 +133,7 @@ function WaitingRoom() {
               // }, 1000);
               break;
             // 준비 / 준비완료
-            case 'READY':
+            case 'READY': {
               const { readyStateList, allReady } = receivedMessage.content;
               // 유저 정보 업데이트
               // const readyParticipants = gameParticipants.map((participant) => {
@@ -153,7 +153,7 @@ function WaitingRoom() {
               // });
 
               // 배열의 각 요소를 순회하면서 상태를 확인
-              readyStateList.forEach((player: Player) => {
+              readyStateList?.forEach((player: Player) => {
                 if (player.playerId === hostId) {
                   console.log('준비: ', player.ready);
                   if (player.ready === false) {
@@ -173,6 +173,7 @@ function WaitingRoom() {
               setIsAllReady(allReady);
               console.log('모두 준비: ', allReady);
               break;
+            }
             case 'ROUND_START': {
               const { duration, round } = receivedMessage.content;
 

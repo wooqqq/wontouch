@@ -76,7 +76,7 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
     if (!roomId || !gameParticipants) return;
 
     // 혼자일 때
-    if (gameParticipants.length === 1) {
+    if (gameParticipants.length === 0) {
       setIsAloneModalOpen(true);
       return;
     }
