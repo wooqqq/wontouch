@@ -82,13 +82,12 @@ public class RoomController {
     }
 
     @GetMapping("/info/{roomId}")
-    public ResponseEntity<ResponseDto<RoomResponseDto>> getRoomInfo(@PathVariable String roomId) {
+    public ResponseDto<RoomResponseDto> getRoomInfo(@PathVariable String roomId) {
         RoomResponseDto roomInfo = roomService.getRoomInfo(roomId);
-        ResponseDto<RoomResponseDto> responseDto = ResponseDto.<RoomResponseDto>builder()
+        return ResponseDto.<RoomResponseDto>builder()
                 .status(HttpStatus.OK.value())
                 .message("조회 완료")
                 .data(roomInfo)
                 .build();
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

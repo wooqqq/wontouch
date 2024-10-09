@@ -160,14 +160,14 @@ public class RoomController {
 
         try {
             // 응답을 받을 때 필요한 타입 명시
-            ResponseEntity<ResponseDto<?>> response = restTemplate.exchange(
+            ResponseDto<?> response = restTemplate.exchange(
                     targetUrl,
                     HttpMethod.GET,
                     entity, // HttpEntity를 통해 요청을 명시
                     new ParameterizedTypeReference<ResponseDto<?>>() {}
-            );
-
-            return response; // 추가적인 변환 없이 바로 응답 반환
+            ).getBody();
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response); // 추가적인 변환 없이 바로 응답 반환
         } catch (RestClientException e) {
             // 에러 핸들링: 예외 발생 시 적절한 상태와 메시지 반환
             //
