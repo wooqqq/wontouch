@@ -40,7 +40,9 @@ import collidesImage from '../../assets/background/collides.png';
 
 // 타이머 배경
 import timerBackgroundImage from '../../assets/background/round/timerBackground.png';
-import { addArticle } from '../../redux/slices/articleSlice';
+import { addArticle, clearArticles } from '../../redux/slices/articleSlice';
+import { addArticleResult, clearArticleResults } from '../../redux/slices/articleResultSlice';
+import { clearCropPrices, updateCropPrices } from '../../redux/slices/cropResultSlice';
 
 interface GameParticipant {
   userId: number;
@@ -264,6 +266,11 @@ const PhaserGame = () => {
             // console.log(data.content);
 
             if (data.type === 'ROUND_START') {
+              //보여줬던 정보를 전부 삭제, 라운드마다 초기화되어야하니까
+              dispatch(clearArticles());
+              dispatch(clearArticleResults());
+              dispatch(clearCropPrices());
+
               const { duration, round } = data.content;
 
               // 서버에서 받은 새로운 duration 값으로 타이머 초기화
@@ -335,10 +342,15 @@ const PhaserGame = () => {
 
             if (data.type === "ROUND_RESULT") {
               console.log(data.content);
+              dispatch(updateCropPrices({
+                originPriceMap: data.content.originPriceMap,
+                newPriceMap: data.content.newPriceMap
+              }));
             }
 
             if (data.type === "ARTICLE_RESULT") {
               console.log(data.content);
+              dispatch(addArticleResult(data.content));  // Redux로 결과값 저장
             }
 
             // 플레이어의 MOVE 이벤트 처리
@@ -519,7 +531,7 @@ const PhaserGame = () => {
       });
     });
 
-    this.load.tilemapTiledJSON('map', '../../src/assets/background/map.json');
+    this.load.tilemapTiledJSON('map', '/map.json');
     this.load.image('tileset', tileset);
     this.load.image('bird_image', birdImage);
     this.load.image('blinking_image', blinkingImage);
