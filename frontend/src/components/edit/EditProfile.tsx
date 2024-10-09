@@ -9,17 +9,20 @@ import LevelText from '../common/LevelText';
 import Experience from '../common/Experience';
 import Modal from '../common/Modal';
 import DeleteUser from './DeleteUser';
-
-import confirm from '../../assets/icon/confirm.png';
 import {
   setUserDescription,
   setUserNickname,
+  postUserMileage,
 } from '../../redux/slices/userSlice';
+
+import confirm from '../../assets/icon/confirm.png';
+import alterd from '../../assets/icon/expression_alerted.png';
 
 export default function EditProfile() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const API_LINK = import.meta.env.VITE_API_URL;
+
   const userId = useSelector((state: RootState) => state.user.id);
   const userCharacterName = useSelector(
     (state: RootState) => state.user.characterName,
@@ -29,6 +32,7 @@ export default function EditProfile() {
   const userDescription = useSelector(
     (state: RootState) => state.user.description,
   );
+
   const [deleteUser, setDeleteUser] = useState<boolean>(false);
   const [nickname, setNickname] = useState<string>('');
   const [isNicknameAvailable, setIsNicknameAvailable] = useState<
@@ -36,6 +40,7 @@ export default function EditProfile() {
   >(null);
   const [description, setDescription] = useState<string>('');
   const [complete, setComplete] = useState<boolean>(false);
+  const [mileageModal, setMileageModal] = useState<boolean>(false);
 
   const goBack = () => {
     setComplete(false);
@@ -83,8 +88,6 @@ export default function EditProfile() {
       return;
     }
 
-    console.log(description);
-
     if (description.length > 15) {
       alert('한 줄 소개는 15자를 넘을 수 없습니다.');
       return;
@@ -119,8 +122,11 @@ export default function EditProfile() {
           nickname: nickname,
         });
         dispatch(setUserNickname(nickname));
+
+        // 닉네임 변경 시 10000 마일리지 차감
+        dispatch(postUserMileage(10000));
       } catch (error) {
-        alert('마일리지가 부족합니다.');
+        setMileageModal(true);
         return;
       }
     }
@@ -139,111 +145,130 @@ export default function EditProfile() {
     setComplete(true);
   };
 
+  // 마일리지 부족 모달
+  const closeMileageModal = () => setMileageModal(false);
+
   return (
-    <div className="flex flex-col items-center p-10">
-      <div className="mint-title mb-6">회원 정보 수정</div>
-      <div className="yellow-box w-8/12 h-[550px] p-10 px-20">
-        <div className="flex justify-between items-center px-10 mb-10">
-          <div className="profile-img w-[190px] h-[190px] flex items-center justify-center">
-            <ProfileImg characterName={userCharacterName} />
-          </div>
-          <div className="flex flex-col justify-center items-center">
-            <div className="yellow-box p-3 px-8 w-10/12 flex justify-center flex-col bg-[#fffffe]">
-              <div className="flex items-center justify-center mb-2">
-                <div className="mr-2 text-xl level-text">
-                  <LevelText tierPoint={Number(tierPoint)} />
+    <div>
+      <div className="flex flex-col items-center px-10">
+        <div className="mint-title mb-6">회원 정보 수정</div>
+        <div className="yellow-box w-8/12 h-[550px] p-10 px-20">
+          <div className="flex justify-between items-center px-10 mb-10">
+            <div className="profile-img w-[190px] h-[190px] flex items-center justify-center">
+              <ProfileImg characterName={userCharacterName} />
+            </div>
+            <div className="flex flex-col justify-center items-center">
+              <div className="yellow-box p-3 px-8 w-10/12 flex justify-center flex-col bg-[#fffffe]">
+                <div className="flex items-center justify-center mb-2">
+                  <div className="mr-2 text-xl level-text">
+                    <LevelText tierPoint={Number(tierPoint)} />
+                  </div>
+                  <div className="w-6">
+                    <LevelImg tierPoint={Number(tierPoint)} />
+                  </div>
                 </div>
-                <div className="w-6">
-                  <LevelImg tierPoint={Number(tierPoint)} />
-                </div>
+                <div className="white-text text-3xl">{userNickname}</div>
               </div>
-              <div className="white-text text-3xl">{userNickname}</div>
-            </div>
-            <div>
-              <Experience tierPoint={Number(tierPoint)} />
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center">
-          <div className="flex flex-col items-center justify-center w-4/12">
-            <div className="text-[#10AB7D] text-3xl">닉네임</div>
-            <div className="text-[#10AB7D] text-xs">
-              (수정 시 10,000 마일리지 필요)
+              <div>
+                <Experience tierPoint={Number(tierPoint)} />
+              </div>
             </div>
           </div>
-          <input
-            className="font-['Galmuri11'] w-5/12 h-[40px] mr-6 p-3 signup-input px-6"
-            id="nickname"
-            placeholder="한글 6자, 영어 10자, 혼용 10자 제한"
-            value={nickname}
-            onChange={(event) => setNickname(event.target.value)}
-          ></input>
-          <div className="w-3/12">
+          <div className="flex items-center">
+            <div className="flex flex-col items-center justify-center w-4/12">
+              <div className="text-[#10AB7D] text-3xl">닉네임</div>
+              <div className="text-[#10AB7D] text-xs">
+                (수정 시 10,000 마일리지 필요)
+              </div>
+            </div>
+            <input
+              className="font-['Galmuri11'] w-5/12 h-[45px] mr-6 p-3 signup-input px-6 text-xl"
+              id="nickname"
+              placeholder="한글 6자, 영어 10자, 혼용 10자 제한"
+              value={nickname}
+              onChange={(event) => setNickname(event.target.value)}
+            ></input>
+            <div className="w-3/12">
+              <button
+                className="ready-button w-[130px] h-[15px] text-2xl border-[#10AB7D] border-2"
+                onClick={handleCheckNickname}
+              >
+                중복확인
+              </button>
+            </div>
+          </div>
+          <div className="text-left ml-56 font-['Galmuri11'] min-h-[24px] mb-6">
+            {isNicknameAvailable === true && (
+              <p className="text-green-600">사용 가능한 닉네임입니다.</p>
+            )}
+            {isNicknameAvailable === false && (
+              <p className="text-red-600">이미 사용 중인 닉네임입니다.</p>
+            )}
+          </div>
+          <div className="flex items-center mb-6">
+            <div className="text-[#10AB7D] text-3xl w-4/12 flex justify-center">
+              한 줄 소개
+            </div>
+            <input
+              className="font-['Galmuri11'] w-8/12 h-[45px] mr-6 p-3 signup-input px-6 text-xl"
+              id="description"
+              placeholder="한글 기준 최대 15자 입력 가능"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+            ></input>
+          </div>
+          <div className="flex justify-between px-24">
             <button
-              className="ready-button w-[130px] h-[15px] text-2xl border-[#10AB7D] border-4"
-              onClick={handleCheckNickname}
+              className="cancel-button w-5/12 h-[50px] text-3xl"
+              onClick={goBack}
             >
-              중복확인
+              취소
+            </button>
+            <button
+              className="logout-button w-5/12 h-[50px] text-3xl"
+              onClick={patchInfo}
+            >
+              저장
             </button>
           </div>
-        </div>
-        <div className="text-left ml-56 font-['Galmuri11'] min-h-[24px] mb-6">
-          {isNicknameAvailable === true && (
-            <p className="text-green-600">사용 가능한 닉네임입니다.</p>
-          )}
-          {isNicknameAvailable === false && (
-            <p className="text-red-600">이미 사용 중인 닉네임입니다.</p>
-          )}
-        </div>
-        <div className="flex items-center mb-6">
-          <div className="text-[#10AB7D] text-3xl w-4/12 flex justify-center">
-            한 줄 소개
+          <div className="flex justify-center mt-3 font-['Galmuri11'] text-[#888888]">
+            <button onClick={openDeleteModal}>회원 탈퇴</button>
           </div>
-          <input
-            className="font-['Galmuri11'] w-8/12 h-[40px] mr-6 p-3 signup-input px-6"
-            id="description"
-            placeholder="한글 기준 최대 15자 입력 가능"
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          ></input>
         </div>
-        <div className="flex justify-between px-24">
-          <button
-            className="cancel-button w-5/12 h-[50px] text-3xl"
-            onClick={goBack}
-          >
-            취소
-          </button>
-          <button
-            className="logout-button w-5/12 h-[50px] text-3xl"
-            onClick={patchInfo}
-          >
-            저장
-          </button>
-        </div>
-        <div className="flex justify-center mt-3 font-['Galmuri11'] text-[#888888]">
-          <button onClick={openDeleteModal}>회원 탈퇴</button>
-        </div>
-      </div>
 
-      {deleteUser && (
-        <Modal>
-          <DeleteUser closeDeleteModal={closeDeleteModal} />
-        </Modal>
-      )}
+        {deleteUser && (
+          <Modal>
+            <DeleteUser closeDeleteModal={closeDeleteModal} />
+          </Modal>
+        )}
 
-      {complete && (
-        <Modal>
-          <div className="yellow-box w-2/5 h-[200px] border-[#36EAB5] bg-[#FFFEEE] p-8">
-            <div className="white-text text-4xl mb-10">
-              수정이 완료되었습니다!
+        {complete && (
+          <Modal>
+            <div className="yellow-box w-2/5 h-[200px] border-[#36EAB5] bg-[#FFFEEE] p-8">
+              <div className="white-text text-4xl mb-10">
+                수정이 완료되었습니다!
+              </div>
+              <button onClick={goBack}>
+                <img src={confirm} alt="" />
+              </button>
             </div>
-            <button onClick={goBack}>
-              <img src={confirm} alt="" />
-            </button>
-          </div>
-        </Modal>
-      )}
+          </Modal>
+        )}
+
+        {mileageModal && (
+          <Modal>
+            <div className="yellow-box w-2/5 h-[180px] border-[#36EAB5] bg-[#FFFEEE] p-8">
+              <div className="flex white-text text-4xl mb-10 justify-center">
+                <img src={alterd} alt="" className="mr-4" />
+                <div>마일리지가 부족합니다</div>
+              </div>
+              <button onClick={closeMileageModal}>
+                <img src={confirm} alt="" />
+              </button>
+            </div>
+          </Modal>
+        )}
+      </div>
     </div>
   );
 }
