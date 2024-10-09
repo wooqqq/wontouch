@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
- interface UserState {
+interface UserState {
   id: number | null;
   nickname: string | '';
   description: string | '';
@@ -40,8 +40,17 @@ const userSlice = createSlice({
     setUserTierPoint(state, action: PayloadAction<number>) {
       state.tierPoint = action.payload;
     },
+    getUserTierPoint(state, action: PayloadAction<number>) {
+      state.tierPoint += action.payload;
+    },
     setUserMileage(state, action: PayloadAction<number>) {
       state.mileage = action.payload;
+    },
+    getUserMileage(state, action: PayloadAction<number>) {
+      state.mileage += action.payload;
+    },
+    postUserMileage(state, action: PayloadAction<number>) {
+      state.mileage -= action.payload;
     },
   },
 });
@@ -53,6 +62,9 @@ export const {
   setUserDescription,
   setUserCharacterName,
   setUserTierPoint,
+  getUserTierPoint,
   setUserMileage,
+  getUserMileage,
+  postUserMileage,
 } = userSlice.actions;
 export default userSlice.reducer;
