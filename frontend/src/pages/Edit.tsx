@@ -6,7 +6,7 @@ import Header from '../components/common/Header';
 function Edit() {
   return (
     <>
-      <Header notificationCount={1} />
+      <Header />
       <Routes>
         <Route path="profile" element={<EditProfile />} />
         <Route path="character" element={<EditCharacter />} />
