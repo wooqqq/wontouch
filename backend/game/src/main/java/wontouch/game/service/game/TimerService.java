@@ -11,6 +11,7 @@ import wontouch.game.repository.GameRepository;
 import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.repository.player.PlayerRepository;
 import wontouch.game.service.ArticleService;
+import wontouch.game.service.CropService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,8 +45,9 @@ public class TimerService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final RedisTemplate<String, Object> redisTemplate;
     private final RedisService redisService;
+    private final CropService cropService;
 
-    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate, RedisService redisService, GameService gameService) {
+    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate, RedisService redisService, GameService gameService, CropService cropService) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.articleRepository = articleRepository;
@@ -53,6 +55,7 @@ public class TimerService {
         this.redisTemplate = redisTemplate;
         this.redisService = redisService;
         this.gameService = gameService;
+        this.cropService = cropService;
     }
 
     // 라운드 시작 시 타이머 설정
@@ -185,9 +188,9 @@ public class TimerService {
             log.debug("보내는 데이터 확인", gameResult);
 
             // TODO 마일리지 부여를 위해 API 전송
-            //restTemplate.postForObject(mileageTargetUrl, resultTable, String.class); // 게임 결과로 마일리지 적립
+            restTemplate.postForObject(mileageTargetUrl, resultTable, String.class); // 게임 결과로 마일리지 적립
             log.debug("삭제 로직 호출");
-            playerRepository.freePlayerMemory(roomId);
+            playerRepository.freeAllPlayerMemory(roomId);
             redisService.deleteGameKeysByPattern(roomId);
             log.debug("삭제 로직 끝");
 
@@ -228,6 +231,11 @@ public class TimerService {
         try {
             Map<String, Set<Object>> playerArticleMap = gameService.mappingPlayerArticles(roomId);
             roundResult.setPlayerArticleMap(playerArticleMap);
+            Map<String, Integer> originCropNameMap = cropService.mappingCropIdToCropName(roomId, roundResult.getOriginPriceMap());
+            Map<String, Integer> newCropNameMap = cropService.mappingCropIdToCropName(roomId, roundResult.getNewPriceMap());
+            roundResult.setOriginPriceMap(originCropNameMap);
+            roundResult.setNewPriceMap(newCropNameMap);
+
             log.debug("ROUND RESULT: {}", roundResult);
             restTemplate.postForObject(targetUrl, roundResult, void.class);
         } catch (Exception e) {
