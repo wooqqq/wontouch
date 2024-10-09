@@ -8,6 +8,7 @@ import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
@@ -105,5 +106,14 @@ public class CropService {
             defaultCrops.add(crop);
         }
         return defaultCrops;
+    }
+
+    public Map<String, Integer> mappingCropIdToCropName(String roomId, Map<String, Integer> priceMap) {
+        Map<String, Integer> cropNameBasedPriceMap = new HashMap<>();
+        for (String cropId : priceMap.keySet()) {
+            String cropName = cropRedisRepository.getCropNameFromCropId(roomId, cropId);
+            cropNameBasedPriceMap.put(cropName, priceMap.get(cropId));
+        }
+        return cropNameBasedPriceMap;
     }
 }
