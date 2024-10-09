@@ -36,6 +36,20 @@ public class FriendController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    // 온라인인 친구 목록 조회
+    @GetMapping("/online/{userId}")
+    public ResponseEntity<?> getOnlineFriendList(@PathVariable int userId) {
+        List<FriendResponseDto> friendResponseDtoList = friendService.getOnlineFriendList(userId);
+
+        ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
+                .status(HttpStatus.OK.value())
+                .message("온라인인 친구 목록 조회 성공")
+                .data(friendResponseDtoList)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
     // 친구 신청
     @PostMapping("/request")
     public ResponseEntity<?> sendFriendRequest(@RequestBody SendFriendRequestDto requestDto) {

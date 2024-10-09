@@ -1,5 +1,6 @@
 package wontouch.api.domain.game.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -12,6 +13,9 @@ import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.game.dto.request.PlayerRequestDto;
 import wontouch.api.domain.game.dto.request.CreateRoomRequestDto;
 import wontouch.api.domain.game.dto.request.RoomRequestDto;
+import wontouch.api.domain.game.model.service.RoomService;
+import wontouch.api.domain.notification.dto.request.GameInviteRequestDto;
+import wontouch.api.domain.notification.model.service.NotificationService;
 import wontouch.api.global.exception.CustomException;
 import wontouch.api.global.exception.ExceptionResponse;
 import wontouch.api.global.dto.ResponseDto;
@@ -21,10 +25,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/room")
+@RequiredArgsConstructor
 @Slf4j
 public class RoomController {
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final RoomService roomService;
+    private final NotificationService notificationService;
 
     // 로비서버 기본 주소
     @Value("${lobby.server.name}:${lobby.server.path}")
@@ -33,9 +40,6 @@ public class RoomController {
     // 게임서버 기본 주소
     @Value("${game.server.name}:${game.server.path}")
     private String gameServerUrl;
-
-    public RoomController() {
-    }
 
     @GetMapping("/create/random-uuid")
     public ResponseEntity<ResponseDto<?>> createRandomUUID() {
@@ -79,7 +83,6 @@ public class RoomController {
         log.debug("roomRequestDto: {}", roomRequestDto);
         try {
             ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, roomRequestDto, ResponseDto.class);
-            log.debug("방 입장 결과 확인: {}", response);
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         } catch (HttpClientErrorException.Unauthorized e) {
             e.printStackTrace();
@@ -161,5 +164,19 @@ public class RoomController {
                 }
         );
         return response;
+    }
+
+    @PostMapping("/invite")
+    public ResponseEntity<?> inviteFriend(@RequestBody GameInviteRequestDto requestDto) {
+        GameInviteRequestDto inviteRequestDto = roomService.inviteFriend(requestDto);
+        notificationService.notifyGameInvite(inviteRequestDto);
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.CREATED.value())
+                .message("게임방 초대 성공")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 }

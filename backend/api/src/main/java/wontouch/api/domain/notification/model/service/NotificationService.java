@@ -2,11 +2,19 @@ package wontouch.api.domain.notification.model.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import wontouch.api.domain.friend.dto.response.ReceiveFriendRequestDto;
+import wontouch.api.domain.friend.entity.FriendRequest;
+import wontouch.api.domain.friend.model.repository.mongo.FriendRequestRepository;
+import wontouch.api.domain.friend.model.service.FriendService;
+import wontouch.api.domain.game.dto.response.RoomInviteResponseDto;
 import wontouch.api.domain.notification.controller.NotificationController;
+import wontouch.api.domain.notification.dto.request.GameInviteRequestDto;
 import wontouch.api.domain.notification.dto.request.NotificationDeleteRequestDto;
+import wontouch.api.domain.notification.dto.response.GameInviteNotificationDto;
 import wontouch.api.domain.notification.dto.response.NotificationListResponseDto;
 import wontouch.api.domain.notification.entity.Notification;
 import wontouch.api.domain.notification.entity.NotificationType;
@@ -145,6 +153,52 @@ public class NotificationService {
         }
     }
 
+    // 게임 초대 알림
+    public void notifyGameInvite(GameInviteRequestDto requestDto) {
+        long senderId = requestDto.getSenderId();
+        long receiverId = requestDto.getReceiverId();
+
+        UserProfile sender = userProfileRepository.findByUserId((int) senderId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_PROFILE_EXCEPTION));
+
+        UserProfile receiver = userProfileRepository.findByUserId((int) receiverId)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        // 알림 DB에 저장
+        Notification notification = Notification.builder()
+                .receiverId(receiverId)
+                .sender(sender.getNickname())
+                .createAt(LocalDateTime.now())
+                .content(sender.getNickname() + " 님이 게임에 초대하였습니다.")
+                .roomId(requestDto.getRoomId())
+                .roomName(requestDto.getRoomName())
+                .password(requestDto.getPassword())
+                .notificationType(NotificationType.GAME_INVITE)
+                .build();
+        notificationRepository.save(notification);
+
+        // Map에서 userId로 사용자 검색
+        if (NotificationController.sseEmitters.containsKey(receiverId)) {
+            SseEmitter sseEmitter = NotificationController.sseEmitters.get(receiverId);
+
+            try {
+                // 친구 요청 알림에 대한 추가 정보 설정
+                Map<String, String> eventData = new HashMap<>();
+                eventData.put("message", sender.getNickname() + " 님이 게임에 초대하였습니다.");
+                eventData.put("senderNickname", sender.getNickname());  // 친구 요청을 보낸 사람의 닉네임
+                eventData.put("timestamp", LocalDateTime.now().toString()); // 요청 보낸 시간
+                eventData.put("roomName", requestDto.getRoomName()); // 게임 방 제목
+
+                // SSE로 친구 요청 알림 전송
+                sseEmitter.send(SseEmitter.event().name("addGameInvite").data(eventData));
+            } catch (Exception e) {
+                NotificationController.sseEmitters.remove(receiverId);
+            }
+        } else {
+            log.warn("No active SSE connection for userId: {}", receiverId);
+        }
+    }
+
     public List<NotificationListResponseDto> getNotificationList(Long userId) {
         // 존재하는 유저인지 확인
         UserProfile receiver = userProfileRepository.findByUserId(userId.intValue())
@@ -181,6 +235,21 @@ public class NotificationService {
         return responseDtoList;
     }
 
+    public GameInviteNotificationDto getGameInviteNotification(String id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_NOTIFICATION_EXCEPTION));
+
+        UserProfile sender = userProfileRepository.findByNickname(notification.getSender())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        return GameInviteNotificationDto.builder()
+                .senderId(sender.getUserId())
+                .senderNickname(sender.getNickname())
+                .roomId(notification.getRoomId())
+                .roomName(notification.getRoomName())
+                .password(notification.getPassword())
+                .build();
+    }
 
     @Transactional
     public void deleteNotification(NotificationDeleteRequestDto requestDto) {
@@ -195,5 +264,10 @@ public class NotificationService {
             throw new ExceptionResponse(CustomException.ALERT_ACCESS_DENIED_EXCEPTION);
 
         notificationRepository.deleteById(requestDto.getId());
+    }
+
+    @Transactional
+    public void deleteById(String id) {
+        notificationRepository.deleteById(id);
     }
 }

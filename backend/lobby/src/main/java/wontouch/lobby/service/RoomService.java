@@ -17,10 +17,11 @@ import java.util.List;
 @Slf4j
 public class RoomService {
 
-    @Value("${socket.server.name}:${socket.server.path}")
-    private String socketServerUrl;
     private final RestTemplate restTemplate;
     private final RoomRepository roomRepository;
+
+    @Value("${socket.server.name}:${socket.server.path}")
+    private String socketServerUrl;
 
     public RoomService(RoomRepository roomRepository) {
         this.restTemplate = new RestTemplate();
@@ -74,5 +75,9 @@ public class RoomService {
         String notifyUrl = socketServerUrl + "/notify";
         restTemplate.postForObject(notifyUrl, notifyMessageDto, void.class);
 
+    }
+
+    public RoomInviteResponseDto inviteFriend(String roomId) {
+        return roomRepository.inviteFriend(roomId);
     }
 }

@@ -63,4 +63,18 @@ public class AuthController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    // 사용자 활동 기록 삭제
+    @DeleteMapping("/activity/delete/{userId}")
+    public ResponseEntity<?> deleteUserActivity(@PathVariable int userId) {
+        authService.deleteUserActivity(userId);
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("사용자 활동 기록 삭제 성공")
+                .data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
 }
