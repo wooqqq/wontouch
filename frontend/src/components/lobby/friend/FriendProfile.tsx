@@ -40,13 +40,9 @@ export default function FriendProfile({
   };
 
   // 삭제 확인 모달
-  const openDeleteModal = () => {
-    setDeleteModal(true);
-  };
+  const openDeleteModal = () => setDeleteModal(true);
 
-  const closeDeleteModal = () => {
-    setDeleteModal(false);
-  };
+  const closeDeleteModal = () => setDeleteModal(false);
 
   useEffect(() => {
     getFriendProfile();

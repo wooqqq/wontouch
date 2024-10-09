@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
+import { useDispatch } from 'react-redux';
+import { removeFriend } from '../../../redux/slices/friendSlice';
 
 import cancel from '../../../assets/icon/cancel.png';
 import confirm from '../../../assets/icon/confirm.png';
@@ -15,6 +17,7 @@ export default function FriendDelete({
   nickname: string;
 }) {
   const API_LINK = import.meta.env.VITE_API_URL;
+  const navigate = useDispatch();
   const userId = useSelector((state: RootState) => state.user.id);
 
   // 삭제 요청
@@ -26,8 +29,8 @@ export default function FriendDelete({
           friendId: friendId,
         },
       });
-      // 페이지 새로고침
-      window.location.reload();
+      // store 친구 목록 업데이트
+      navigate(removeFriend(friendId));
     } catch (error) {
       console.log(error);
     }

@@ -26,6 +26,9 @@ function RoomChat({ messages, socket }: RoomInfoProps) {
   const participants = useSelector(
     (state: RootState) => state.room.gameParticipants,
   );
+  const chatUsers = useSelector(
+    (state: RootState) => state.chat.chatParticipants,
+  );
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -61,9 +64,14 @@ function RoomChat({ messages, socket }: RoomInfoProps) {
     setMessage(''); // 메시지 전송 후 입력창 초기화
   };
 
+  // 닉네임 뽑아오기
   const getNicknameById = (id: string) => {
-    const participant = participants.find((p) => String(p.userId) === id);
-    return participant ? participant.nickname : id;
+    for (const participant of chatUsers) {
+      if (participant.userId === Number(id)) {
+        return participant.nickname;
+      }
+    }
+    return id.toString();
   };
 
   return (

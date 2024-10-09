@@ -10,12 +10,15 @@ import roomSlice from './slices/roomSlice';
 import cropSlice from './slices/cropSlice';
 import notificationSlice from './slices/notificationSlice';
 import articleSlice from './slices/articleSlice';
+import friendSlice from './slices/friendSlice';
+import chatSlice from './slices/chatSlice';
+
 
 // persist 설정
 const persistConfig = {
   key: 'root', // key는 로컬 스토리지에 저장되는 이름
   storage, // 사용할 스토리지 (localStorage)
-  whitelist: ['user', 'auth', 'notification'], // 유지할 슬라이스 지정
+  whitelist: ['user', 'auth', 'notification', 'friend'], // 유지할 슬라이스 지정
 };
 
 // 여러 슬라이스를 결합
@@ -26,6 +29,8 @@ const rootReducer = combineReducers({
   crop: cropSlice,
   article: articleSlice,
   notification: notificationSlice,
+  friend: friendSlice,
+  chat: chatSlice,
 });
 
 // persistReducer로 rootReducer를 래핑

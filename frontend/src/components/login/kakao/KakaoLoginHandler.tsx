@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -7,11 +7,12 @@ import {
   setUserNickname,
   setUserDescription,
   setUserCharacterName,
+  setUserMileage,
+  setUserTierPoint,
 } from '../../../redux/slices/userSlice';
 import { jwtDecode } from 'jwt-decode';
 
 import flowerGirl from '../../../assets/background/characters/stand/flower_girl.png';
-import { setNotificationCount } from '../../../redux/slices/notificationSlice';
 
 interface DecodedToken {
   userId: number;
@@ -74,6 +75,8 @@ function KakaoLoginHandler() {
       dispatch(setUserNickname(response.data.data.nickname));
       dispatch(setUserDescription(response.data.data.description));
       dispatch(setUserCharacterName(response.data.data.characterName));
+      dispatch(setUserMileage(response.data.data.mileage));
+      dispatch(setUserTierPoint(response.data.data.tierPoint));
 
       // 로비로 이동
       navigate('/lobby');

@@ -13,12 +13,12 @@ import Login from './pages/Login';
 import KakaoLoginHandler from './components/login/kakao/KakaoLoginHandler';
 import KakaoToSignup from './components/login/kakao/KakaoToSignup';
 import SignupWithKakao from './components/signup/kakao/SignupWithKakao';
-import Setting from './pages/Setting';
 import CommonBG from './components/common/CommonBG';
 import { useDispatch } from 'react-redux';
 import { setToken } from './redux/slices/authSlice';
 import { setUserId } from './redux/slices/userSlice';
 import { jwtDecode } from 'jwt-decode';
+import Edit from './pages/Edit';
 
 interface DecodedToken {
   userId: number;
@@ -84,10 +84,10 @@ function AppRouter() {
             }
           />
           <Route
-            path="setting"
+            path="edit/*"
             element={
               <ProtectedRoute>
-                <Setting />
+                <Edit />
               </ProtectedRoute>
             }
           />

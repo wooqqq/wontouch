@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
+import { decreaseNotificationCount } from '../../redux/slices/notificationSlice';
+import { addFriend } from '../../redux/slices/friendSlice';
 import axios from 'axios';
 import Modal from './Modal';
 import ProfileImg from './ProfileImg';
@@ -12,6 +15,7 @@ import mail from '../../assets/icon/mail.png';
 import cancel from '../../assets/icon/cancel.png';
 import confirm from '../../assets/icon/confirm.png';
 
+// 알림 전체 조회
 interface Notification {
   id: string;
   senderId: number;
@@ -20,6 +24,7 @@ interface Notification {
   content: string;
 }
 
+// 알림 상세 조회
 interface requestInfo {
   fromUserId: number;
   fromUserNickname: string;
@@ -27,19 +32,31 @@ interface requestInfo {
   fromUserCharacterName: string;
 }
 
+// 친구 추가
+interface Friend {
+  friendId: number;
+  nickname: string;
+  description: string;
+  characterName: string;
+  tierPoint: number;
+}
+
 export default function Mail({ closeMail }: { closeMail: () => void }) {
+  const dispatch = useDispatch();
+
   const API_LINK = import.meta.env.VITE_API_URL;
+  const userId = useSelector((state: RootState) => state.user.id);
+  const accessToken = localStorage.getItem('access_token');
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
-  const [requestInfo, setRequestInfo] = useState<requestInfo>();
   const [showModal, setShowModal] = useState(false);
+  const [requestInfo, setRequestInfo] = useState<requestInfo>();
+  const [acceptModal, setAcceptModal] = useState<boolean>(false);
+  const [rejectModal, setRejectModal] = useState<boolean>(false);
 
-  const userId = useSelector((state: RootState) => state.user.id);
-  const accessToken = localStorage.getItem('access_token');
-
-  // 알림 불러오기
+  // 1. 알림 불러오기
   const getNotifications = async () => {
     try {
       const response = await axios.get(
@@ -66,7 +83,33 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
     getNotifications();
   }, []);
 
-  // 친구 요청 수락
+  // 2. 알림 클릭 시 상세 요청 보기
+  const handleNotificationClick = (notification: Notification) => {
+    setSelectedNotification(notification); // 선택된 알림
+    getRequestInfo(notification.senderId); // 상세 요청 api
+    setShowModal(true); // 알림 오픈
+  };
+
+  // 3. 상세 요청 내용
+  const getRequestInfo = async (senderId: number) => {
+    try {
+      const response = await axios.get(`${API_LINK}/friend/request/detail`, {
+        params: {
+          fromUserId: senderId,
+          toUserId: userId,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log(response.data.data);
+      setRequestInfo(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // 4. 친구 요청 수락
   const acceptFriendRequest = async (
     senderId: number,
     notificationId: string,
@@ -85,18 +128,45 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
           },
         },
       );
-      alert('친구 요청을 수락했습니다!');
-      window.location.reload();
+
+      // 친구 상세 정보 불러오기
+      const response = await axios.get(`${API_LINK}/user/${senderId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const newFriend: Friend = {
+        friendId: response.data.data.userId,
+        nickname: response.data.data.nickname,
+        description: response.data.data.description,
+        characterName: response.data.data.characterName,
+        tierPoint: response.data.data.tierPoint,
+      };
+
       setShowModal(false);
+
+      // 읽은 알림 화면에서 삭제
       setNotifications((prev) =>
         prev.filter((notification) => notification.id !== notificationId),
       );
+
+      // 알림 수 변경
+      dispatch(decreaseNotificationCount());
+
+      // 친구 수 변경
+      dispatch(addFriend(newFriend));
+
+      // 확인 모달
+      setAcceptModal(true);
     } catch (error) {
       console.log(error);
     }
   };
 
-  // 친구 요청 거절
+  const handleAcceptModal = () => setAcceptModal(false);
+
+  // 5. 친구 요청 거절
   const rejectFriendRequest = async (
     senderId: number,
     notificationId: string,
@@ -112,41 +182,23 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
           notificationId: notificationId,
         },
       });
-      alert('친구 요청을 거절했습니다!');
       setShowModal(false);
+
       setNotifications((prev) =>
         prev.filter((notification) => notification.id !== notificationId),
       );
+
+      // 알림 수 변경
+      dispatch(decreaseNotificationCount());
+
+      // 확인 모달
+      setRejectModal(true);
     } catch (error) {
       console.log(error);
     }
   };
 
-  // 알림 클릭 시 모달 열기
-  const handleNotificationClick = (notification: Notification) => {
-    setSelectedNotification(notification);
-    getRequestInfo(notification.senderId);
-    setShowModal(true);
-  };
-
-  // 요청 상세 보기
-  const getRequestInfo = async (senderId: number) => {
-    try {
-      const response = await axios.get(`${API_LINK}/friend/request/detail`, {
-        params: {
-          fromUserId: senderId,
-          toUserId: userId,
-        },
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      console.log(response.data.data);
-      setRequestInfo(response.data.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const handleRejectModal = () => setRejectModal(false);
 
   return (
     <div className="yellow-box w-1/2 h-[470px] p-6 px-10 pb-10 border-[#36EAB5] bg-[#fffeee]">
@@ -246,6 +298,30 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
           ) : (
             <div>게임 초대..</div>
           )}
+        </Modal>
+      )}
+      {acceptModal && (
+        <Modal>
+          <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
+            <div className="white-text text-4xl p-6">
+              친구 신청을 수락하였습니다!
+            </div>
+            <button onClick={handleAcceptModal}>
+              <img src={confirm} alt="" />
+            </button>
+          </div>
+        </Modal>
+      )}
+      {rejectModal && (
+        <Modal>
+          <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
+            <div className="white-text text-4xl p-6">
+              친구 신청을 거절하였습니다!
+            </div>
+            <button onClick={handleRejectModal}>
+              <img src={confirm} alt="" />
+            </button>
+          </div>
         </Modal>
       )}
     </div>
