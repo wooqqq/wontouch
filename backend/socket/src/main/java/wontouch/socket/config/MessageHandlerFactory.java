@@ -51,6 +51,8 @@ public class MessageHandlerFactory {
                 return gameServerService.sendPreparationInfo(roomId, playerId, msgMap);
             case BUY_RANDOM_ARTICLE:
                 return gameServerService.buyRandomArticle(roomId, playerId, msgMap);
+            case BUY_CROP_ARTICLE:
+                return gameServerService.buyArticle(roomId, playerId, msgMap);
             default:
                 System.out.println("Unknown message type: " + messageType);
                 return null;

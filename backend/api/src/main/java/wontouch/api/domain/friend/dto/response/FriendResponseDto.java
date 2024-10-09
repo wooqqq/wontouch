@@ -16,4 +16,5 @@ public class FriendResponseDto {
     private String description;
     private String characterName;
     private int tierPoint;
+    private boolean isOnline;
 }

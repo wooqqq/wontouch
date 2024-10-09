@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import wontouch.game.entity.Article;
 import wontouch.game.entity.Crop;
+import wontouch.game.entity.SpecialArticle;
 import wontouch.game.repository.article.ArticleRepository;
 import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
@@ -60,6 +61,26 @@ public class ArticleService {
         return cropRepository.save(crop);
     }
 
+    public Crop updateSpecialArticles(String cropId, List<SpecialArticle> specialArticles) {
+        Optional<Crop> cropOptional = cropRepository.findById(cropId);
+        Crop crop = findCropOrThrow(cropOptional);
+        List<SpecialArticle> existedSpecialArticles = crop.getSpecialArticleList();
+
+        for (SpecialArticle specialArticle : specialArticles) {
+            if (specialArticle.getId() == null || specialArticle.getId().isEmpty()) {
+                specialArticle.setId(UUID.randomUUID().toString());
+            }
+        }
+
+        if (existedSpecialArticles == null) {
+            crop.setSpecialArticleList(specialArticles);
+        } else {
+            existedSpecialArticles.addAll(specialArticles);
+        }
+
+        return cropRepository.save(crop);
+    }
+
     // 라운드 시작 시 상점 정보 세팅
     // TODO 라운드 타이머와 연결
     public void saveNewArticlesForRound(String roomId, int numArticles) {
@@ -90,7 +111,7 @@ public class ArticleService {
         for (Object cropId : allCrops) {
             // Crop에서 Article의 ID만 가져옴
             Optional<Crop> findCrop = cropRepository.findCropWithArticleIdsOnly((String) cropId);
-            log.debug("findCrop:{}", findCrop);
+            //log.debug("findCrop:{}", findCrop);
             Crop crop = findCropOrThrow(findCrop);
             List<String> articleIds = crop.getArticleList() != null ?
                     crop.getArticleList().stream()

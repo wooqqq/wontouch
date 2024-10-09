@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.friend.model.repository.jpa.FriendRepository;
 import wontouch.api.domain.user.dto.request.UserSearchRequestDto;
@@ -180,6 +181,86 @@ public class UserService {
                 return null;
             }
         } catch (Exception e) {
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
+        }
+    }
+
+    /**
+     * 사용자 ID를 통한 사용자 탈퇴
+     * 사용자와 관련된 데이터 모두 삭제되어야 함
+     */
+    @Transactional
+    public void deleteByUserId(int userId) {
+
+        // 마일리지 삭제
+        System.out.println("마일리지 삭제");
+        deleteMileageLogByUserId(userId);
+
+        // 티어 포인트 삭제
+        System.out.println("티어 포인트 삭제");
+        deleteTierPointByUserId(userId);
+
+        // 보유 아바타 삭제
+        System.out.println("보유 아바타 삭제");
+        avatarRepository.deleteByUserId(userId);
+
+        // 친구 삭제
+        System.out.println("친구 삭제");
+        friendRepository.deleteByFromUserIdOrToUserId(userId, userId);
+
+        // 유저 프로필 삭제
+        System.out.println("유저 프로필 삭제");
+        userProfileRepository.deleteByUserId(userId);
+
+        // 유저 삭제
+        System.out.println("유저 삭제");
+        deleteUserByUserId(userId);
+    }
+
+    /**
+     * 사용자 ID를 통한 Auth 서버 사용자 정보 삭제
+     */
+    private boolean deleteUserByUserId(int userId) {
+        String authUrl = String.format("%s/user/delete/%d", authServerUrl, userId);
+
+        try {
+            restTemplate.delete(authUrl, String.class);
+
+            return true;
+        } catch (Exception e) {
+            // 예외 처리
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
+        }
+    }
+
+    /**
+     * 사용자 ID를 통한 마일리지 삭제
+     */
+    private boolean deleteMileageLogByUserId(int userId) {
+        String mileageUrl = String.format("%s/log/delete/%d", mileageServerUrl, userId);
+
+        try {
+            restTemplate.delete(mileageUrl, String.class);
+
+            return true;
+        } catch (Exception e) {
+            // 예외 처리
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
+        }
+    }
+
+    /**
+     * 사용자 ID를 통한 티어 포인트 삭제
+     */
+    private boolean deleteTierPointByUserId(int userId) {
+        String tierUrl = String.format("%s/tier/delete/%d", mileageServerUrl, userId);
+
+        try {
+            restTemplate.delete(tierUrl, String.class);
+
+            return true;
+        } catch (Exception e) {
+            // 예외 처리
             throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
         }
     }

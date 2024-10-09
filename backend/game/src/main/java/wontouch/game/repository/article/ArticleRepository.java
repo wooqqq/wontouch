@@ -6,12 +6,10 @@ import org.springframework.stereotype.Repository;
 import wontouch.game.dto.RoundResultDto;
 import wontouch.game.dto.article.ArticleTransactionResult;
 import wontouch.game.dto.TransactionStatusType;
-import wontouch.game.entity.Article;
-import wontouch.game.entity.Crop;
-import wontouch.game.entity.FutureArticle;
-import wontouch.game.entity.SubCrop;
+import wontouch.game.entity.*;
 import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.crop.CropRepository;
+import wontouch.game.repository.player.PlayerRepository;
 
 import java.util.*;
 
@@ -25,11 +23,13 @@ public class ArticleRepository {
     private final CropRedisRepository cropRedisRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final int ARTICLE_PRICE_INCREMENT = 200;
+    private final PlayerRepository playerRepository;
 
-    public ArticleRepository(CropRepository cropRepository, CropRedisRepository cropRedisRepository, RedisTemplate<String, Object> redisTemplate) {
+    public ArticleRepository(CropRepository cropRepository, CropRedisRepository cropRedisRepository, RedisTemplate<String, Object> redisTemplate, PlayerRepository playerRepository) {
         this.cropRepository = cropRepository;
         this.cropRedisRepository = cropRedisRepository;
         this.redisTemplate = redisTemplate;
+        this.playerRepository = playerRepository;
     }
 
     // 기사 내용 획득
@@ -53,7 +53,7 @@ public class ArticleRepository {
         int articlePrice = (Integer) redisTemplate.opsForHash().get(playerInfoKey, "articlePrice");
         Integer gold = (Integer) redisTemplate.opsForHash().get(playerInfoKey, "gold");
         if (gold == null || gold < articlePrice) {
-            return new ArticleTransactionResult(TransactionStatusType.INSUFFICIENT_GOLDS, null);
+            return new ArticleTransactionResult(TransactionStatusType.INSUFFICIENT_GOLDS, null, gold);
         }
 
         Set<Object> articleIds = redisTemplate.opsForSet().members(articleKey);
@@ -77,7 +77,8 @@ public class ArticleRepository {
             try {
                 Article article = getArticle(cropId, (String) articleId);
                 article.setFutureArticles(null);
-                return new ArticleTransactionResult(TransactionStatusType.SUCCESS, article);
+                int playerGold = playerRepository.getPlayerGold(playerId);
+                return new ArticleTransactionResult(TransactionStatusType.SUCCESS, article, playerGold);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -127,7 +128,7 @@ public class ArticleRepository {
                 try {
                     Article article = getArticle((String) cropId, (String) articleId); // 기사 ID를 통해 실제 객체 반환
                     List<FutureArticle> futureArticles = article.getFutureArticles(); // 미래 결과 리스트를 확인
-                    FutureArticle futureArticle = selectFutureArticle(futureArticles); //확률을 통해 기사 선택
+                    FutureArticle futureArticle = selectFutureArticle(futureArticles, (String) cropId); //확률을 통해 기사 선택
                     articleResults.put(article.getId(), futureArticle);
                     log.debug("futureArticle: {}", futureArticle); // 선택된 결과 확인
                     if (futureArticle != null) {
@@ -138,6 +139,9 @@ public class ArticleRepository {
 
                         // SubCrops 처리
                         List<SubCrop> subCrops = futureArticle.getSubCrops();
+                        if (subCrops == null) {
+                            continue;
+                        }
                         for (SubCrop subCrop : subCrops) {
                             try {
                                 String subCropId = subCrop.getId();
@@ -157,11 +161,11 @@ public class ArticleRepository {
                 }
             }
         }
-        return new RoundResultDto(newPriceMap, articleResults, null);
+        return new RoundResultDto(priceMap, newPriceMap, articleResults, null);
     }
 
     // 결과 확률적으로 선택
-    public FutureArticle selectFutureArticle(List<FutureArticle> futureArticles) {
+    public FutureArticle selectFutureArticle(List<FutureArticle> futureArticles, String cropId) {
         Random random = new Random();
         double randomValue = random.nextDouble();  // 0과 1 사이의 랜덤 값 생성
         double positiveRate = futureArticles.get(0).getSpawnRate() / 100;
@@ -175,6 +179,7 @@ public class ArticleRepository {
         positiveRate = positiveRate / totalRate * 0.99;
         negativeRate = negativeRate / totalRate * 0.99;
         naturalRate = naturalRate / totalRate * 0.99;
+
         log.debug("RANDOM VALUE: {}, positiveRate: {}, negativeRate: {}, naturalRate: {}", randomValue, positiveRate, negativeRate, naturalRate);
         if (randomValue < positiveRate) {
             log.debug("POSITIVE EVENT");
@@ -187,8 +192,30 @@ public class ArticleRepository {
             return futureArticles.get(2);
         } else {
             System.out.println("SPECIAL EVENT");
-            return null;
+            return getSpecialArticle(cropId);
         }
+    }
+
+    public FutureArticle getSpecialArticle(String cropId) {
+        Optional<Crop> cropWithSpecialArticlesOnly = cropRepository.findCropWithSpecialArticlesOnly(cropId);
+        if (cropWithSpecialArticlesOnly.isEmpty()) {
+            throw new IllegalArgumentException("특수 기사 확인 중 에러 발생");
+        }
+        Crop crop = cropWithSpecialArticlesOnly.get();
+        List<SpecialArticle> specialArticleList = crop.getSpecialArticleList();
+        SpecialArticle specialArticle = selectRandomSpecialArticle(specialArticleList);
+        return FutureArticle.fromSpecialArticle(specialArticle);
+    }
+
+    public SpecialArticle selectRandomSpecialArticle(List<SpecialArticle> specialArticleList) {
+        // Random 객체 생성
+        Random random = new Random();
+
+        // 리스트의 크기만큼 범위를 지정하여 랜덤 인덱스를 선택
+        int randomIndex = random.nextInt(specialArticleList.size());
+
+        // 선택된 인덱스에 해당하는 SpecialArticle 반환
+        return specialArticleList.get(randomIndex);
     }
 
     public void updateCropPrice(String roomId, String cropId, int newPrice, int round) {

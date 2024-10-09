@@ -11,4 +11,5 @@ import wontouch.game.entity.Article;
 public class ArticleTransactionResult {
     private TransactionStatusType type;
     private Article info;
+    private int playerGold;
 }

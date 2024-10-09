@@ -12,4 +12,5 @@ public interface TierPointLogRepository extends MongoRepository<TierPointLog, St
     boolean existsByUserId(int userId);
     Optional<List<TierPointLog>> findByUserId(int userId);
     Optional<List<TierPointLog>> findByUserIdAndCreateAtAfter(int userId, LocalDateTime date);
+    void deleteByUserId(int userId);
 }

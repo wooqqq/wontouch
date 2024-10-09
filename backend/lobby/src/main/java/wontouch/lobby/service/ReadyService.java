@@ -3,7 +3,8 @@ package wontouch.lobby.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import wontouch.lobby.dto.ReadyStateDto;
+import wontouch.lobby.dto.ready.ReadyDto;
+import wontouch.lobby.dto.ready.ReadyStateDto;
 import wontouch.lobby.repository.ReadyRepository;
 
 import java.util.Map;
@@ -22,10 +23,10 @@ public class ReadyService {
         this.readyRepository = readyRepository;
     }
 
-    public ReadyStateDto updateReadyState(Map<String, Object> preparationInfo) {
+    public ReadyDto updateReadyState(Map<String, Object> preparationInfo) {
         String roomId = preparationInfo.get("roomId").toString();
         long playerId = Long.parseLong(preparationInfo.get("playerId").toString());
-        ReadyStateDto readyStateDto = readyRepository.readyStatusChange(roomId, playerId);
+        ReadyDto readyStateDto = readyRepository.readyStatusChange(roomId, playerId);
         log.debug("ready: {}", readyStateDto);
         return readyStateDto;
     }

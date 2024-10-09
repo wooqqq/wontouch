@@ -16,5 +16,14 @@ public class FutureArticle {
     @JsonProperty("spawn_rate")
     private double spawnRate;
     @JsonProperty("sub_crops")
-    private List<SubCrop> subCrops;  // SubCrop 리스트 추가
+    private List<SubCrop> subCrops;// SubCrop 리스트 추가
+
+    public static FutureArticle fromSpecialArticle(SpecialArticle article) {
+        FutureArticle futureArticle = new FutureArticle();
+        futureArticle.title = article.getTitle();
+        futureArticle.body = article.getBody();
+        futureArticle.author = article.getAuthor();
+        futureArticle.changeRate = article.getChangeRate();
+        return futureArticle;
+    }
 }

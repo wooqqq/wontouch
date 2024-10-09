@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import wontouch.game.domain.Player;
 import wontouch.game.entity.Crop;
+import wontouch.game.repository.crop.CropRedisRepository;
+import wontouch.game.repository.crop.CropRepository;
 import wontouch.game.service.ArticleService;
 import wontouch.game.service.CropService;
 import wontouch.game.service.game.GameService;
@@ -13,6 +15,7 @@ import wontouch.game.service.game.TimerService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -20,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class GameController {
 
+    private final CropRepository cropRepository;
+    private final CropRedisRepository cropRedisRepository;
     @Value("${socket.server.name}:${socket.server.path}")
     private String socketServerUrl;
 
@@ -30,11 +35,13 @@ public class GameController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public GameController(GameService gameService, TimerService timerService,
-                          CropService cropService, ArticleService articleService) {
+                          CropService cropService, ArticleService articleService, CropRepository cropRepository, CropRedisRepository cropRedisRepository) {
         this.gameService = gameService;
         this.timerService = timerService;
         this.cropService = cropService;
         this.articleService = articleService;
+        this.cropRepository = cropRepository;
+        this.cropRedisRepository = cropRedisRepository;
     }
 
     // 게임 시작 시에 기본 정보 세팅
@@ -66,5 +73,13 @@ public class GameController {
         Map<String, Object> readyInfoResponse = timerService.playerReady(roomId, playerId);
         log.debug("readyInfoResponse:{}", readyInfoResponse.toString());
         return readyInfoResponse;
+    }
+
+    // 작물 정보 조회
+    @GetMapping("/crop-list/{roomId}")
+    public List<Crop> getDefaultCropList(@PathVariable String roomId) {
+        List<Crop> defaultCropInfo = cropService.getDefaultCropInfo(roomId);
+        log.debug("defaultCropInfo:{}", defaultCropInfo.toString());
+        return defaultCropInfo;
     }
 }

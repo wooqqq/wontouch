@@ -86,5 +86,17 @@ public class TierPointController {
     }
 
     // 티어 포인트 삭제
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<?> deleteByUserId(@PathVariable int userId) {
+        tierPointService.deleteByUserId(userId);
+
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .status(HttpStatus.OK.value())
+                .message("티어 포인트 삭제 성공").
+                data(null)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 
 }

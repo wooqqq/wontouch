@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import wontouch.socket.dto.MessageType;
+import wontouch.socket.dto.game.crop.CropPriceResultDto;
 import wontouch.socket.service.WebSocketSessionService;
 
 import java.io.IOException;
@@ -76,8 +77,13 @@ public class GameServerController {
                 log.error(e.getMessage());
             }
         }
+
+        CropPriceResultDto cropPriceResultDto = new CropPriceResultDto(
+                (Map<String, Object>) messageData.get("originPriceMap"),
+                (Map<String, Object>) messageData.get("newPriceMap"));
+
         webSocketSessionService.broadcastMessage(roomId, MessageType.ROUND_RESULT,
-                messageData.get("newPriceMap"));
+                cropPriceResultDto);
         return null;
     }
 
@@ -87,7 +93,7 @@ public class GameServerController {
         String roomId = (String) messageData.get("roomId");
         log.debug("START PREPARATION!!: {}", messageData);
         try {
-            sessionService.broadcastMessage(roomId, MessageType.NOTIFY, "Preparation Start successfully");
+            sessionService.broadcastMessage(roomId, MessageType.PREPARATION_START, messageData);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -97,9 +103,10 @@ public class GameServerController {
     @PostMapping("/crop-list")
     public ResponseEntity<?> cropList(@RequestBody Map<String, Object> messageData) {
         String roomId = (String) messageData.get("roomId");
+        log.debug("작물 정보를 불러오기 위한 roomId", roomId);
         //log.debug("CROP LIST!!: {}", messageData);
         try {
-            sessionService.broadcastMessage(roomId, MessageType.NOTIFY, messageData);
+            sessionService.broadcastMessage(roomId, MessageType.CROP_LIST, messageData);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

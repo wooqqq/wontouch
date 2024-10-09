@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wontouch.lobby.dto.ReadyStateDto;
+import wontouch.lobby.dto.ready.ReadyDto;
+import wontouch.lobby.dto.ready.ReadyStateDto;
 import wontouch.lobby.dto.ResponseDto;
+import wontouch.lobby.repository.room.RoomRepository;
 import wontouch.lobby.service.ReadyService;
 
 import java.util.Map;
@@ -18,16 +20,18 @@ import java.util.Set;
 public class ReadyController {
 
     private final ReadyService readyService;
+    private final RoomRepository roomRepository;
 
     @Autowired
-    public ReadyController(ReadyService readyService) {
+    public ReadyController(ReadyService readyService, RoomRepository roomRepository) {
         this.readyService = readyService;
+        this.roomRepository = roomRepository;
     }
 
     @PostMapping("/toggle")
-    public ReadyStateDto ready(@RequestBody Map<String, Object> preparationInfo) {
+    public ReadyDto ready(@RequestBody Map<String, Object> preparationInfo) {
         System.out.println(preparationInfo);
-        ReadyStateDto state = readyService.updateReadyState(preparationInfo);
+        ReadyDto state = readyService.updateReadyState(preparationInfo);
         log.debug("ready: {}", state);
         return state;
     }
@@ -48,6 +52,16 @@ public class ReadyController {
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseDto<>(400, e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/start/{roomId}")
+    public void deleteLobbyData(@PathVariable String roomId) {
+        try {
+            roomRepository.deleteRoom(roomId);
+        } catch (Exception e) {
+            log.debug("방 삭제 중 에러 발생");
+            e.printStackTrace();
         }
     }
 }

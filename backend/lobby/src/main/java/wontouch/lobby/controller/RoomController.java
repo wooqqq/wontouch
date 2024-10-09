@@ -2,17 +2,11 @@ package wontouch.lobby.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import wontouch.lobby.dto.CreateRoomRequestDto;
-import wontouch.lobby.dto.RoomRequestDto;
-import wontouch.lobby.dto.ResponseDto;
-import wontouch.lobby.dto.RoomResponseDto;
+import wontouch.lobby.dto.*;
 import wontouch.lobby.service.RoomService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/rooms")
@@ -75,6 +69,29 @@ public class RoomController {
                 .message("방 퇴장 완료")
                 .data(roomResponseDto)
                 .build();
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/info/{roomId}")
+    public ResponseDto<RoomResponseDto> getRoomInfo(@PathVariable String roomId) {
+        RoomResponseDto roomInfo = roomService.getRoomInfo(roomId);
+        return ResponseDto.<RoomResponseDto>builder()
+                .status(HttpStatus.OK.value())
+                .message("조회 완료")
+                .data(roomInfo)
+                .build();
+    }
+
+    @GetMapping("/invite-info/{roomId}")
+    public ResponseEntity<?> inviteFriend(@PathVariable String roomId) {
+        RoomInviteResponseDto inviteResponseDto = roomService.inviteFriend(roomId);
+
+        ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
+                .status(HttpStatus.OK.value())
+                .message("게임방 정보 조회 성공")
+                .data(inviteResponseDto)
+                .build();
+
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

@@ -62,7 +62,8 @@ public class CropService {
 
     // 타입에 해당하는 작물 중 랜덤하게 선택
     private List<Crop> selectRandomCrops(String type) {
-        List<Crop> crops = cropRepository.findByType(type);
+        List<Crop> crops = cropRepository.findByTypeExcludingArticleList(type);
+        log.debug("type: " + type + " crops: " + crops);
         int numOfCrops = NUM_OF_CROPS_PER_TYPE;
         if (numOfCrops > crops.size()) {
             numOfCrops = crops.size();
@@ -73,7 +74,7 @@ public class CropService {
 //                .limit(numOfCrops)                // 제한된 개수 선택
 //                .toList();
         return crops.stream()
-                .filter(crop -> crop.getArticleList() != null && !crop.getArticleList().isEmpty()) // articleList가 비어있지 않은 것만 필터링
+//                .filter(crop -> crop.getArticleList() != null && !crop.getArticleList().isEmpty()) // articleList가 비어있지 않은 것만 필터링
                 .sorted((a, b) -> random.nextInt(2) - 1)  // 무작위로 정렬
                 .limit(numOfCrops)                         // 제한된 개수 선택
                 .toList();
@@ -94,5 +95,15 @@ public class CropService {
         List<Object> crops = allCrops.stream().toList();
         Random random = new Random();
         return (String) crops.get(random.nextInt(allCrops.size()));
+    }
+
+    public List<Crop> getDefaultCropInfo(String roomId) {
+        Set<Object> allCrops = cropRedisRepository.getAllCrops(roomId);
+        List<Crop> defaultCrops = new ArrayList<>();
+        for (Object cropId : allCrops) {
+            Crop crop = cropRepository.findByIdExcludingArticleList((String) cropId);
+            defaultCrops.add(crop);
+        }
+        return defaultCrops;
     }
 }
