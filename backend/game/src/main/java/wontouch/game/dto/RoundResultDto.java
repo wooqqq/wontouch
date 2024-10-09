@@ -11,6 +11,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 public class RoundResultDto {
+    private Map<String, Integer> originPriceMap;
     private Map<String, Integer> newPriceMap;
     private Map<String, FutureArticle> futureArticles;
     private Map<String, Set<Object>> playerArticleMap;
