@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import wontouch.api.domain.notification.dto.request.NotificationDeleteRequestDto;
+import wontouch.api.domain.notification.dto.response.GameInviteNotificationDto;
 import wontouch.api.domain.notification.dto.response.NotificationListResponseDto;
 import wontouch.api.domain.notification.model.service.NotificationService;
 import wontouch.api.global.dto.ResponseDto;
@@ -79,11 +80,12 @@ public class NotificationController {
 
     @GetMapping("/detail/{id}")
     public ResponseEntity<?> getNotificationDetail(@PathVariable String id) {
+        GameInviteNotificationDto notificationDto = notificationService.getGameInviteNotification(id);
 
         ResponseDto<Object> responseDto = ResponseDto.<Object>builder()
                 .status(HttpStatus.OK.value())
                 .message("알림 조회 성공")
-                .data(null)
+                .data(notificationDto)
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);

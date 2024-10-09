@@ -27,5 +27,7 @@ public class Notification {
 
     private String roomName;
 
+    private String password;
+
     private NotificationType notificationType;
 }

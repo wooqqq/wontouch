@@ -14,6 +14,7 @@ import wontouch.api.domain.game.dto.response.RoomInviteResponseDto;
 import wontouch.api.domain.notification.controller.NotificationController;
 import wontouch.api.domain.notification.dto.request.GameInviteRequestDto;
 import wontouch.api.domain.notification.dto.request.NotificationDeleteRequestDto;
+import wontouch.api.domain.notification.dto.response.GameInviteNotificationDto;
 import wontouch.api.domain.notification.dto.response.NotificationListResponseDto;
 import wontouch.api.domain.notification.entity.Notification;
 import wontouch.api.domain.notification.entity.NotificationType;
@@ -37,8 +38,6 @@ public class NotificationService {
 
     private final UserProfileRepository userProfileRepository;
     private final NotificationRepository notificationRepository;
-    private final FriendRequestRepository friendRequestRepository;
-    private final FriendService friendService;
 
     public SseEmitter subscribe(Long userId) {
 
@@ -173,6 +172,7 @@ public class NotificationService {
                 .content(sender.getNickname() + " 님이 게임에 초대하였습니다.")
                 .roomId(requestDto.getRoomId())
                 .roomName(requestDto.getRoomName())
+                .password(requestDto.getPassword())
                 .notificationType(NotificationType.GAME_INVITE)
                 .build();
         notificationRepository.save(notification);
@@ -226,6 +226,22 @@ public class NotificationService {
         return responseDtoList;
     }
 
+    public GameInviteNotificationDto getGameInviteNotification(String id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_NOTIFICATION_EXCEPTION));
+
+        UserProfile sender = userProfileRepository.findByNickname(notification.getSender())
+                .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+
+        return GameInviteNotificationDto.builder()
+                .senderId(sender.getUserId())
+                .senderNickname(sender.getNickname())
+                .roomId(notification.getRoomId())
+                .roomName(notification.getRoomName())
+                .password(notification.getPassword())
+                .build();
+    }
+
 
 
 //    public Object getNotification(String id) {
@@ -268,5 +284,10 @@ public class NotificationService {
             throw new ExceptionResponse(CustomException.ALERT_ACCESS_DENIED_EXCEPTION);
 
         notificationRepository.deleteById(requestDto.getId());
+    }
+
+    @Transactional
+    public void deleteById(String id) {
+        notificationRepository.deleteById(id);
     }
 }
