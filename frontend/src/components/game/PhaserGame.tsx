@@ -11,6 +11,18 @@ import { RootState } from '../../redux/store';
 import { setUserId } from '../../redux/slices/userSlice';
 import { setToken } from '../../redux/slices/authSlice';
 import { jwtDecode } from 'jwt-decode';
+
+//캐릭터
+
+import boy from '../../assets/background/characters/move/boy.png';
+import curlyhairBoy from '../../assets/background/characters/move/curlyhair_boy.png';
+import flowerGirl from '../../assets/background/characters/move/flower_girl.png';
+import girl from '../../assets/background/characters/move/girl.png';
+import goblin from '../../assets/background/characters/move/goblin.png';
+import kingGoblin from '../../assets/background/characters/move/king_goblin.png';
+import ninjaSkeleton from '../../assets/background/characters/move/ninja_skeleton.png';
+import skeleton from '../../assets/background/characters/move/skeleton.png';
+
 // 타일맵 및 타일셋
 import tileset from '../../assets/background/spr_tileset_sunnysideworld_16px.png';
 
@@ -210,29 +222,33 @@ const PhaserGame = () => {
       case 'curlyhair_boy':
         frameW = 19;
         frameH = 19;
-        return { texture: 'curlyhair_boy', frameW, frameH };
+        return { texture: curlyhairBoy, frameW, frameH };
       case 'flower_girl':
         frameW = 16;
         frameH = 19;
-        return { texture: 'flower_girl', frameW, frameH };
+        return { texture: flowerGirl, frameW, frameH };
       case 'girl':
         frameW = 16;
         frameH = 19;
-        return { texture: 'girl', frameW, frameH };
+        return { texture: girl, frameW, frameH };
       case 'goblin':
         frameW = 20;
         frameH = 16;
-        return { texture: 'goblin', frameW, frameH };
+        return { texture: goblin, frameW, frameH };
       case 'king_goblin':
         frameW = 20;
         frameH = 20;
-        return { texture: 'king_goblin', frameW, frameH };
+        return { texture: kingGoblin, frameW, frameH };
       case 'ninja_skeleton':
         frameW = 16;
         frameH = 19;
-        return { texture: 'ninja_skeleton', frameW, frameH };
+        return { texture: ninjaSkeleton, frameW, frameH };
+      case 'skeleton':
+        frameW = 16;
+        frameH = 19;
+        return { texture: skeleton, frameW, frameH };
       default:
-        return { texture: 'boy', frameW, frameH }; // 기본 캐릭터
+        return { texture: boy, frameW, frameH }; // 기본 캐릭터
     }
   };
 
@@ -525,7 +541,7 @@ const PhaserGame = () => {
 
     roomData.forEach((player: GameParticipant) => {
       const { texture, frameW, frameH } = getCharacterTexture(player.characterName);
-      this.load.spritesheet(`${player.characterName}_${player.userId}`, `../src/assets/background/characters/move/${texture}.png`, {
+      this.load.spritesheet(`${player.characterName}_${player.userId}`, texture, {
         frameWidth: frameW,
         frameHeight: frameH,
       });
