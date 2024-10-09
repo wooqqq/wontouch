@@ -1,20 +1,5 @@
 import Phaser from 'phaser';
-
-// 애니메이션 프레임에 대한 타입 정의
-interface TileAnimationFrame {
-  duration: number;
-  tileid: number;
-}
-
-// 타일 애니메이션 정보에 대한 타입 정의
-interface TileAnimationData {
-  animation: TileAnimationFrame[];
-}
-
-// 전체 타일셋 데이터에 대한 타입 정의
-interface TileData {
-  [key: number]: TileAnimationData;
-}
+import { TileData } from './types.ts';
 
 export const createGameMap = (scene: Phaser.Scene) => {
   const map = scene.make.tilemap({ key: 'map' });

@@ -1,9 +1,7 @@
 import React from 'react';
+import { ResultModalProps } from './types.ts';
 
-interface ResultModalProps {
-  round: number;
-  onNextRound: () => void;
-}
+
 
 const ResultModal: React.FC<ResultModalProps> = ({ round, onNextRound }) => {
   return (

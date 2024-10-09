@@ -11,6 +11,36 @@ import { RootState } from '../../redux/store';
 import { setUserId } from '../../redux/slices/userSlice';
 import { setToken } from '../../redux/slices/authSlice';
 import { jwtDecode } from 'jwt-decode';
+// 타일맵 및 타일셋
+import tileset from '../../assets/background/spr_tileset_sunnysideworld_16px.png';
+
+// 동물들 텍스처
+import birdImage from '../../assets/background/animals/spr_deco_bird_01_strip4.png';
+import blinkingImage from '../../assets/background/animals/spr_deco_blinking_strip12.png';
+import chickenImage from '../../assets/background/animals/spr_deco_chicken_01_strip4.png';
+import cowImage from '../../assets/background/animals/spr_deco_cow_strip4.png';
+import duckImage from '../../assets/background/animals/spr_deco_duck_01_strip4.png';
+import pigImage from '../../assets/background/animals/spr_deco_pig_01_strip4.png';
+import sheepImage from '../../assets/background/animals/spr_deco_sheep_01_strip4.png';
+
+// 식물, 풍차 등
+import mushroomBlue01Image from '../../assets/background/others/spr_deco_mushroom_blue_01_strip4.png';
+import mushroomBlue02Image from '../../assets/background/others/spr_deco_mushroom_blue_02_strip4.png';
+import mushroomBlue03Image from '../../assets/background/others/spr_deco_mushroom_blue_03_strip4.png';
+import mushroomRed01Image from '../../assets/background/others/spr_deco_mushroom_red_01_strip4.png';
+import windmillImage from '../../assets/background/others/spr_deco_windmill_withshadow_strip9.png';
+
+// 연기
+import chimneySmoke01Image from '../../assets/background/others/chimneysmoke_01_strip30_01.png';
+import chimneySmoke04Image from '../../assets/background/others/chimneysmoke_04_strip30_01.png';
+import chimneySmoke05Image from '../../assets/background/others/chimneysmoke_05_strip30_01.png';
+
+// 충돌 관련 이미지
+import collidesImage from '../../assets/background/collides.png';
+
+// 타이머 배경
+import timerBackgroundImage from '../../assets/background/round/timerBackground.png';
+import { addArticle } from '../../redux/slices/articleSlice';
 
 interface GameParticipant {
   userId: number;
@@ -70,6 +100,7 @@ interface GameState {
 }
 
 const PhaserGame = () => {
+  const SOCKET_LINK = import.meta.env.VITE_SOCKET_URL;
   //라운드 정보 가져오기
   const location = useLocation();
   const { roundDuration, roundNumber } = location.state || {} as GameState;
@@ -113,7 +144,8 @@ const PhaserGame = () => {
 
   // 작물 리스트 응답을 저장할 상태
   const [cropList, setCropList] = useState(null);
-
+  // 작물 차트를 저장할 상태
+  const [dataChart, setDataChart] = useState(null);
 
   let countdownInterval: number | null = null;
 
@@ -156,7 +188,7 @@ const PhaserGame = () => {
     setTimeout(() => {
       isRoundReadySent = false; // 재전송 가능하게 초기화
       console.log("이번라운드에 완료버튼을 이미 눌렀어요.");
-    }, 60000); // 3초 후 초기화
+    }, 60000); // 60초 후 초기화
   };
 
 
@@ -213,7 +245,7 @@ const PhaserGame = () => {
 
   useEffect(() => {
     const connectWebSocket = () => {
-      const gameSocket = new WebSocket(`ws://localhost:8082/socket/ws/game/${roomId}?playerId=${playerId}`);
+      const gameSocket = new WebSocket(`${SOCKET_LINK}/ws/game/${roomId}?playerId=${playerId}`);
 
       gameSocket.onopen = () => {
         console.log('게임 웹소켓 연결 성공');
@@ -222,12 +254,14 @@ const PhaserGame = () => {
       gameSocket.onmessage = (event) => {
         try {
           const message = event.data;
+          console.log(message);
 
           if (typeof message === 'string' && message[0] !== '{') {
             console.log('Received message:', message);
           } else {
             const data = JSON.parse(message);
             console.log(data.type);
+            // console.log(data.content);
 
             if (data.type === 'ROUND_START') {
               const { duration, round } = data.content;
@@ -240,31 +274,43 @@ const PhaserGame = () => {
               roundTextRef.current?.setText(`${round}R`);
 
               console.log(`새로운 라운드 ${round}, 타이머: ${duration}초`);
+
             }
 
             if (data.type === 'ROUND_END') {
               console.log('ROUND_END 메시지 수신, 카운트다운 시작');
             }
 
-            if (data.type === "TOWN_CROP_LIST") {
+            if (data.type === 'TOWN_CROP_LIST') {
+              console.log("왔다이야이엉")
               console.log(data.content);
               setCropList(data.content);
             }
 
-            if (data.type === "CROP_LIST") {
+            if (data.type === 'CROP_LIST') {
               console.log("왓쒀요");
             }
 
-            if (data.type === "CROP_CHART") {
+            if (data.type === 'CROP_CHART') {
+              if (JSON.stringify(dataChart) !== JSON.stringify(data.content)) {
+                setDataChart(data.content);
+              }
+            }
+
+            if (data.type === 'SELL_CROP') {
               console.log(data.content);
             }
 
-            if (data.type === "SELL_CROP") {
+            if (data.type === 'BUY_CROP') {
               console.log(data.content);
             }
 
-            if (data.type === "BUY_CROP") {
-              console.log(data.content);
+            if (data.type === "BUY_RANDOM_ARTICLE") {
+              //기사를 리덕스에 저장하기
+              if (data.content.type === "SUCCESS") {
+                //성공일때만..
+                dispatch(addArticle(data.content));
+              }
             }
 
 
@@ -300,9 +346,8 @@ const PhaserGame = () => {
               const otherPlayerId = data.content.playerId;
               const scene = sceneRef.current;
 
-              console.log(`otherPlayerId: ${otherPlayerId}, playerId: ${playerId}`);
+              //console.log(`otherPlayerId: ${otherPlayerId}, playerId: ${playerId}`);
               if (scene && otherPlayerId !== String(playerId)) {
-
                 const targetX = data.content.x;
                 const targetY = data.content.y;
 
@@ -380,8 +425,6 @@ const PhaserGame = () => {
 
   // 업데이트 함수를 밖으로 빼서 필요할 때 호출
   const handleUpdate = (scene: Phaser.Scene, startTime: number, roundDuration: number) => {
-    // 기존 이벤트 제거
-    scene.events.off('update');
 
     scene.events.on('update', () => {
       const elapsedTime = Date.now() - startTime;
@@ -402,11 +445,9 @@ const PhaserGame = () => {
   useEffect(() => {
     if (sceneRef.current) {
       const scene = sceneRef.current;
-      const startTime = Date.now();  // 타이머 시작 시간
-      const roundDuration = timerRef.current * 1000; // 밀리초 단위의 라운드 시간
 
       // 업데이트 핸들러를 외부에서 등록
-      handleUpdate(scene, startTime, roundDuration);
+      handleUpdate(scene, Date.now(), timerRef.current * 1000);
 
       return () => {
         // 컴포넌트 언마운트 시 이벤트 해제
@@ -415,17 +456,13 @@ const PhaserGame = () => {
     }
   }, [round]);
 
+
+
   // houseNum이 변경될 때마다 houseNumRef를 업데이트
   useEffect(() => {
     houseNumRef.current = houseNum;
+    console.log(houseNum);
   }, [houseNum]);
-
-  // round가 변경되면 Phaser 내의 round 텍스트 업데이트
-  useEffect(() => {
-    if (roundTextRef.current) {
-      roundTextRef.current.setText(`${round}R`);
-    }
-  }, [round]);
 
   useEffect(() => {
     const config: Phaser.Types.Core.GameConfig = {
@@ -482,82 +519,25 @@ const PhaserGame = () => {
       });
     });
 
-    this.load.tilemapTiledJSON('map', '../src/assets/background/testmap.json');
-    this.load.image(
-      'tileset',
-      '../src/assets/background/spr_tileset_sunnysideworld_16px.png',
-    );
-
-    // 동물들 텍스처 로드
-    this.load.image(
-      'bird_image',
-      '../src/assets/background/animals/spr_deco_bird_01_strip4.png',
-    );
-    this.load.image(
-      'blinking_image',
-      '../src/assets/background/animals/spr_deco_blinking_strip12.png',
-    );
-    this.load.image(
-      'chicken_image',
-      '../src/assets/background/animals/spr_deco_chicken_01_strip4.png',
-    );
-    this.load.image(
-      'cow_image',
-      '../src/assets/background/animals/spr_deco_cow_strip4.png',
-    );
-    this.load.image(
-      'duck_image',
-      '../src/assets/background/animals/spr_deco_duck_01_strip4.png',
-    );
-    this.load.image(
-      'pig_image',
-      '../src/assets/background/animals/spr_deco_pig_01_strip4.png',
-    );
-    this.load.image(
-      'sheep_image',
-      '../src/assets/background/animals/spr_deco_sheep_01_strip4.png',
-    );
-
-    // 식물, 풍차 등
-    this.load.image(
-      'mushroom_blue_01_image',
-      '../src/assets/background/others/spr_deco_mushroom_blue_01_strip4.png',
-    );
-    this.load.image(
-      'mushroom_blue_02_image',
-      '../src/assets/background/others/spr_deco_mushroom_blue_02_strip4.png',
-    );
-    this.load.image(
-      'mushroom_blue_03_image',
-      '../src/assets/background/others/spr_deco_mushroom_blue_03_strip4.png',
-    );
-    this.load.image(
-      'mushroom_red_01_image',
-      '../src/assets/background/others/spr_deco_mushroom_red_01_strip4.png',
-    );
-    this.load.image(
-      'windmill_image',
-      '../src/assets/background/others/spr_deco_windmill_withshadow_strip9.png',
-    );
-
-    // 연기
-    this.load.image(
-      'chimneysmoke_01_01_image',
-      '../src/assets/background/others/chimneysmoke_01_strip30_01.png',
-    );
-    this.load.image(
-      'chimneysmoke_04_01_image',
-      '../src/assets/background/others/chimneysmoke_04_strip30_01.png',
-    );
-    this.load.image(
-      'chimneysmoke_05_01_image',
-      '../src/assets/background/others/chimneysmoke_05_strip30_01.png',
-    );
-    this.load.image('collides', '../src/assets/background/collides.png');
-    this.load.image(
-      'timerBackground',
-      '../src/assets/background/round/timerBackground.png',
-    );
+    this.load.tilemapTiledJSON('map', '../../src/assets/background/map.json');
+    this.load.image('tileset', tileset);
+    this.load.image('bird_image', birdImage);
+    this.load.image('blinking_image', blinkingImage);
+    this.load.image('chicken_image', chickenImage);
+    this.load.image('cow_image', cowImage);
+    this.load.image('duck_image', duckImage);
+    this.load.image('pig_image', pigImage);
+    this.load.image('sheep_image', sheepImage);
+    this.load.image('mushroom_blue_01_image', mushroomBlue01Image);
+    this.load.image('mushroom_blue_02_image', mushroomBlue02Image);
+    this.load.image('mushroom_blue_03_image', mushroomBlue03Image);
+    this.load.image('mushroom_red_01_image', mushroomRed01Image);
+    this.load.image('windmill_image', windmillImage);
+    this.load.image('chimneysmoke_01_01_image', chimneySmoke01Image);
+    this.load.image('chimneysmoke_04_01_image', chimneySmoke04Image);
+    this.load.image('chimneysmoke_05_01_image', chimneySmoke05Image);
+    this.load.image('collides', collidesImage);
+    this.load.image('timerBackground', timerBackgroundImage);
   }
 
   //생성
@@ -606,7 +586,7 @@ const PhaserGame = () => {
 
     roomData.forEach((player: GameParticipant) => {
       const spriteKey = `${player.characterName}_${player.userId}`;
-      console.log(spriteKey);
+      console.log(spriteKey, "떴냐!!!!!!!!!!!");
 
       // 스프라이트 생성
       sprite = this.physics.add.sprite(4000, 300, spriteKey);
@@ -694,6 +674,8 @@ const PhaserGame = () => {
     timeTextRef.current = timeText;
 
 
+
+
     //지도열기 설정
     mKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.M);
 
@@ -706,12 +688,15 @@ const PhaserGame = () => {
     });
   }
 
+
+
   //업데이트
   function update(this: Phaser.Scene, delta: number) {
+
     if (houseNumRef.current === null) {
       if (playerRef.current) {
         const playerKey = `${roomData.find(player => player.userId === playerId)?.characterName}_${playerId}`;
-        createPlayerMovement(this, playerRef.current, cursors, delta, gameSocketRef, playerKey); // playerKey를 추가로 넘겨줌
+        createPlayerMovement(this, playerRef.current, cursors, delta, gameSocketRef, playerKey); // 여기서 캐릭터 이동 처리
       }
     }
 
@@ -769,6 +754,7 @@ const PhaserGame = () => {
         console.log('상호작용이 불가능한 위치입니다.');
       }
     }
+
   }
 
   const closeModal = () => {
@@ -782,9 +768,18 @@ const PhaserGame = () => {
   return (
     <div>
       <div id="phaser-game-container" />
-      {<InteractionModal houseNum={houseNum} closeModal={closeModal} gameSocket={gameSocketRef.current} cropList={cropList ?? undefined} />}
+      {houseNum !== null && (
+        <InteractionModal
+          houseNum={houseNum}
+          closeModal={closeModal}
+          gameSocket={gameSocketRef.current}
+          cropList={cropList}
+          dataChart={dataChart} // 여기서 dataChart 상태가 제대로 전달되고 있는지 확인
+        />
+      )}
+
       {openMap && <MapModal closeMapModal={closeMapModal} />}
-      {showModal && <ResultModal round={round} onNextRound={handleNextRound} />}
+      {showModal && round <= 4 && <ResultModal round={round} onNextRound={handleNextRound} />}
     </div>
   );
 };

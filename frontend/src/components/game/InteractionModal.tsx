@@ -1,30 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import lock from '../../assets/icon/lock.png';
 import board from '../../assets/game/board.png';
 import npc from '../../assets/background/npc.png';
 import up from '../../assets/icon/arrow_up.png';
+import down from '../../assets/icon/arrow_up-1.png';
 import cancle from '../../assets/icon/cancel.png';
-//import confirm from '../../assets/icon/confirm.png';
+import confirm from '../../assets/icon/confirm.png';
 import leftArrow from '../../assets/icon/arrow_left.png'; // 좌측 화살표 이미지
 import rightArrow from '../../assets/icon/arrow_right.png'; // 우측 화살표 이미지
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import { ModalProps } from './types';
 
-interface CropList {
-  [cropName: string]: number;
-}
-
-interface ModalProps {
-  houseNum: number | null;
-  closeModal: () => void;
-  gameSocket: WebSocket | null;
-  cropList?: CropList | null; // null을 허용
-}
 
 // 이미지 파일을 동적으로 가져오기
 const cropImages = import.meta.glob('../../assets/crops/*.png');
 
-const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSocket, cropList }) => {
+const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSocket, cropList, dataChart }) => {
   const [count, setCount] = useState(0);
   const [purchaseModal, setPurchaseModal] = useState(false);
   const userId = useSelector((state: RootState) => state.user.id);
@@ -35,6 +27,50 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   // cropList 배열 생성 (Object.entries를 사용하여 객체를 배열로 변환)
   const crops = Object?.entries(cropList ?? {});
   const allCrops = useSelector((state: RootState) => state.crop.crops);
+
+  const [chartArray, setChartArray] = useState<number[]>([]); // chartArray를 상태로 관리
+  const [checkModal, setCheckModal] = useState<boolean>(false);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null); // 선택된 기사 상태
+  const [articleDetailModal, setArticleDetailModal] = useState<boolean>(false);
+
+  //기사 가져오기
+  const dispatch = useDispatch();
+
+  const purchasedArticles = useSelector((state: RootState) => state.article.purchasedArticles);
+
+  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
+  const articlesPerPage = 2; // 한 페이지에 보여줄 기사 수
+
+  // 총 페이지 수 계산
+  const totalPages = Math.ceil(purchasedArticles.length / articlesPerPage);
+
+  // 현재 페이지에 해당하는 기사들만 슬라이싱
+  const currentArticles = purchasedArticles.slice(
+    (currentPage - 1) * articlesPerPage,
+    currentPage * articlesPerPage
+  );
+
+  // 다음 페이지로 이동
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // 이전 페이지로 이동
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+
+  useEffect(() => {
+    if (dataChart) {
+      const chartValues = Object.values(dataChart);
+      setChartArray(chartValues); // chartArray 업데이트
+    }
+  }, [dataChart]); // dataChart가 변경될 때마다 업데이트
 
   // houseNum에 맞는 작물 필터링
   const getFilteredCropsByHouse = (houseNum: number | null) => {
@@ -97,9 +133,11 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   //   setPurchaseModal(false);
   // }
 
+  const sentCropChartRef = useRef<string | null>(null);  // 요청 상태를 추적
+
   // 이미지 동적 로딩
   useEffect(() => {
-    if (filteredCrops.length > 0) {
+    if (filteredCrops.length > 0 && houseNum !== null && houseNum > 0) {
       const cropName = currentCrop.id;
 
       const loadImage = async () => {
@@ -110,21 +148,21 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
         }
       };
 
-      if (gameSocket?.readyState === 1) {
-
+      // 요청이 아직 전송되지 않았거나 다른 작물로 변경된 경우에만 CROP_CHART 요청 전송
+      if (gameSocket?.readyState === 1 && sentCropChartRef.current !== cropName) {
         const cropChart = {
           type: "CROP_CHART",
           cropId: currentCrop.id
-        }
-        //차트 작성하고 데이터 보내기
-        gameSocket?.send(JSON.stringify(cropChart));
-        console.log("보냈쉉!!!");
-      }
+        };
 
+        gameSocket?.send(JSON.stringify(cropChart));
+        sentCropChartRef.current = cropName;  // 요청 전송 후 상태 업데이트
+        console.log(sentCropChartRef.current);
+      }
 
       loadImage();
     }
-  }, [currentCropIndex, filteredCrops]);
+  }, [currentCropIndex, filteredCrops, gameSocket, currentCrop]);
 
   useEffect(() => {
     if (houseNum !== null && houseNum !== 0 && gameSocket) {
@@ -149,6 +187,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
           townName = "GRAINS_NUTS";
           break;
       }
+      console.log(townName);
 
       // 모달이 열렸을 때, TOWN_CROP_LIST 요청 전송
       const townCropMessage = {
@@ -156,8 +195,12 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
         townName: townName
       };
 
-      gameSocket.send(JSON.stringify(townCropMessage));
-      console.log("TOWN_CROP_LIST 요청을 보냈습니다.");
+      if (gameSocket?.readyState === WebSocket.OPEN) {
+        gameSocket.send(JSON.stringify(townCropMessage));
+        console.log("내가 보낸 집은", houseNum);
+      } else {
+        console.error("WebSocket이 연결되어 있지 않습니다.");
+      }
     }
   }, [houseNum, gameSocket]);
 
@@ -224,6 +267,38 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
     setCount(0);
   }
 
+  const handleRandomPurchase = () => {
+    setCheckModal(true);
+  }
+
+  const isPurchaseReally = () => {
+    const message = {
+      type: "BUY_RANDOM_ARTICLE",
+    };
+
+    if (gameSocket?.OPEN) {
+      //랜덤구매 기사 메세지
+      gameSocket.send(JSON.stringify(message));
+    }
+
+    setCheckModal(false);
+  }
+
+  const closeCheckModal = () => {
+    setCheckModal(false);
+  }
+
+  // 기사 클릭 시 호출되는 함수
+  const showArticle = (article: Article) => {
+    setSelectedArticle(article); // 선택된 기사 저장
+    setArticleDetailModal(true); // 모달 열기
+  };
+
+  const closeShowArticle = () => {
+    setArticleDetailModal(false); // 모달 닫기
+    setSelectedArticle(null); // 선택된 기사 초기화
+  }
+
   return (
     <>
       {/* 모달 뒤에 어두운 배경 */}
@@ -247,7 +322,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
 
             {/* 아이템 정보 (보드 위에 텍스트 배치) */}
             <div className="relative z-20 p-6 left-[25%] ml-4">
-              <div className="flex justify-end items-center mb-4">
+              <div className="flex justify-end items-center">
                 <button
                   className="text-gray-600 hover:text-gray-800"
                   onClick={closeModal}
@@ -267,7 +342,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                   <p className="text-[36px] font-semibold">{filteredCrops[currentCropIndex].name}</p> {/* 작물 이름 */}
                   <p>{filteredCrops[currentCropIndex].description}</p>
                   <p className="text-2xl text-gray-600">남은 수량: {cropAmount} 상자</p> {/* 남은 수량 */}
-                  <p className="text-[32px] font-bold text-yellow-500">{filteredCrops[currentCropIndex].price} 코인</p> {/* 가격은 임의 */}
+                  <p className="text-[32px] font-bold text-yellow-500">{chartArray[chartArray.length - 1]} 코인</p> {/* 가격은 임의 */}
                 </div>
               </div>
 
@@ -321,9 +396,15 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                     <div className="flex mt-4 px-2 py-4 bg-red-600 rounded-lg ml-[10%] w-[60%] items-center justify-center">
                       <p className="text-white font-semibold text-[24px] text-end">
                         전날에 비해
-                        <span className="semi-bold text-[36px]">5% 상승</span>
+                        <span className="semi-bold text-[28px] ml-3">
+                          {chartArray.length === 1
+                            ? '변동 없음'
+                            : `${((chartArray[chartArray.length - 1] - chartArray[chartArray.length - 2]) / chartArray[chartArray.length - 2] * 100).toFixed(1)} % ${chartArray[chartArray.length - 1] - chartArray[chartArray.length - 2] < 0 ? '하락' : '상승'
+                            }`}
+                        </span>
+
                       </p>
-                      <img src={up} className="ml-5 w-[60px] h-[60px]" />
+                      <img src={chartArray[chartArray.length - 1] - chartArray[chartArray.length - 2] < 0 ? down : up} className="ml-5 w-[60px] h-[60px]" />
                     </div>
                   </div>
                 </div>
@@ -350,33 +431,64 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                 </button>
               </div>
 
-              <div className="relative bg-white p-6 rounded-lg shadow-lg w-[80%] h-auto z-30 ml-auto mr-auto">
-                <p className="text-yellow-600 font-semibold text-center mb-4">
-                  랜덤 100G / 마을 당 500G
-                </p>
-                <div className="space-y-4">
-                  {['A마을', 'B마을', 'C마을', 'D마을'].map(
-                    (village, index) => (
-                      <button
-                        key={index}
-                        className="flex justify-between items-center p-2 bg-gray-200 rounded w-full"
-                        onClick={openPurchaseModal}
-                      >
-                        <span className="font-bold">News</span>
-                        <span>{village}</span>
-                        <img src={lock} alt="news" className="w-6 h-6" />
-                      </button>
-                    ),
-                  )}
+              <div className="relative bg-white p-6 rounded-lg shadow-lg w-[80%] h-auto z-30 mx-auto">
+                <h2 className="text-2xl font-bold text-center mb-6">구매한 기사 목록</h2>
+
+                {currentArticles.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-4">
+                    {currentArticles.map((article, index) => (
+                      <div key={index} className="border border-gray-300 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
+                        <button
+                          onClick={() => showArticle(article)}
+                          className="text-lg font-semibold text-gray-500 hover:text-gray-700"
+                        >
+                          {article.info?.title || "제목 없음"}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-500">구매한 기사가 없습니다.</p>
+                )}
+
+                {/* 페이지네이션 버튼 */}
+                <div className="flex justify-between items-center mt-6">
+                  <button
+                    className={`p-2 bg-gray-300 text-gray-700 rounded-lg ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-400'}`}
+                    onClick={prevPage}
+                    disabled={currentPage === 1}
+                  >
+                    이전
+                  </button>
+
+                  <span className="text-gray-600">{currentPage} / {totalPages}</span>
+
+                  <button
+                    className={`p-2 bg-gray-300 text-gray-700 rounded-lg ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-400'}`}
+                    onClick={nextPage}
+                    disabled={currentPage === totalPages}
+                  >
+                    다음
+                  </button>
                 </div>
+
+                {/* 랜덤 구매 버튼 */}
+                <button
+                  className="mt-6 p-3 bg-yellow-500 text-white rounded-lg w-full text-xl hover:bg-yellow-600 transition-colors"
+                  onClick={handleRandomPurchase}
+                >
+                  랜덤 기사 구매
+                </button>
               </div>
+
+
             </div>
           </div>
         )}
-      </div>
+      </div >
 
       {/* NPC 이미지 */}
-      <div className="fixed top-[75%] z-40 flex items-end w-[95%] h-[20%] shadow-lg">
+      < div className="fixed top-[75%] z-40 flex items-end w-[95%] h-[20%] shadow-lg" >
         <div className="flex-col">
           <p className="text-white text-[36px] text-center ml-[15%]">
             {houseNum === 0 ? '거래소' : `${houseNum}번 마을 상점`}
@@ -397,7 +509,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
               : '어서오시게! 무엇을 살텐가? 수량은 제한되어 있으니 빨리 사야 할거야~'}
           </div>
         </div>
-      </div>
+      </div >
 
       {purchaseModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -423,6 +535,66 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
           </div>
         </div>
       )}
+
+      {checkModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="relative p-6 rounded-lg shadow-lg w-[60%] h-auto bg-white z-30">
+            {/* 보드 이미지 */}
+            <img
+              src={board}
+              alt="보드 이미지"
+              className="absolute top-0 left-0 w-full h-full z-10"
+            />
+
+            {/* 아이템 정보 (보드 위에 텍스트 배치) */}
+            <div className="relative z-20 p-6">
+              <div className="flex justify-end items-center mb-4 text-center">
+
+                <button
+                  onClick={closeCheckModal}
+                >
+                  <img src={cancle} alt='아이이잉' />
+                </button>
+              </div>
+            </div>
+            <div className='relative z-20 pb-6 flex flex-col justify-center items-center'>
+              <p className='text-[28px]'>정말로 구매하실건가요?</p>
+              <button className='mt-11' onClick={isPurchaseReally}>
+                <img src={confirm} alt="확인버튼" />
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {articleDetailModal && selectedArticle && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="relative p-8 rounded-lg shadow-lg w-[60%] h-auto bg-white z-30">
+            <img
+              src={board}
+              alt="보드 이미지"
+              className="absolute top-0 left-0 w-full h-full z-10 opacity-20"
+            />
+            <div className="relative z-20 p-4">
+              {/* 모달 닫기 버튼 */}
+              <div className="flex justify-end">
+                <button onClick={closeShowArticle} className="text-gray-500 hover:text-red-500">
+                  <img src={cancle} alt="닫기" className="w-8 h-8" />
+                </button>
+              </div>
+            </div>
+
+            <div className="relative z-20 pb-6 flex flex-col justify-center items-center">
+              {/* 기사 정보 */}
+              <h2 className="text-3xl font-bold mb-4">{selectedArticle.info?.title}</h2>
+              <p className="text-lg text-gray-700 mb-4 leading-relaxed">{selectedArticle.info?.body}</p>
+              <p className="text-sm text-gray-500">작성자: {selectedArticle.info?.author}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 };
