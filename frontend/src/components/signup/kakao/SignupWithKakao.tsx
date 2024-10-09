@@ -47,12 +47,15 @@ function SignupWithKakao() {
           userId: userId,
           nickname: nickname,
         });
+        localStorage.removeItem('access_token');
         navigate('/');
       } catch (error) {
         console.error('회원가입 중 오류 발생:', error);
         alert('회원가입 중 오류가 발생했습니다. 나중에 다시 시도해주세요.');
         navigate('/login');
       }
+    } else {
+      setIsNicknameAvailable(null);
     }
   };
 

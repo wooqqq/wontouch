@@ -25,7 +25,7 @@ interface DecodedToken {
   userId: number;
 }
 
-// 로그인 하지 않은 사용자의 다른 페이지 접근 방지
+// 로그인 하지 않은 사용자의 접근 방지
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const navigate = useNavigate();
   const token = localStorage.getItem('access_token');
@@ -36,6 +36,24 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
     }
   }, [token, navigate]);
 
+  return children;
+}
+
+// 로그인된 사용자가 로그인 페이지에 접근하지 못하게
+function AuthRoute({ children }: { children: JSX.Element }) {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    return <Navigate to="/lobby" />;
+  }
+  return children;
+}
+
+// 닉네임이 등록된 사용자가 가입 페이지에 접근하지 못하게
+function SignupProtectedRoute({ children }: { children: JSX.Element }) {
+  const userNickname = useSelector((state: RootState) => state.user.nickname);
+  if (userNickname) {
+    return <Navigate to="/lobby" />;
+  }
   return children;
 }
 
@@ -63,26 +81,44 @@ function AppRouter() {
           }
         />
 
-        <Route path="/login" element={<Login />} />
-
         <Route path="/*" element={<CommonBG />}>
-          <Route path="auth/kakao" element={<KakaoLoginHandler />} />
+          {/* 로그인 화면 접근 방지 */}
+          <Route
+            path="login"
+            element={
+              <AuthRoute>
+                <Login />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="auth/kakao"
+            element={
+              <AuthRoute>
+                <KakaoLoginHandler />
+              </AuthRoute>
+            }
+          />
+
+          {/* 가입 화면 접근 방지 */}
           <Route
             path="signup"
             element={
-              <ProtectedRoute>
+              <SignupProtectedRoute>
                 <KakaoToSignup />
-              </ProtectedRoute>
+              </SignupProtectedRoute>
             }
           />
           <Route
             path="signup/kakao"
             element={
-              <ProtectedRoute>
+              <SignupProtectedRoute>
                 <SignupWithKakao />
-              </ProtectedRoute>
+              </SignupProtectedRoute>
             }
           />
+
+          {/* 보호된 라우트 */}
           <Route
             path="lobby"
             element={
