@@ -93,3 +93,21 @@ export interface ResultModalProps {
   round: number;
   onNextRound: () => void;
 }
+
+// ArticleInfo 타입 정의 (info 객체의 구조)
+export interface ArticleInfo {
+  id: string;
+  crop: string;
+  aspect: string;
+  title: string;
+  body: string;
+  author: string;
+  future_articles: string | null;
+}
+
+// Article 타입 정의
+export interface Article {
+  type: string;
+  info: ArticleInfo | null; // info 속성 추가, null일 수 있으므로 | null 처리
+  playerGold: number;
+}
