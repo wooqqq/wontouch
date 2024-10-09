@@ -190,7 +190,7 @@ public class TimerService {
             // TODO 마일리지 부여를 위해 API 전송
             //restTemplate.postForObject(mileageTargetUrl, resultTable, String.class); // 게임 결과로 마일리지 적립
             log.debug("삭제 로직 호출");
-            playerRepository.freePlayerMemory(roomId);
+            playerRepository.freeAllPlayerMemory(roomId);
             redisService.deleteGameKeysByPattern(roomId);
             log.debug("삭제 로직 끝");
 

@@ -91,12 +91,16 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
         try {
             // session 정보를 로비 서버로 전송
-            String sessionUrl = lobbyServerUrl + "/api/session/remove";
+            String lobbyTargetUrl = lobbyServerUrl + "/api/session/remove";
             Map<String, Object> sessionInfo = new ConcurrentHashMap<>();
             sessionInfo.put("roomId", roomId);
             sessionInfo.put("playerId", playerId);
             sessionInfo.put("sessionId", session.getId());
-            restTemplate.postForObject(sessionUrl, sessionInfo, String.class);
+            restTemplate.postForObject(lobbyTargetUrl, sessionInfo, String.class);
+
+            // session 정보를 게임 서버로 전송
+            String gameTargetUrl = gameServerUrl + "/game/session/remove";
+            restTemplate.postForObject(gameTargetUrl, sessionInfo, String.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
