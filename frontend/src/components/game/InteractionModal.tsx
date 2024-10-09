@@ -10,7 +10,7 @@ import leftArrow from '../../assets/icon/arrow_left.png'; // 좌측 화살표 �
 import rightArrow from '../../assets/icon/arrow_right.png'; // 우측 화살표 이미지
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import { ModalProps } from './types';
+import { ModalProps, Article } from './types';
 
 
 // 이미지 파일을 동적으로 가져오기
