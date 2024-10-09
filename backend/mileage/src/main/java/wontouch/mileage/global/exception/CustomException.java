@@ -29,6 +29,9 @@ public enum CustomException {
     // 티어 포인트
     NOT_FOUND_TIER_POINT_LOG_EXCEPTION(400, "NotFoundTierPointLogException", "티어 포인트 로그가 존재하지 않습니다."),
 
+    // 게임 전적
+    NOT_FOUND_GAME_HISTORY_EXCEPTION(400, "NotFoundGameHistoryException", "게임 전적이 존재하지 않습니다."),
+
     // 아직 처리하지 않은 예외사항
     UNHANDLED_ERROR_EXCEPTION(400, "UnhandledErrorException", "처리되지 않은 에러가 발생했습니다."),
 
