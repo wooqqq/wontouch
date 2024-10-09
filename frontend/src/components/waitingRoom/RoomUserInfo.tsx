@@ -79,13 +79,14 @@ function RoomUserInfo({
             <img
               src={character ? characterImages[character] : ''}
               alt="캐릭터"
+              className="w-[100%]"
             />
           </div>
           <div className="user-name">{nickname}</div>
           {isHost ? (
-            <div className="host-user absolute bottom-3 left-11">방장</div>
+            <div className="host-user absolute bottom-4 left-11">방장</div>
           ) : isReady ? (
-            <div className="ready-user absolute bottom-3 left-3">준비 완료</div>
+            <div className="ready-user absolute bottom-4 left-3">준비 완료</div>
           ) : null}
         </div>
       </div>
