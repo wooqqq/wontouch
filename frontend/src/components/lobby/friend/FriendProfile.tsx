@@ -11,7 +11,7 @@ import ProfileImg from '../../common/ProfileImg';
 import Experience from '../../common/Experience';
 
 import cancel from '../../../assets/icon/cancel.png';
-import love from '../../../assets/icon/expression_love.png';
+import kill from '../../../assets/icon/kill.png';
 
 export default function FriendProfile({
   closeProfile,
@@ -79,9 +79,9 @@ export default function FriendProfile({
           <div className="friend-search-box white-text text-2xl w-10/12 h-[60px] rounded-3xl flex-col">
             {description}
           </div>
-          <div className="flex items-center" onClick={openDeleteModal}>
+          <div className="flex items-center w-12" onClick={openDeleteModal}>
             <button>
-              <img src={love} alt="친구 삭제" />
+              <img src={kill} alt="친구 삭제" />
             </button>
           </div>
         </div>

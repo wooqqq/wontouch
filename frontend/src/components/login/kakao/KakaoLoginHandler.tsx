@@ -72,6 +72,8 @@ function KakaoLoginHandler() {
         },
       });
 
+      console.log(response.data.data.mileage);
+
       dispatch(setUserNickname(response.data.data.nickname));
       dispatch(setUserDescription(response.data.data.description));
       dispatch(setUserCharacterName(response.data.data.characterName));
@@ -91,7 +93,7 @@ function KakaoLoginHandler() {
   }, []);
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-center h-screen">
       <div className="mr-14 w-44">
         <img src={flowerGirl} alt="" className="w-full" />
       </div>

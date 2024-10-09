@@ -8,11 +8,11 @@ function KakaoToSignup() {
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center justify-center h-screen">
       <div className="text-5xl mb-8">캐릭터 생성하러 가볼까요?</div>
-      <div className="ready-button w-3/5">
-        <button onClick={goToSignup}>캐릭터 생성</button>
-      </div>
+      <button className="ready-button w-3/12 h-[80px]" onClick={goToSignup}>
+        캐릭터 생성
+      </button>
     </div>
   );
 }

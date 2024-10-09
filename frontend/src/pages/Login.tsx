@@ -15,7 +15,7 @@ function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center h-screen justify-center">
       <div className="mb-24">
         <img src={wontouchLogo} alt="원터치 게임 로고" />
       </div>
