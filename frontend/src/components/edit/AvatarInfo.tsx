@@ -152,7 +152,7 @@ function AvatarInfo({
       )}
       {isNotEquitAvatarModal && (
         <Modal>
-          <div className="yellow-box yellow-box w-1/3 p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
+          <div className="yellow-box yellow-box min-w-[500px] w-1/3 p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
             <h2 className="mint-title text-red-500 mb-7">장착 실패</h2>
             <div className="white-text mb-10 text-[1.4rem]">
               장착에 실패했습니다.
@@ -165,7 +165,7 @@ function AvatarInfo({
       )}
       {isEquitAvatarModal && (
         <Modal>
-          <div className="yellow-box yellow-box w-1/3 p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
+          <div className="yellow-box yellow-box min-w-[500px] w-1/3 p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
             <h2 className="mint-title mb-7">장착 성공</h2>
             <div className="white-text mb-10 text-[1.4rem]">
               장착을 저장했습니다.

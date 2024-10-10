@@ -68,7 +68,7 @@ export default function Setting({
     }
   };
   return (
-    <div className="setting-box w-1/3 h-[600px] p-5">
+    <div className="setting-box min-w-[500px] w-1/3 h-[600px] p-5">
       <div className="relative">
         <div className="setting-text text-4xl">환경 설정</div>
         <button
