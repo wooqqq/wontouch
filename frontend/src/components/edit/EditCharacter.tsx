@@ -9,7 +9,6 @@ import Modal from '../common/Modal';
 import AlertModal from '../common/AlertModal';
 import { postUserMileage } from '../../redux/slices/userSlice';
 import ConfirmPurchaseModal from './ConfirmPurchaseModal';
-import confirmImg from '../../assets/icon/confirm.png';
 
 interface Avatar {
   characterName: string;
@@ -49,7 +48,7 @@ function EditCharacter() {
           },
         });
         const avatarsResponse = response.data.data;
-        console.log('캐릭터 정보', response.data.data);
+        // console.log('캐릭터 정보', response.data.data);
         dispatch(setAvatars(avatarsResponse));
 
         // 장착된 아바타를 찾고 설정
@@ -57,12 +56,12 @@ function EditCharacter() {
           (avatar: Avatar) => avatar.equipped,
         );
         if (equippedAvatar) {
-          console.log(equippedAvatar);
+          // console.log(equippedAvatar);
           // dispatch(setAvatars(equippedAvatar));
           setSelectedAvatar(equippedAvatar);
         }
       } catch (error) {
-        console.error('아바타 불러오는 중 오류 발생: ', error);
+        // console.error('아바타 불러오는 중 오류 발생: ', error);
       }
     };
     fetchCharacterInfo();
@@ -106,7 +105,7 @@ function EditCharacter() {
       setIsModalOpen(false); // 모달 닫기
       // 추가적인 로직: 구매 후 아바타 소유 상태 변경 등
     } catch (error) {
-      console.error('아바타 구매 중 오류 발생: ', error);
+      // console.error('아바타 구매 중 오류 발생: ', error);
     }
   };
 

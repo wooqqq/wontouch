@@ -62,7 +62,7 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
 
     socket.send(JSON.stringify(readyRequest));
 
-    console.log('준비완료~!!');
+    // console.log('준비완료~!!');
     const readyParticipants = gameParticipants.map((participant) => {
       if (participant.userId === userId) {
         return { ...participant, isReady: !participant.isReady };
@@ -107,18 +107,18 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
       }),
     );
 
-    console.log(gameStartParticipants);
+    // console.log(gameStartParticipants);
 
     try {
       const response = await axios.post(
         `${API_LINK}/room/start/${roomId}`,
         gameStartParticipants,
       );
-      console.log('게임시작! : ', gameStartParticipants);
-      console.log('게임 시작 요청 성공: ', response.data);
+      // console.log('게임시작! : ', gameStartParticipants);
+      // console.log('게임 시작 요청 성공: ', response.data);
       navigate(`/game/${roomId}`);
     } catch (error) {
-      console.error('게임 시작 요청 중 오류 발생: ', error);
+      // console.error('게임 시작 요청 중 오류 발생: ', error);
     }
   };
 

@@ -32,7 +32,7 @@ export default function FriendDelete({
       // store 친구 목록 업데이트
       dispatch(removeFriend(friendId));
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 

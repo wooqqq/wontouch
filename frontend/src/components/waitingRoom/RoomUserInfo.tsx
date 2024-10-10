@@ -2,7 +2,6 @@ import LevelImg from '../common/LevelImg';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { characterImages } from '../../assets/avatarImages';
-// import ProfileImg from '../common/ProfileImg';
 
 interface UserInfoProps {
   isHost: boolean; // 방장 여부

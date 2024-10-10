@@ -58,17 +58,6 @@ function SignupProtectedRoute({ children }: { children: JSX.Element }) {
 }
 
 function AppRouter() {
-  const dispatch = useDispatch();
-  const token = sessionStorage.getItem('access_token');
-
-  useEffect(() => {
-    if (token) {
-      dispatch(setToken(token));
-      const decodedToken = jwtDecode<DecodedToken>(token);
-      dispatch(setUserId(decodedToken.userId));
-    }
-  }, [token, dispatch]);
-
   return (
     <Router>
       <Routes>

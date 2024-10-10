@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -30,7 +30,7 @@ export default function RoomList() {
   // 방 목록 호출 api
   const getRoomList = async () => {
     const response = await axios.get(`${API_LINK}/lobby/list`);
-    console.log(response.data.data);
+    // console.log(response.data.data);
     setRoomList(response.data.data);
   };
 
@@ -65,11 +65,11 @@ export default function RoomList() {
   // 방 입장 api
   const enterRoom = async (roomId: string, password: string) => {
     try {
-      const response = await axios.post(`${API_LINK}/room/join/${roomId}`, {
+      await axios.post(`${API_LINK}/room/join/${roomId}`, {
         playerId: userId,
         password: password,
       });
-      console.log(response.data.data);
+      // console.log(response.data.data);
       setShowPasswordModal(false);
       setEnteredPassword('');
 
@@ -83,7 +83,7 @@ export default function RoomList() {
         isVisible: true,
         message: '비밀번호를 다시 입력해주세요!',
       });
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -91,7 +91,6 @@ export default function RoomList() {
   const clickEnter = () => {
     if (selectedRoomId) {
       enterRoom(selectedRoomId, enteredPassword);
-      console.log();
     }
   };
 

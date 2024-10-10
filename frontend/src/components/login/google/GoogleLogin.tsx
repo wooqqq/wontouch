@@ -24,8 +24,8 @@ function GoogleLogin() {
     dispatch(setUserId(decodedToken.userId));
     dispatch(setToken(accessToken)); // 토큰을 Redux 상태에 저장
 
-    console.log('구글 로그인 성공, Access Token:', accessToken);
-    console.log('userId: ', decodedToken.userId);
+    // console.log('구글 로그인 성공, Access Token:', accessToken);
+    // console.log('userId: ', decodedToken.userId);
 
     navigate('/lobby');
   };

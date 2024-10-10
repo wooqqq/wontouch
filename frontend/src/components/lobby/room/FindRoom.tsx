@@ -24,7 +24,7 @@ export default function FindRoom({
       const roomId = response.data.data.roomId;
       navigate(`/wait/${roomId}`);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 

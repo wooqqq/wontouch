@@ -7,9 +7,6 @@ interface RoomTitleProps {
 }
 
 function RoomTitle({ roomName, roomId, isPrivate }: RoomTitleProps) {
-  const truncatedRoomId =
-    roomId && roomId.length > 3 ? roomId?.slice(0, 3) : '';
-
   return (
     <>
       {/* 방번호-제목 */}

@@ -11,9 +11,9 @@ import SuccessModal from '../../common/SuccessModal';
 
 import boy from '../../../assets/background/characters/stand/boy.png';
 
-const API_LINK = import.meta.env.VITE_API_URL;
-
 function SignupWithKakao() {
+  const API_LINK = import.meta.env.VITE_API_URL;
+
   const navigate = useNavigate();
 
   const [nickname, setNickname] = useState('');
@@ -87,7 +87,6 @@ function SignupWithKakao() {
         message: '회원가입에 성공하였습니다!',
       });
     } catch (error) {
-      console.error('회원가입 중 오류 발생:', error);
       setAlertModal({
         isVisible: true,
         message: '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.',
