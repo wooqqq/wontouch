@@ -60,6 +60,8 @@ import ResultModal from './ResultModal';
 import { updateCrop } from '../../redux/slices/cropQuantitySlice';
 import { setGameResult } from '../../redux/slices/gameResultSlice';
 import GameResultModal from './GameResultModal';
+import BalanceDisplay from './BalanceDisplay';
+import { updateBalance } from '../../redux/slices/balanceSlice';
 
 const PhaserGame = () => {
   const navigation = useNavigate();
@@ -245,6 +247,7 @@ const PhaserGame = () => {
                 console.log(crop!.count);
 
                 dispatch(updateCrop({ id: crop!.id, newQuantity: data.content.info.townQuantity }));
+                dispatch(updateBalance(data.content.info.playerGold));
                 alert("판매 성공!");
               }
               else {
@@ -259,6 +262,7 @@ const PhaserGame = () => {
                   (crop) => crop.id === data.content.info.cropId
                 );
                 dispatch(updateCrop({ id: crop!.id, newQuantity: data.content.info.townQuantity }));
+                dispatch(updateBalance(data.content.info.playerGold));
                 alert("구매 성공!");
               } else if (data.content.type === "INSUFFICIENT_STOCK") {
                 alert("재고를 확인해주세요. 구매하려는 수량보다 재고가 적습니다.");
@@ -669,6 +673,7 @@ const PhaserGame = () => {
     <div>
       <div id="phaser-game-container" />
       <TimerModal /> {/* Phaser 화면 위에 타이머 모달 추가 */}
+      <BalanceDisplay />
       {houseNum !== null && (
         <InteractionModal
           houseNum={houseNum}
