@@ -34,13 +34,14 @@ public class CropRedisRepository {
     }
 
     // 특정 작물의 세부 정보를 HASH에 저장
-    public void addCropDetails(String roomId, Crop crop) {
+    public void addCropDetails(String roomId, Crop crop, String type) {
         String redisKey = "game:" + roomId + ":crop:" + crop.getId() + ":info";
         redisTemplate.opsForHash().put(redisKey, "name", crop.getName());
         redisTemplate.opsForHash().put(redisKey, "price", crop.getPrice());
         redisTemplate.opsForHash().put(redisKey, "type", crop.getType());
         redisTemplate.opsForHash().put(redisKey, "description", crop.getDescription());
         redisTemplate.opsForHash().put(redisKey, "quantity", DEFAULT_QUANTITY);
+        redisTemplate.opsForHash().put(redisKey, "town", type);
     }
 
     // 모든 작물의 ID(이름) 조회
@@ -57,13 +58,13 @@ public class CropRedisRepository {
 
     // 작물의 id를 통해 남은 재고 조회
     public int getCropQuantity(String roomId, Object cropId) {
-        String redisKey = "game:" + roomId + ":crop:" + cropId + ":info";
+        String redisKey = GAME_PREFIX + roomId + CROP_INFIX + cropId + INFO_SUFFIX;
         return (Integer) redisTemplate.opsForHash().get(redisKey, "quantity");
     }
 
     // 작물 가격 조회
     public int getCropPrice(String roomId, Object cropId) {
-        String redisKey = "game:" + roomId + ":crop:" + cropId + ":info";
+        String redisKey = GAME_PREFIX + roomId + CROP_INFIX + cropId + INFO_SUFFIX;
         log.debug("key:{}", redisKey);
         Integer price = (Integer) redisTemplate.opsForHash().get(redisKey, "price");
         if (price == null) {
@@ -72,6 +73,14 @@ public class CropRedisRepository {
             return 0;
         }
         return price;
+    }
+
+    public String getCropTown(String roomId, Object cropId) {
+        String redisKey = GAME_PREFIX + roomId + CROP_INFIX + cropId + INFO_SUFFIX;
+
+        Object town = redisTemplate.opsForHash().get(redisKey, "town");
+
+        return (String) town;
     }
 
     // 작물 가격 업데이트
