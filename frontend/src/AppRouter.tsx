@@ -62,11 +62,11 @@ function AppRouter() {
         />
 
         <Route path="/login" element={<Login />} />
-        <Route path="/auth/kakao" element={<KakaoLoginHandler />} />
-        <Route path="/signup" element={<KakaoToSignup />} />
-        <Route path="/signup/kakao" element={<SignupWithKakao />} />
-
         <Route path="/*" element={<CommonBG />}>
+          <Route path="auth/kakao" element={<KakaoLoginHandler />} />
+          <Route path="signup" element={<KakaoToSignup />} />
+          <Route path="signup/kakao" element={<SignupWithKakao />} />
+
           <Route
             path="lobby"
             element={
