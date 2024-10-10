@@ -10,6 +10,7 @@ import {
   setHostId,
   setGameParticipants,
   updateParticipantReadyState,
+  setIsPrivate,
 } from '../redux/slices/roomSlice';
 
 import Modal from '../components/common/Modal';
@@ -120,10 +121,13 @@ function WaitingRoom() {
     axios
       .post(`${API_LINK}/room/join/${roomId}`, {
         playerId: userId,
-        password: isPrivate ? password : '',
+        password: password,
       })
       .then((response) => {
         console.log('방 입장 완료', response);
+        if (password) {
+          dispatch(setIsPrivate(true));
+        }
       })
       .catch((error) => {
         console.error('방 입장 중 에러 발생: ', error);
