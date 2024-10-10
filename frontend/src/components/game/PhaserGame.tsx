@@ -57,9 +57,11 @@ import { DecodedToken, GameParticipant, MapLayers } from './types';
 import TimerModal from './TimerModal';
 import { setPreparationStart, setRoundStart } from '../../redux/slices/timeSlice';
 import ResultModal from './ResultModal';
-import { buyCrop, sellCrop } from '../../redux/slices/cropQuantitySlice';
+import { updateCrop } from '../../redux/slices/cropQuantitySlice';
 import { setGameResult } from '../../redux/slices/gameResultSlice';
 import GameResultModal from './GameResultModal';
+import BalanceDisplay from './BalanceDisplay';
+import { updateBalance } from '../../redux/slices/balanceSlice';
 
 const PhaserGame = () => {
   const navigation = useNavigate();
@@ -75,7 +77,7 @@ const PhaserGame = () => {
   //웹소켓 관련
   const { roomId } = useParams();
   const playerId = useSelector((state: RootState) => state.user.id);
-  const token = localStorage.getItem('access_token');
+  const token = sessionStorage.getItem('access_token');
   const dispatch = useDispatch();
   const sceneRef = useRef<Phaser.Scene | null>(null); // Phaser Scene 객체를 저장하는 Ref
 
@@ -196,8 +198,11 @@ const PhaserGame = () => {
             console.log('Received message:', message);
           } else {
             const data = JSON.parse(message);
-            console.log(data.type);
-            // console.log(data.content);
+
+            //움직임이 아닐때만..!
+            if (data.type !== "MOVE") {
+              console.log(data.type);
+            }
 
             if (data.type === 'ROUND_START') {
               const { duration, round } = data.content;
@@ -241,7 +246,8 @@ const PhaserGame = () => {
                 );
                 console.log(crop!.count);
 
-                dispatch(sellCrop({ id: crop!.id, amount: crop!.count }));
+                dispatch(updateCrop({ id: crop!.id, newQuantity: data.content.info.townQuantity }));
+                dispatch(updateBalance(data.content.info.playerGold));
                 alert("판매 성공!");
               }
               else {
@@ -255,7 +261,8 @@ const PhaserGame = () => {
                 const crop = allCropsQuantityList.cropsQuantities.find(
                   (crop) => crop.id === data.content.info.cropId
                 );
-                dispatch(buyCrop({ id: crop!.id, amount: crop!.count }));
+                dispatch(updateCrop({ id: crop!.id, newQuantity: data.content.info.townQuantity }));
+                dispatch(updateBalance(data.content.info.playerGold));
                 alert("구매 성공!");
               } else if (data.content.type === "INSUFFICIENT_STOCK") {
                 alert("재고를 확인해주세요. 구매하려는 수량보다 재고가 적습니다.");
@@ -666,6 +673,7 @@ const PhaserGame = () => {
     <div>
       <div id="phaser-game-container" />
       <TimerModal /> {/* Phaser 화면 위에 타이머 모달 추가 */}
+      <BalanceDisplay />
       {houseNum !== null && (
         <InteractionModal
           houseNum={houseNum}

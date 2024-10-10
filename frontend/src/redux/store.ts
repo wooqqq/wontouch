@@ -1,7 +1,7 @@
 /// <reference types="redux-persist" />
 
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import storage from 'redux-persist/lib/storage'; // localStorage에 저장
+import sessionStorage from 'redux-persist/lib/storage/session'; // sessionStorage 저장
 import { persistReducer, persistStore } from 'redux-persist'; // 상태 지속을 위한 모듈
 
 import userSlice from './slices/userSlice';
@@ -18,11 +18,12 @@ import timeSlice from './slices/timeSlice';
 import cropQuantitySlice from './slices/cropQuantitySlice';
 import gameResultSlice from './slices/gameResultSlice';
 import avatarSlice from './slices/avatarSlice';
+import balanceSlice from './slices/balanceSlice';
 
 // persist 설정
 const persistConfig = {
   key: 'root', // key는 로컬 스토리지에 저장되는 이름
-  storage, // 사용할 스토리지 (localStorage)
+  storage: sessionStorage, // 사용할 스토리지 (sessionStorage)
   whitelist: ['user', 'auth', 'notification', 'friend'], // 유지할 슬라이스 지정
 };
 
@@ -42,6 +43,7 @@ const rootReducer = combineReducers({
   cropQuantity: cropQuantitySlice,
   gameResult: gameResultSlice,
   avatar: avatarSlice,
+  balance: balanceSlice,
 });
 
 // persistReducer로 rootReducer를 래핑

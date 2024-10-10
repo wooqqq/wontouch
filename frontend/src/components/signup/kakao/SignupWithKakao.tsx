@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { CheckNicknameDuplicate } from '../../../utils/CheckNicknameDuplicate';
 import { CheckSetNickname } from '../../../utils/CheckSetNickname';
+import Modal from '../../common/Modal';
+import AlertModal from '../../common/AlertModal';
 
 import boy from '../../../assets/background/characters/stand/boy.png';
 
@@ -17,10 +19,23 @@ function SignupWithKakao() {
   const [isNicknameAvailable, setIsNicknameAvailable] = useState<
     boolean | null
   >(null);
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
 
   const handleCheckNickname = async () => {
     const availability = await CheckNicknameDuplicate(nickname);
-    setIsNicknameAvailable(availability);
+    if (availability === 'isOK') {
+      setIsNicknameAvailable(true);
+    } else if (!nickname) {
+      setAlertModal({ isVisible: true, message: '닉네임을 입력해주세요.' });
+    } else {
+      setAlertModal({
+        isVisible: true,
+        message: '닉네임 중복 확인이 불가능합니다.',
+      });
+    }
   };
 
   // store에 저장된 userId와 입력받은 nickname을 이용해서 회원가입 진행
@@ -30,12 +45,18 @@ function SignupWithKakao() {
     event?.preventDefault(); // 새로고침 방지
 
     if (!nickname) {
-      alert('닉네임을 입력해주세요.');
+      setAlertModal({
+        isVisible: true,
+        message: '닉네임을 입력해주세요.',
+      });
       return;
     }
 
     if (isNicknameAvailable === false) {
-      alert('중복된 닉네임입니다. 다른 닉네임을 입력해주세요.');
+      setAlertModal({
+        isVisible: true,
+        message: '중복된 닉네임입니다. 다른 닉네임을 입력해주세요.',
+      });
       return;
     }
 
@@ -47,17 +68,24 @@ function SignupWithKakao() {
           userId: userId,
           nickname: nickname,
         });
-        localStorage.removeItem('access_token');
+        sessionStorage.removeItem('access_token');
         navigate('/');
       } catch (error) {
         console.error('회원가입 중 오류 발생:', error);
-        alert('회원가입 중 오류가 발생했습니다. 나중에 다시 시도해주세요.');
+        setAlertModal({
+          isVisible: true,
+          message: '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.',
+        });
         navigate('/login');
       }
     } else {
       setIsNicknameAvailable(null);
     }
   };
+
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
 
   return (
     <div className="items-center h-screen justify-center pt-16">
@@ -111,6 +139,14 @@ function SignupWithKakao() {
           </div>
         </form>
       </div>
+      {alertModal.isVisible && (
+        <Modal>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
+        </Modal>
+      )}
     </div>
   );
 }
