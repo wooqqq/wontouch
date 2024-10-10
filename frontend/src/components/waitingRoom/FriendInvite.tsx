@@ -76,19 +76,11 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
         receiverId: friendId,
         roomId: roomId,
       });
-      if (response.data.status === 200) {
-        // console.log(`친구 ${friendId}에게 초대 완료`);
-        setSuccessModal({
-          isVisible: true,
-          message: '친구 초대 완료!',
-        });
-      } else {
-        setAlertModal({
-          isVisible: true,
-          message: '초대 실패..',
-        });
-        // console.error('초대 실패:', response.data.message);
-      }
+      // console.log(`친구 ${friendId}에게 초대 완료`);
+      setSuccessModal({
+        isVisible: true,
+        message: '친구 초대 완료!',
+      });
     } catch (error) {
       setAlertModal({
         isVisible: true,
