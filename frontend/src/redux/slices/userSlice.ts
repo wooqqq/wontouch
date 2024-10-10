@@ -52,9 +52,19 @@ const userSlice = createSlice({
     postUserMileage(state, action: PayloadAction<number>) {
       state.mileage -= action.payload;
     },
+
+    // 새로운 리듀서: tierPoint와 mileage를 동시에 업데이트
+    updateUserStats(
+      state,
+      action: PayloadAction<{ tierPoint: number; mileage: number }>,
+    ) {
+      state.tierPoint += action.payload.tierPoint; // tierPoint 업데이트
+      state.mileage += action.payload.mileage; // mileage 업데이트
+    },
   },
 });
 
+// 액션과 리듀서 내보내기
 export const {
   setUserId,
   clearUserId,
@@ -66,5 +76,7 @@ export const {
   setUserMileage,
   getUserMileage,
   postUserMileage,
+  updateUserStats, // 추가된 리듀서
 } = userSlice.actions;
+
 export default userSlice.reducer;

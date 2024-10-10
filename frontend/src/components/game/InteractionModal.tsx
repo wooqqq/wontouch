@@ -244,6 +244,10 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   if (houseNum === null || crops.length === 0) return null;
 
   const sellCrop = () => {
+    //수량 0이면 리턴
+    if (countRef.current === 0) {
+      return;
+    }
     const cropName = filteredCrops[currentCropIndex].id; // 현재 작물의 ID를 가져옴
     //판매 양식
     const reqSellCrop = {
@@ -264,6 +268,10 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   };
 
   const buyCrop = () => {
+    //수량 0이면 리턴
+    if (countRef.current === 0) {
+      return;
+    }
     const cropName = filteredCrops[currentCropIndex].id; // 현재 작물의 ID를 가져옴
     //구매 양식
     const reqBuyCrop = {

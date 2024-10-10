@@ -20,26 +20,16 @@ const cropQuantitySlice = createSlice({
       }
     },
 
-    // 매수 시 수량 감소
-    buyCrop: (state, action: PayloadAction<{ id: string; amount: number }>) => {
-      const { id, amount } = action.payload;
-      const crop = state.cropsQuantities.find((crop) => crop.id === id);
-
-      if (crop && crop.quantity >= amount) {
-        crop.quantity -= amount; // 매수한 양만큼 수량 감소
-      }
-    },
-
-    // 매도 시 수량 증가
-    sellCrop: (
+    // 작물의 수량을 업데이트하는 리듀서
+    updateCrop: (
       state,
-      action: PayloadAction<{ id: string; amount: number }>,
+      action: PayloadAction<{ id: string; newQuantity: number }>,
     ) => {
-      const { id, amount } = action.payload;
+      const { id, newQuantity } = action.payload;
       const crop = state.cropsQuantities.find((crop) => crop.id === id);
 
       if (crop) {
-        crop.quantity += amount; // 매도한 양만큼 수량 증가
+        crop.quantity = newQuantity; // 새로운 수량으로 업데이트
       }
     },
 
@@ -64,6 +54,6 @@ const cropQuantitySlice = createSlice({
 });
 
 // 액션과 리듀서 내보내기
-export const { addCrop, buyCrop, sellCrop, clearCrops, updateCount } =
+export const { addCrop, updateCrop, clearCrops, updateCount } =
   cropQuantitySlice.actions;
 export default cropQuantitySlice.reducer;
