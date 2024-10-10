@@ -101,11 +101,13 @@ function AvatarInfo({
             <img
               src={walkImages[avatar.characterName]}
               alt={avatar.description}
+              className="h-[130px] object-contain"
             />
           ) : (
             <img
               src={characterImages[avatar.characterName]}
               alt={avatar.description}
+              className="h-[130px] object-contain"
             />
           )}
         </div>
