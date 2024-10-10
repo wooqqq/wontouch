@@ -7,33 +7,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import LevelImg from '../common/LevelImg';
 
-// 1. 게임방 내 친구 초대에 사용되는 url
-//  - 친구 관리 > 온라인인 친구 목록 조회(`GET:http://localhost:8081/api/friend/online/{userId}`) : 온라인인 친구 불러오기
-// response:
-// {
-//   "status": 200,
-//   "message": "온라인인 친구 목록 조회 성공",
-//   "data": [
-//     {
-//       "friendId": 3,
-//       "nickname": "나폴리맛피아",
-//       "description": null,
-//       "characterName": "boy",
-//       "tierPoint": 0,
-//       "online": true
-//     }
-//   ]
-// }
-
-//  - 게임 초대 > 게임 초대 보내기(`POST:http://localhost:8081/api/room/invite`) : 친구 목록에서 버튼으로 이 url 연결하면 됨
-
-// 2. 게임 초대 알림 상세 조회
-//  - 알림 > 게임 초대 상세 조회(`GET:http://localhost:8081/api/notification/detail/{id}`) : 타입이 `GAME_INVITE`인 알림 한정으로 사용할 수 있는 상세 조회
-
-// 3. 게임 초대 수락 / 거절
-//  - 게임 초대 알림 상세 조회에서 찾을 수 있는 정보를 통해 게임방 들어가는 api 불러오면 될듯
-
 function FriendInvite({ onClose }: { onClose: () => void }) {
+  const API_LINK = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
   const userId = useSelector((state: RootState) => state.user.id);
   const roomId = useSelector((state: RootState) => state.room.roomId);
@@ -46,9 +21,7 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
     // 온라인 친구 목록을 API로부터 가져오는 함수
     const fetchOnlineFriends = async (userId: number | null) => {
       try {
-        const response = await axios.get(
-          `http://localhost:8081/api/friend/online/${userId}`,
-        );
+        const response = await axios.get(`${API_LINK}/friend/online/${userId}`);
 
         if (response.data.status === 200) {
           dispatch(setOnlineFriends(response.data.data));
@@ -80,10 +53,11 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
 
   const inviteFriend = async (friendId: number) => {
     try {
-      const response = await axios.post(
-        'http://localhost:8081/api/room/invite',
-        { senderId: userId, receiverId: friendId, roomId: roomId },
-      );
+      const response = await axios.post(`${API_LINK}/room/invite`, {
+        senderId: userId,
+        receiverId: friendId,
+        roomId: roomId,
+      });
       if (response.data.status === 200) {
         console.log(`친구 ${friendId}에게 초대 완료`);
       } else {
@@ -107,7 +81,10 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
         <div>
           {onlineFriendsList && onlineFriendsList.length > 0 ? (
             onlineFriendsList.map((friend, index) => (
-              <div className="flex mb-4" key={friend.friendId}>
+              <div
+                className="w-full mb-1 flex justify-between px-2"
+                key={friend.friendId}
+              >
                 <div>{friend.nickname}</div>
                 <LevelImg tierPoint={friend.tierPoint} />
                 <button
