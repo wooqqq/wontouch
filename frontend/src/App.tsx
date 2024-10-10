@@ -1,8 +1,6 @@
 // src/App.tsx
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "./redux/store";
-import AppRouter from "./AppRouter";
+import React from 'react';
+import AppRouter from './AppRouter';
 
 const App: React.FC = () => {
   return (

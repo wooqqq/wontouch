@@ -44,10 +44,10 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
         if (response.data.status === 200) {
           dispatch(setOnlineFriends(response.data.data));
           setInvitedFriends(Array(response.data.data.length).fill(false)); // 초대 상태 초기화
-          console.log(response.data.data);
+          // console.log(response.data.data);
         }
       } catch (error) {
-        console.error('친구 목록 가져오기 실패: ', error);
+        // console.error('친구 목록 가져오기 실패: ', error);
       }
     };
 
@@ -77,7 +77,7 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
         roomId: roomId,
       });
       if (response.data.status === 200) {
-        console.log(`친구 ${friendId}에게 초대 완료`);
+        // console.log(`친구 ${friendId}에게 초대 완료`);
         setSuccessModal({
           isVisible: true,
           message: '친구 초대 완료!',
@@ -87,14 +87,14 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
           isVisible: true,
           message: '초대 실패..',
         });
-        console.error('초대 실패:', response.data.message);
+        // console.error('초대 실패:', response.data.message);
       }
     } catch (error) {
       setAlertModal({
         isVisible: true,
         message: '초대 요청 실패..',
       });
-      console.error('초대 요청 실패:', error);
+      // console.error('초대 요청 실패:', error);
     }
   };
 

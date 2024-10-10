@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { characterImages, walkImages } from '../../assets/avatarImages';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -9,7 +9,6 @@ import {
 import Modal from '../common/Modal';
 import AlertModal from '../common/AlertModal';
 import SuccessModal from '../common/SuccessModal';
-import confirmImg from '../../assets/icon/confirm.png';
 import mileage from '../../assets/icon/coin_mint_mini.png';
 import { RootState } from '../../redux/store';
 import { setUserCharacterName } from '../../redux/slices/userSlice';
@@ -40,8 +39,6 @@ function AvatarInfo({
   const token = localStorage.getItem('acess_token');
   const userId = useSelector((state: RootState) => state.user.id);
 
-  const [isEquitAvatarModal, setIsEquitAvatarModal] = useState(false);
-  const [isNotEquitAvatarModal, setIsNotEquitAvatarModal] = useState(false);
   const [alertModal, setAlertModal] = useState({
     isVisible: false,
     message: '',
@@ -69,12 +66,6 @@ function AvatarInfo({
     setIsWalkingAvatar(false);
   };
 
-  // ✅ 확인 버튼 클릭
-  const clickConfirm = () => {
-    setIsEquitAvatarModal(false);
-    setIsNotEquitAvatarModal(false);
-  };
-
   // ✅ 장착 저장 API
   const handleSaveClick = async () => {
     try {
@@ -98,7 +89,7 @@ function AvatarInfo({
         },
       });
 
-      console.log(response.data.data);
+      // console.log(response.data.data);
 
       dispatch(setAvatars(response.data.data)); // Redux 상태 업데이트
       dispatch(setUserCharacterName(avatar.characterName));
@@ -109,7 +100,7 @@ function AvatarInfo({
         message: '장착에 성공했습니다!',
       });
     } catch (error) {
-      console.error('아바타 변경 중 오류 발생: ', error);
+      // console.error('아바타 변경 중 오류 발생: ', error);
       setAlertModal({
         isVisible: true,
         message: '장착에 실패했습니다..',

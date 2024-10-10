@@ -26,7 +26,7 @@ export default function DeleteUser({
         setFinish(true);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
