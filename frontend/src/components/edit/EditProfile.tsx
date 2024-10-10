@@ -16,9 +16,9 @@ import {
 } from '../../redux/slices/userSlice';
 import { CheckNicknameDuplicate } from '../../utils/CheckNicknameDuplicate';
 import { CheckSetNickname } from '../../utils/CheckSetNickname';
+import AlertModal from '../common/AlertModal';
 
 import confirm from '../../assets/icon/confirm.png';
-import alterd from '../../assets/icon/expression_alerted.png';
 
 export default function EditProfile() {
   const navigate = useNavigate();
@@ -34,6 +34,7 @@ export default function EditProfile() {
   const userDescription = useSelector(
     (state: RootState) => state.user.description,
   );
+  const userMileage = useSelector((state: RootState) => state.user.mileage);
 
   const [deleteUser, setDeleteUser] = useState<boolean>(false);
   const [nickname, setNickname] = useState<string>('');
@@ -42,7 +43,10 @@ export default function EditProfile() {
   >(null);
   const [description, setDescription] = useState<string>('');
   const [complete, setComplete] = useState<boolean>(false);
-  const [mileageModal, setMileageModal] = useState<boolean>(false);
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
 
   const goBack = () => {
     setComplete(false);
@@ -61,34 +65,54 @@ export default function EditProfile() {
   const handleCheckNickname = async () => {
     if (userNickname !== nickname) {
       const availability = await CheckNicknameDuplicate(nickname);
-      setIsNicknameAvailable(availability);
+      if (availability === 'isOK') {
+        setIsNicknameAvailable(true);
+      } else if (!nickname) {
+        setAlertModal({ isVisible: true, message: '닉네임을 입력해주세요.' });
+      } else {
+        setAlertModal({
+          isVisible: true,
+          message: '닉네임 중복 확인이 불가능합니다.',
+        });
+      }
     }
   };
 
   // 닉네임, 한 줄 소개 변경
   const patchInfo = async () => {
-    if (description.length > 15) {
-      alert('한 줄 소개는 15자를 넘을 수 없습니다.');
-      return;
-    }
+    // 변경 가능 여부
+    let isUpdateAllowed = true;
 
     // 닉네임이 변경되었다면
     if (userNickname !== nickname) {
       // 닉네임이 비어있는 경우
       if (!nickname) {
-        alert('닉네임을 입력해주세요.');
-        return;
-      }
-
-      // 닉네임이 중복된 경우
-      if (isNicknameAvailable === false) {
-        alert('중복된 닉네임입니다. 다른 닉네임을 입력해주세요.');
-        return;
+        setAlertModal({ isVisible: true, message: '닉네임을 입력해주세요.' });
+        isUpdateAllowed = false;
+      } else if (isNicknameAvailable === false) {
+        // 닉네임이 중복된 경우
+        setAlertModal({ isVisible: true, message: '중복된 닉네임입니다.' });
+        isUpdateAllowed = false;
+      } else if (userMileage < 10000) {
+        // 마일리지 검사
+        setAlertModal({
+          isVisible: true,
+          message: '닉네임 변경 : 마일리지가 부족합니다.',
+        });
+        isUpdateAllowed = false;
       }
 
       // 유효성 검사
       const checkNickname = CheckSetNickname(nickname);
-      if (checkNickname) {
+      if (checkNickname !== 'isOK') {
+        setAlertModal({
+          isVisible: true,
+          message: checkNickname,
+        });
+        isUpdateAllowed = false;
+      }
+
+      if (isUpdateAllowed) {
         try {
           await axios.patch(`${API_LINK}/user-profile/nickname/update`, {
             userId: userId,
@@ -99,35 +123,47 @@ export default function EditProfile() {
           // 닉네임 변경 시 10000 마일리지 차감
           dispatch(postUserMileage(10000));
         } catch (error) {
-          setMileageModal(true);
-          setNickname(userNickname);
+          setNickname(userNickname); // Reset nickname if error
           setIsNicknameAvailable(null);
-          setDescription(userDescription);
-          return;
+          setDescription(userDescription); // Reset description
+          isUpdateAllowed = false; // Prevent further updates
         }
       }
     }
 
     // 한 줄 소개가 변경되었다면
-    if (
-      userDescription !== description &&
-      !(userDescription === null && description === null)
-    ) {
-      try {
-        await axios.patch(`${API_LINK}/user-profile/description`, {
-          userId: userId,
-          description: description,
+    if (userDescription !== description) {
+      if (description.length > 15) {
+        setAlertModal({
+          isVisible: true,
+          message: '한 줄 소개는 15자를 넘을 수 없습니다.',
         });
-        dispatch(setUserDescription(description));
-      } catch {}
+        isUpdateAllowed = false;
+      }
+
+      // If nickname validation is successful, attempt to update the description
+      if (isUpdateAllowed) {
+        try {
+          await axios.patch(`${API_LINK}/user-profile/description`, {
+            userId: userId,
+            description: description,
+          });
+          dispatch(setUserDescription(description));
+        } catch (error) {
+          isUpdateAllowed = false;
+        }
+      }
     }
 
-    // 수정 완료되었다는 모달
-    setComplete(true);
+    // Show the completion modal only if both nickname and description were updated successfully
+    if (isUpdateAllowed) {
+      setComplete(true);
+    }
   };
 
-  // 마일리지 부족 모달
-  const closeMileageModal = () => setMileageModal(false);
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
 
   return (
     <div>
@@ -236,17 +272,12 @@ export default function EditProfile() {
           </Modal>
         )}
 
-        {mileageModal && (
+        {alertModal.isVisible && (
           <Modal>
-            <div className="yellow-box w-2/5 h-[180px] border-[#36EAB5] bg-[#FFFEEE] p-8">
-              <div className="flex white-text text-4xl mb-10 justify-center">
-                <img src={alterd} alt="" className="mr-4" />
-                <div>마일리지가 부족합니다</div>
-              </div>
-              <button onClick={closeMileageModal}>
-                <img src={confirm} alt="" />
-              </button>
-            </div>
+            <AlertModal
+              message={alertModal.message}
+              closeAlterModal={closeAlterModal}
+            />
           </Modal>
         )}
       </div>

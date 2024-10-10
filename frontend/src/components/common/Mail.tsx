@@ -46,7 +46,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
 
   const API_LINK = import.meta.env.VITE_API_URL;
   const userId = useSelector((state: RootState) => state.user.id);
-  const accessToken = localStorage.getItem('access_token');
+  const accessToken = sessionStorage.getItem('access_token');
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedNotification, setSelectedNotification] =

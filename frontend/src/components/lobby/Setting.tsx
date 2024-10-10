@@ -33,7 +33,7 @@ export default function Setting({
 
   const handleLogout = async () => {
     try {
-      const accessToken = localStorage.getItem('access_token');
+      const accessToken = sessionStorage.getItem('access_token');
       console.log(accessToken);
       await axios.post(`${AUTH_LINK}/oauth/kakao/logout`, {
         accessToken: accessToken,
@@ -43,7 +43,7 @@ export default function Setting({
     }
 
     try {
-      const kakaoAccessToken = localStorage.getItem('kakao_access_token');
+      const kakaoAccessToken = sessionStorage.getItem('kakao_access_token');
       console.log(kakaoAccessToken);
       await axios.post(
         'https://kapi.kakao.com/v1/user/logout',
@@ -56,10 +56,10 @@ export default function Setting({
       );
       setShowModal(false);
 
-      // localStorage에 저장된 것 모두 지우기
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('kakao_access_token');
-      localStorage.removeItem('persist:root');
+      // sessionStorage 저장된 것 모두 지우기
+      sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('kakao_access_token');
+      sessionStorage.removeItem('persist:root');
 
       // 로그인 화면으로 이동
       navigate('/');

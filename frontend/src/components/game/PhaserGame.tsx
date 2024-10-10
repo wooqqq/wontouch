@@ -77,7 +77,7 @@ const PhaserGame = () => {
   //웹소켓 관련
   const { roomId } = useParams();
   const playerId = useSelector((state: RootState) => state.user.id);
-  const token = localStorage.getItem('access_token');
+  const token = sessionStorage.getItem('access_token');
   const dispatch = useDispatch();
   const sceneRef = useRef<Phaser.Scene | null>(null); // Phaser Scene 객체를 저장하는 Ref
 
