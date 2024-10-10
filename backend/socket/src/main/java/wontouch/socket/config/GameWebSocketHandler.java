@@ -57,6 +57,10 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             sessionService.closeExistingSessionInAnotherRoom(roomId, playerId);  // 기존 세션 종료
         }
 
+        if (sessionService.isPlayerInCurrentRoom(roomId, playerId)) {
+            sessionService.closeExistingSessionInCurrentRoom(roomId, playerId);
+        }
+
         // session추가
         sessionService.addSession(roomId, session);
 
