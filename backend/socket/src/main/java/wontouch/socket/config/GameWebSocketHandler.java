@@ -92,6 +92,19 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         // player의 lock 해제
         socketServerService.removePlayerLock(playerId);
 
+        try {
+            // session 정보를 로비 서버로 전송
+            String lobbyTargetUrl = lobbyServerUrl + "/api/session/remove";
+            Map<String, Object> sessionInfo = new ConcurrentHashMap<>();
+            sessionInfo.put("roomId", roomId);
+            sessionInfo.put("playerId", playerId);
+            sessionInfo.put("sessionId", session.getId());
+            restTemplate.postForObject(lobbyTargetUrl, sessionInfo, String.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         sessionService.broadcastMessage(roomId, MessageType.NOTIFY, playerId + "이 퇴장하였습니다.");
         log.debug("Session " + session.getId() + " left room " + roomId);
     }
