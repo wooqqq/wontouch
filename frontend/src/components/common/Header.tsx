@@ -23,7 +23,7 @@ export default function Header() {
   const [showMail, setShowMail] = useState<boolean>(false);
   const [showSetting, setShowSetting] = useState<boolean>(false);
 
-  const accessToken = localStorage.getItem('access_token');
+  const accessToken = sessionStorage.getItem('access_token');
   const userId = useSelector((state: RootState) => state.user.id);
 
   const userCharacterName = useSelector(

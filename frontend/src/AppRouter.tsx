@@ -28,7 +28,7 @@ interface DecodedToken {
 // 로그인 하지 않은 사용자의 접근 방지
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const navigate = useNavigate();
-  const token = localStorage.getItem('access_token');
+  const token = sessionStorage.getItem('access_token');
 
   useEffect(() => {
     if (!token) {
@@ -41,7 +41,7 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
 
 // 로그인된 사용자가 로그인 페이지에 접근하지 못하게
 function AuthRoute({ children }: { children: JSX.Element }) {
-  const token = localStorage.getItem('access_token');
+  const token = sessionStorage.getItem('access_token');
   if (token) {
     return <Navigate to="/lobby" />;
   }
@@ -59,7 +59,7 @@ function SignupProtectedRoute({ children }: { children: JSX.Element }) {
 
 function AppRouter() {
   const dispatch = useDispatch();
-  const token = localStorage.getItem('access_token');
+  const token = sessionStorage.getItem('access_token');
 
   useEffect(() => {
     if (token) {
