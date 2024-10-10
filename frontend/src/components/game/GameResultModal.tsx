@@ -45,7 +45,7 @@ const GameResultModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   };
 
-  //닉네임 불러오기
+  // 닉네임 불러오기
   useEffect(() => {
     const fetchNicknames = async () => {
       try {
@@ -88,7 +88,6 @@ const GameResultModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   }, [results]);
 
-
   useEffect(() => {
     if (!userId) return;
 
@@ -101,6 +100,9 @@ const GameResultModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       }));
     }
   }, []);
+
+  // results 배열을 rank로 정렬
+  const sortedResults = [...results].sort((a, b) => a.rank - b.rank);
 
   return (
     <>
@@ -121,7 +123,7 @@ const GameResultModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <div className='text-[28px]'>총 자산</div>
               <div className='text-[28px]'>경험치</div>
               <div className='text-[28px]'>마일리지</div>
-              {results.map((result) => (
+              {sortedResults.map((result) => (
                 <React.Fragment key={result.playerId}>
                   <div
                     className="py-3 px-3"

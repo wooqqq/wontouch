@@ -31,6 +31,7 @@ const TimerModal: React.FC = () => {
       : `${String(seconds).padStart(2, '0')}초`;
   };
 
+
   return (
     <div className="fixed top-0 left-0 w-full h-16 bg-black bg-opacity-80 z-50 flex justify-center items-center">
       <div className="text-white text-xl font-bold">
