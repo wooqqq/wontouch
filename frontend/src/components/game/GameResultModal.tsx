@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { RootState } from '../../redux/store';
-import board from '../../assets/game/board.png';
-import cancel from '../../assets/icon/cancel.png';
 import mint_coin from '../../assets/icon/coin_mint_mini.png';
 import coin from '../../assets/icon/coin_gold_mini.png';
 import { updateUserStats } from '../../redux/slices/userSlice';
@@ -14,75 +12,64 @@ const GameResultModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const dispatch = useDispatch();
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // 닉네임을 저장하는 state
   const [nicknames, setNicknames] = useState<{ [key: string]: string }>({});
 
-  // rank에 따라 색상을 반환하는 함수
   const getRankColor = (rank: number) => {
     switch (rank) {
       case 1:
-        return "gold";  // 금색
+        return "text-[#fdd835]";
       case 2:
-        return "silver";  // 은색
+        return "text-[#b0bec5]";
       case 3:
-        return "#cd7f32";  // 동색 (청동색)
+        return "text-[#8d6e63]";
       default:
-        return "black";  // 기본 색상
+        return "text-white";
     }
   };
 
-  // rank에 따라 글씨 크기를 반환하는 함수
-  const getRankFontSize = (rank: number) => {
+  const getRankFont = (rank: number) => {
     switch (rank) {
       case 1:
-        return "32px";  // 1등일 때 글씨 크기
+        return "text-[32px]";
       case 2:
-        return "28px";  // 2등일 때 글씨 크기
+        return "text-[28px]";
       case 3:
-        return "24px";  // 3등일 때 글씨 크기
+        return "text-[24px]";
       default:
-        return "20px";  // 그 외 글씨 크기
+        return "text-[20px]";
     }
   };
 
-  // 닉네임 불러오기
+  // Rank에 따른 배경색 지정 (1, 2, 3위인 경우 배경색 적용)
+  const getRankBackground = (rank: number) => {
+    return rank <= 3 ? "bg-[#36EAB5]" : "bg-transparent"; // 나머지는 투명
+  };
+
   useEffect(() => {
     const fetchNicknames = async () => {
       try {
         const promises = results.map(async (player) => {
-          // 각 플레이어의 정보 요청
           const response = await axios.get(`${API_URL}/user/${player.playerId}`);
-
-          // 응답 데이터 전체를 로그로 확인
-          console.log(`Response for playerId ${player.playerId}:`, response.data);
-
-          // 응답에 있는 data 객체에서 nickname을 가져옴
           if (response.data && response.data.data && response.data.data.nickname) {
             return { playerId: player.playerId, nickname: response.data.data.nickname };
           } else {
-            console.error(`Nickname not found for playerId ${player.playerId}`);
-            return { playerId: player.playerId, nickname: 'Unknown' };  // 닉네임이 없을 경우 처리
+            return { playerId: player.playerId, nickname: 'Unknown' };
           }
         });
 
-        // 모든 API 요청이 완료될 때까지 기다림
         const nicknameResults = await Promise.all(promises);
 
-        // 응답 데이터를 key-value 쌍으로 변환하여 상태에 저장
         const nicknameMap = nicknameResults.reduce((acc, { playerId, nickname }) => {
           acc[playerId] = nickname;
           return acc;
         }, {} as { [key: string]: string });
 
-        setNicknames(nicknameMap);  // 닉네임 상태 업데이트
-        console.log("Nickname map:", nicknameMap); // 업데이트 확인
-
+        setNicknames(nicknameMap);
       } catch (error) {
         console.error("닉네임을 불러오는 중 오류 발생:", error);
       }
     };
 
-    // results 배열이 있는지 확인 후 닉네임 요청
     if (results.length > 0) {
       fetchNicknames();
     }
@@ -101,53 +88,55 @@ const GameResultModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   }, []);
 
-  // results 배열을 rank로 정렬
   const sortedResults = [...results].sort((a, b) => a.rank - b.rank);
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={onClose}></div>
+      <div className="fixed inset-0 bg-black bg-opacity-60 z-50" onClick={onClose}></div>
 
       <div className="fixed inset-0 flex items-center justify-center z-50">
-        <div className="relative p-8 rounded-lg shadow-lg w-[70%] h-auto bg-white z-30">
-          <img src={board} alt="배경 이미지" className="absolute top-0 left-0 w-full h-full z-10 opacity-20" />
-          <button onClick={onClose} className="absolute top-5 right-5 z-40">
-            <img src={cancel} alt="닫기" className="w-8 h-8" />
-          </button>
+        <div className="relative p-8 rounded-lg shadow-lg w-[90%] h-auto bg-[#0D7B5B] z-30 bg-opacity-30 ">
 
           <div className="relative z-20">
-            <h2 className="text-4xl font-bold text-center mb-8">게임 결과</h2>
-            <div className="grid grid-cols-5 gap-2 text-center font-semibold text-lg">
-              <div className='text-[28px] mb-3'>순위</div>
-              <div className='text-[28px]'>닉네임</div>
-              <div className='text-[28px]'>총 자산</div>
-              <div className='text-[28px]'>경험치</div>
-              <div className='text-[28px]'>마일리지</div>
+            {/* 게임 결과 텍스트에 Linear Gradient 적용 */}
+            <h2 className="text-5xl font-extrabold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-[#FFEE00] to-[#36EAB5] drop-shadow-md result-textborder">
+              게임 결과
+            </h2>
+
+            {/* 순위, 닉네임, 자산 등을 담는 그리드 영역 */}
+            <div className="grid grid-cols-5 gap-2 text-center font-bold text-lg text-white result-userborder">
+
+              <div className="col-span-5 grid grid-cols-5">
+                <div className='text-[26px] mb-2'>순위</div>
+                <div className='text-[26px]'>닉네임</div>
+                <div className='text-[26px]'>최종 자산</div>
+                <div className='text-[26px]'>경험치</div>
+                <div className='text-[26px]'>마일리지</div>
+              </div>
+
               {sortedResults.map((result) => (
                 <React.Fragment key={result.playerId}>
-                  <div
-                    className="py-3 px-3"
-                    style={{
-                      color: getRankColor(result.rank),
-                      fontSize: getRankFontSize(result.rank),
-                    }}
-                  >
-                    {result.rank}등
-                  </div>
-                  <div className="py-3">{nicknames[result.playerId] || '불러오는 중...'}</div>
-                  <div className="py-3 text-yellow-500 flex justify-center">
-                    <img src={coin} className='mr-2' /> {result.totalGold.toLocaleString()}
-                  </div>
-                  <div className="py-3">{result.tierPoint}</div>
-                  <div className="py-3 flex justify-center">
-                    <img src={mint_coin} className='mr-2' />{result.mileage}
+                  {/* 순위에 따라 배경색을 적용한 전체 행 */}
+                  <div className={`col-span-5 grid grid-cols-5 py-2 px-3 ${getRankBackground(result.rank)} bg-opacity-30`}>
+                    <div className={` ${getRankColor(result.rank)} ${getRankFont(result.rank)} `}>
+                      {result.rank}
+                    </div>
+                    <div className="">{nicknames[result.playerId] || '불러오는 중...'}</div>
+                    <div className="text-[#fbc02d] flex justify-center">
+                      <img src={coin} className='mr-2' /> {result.totalGold.toLocaleString()}
+                    </div>
+                    <div className="">{result.tierPoint}</div>
+                    <div className="flex justify-center">
+                      <img src={mint_coin} className='mr-2' />{result.mileage}
+                    </div>
                   </div>
                 </React.Fragment>
               ))}
             </div>
+
             <div className="mt-8 flex justify-center">
               <button
-                className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600"
+                className="px-6 py-3 bg-[#e0e0e0] text-black font-semibold rounded-lg hover:bg-[#bdbdbd] mx-2"
                 onClick={onClose}
               >
                 나가기
