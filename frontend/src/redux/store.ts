@@ -21,7 +21,9 @@ import avatarSlice from './slices/avatarSlice';
 import balanceSlice from './slices/balanceSlice';
 import playerCropSlice from './slices/playerCropSlice';
 import chartReducer from './slices/chartSlice';
+import musicSlice from './slices/musicSlice';
 import lastRoundSlice from './slices/lastRoundSlice';
+
 
 // persist 설정
 const persistConfig = {
@@ -49,6 +51,7 @@ const rootReducer = combineReducers({
   balance: balanceSlice,
   playerCrop: playerCropSlice,
   chart: chartReducer,
+  music: musicSlice,
   lastRound: lastRoundSlice,
 });
 

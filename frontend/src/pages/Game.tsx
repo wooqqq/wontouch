@@ -1,7 +1,11 @@
-import PhaserGame from "../components/game/PhaserGame";
+import PhaserGame from '../components/game/PhaserGame';
 
 function Game() {
-  return <PhaserGame />;
+  return (
+    <div>
+      <PhaserGame />
+    </div>
+  );
 }
 
 export default Game;

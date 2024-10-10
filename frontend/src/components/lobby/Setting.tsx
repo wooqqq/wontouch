@@ -4,6 +4,9 @@ import Modal from '../common/Modal';
 
 import cancel from '../../assets/icon/cancel.png';
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+import { toggleMusic } from '../../redux/slices/musicSlice';
 
 const AUTH_LINK = import.meta.env.VITE_AUTH_URL;
 
@@ -13,6 +16,8 @@ export default function Setting({
   closeSetting: () => void;
 }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const isMusicOn = useSelector((state: RootState) => state.music.isMusicOn);
   const [showModal, setShowModal] = useState<boolean>(false);
 
   const openModal = () => {
@@ -79,8 +84,11 @@ export default function Setting({
         </button>
       </div>
       <div className="">
-        <button className="audio-on text-3xl w-4/5 my-6 mt-10">
-          오디오 ON
+        <button
+          onClick={() => dispatch(toggleMusic())}
+          className="audio-on text-3xl w-4/5 my-6 mt-10"
+        >
+          {isMusicOn ? '배경음악 ON' : '배경음악 OFF'}
         </button>
         <button
           className="setting-list text-3xl w-4/5 my-6"
