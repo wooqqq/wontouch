@@ -25,6 +25,8 @@ import { addChatParticipants } from '../redux/slices/chatSlice';
 import { setRoundStart } from '../redux/slices/timeSlice';
 import { Crop } from '../components/game/types';
 import { addCrop } from '../redux/slices/cropQuantitySlice';
+import BackButton from '../components/common/BackButton';
+import Header from '../components/common/Header';
 
 interface GameParticipant {
   userId: number;
@@ -62,6 +64,8 @@ function WaitingRoom() {
   const hostId = useSelector((state: RootState) => state.room.hostId);
   const userId = useSelector((state: RootState) => state.user.id);
   const roomName = useSelector((state: RootState) => state.room.roomName);
+  const isPrivate = useSelector((state: RootState) => state.room.isPrivate);
+  const password = useSelector((state: RootState) => state.room.password);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -109,12 +113,16 @@ function WaitingRoom() {
 
     // ✅ 방 입장 JOIN API
     axios
-      .post(`${API_LINK}/room/join/${roomId}`, { playerId: userId })
+      .post(`${API_LINK}/room/join/${roomId}`, {
+        playerId: userId,
+        password: isPrivate ? password : '',
+      })
       .then((response) => {
         console.log('방 입장 완료', response);
       })
       .catch((error) => {
         console.error('방 입장 중 에러 발생: ', error);
+        console.log('대기방 password: ', password);
         navigate('/lobby');
       });
 
@@ -192,8 +200,8 @@ function WaitingRoom() {
 
               //CROP_LIST에서 나온 작물들의 수량 초기화하기
               cropList.map((crop: Crop) => {
-                dispatch(addCrop({ id: crop.id }))
-              })
+                dispatch(addCrop({ id: crop.id }));
+              });
               break;
             }
           }
@@ -329,7 +337,10 @@ function WaitingRoom() {
 
   return (
     <>
-      {/* <Header /> */}
+      <div className="flex justify-between items-center">
+        <BackButton />
+        <Header />
+      </div>
       <div className="flex relative w-[1200px] justify-center mx-auto">
         {isLoading && (
           <Modal>
@@ -341,7 +352,11 @@ function WaitingRoom() {
 
         {/* 왼쪽 섹션 (방제목/게임 참여자 리스트/채팅) */}
         <section className="w-2/3 mr-4">
-          <RoomTitle roomName={roomName} roomId={roomId} />
+          <RoomTitle
+            roomName={roomName}
+            roomId={roomId}
+            isPrivate={isPrivate}
+          />
           {/* 게임 참여 대기자 리스트 */}
           <RoomUserList onOpen={handleOpenModal} socket={socket.current} />
           <RoomChat messages={messages} socket={socket.current} />
