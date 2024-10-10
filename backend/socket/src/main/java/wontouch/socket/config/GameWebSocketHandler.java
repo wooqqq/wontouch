@@ -49,17 +49,13 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         String roomId = getRoomIdFromSession(session);
         String playerId = getPlayerIdFromQueryParams(session);
 
+        session.getAttributes().put("playerId", playerId);
+
         // 기존에 접속된 방이 있다면 해당 세션 종료
         if (sessionService.isPlayerInAnotherRoom(roomId, playerId)) {
             log.warn("Player {} is already connected in another room, closing existing session.", playerId);
             sessionService.closeExistingSessionInAnotherRoom(roomId, playerId);  // 기존 세션 종료
         }
-
-        if (sessionService.isPlayerInCurrentRoom(roomId, playerId)) {
-            sessionService.closeExistingSessionInCurrentRoom(roomId, playerId);
-        }
-
-        session.getAttributes().put("playerId", playerId);
 
         // session추가
         sessionService.addSession(roomId, session);
@@ -86,7 +82,19 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         String roomId = getRoomIdFromSession(session);
         String playerId = (String) session.getAttributes().get("playerId");
         log.debug("SESSION CLOSE STATUS: {}", status);
+
+        Map<String, Object> sessionInfo = new ConcurrentHashMap<>();
+        sessionInfo.put("roomId", roomId);
+        sessionInfo.put("playerId", playerId);
+        sessionInfo.put("sessionId", session.getId());
+
         // session 삭제
+        if (!sessionService.isPlayerInCurrentRoom(roomId, playerId)) {
+            // session 정보를 게임 서버로 전송
+            String gameTargetUrl = gameServerUrl + "/game/session/remove";
+            restTemplate.postForObject(gameTargetUrl, sessionInfo, String.class);
+        }
+
         sessionService.removeSession(roomId, session);
 
         // player의 lock 해제
@@ -95,10 +103,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         try {
             // session 정보를 로비 서버로 전송
             String lobbyTargetUrl = lobbyServerUrl + "/api/session/remove";
-            Map<String, Object> sessionInfo = new ConcurrentHashMap<>();
-            sessionInfo.put("roomId", roomId);
-            sessionInfo.put("playerId", playerId);
-            sessionInfo.put("sessionId", session.getId());
             restTemplate.postForObject(lobbyTargetUrl, sessionInfo, String.class);
 
         } catch (Exception e) {

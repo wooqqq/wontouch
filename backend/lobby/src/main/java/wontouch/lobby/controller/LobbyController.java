@@ -1,5 +1,6 @@
 package wontouch.lobby.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/lobby")
+@Slf4j
 public class LobbyController {
 
     private final RoomService roomService;
@@ -32,12 +34,13 @@ public class LobbyController {
         System.out.println(pageable);
         List<RoomResponseDto> roomByPage = roomService.findRoomByPage(pageable);
 //        Page<RoomResponseDto> response = rooms.map(RoomResponseDto::fromEntity);
-
         ResponseDto<List<RoomResponseDto>> responseDto = ResponseDto.<List<RoomResponseDto>>builder()
                 .status(HttpStatus.OK.value())
                 .message("게임방 목록 조회 완료")
                 .data(roomByPage)
                 .build();
+
+        log.debug("response: {}", responseDto);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }
