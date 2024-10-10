@@ -50,9 +50,10 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
           `http://localhost:8081/api/friend/online/${userId}`,
         );
 
-        if (response.data.state === 200) {
+        if (response.data.status === 200) {
           dispatch(setOnlineFriends(response.data.data));
           setInvitedFriends(Array(response.data.data.length).fill(false)); // 초대 상태 초기화
+          console.log(response.data.data);
         }
       } catch (error) {
         console.error('친구 목록 가져오기 실패: ', error);
