@@ -64,7 +64,7 @@ function RoomUserList({ onOpen, socket }: RoomUserListProps) {
                 isHost={false}
                 playerId={0}
                 nickname={undefined}
-                character={undefined}
+                character={''}
                 isReady={false}
                 tierPoint={0}
               />
