@@ -5,6 +5,9 @@ import { setOnlineFriends } from '../../redux/slices/friendSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import LevelImg from '../common/LevelImg';
+import Modal from '../common/Modal';
+import AlertModal from '../common/AlertModal';
+import SuccessModal from '../common/SuccessModal';
 
 function FriendInvite({ onClose }: { onClose: () => void }) {
   const API_LINK = import.meta.env.VITE_API_URL;
@@ -15,6 +18,22 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
     (state: RootState) => state.friend.onlineFriends,
   );
   const [invitedFriends, setInvitedFriends] = useState<boolean[]>([]);
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+  const [successModal, setSuccessModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
+  // 성공 모달 닫기
+  const closeSuccessModal = () => {
+    setSuccessModal({ isVisible: false, message: '' });
+  };
 
   useEffect(() => {
     // 온라인 친구 목록을 API로부터 가져오는 함수
@@ -59,23 +78,37 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
       });
       if (response.data.status === 200) {
         console.log(`친구 ${friendId}에게 초대 완료`);
+        setSuccessModal({
+          isVisible: true,
+          message: '친구 초대 완료!',
+        });
       } else {
+        setAlertModal({
+          isVisible: true,
+          message: '초대 실패..',
+        });
         console.error('초대 실패:', response.data.message);
       }
     } catch (error) {
+      setAlertModal({
+        isVisible: true,
+        message: '초대 요청 실패..',
+      });
       console.error('초대 요청 실패:', error);
     }
   };
 
   return (
-    <div className="yellow-box p-[37px] h-[400px] border-[#36eab5] bg-[#FFFEEE] relative">
-      <div className="mint-title text-center">게임 초대 가능한 친구</div>
-      <button
-        onClick={onClose}
-        className="absolute top-[10px] right-[10px] bg-none"
-      >
-        <img src={CancelIcon} alt="닫기 버튼" />
-      </button>
+    <div className="yellow-box px-[37px] py-[20px] w-[600px] h-[400px] border-[#36eab5] bg-[#FFFEEE]">
+      <div className="relative mb-2">
+        <div className="mint-title text-center">게임 초대 가능한 친구</div>
+        <button
+          onClick={onClose}
+          className="absolute top-[10px] right-[10px] bg-none"
+        >
+          <img src={CancelIcon} alt="닫기 버튼" />
+        </button>
+      </div>
       <section className="bg-[#E6E2C2] h-4/5 pl-[14px] pr-[30px] py-5 rounded-[10px] overflow-x-hidden overflow-y-scroll">
         <div>
           {onlineFriendsList && onlineFriendsList.length > 0 ? (
@@ -102,10 +135,26 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
               </div>
             ))
           ) : (
-            <p>온라인 친구가 없습니다.</p> // 친구가 없을 때 표시할 메시지
+            <p className="white-text text-2xl">온라인 친구가 없습니다.</p> // 친구가 없을 때 표시할 메시지
           )}
         </div>
       </section>
+      {alertModal.isVisible && (
+        <Modal>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
+        </Modal>
+      )}
+      {successModal.isVisible && (
+        <Modal>
+          <SuccessModal
+            message={successModal.message}
+            closeSuccessModal={closeSuccessModal}
+          />
+        </Modal>
+      )}
     </div>
   );
 }
