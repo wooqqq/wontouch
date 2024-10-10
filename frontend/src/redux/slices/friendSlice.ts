@@ -6,14 +6,17 @@ interface Friend {
   description: string;
   characterName: string;
   tierPoint: number;
+  online: boolean;
 }
 
 interface FriendList {
   friends: Friend[];
+  onlineFriends: Friend[];
 }
 
 const initialState: FriendList = {
   friends: [],
+  onlineFriends: [],
 };
 
 const friendSlice = createSlice({
@@ -31,8 +34,12 @@ const friendSlice = createSlice({
         (friend) => friend.friendId !== action.payload,
       );
     },
+    setOnlineFriends(state, action: PayloadAction<Friend[]>) {
+      state.onlineFriends = action.payload;
+    },
   },
 });
 
-export const { setFriends, addFriend, removeFriend } = friendSlice.actions;
+export const { setFriends, addFriend, removeFriend, setOnlineFriends } =
+  friendSlice.actions;
 export default friendSlice.reducer;

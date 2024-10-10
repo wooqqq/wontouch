@@ -47,47 +47,47 @@ const levelImages: { [key: number]: string } = {
 };
 
 function calculateLevel(tierPoint: number): number {
-  if (tierPoint >= 100 && tierPoint <= 199) {
+  if (tierPoint >= 150 && tierPoint <= 224) {
     return 2; // 레벨 02
-  } else if (tierPoint >= 200 && tierPoint <= 299) {
+  } else if (tierPoint >= 225 && tierPoint <= 336) {
     return 3; // 레벨 03
-  } else if (tierPoint >= 300 && tierPoint <= 399) {
+  } else if (tierPoint >= 337 && tierPoint <= 505) {
     return 4; // 레벨 04
-  } else if (tierPoint >= 400 && tierPoint <= 499) {
+  } else if (tierPoint >= 506 && tierPoint <= 758) {
     return 5; // 레벨 05
-  } else if (tierPoint >= 500 && tierPoint <= 599) {
+  } else if (tierPoint >= 759 && tierPoint <= 1138) {
     return 6; // 레벨 06
-  } else if (tierPoint >= 600 && tierPoint <= 699) {
+  } else if (tierPoint >= 1139 && tierPoint <= 1707) {
     return 7; // 레벨 07
-  } else if (tierPoint >= 700 && tierPoint <= 799) {
+  } else if (tierPoint >= 1708 && tierPoint <= 2561) {
     return 8; // 레벨 08
-  } else if (tierPoint >= 800 && tierPoint <= 899) {
+  } else if (tierPoint >= 2562 && tierPoint <= 3843) {
     return 9; // 레벨 09
-  } else if (tierPoint >= 900 && tierPoint <= 999) {
+  } else if (tierPoint >= 3844 && tierPoint <= 5765) {
     return 10; // 레벨 10
-  } else if (tierPoint >= 1000 && tierPoint <= 1099) {
+  } else if (tierPoint >= 5766 && tierPoint <= 8648) {
     return 11; // 레벨 11
-  } else if (tierPoint >= 1100 && tierPoint <= 1199) {
+  } else if (tierPoint >= 8649 && tierPoint <= 12973) {
     return 12; // 레벨 12
-  } else if (tierPoint >= 1200 && tierPoint <= 1299) {
+  } else if (tierPoint >= 12974 && tierPoint <= 19460) {
     return 13; // 레벨 13
-  } else if (tierPoint >= 1300 && tierPoint <= 1399) {
+  } else if (tierPoint >= 19461 && tierPoint <= 29191) {
     return 14; // 레벨 14
-  } else if (tierPoint >= 1400 && tierPoint <= 1499) {
+  } else if (tierPoint >= 29192 && tierPoint <= 43788) {
     return 15; // 레벨 15
-  } else if (tierPoint >= 1500 && tierPoint <= 1599) {
+  } else if (tierPoint >= 43789 && tierPoint <= 65683) {
     return 16; // 레벨 16
-  } else if (tierPoint >= 1600 && tierPoint <= 1699) {
+  } else if (tierPoint >= 65684 && tierPoint <= 98525) {
     return 17; // 레벨 17
-  } else if (tierPoint >= 1700 && tierPoint <= 1799) {
+  } else if (tierPoint >= 98526 && tierPoint <= 147788) {
     return 18; // 레벨 18
-  } else if (tierPoint >= 1800 && tierPoint <= 1899) {
+  } else if (tierPoint >= 147789 && tierPoint <= 221682) {
     return 19; // 레벨 19
-  } else if (tierPoint >= 1900 && tierPoint <= 1999) {
+  } else if (tierPoint >= 221683 && tierPoint <= 332524) {
     return 20; // 레벨 20
-  } else if (tierPoint >= 2000 && tierPoint <= 2099) {
+  } else if (tierPoint >= 332525 && tierPoint <= 498787) {
     return 21; // 레벨 21
-  } else if (tierPoint >= 2100) {
+  } else if (tierPoint >= 498788) {
     return 22; // 레벨 22
   }
   return 1; // 기본 값 (1 레벨)
