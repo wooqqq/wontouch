@@ -53,6 +53,7 @@ import chimneySmoke05Image from '../../assets/background/others/chimneysmoke_05_
 import collidesImage from '../../assets/background/collides.png';
 
 import { addArticle, clearArticles } from '../../redux/slices/articleSlice';
+<<<<<<< frontend/src/components/game/PhaserGame.tsx
 import {
   addArticleResult,
   clearArticleResults,
@@ -61,6 +62,10 @@ import {
   clearCropPrices,
   updateCropPrices,
 } from '../../redux/slices/cropResultSlice';
+=======
+import { addArticleResult, clearArticleResults } from '../../redux/slices/articleResultSlice';
+import { updateCropPrices } from '../../redux/slices/cropResultSlice';
+>>>>>>> frontend/src/components/game/PhaserGame.tsx
 import { DecodedToken, GameParticipant, MapLayers } from './types';
 import TimerModal from './TimerModal';
 import {
@@ -73,13 +78,23 @@ import { setGameResult } from '../../redux/slices/gameResultSlice';
 import GameResultModal from './GameResultModal';
 import BalanceDisplay from './BalanceDisplay';
 import { clearBalance, updateBalance } from '../../redux/slices/balanceSlice';
+<<<<<<< frontend/src/components/game/PhaserGame.tsx
 import {
   clearCropAmout,
   setPlayerCrops,
   updateCropAmount,
 } from '../../redux/slices/playerCropSlice';
+=======
+import { setPlayerCrops, updateCropAmount } from '../../redux/slices/playerCropSlice';
+>>>>>>> frontend/src/components/game/PhaserGame.tsx
 import PlayerCropModal from './PlayerCropModal';
 import { setChartData } from '../../redux/slices/chartSlice';
+import GameChat from './GameChat';
+
+interface ChatMessage {
+  playerId: string;
+  message: string;
+}
 
 const PhaserGame = () => {
   const navigation = useNavigate();
@@ -140,6 +155,13 @@ const PhaserGame = () => {
   //라운드 정보 가져오기
   const round = useSelector((state: RootState) => state.time.round);
 
+<<<<<<< frontend/src/components/game/PhaserGame.tsx
+=======
+  //채팅
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]); // 채팅 내역 저장
+
+
+>>>>>>> frontend/src/components/game/PhaserGame.tsx
   // 작물 리스트 응답을 저장할 상태
   const [cropList, setCropList] = useState(null);
   // 작물 차트를 저장할 상태
@@ -152,7 +174,7 @@ const PhaserGame = () => {
   const [showPlayerCrop, setShowPlayerCrop] = useState(false);
 
   // Redux 상태에서 playerCrops 가져오기
-  const playerCrops = useSelector((state: RootState) => state.playerCrop.crops);
+  //const playerCrops = useSelector((state: RootState) => state.playerCrop.crops);
   // 컴포넌트 내부에서
   const noReConnectRef = useRef(false); // useRef로 noReConnect 상태 관리
 
@@ -255,6 +277,16 @@ const PhaserGame = () => {
           } else {
             const data = JSON.parse(message);
 
+            if (data.type === 'CHAT') {
+              const newMessage = {
+                playerId: data.content.playerId,
+                message: data.content.message,
+              };
+
+              // 새로운 메시지를 내역에 추가
+              setChatHistory((prev) => [...prev, newMessage]);
+            }
+
             //움직임이 아닐때만..!
             if (data.type !== 'MOVE') {
               console.log(data.type);
@@ -344,22 +376,26 @@ const PhaserGame = () => {
                   }),
                 );
                 dispatch(updateBalance(data.content.info.playerGold));
-                dispatch(
-                  updateCropAmount({
-                    cropName: crop!.id,
-                    newQuantity: data.content.info.playerQuantity,
-                  }),
-                );
+                dispatch(updateCropAmount({ cropName: crop!.id, newQuantity: data.content.info.playerQuantity }));
                 setSuccessModal({
                   isVisible: true,
                   message: '구매 성공!',
                 });
-              } else if (data.content.type === 'INSUFFICIENT_STOCK') {
+              } else if (data.content.type === "INSUFFICIENT_STOCK") {
+                const req = {
+                  type: "TOWN_CROP_LIST",
+                  townName: data.content.info.town,
+                }
+
+                //다시 마을 작물을 부르는 요청
+                gameSocket.send(JSON.stringify(req));
                 setAlertModal({
                   isVisible: true,
                   message: '상품의 재고를 확인해주세요!',
                 });
-              } else {
+
+              }
+              else {
                 setAlertModal({
                   isVisible: true,
                   message: '금액이 부족합니다..',
@@ -480,7 +516,11 @@ const PhaserGame = () => {
 
             if (data.type === 'GAME_RESULT') {
               handleGameResult(data);
-              setShowResultModal(true); // 모달을 열기 위한 상태 관리
+              setShowResultModal(true);  // 모달을 열기 위한 상태 관리
+
+              dispatch(clearCrops());
+              dispatch(clearArticles());
+              dispatch(clearArticleResults());
             }
           }
         } catch (error) {
@@ -582,7 +622,7 @@ const PhaserGame = () => {
       );
     });
 
-    this.load.tilemapTiledJSON('map', '/map.json');
+    this.load.tilemapTiledJSON('map', '/map1.json');
     this.load.image('tileset', tileset);
     this.load.image('bird_image', birdImage);
     this.load.image('blinking_image', blinkingImage);
@@ -651,7 +691,7 @@ const PhaserGame = () => {
       console.log(spriteKey, '떴냐!!!!!!!!!!!');
 
       // 스프라이트 생성
-      sprite = this.physics.add.sprite(2240, 1280, spriteKey);
+      sprite = this.physics.add.sprite(1150, 1400, spriteKey);
       sprite.setScale(1);
       sprite.setCollideWorldBounds(true);
       playerSpritesRef.current[player.userId] = sprite;
@@ -673,10 +713,20 @@ const PhaserGame = () => {
         frameRate: 10,
         repeat: -1,
       });
+
+      // 충돌 설정 - 이 부분을 다시 확인
+      if (collidesLayer) {
+        this.physics.add.collider(sprite, collidesLayer as Phaser.Tilemaps.TilemapLayer);
+      }
     });
 
-    // 충돌 설정
-    //this.physics.add.collider(player, collidesLayer as Phaser.Tilemaps.TilemapLayer);
+    // // 충돌 설정
+    // if (playerRef.current) {
+    //   this.physics.add.collider(playerRef.current, collidesLayer as Phaser.Tilemaps.TilemapLayer, () => {
+    //     console.log('충돌 발생!');  // 플레이어가 타일맵과 충돌할 때 실행되는 콜백
+    //   });
+    // }
+
 
     this.physics.world.setBounds(0, 0, 4480, 2560);
     this.cameras.main.setBounds(0, 0, 4480, 2560);
@@ -817,6 +867,10 @@ const PhaserGame = () => {
       <div id="phaser-game-container" />
       <TimerModal /> {/* Phaser 화면 위에 타이머 모달 추가 */}
       <BalanceDisplay />
+      <GameChat
+        gameSocket={gameSocketRef.current} // WebSocket을 GameChat에 넘겨줌
+        chatHistory={chatHistory} // 채팅 내역도 넘겨줌
+      />
       <button
         className="fixed top-[75px] right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg"
         onClick={openPlayerCropModal}

@@ -109,6 +109,7 @@ export interface ArticleInfo {
 export interface Article {
   type: string;
   info: ArticleInfo | null; // info 속성 추가, null일 수 있으므로 | null 처리
+  town: string;
   playerGold: number;
 }
 
@@ -173,4 +174,13 @@ export interface CropQuantity {
 
 export interface CropQuantityState {
   cropsQuantities: CropQuantity[];
+}
+
+export interface Message {
+  type: string;
+  content: {
+    type: string;
+    message: string;
+    playerId: string;
+  };
 }

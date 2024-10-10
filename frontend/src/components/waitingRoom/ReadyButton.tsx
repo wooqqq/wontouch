@@ -80,7 +80,6 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
 
   // 게임 시작 버튼 클릭 시
   const handleStartGame = async () => {
-    console.log(isAllReady);
     if (!roomId || !gameParticipants) return;
 
     // 혼자일 때

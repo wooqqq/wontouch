@@ -37,7 +37,7 @@ export default function FriendDelete({
   };
 
   return (
-    <div className="yellow-box w-2/5 h-[250px] p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
+    <div className="yellow-box min-w-[600px] w-2/5 h-[250px] p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
       <div className="mint-title text-5xl mb-8">친구 끊기</div>
       <div className="white-text text-3xl mb-8">
         {nickname} 님과 친구를 끊겠습니까?
