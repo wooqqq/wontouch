@@ -275,10 +275,6 @@ const PhaserGame = () => {
               }
             }
 
-            if (data.type === "ARTICLE_SHOP") {
-              console.log(data.content);
-            }
-
             if (data.type === "PLAYER_CROP_LIST") {
               dispatch(setPlayerCrops(data.content));
             }

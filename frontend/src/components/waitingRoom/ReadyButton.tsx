@@ -82,7 +82,7 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
     }
 
     // 모두 준비 X
-    if (isAllReady) {
+    if (!isAllReady) {
       setIsModalOpen(true);
       return;
     }
