@@ -50,7 +50,7 @@ interface Player {
 function WaitingRoom() {
   const API_LINK = import.meta.env.VITE_API_URL;
   const SOCKET_LINK = import.meta.env.VITE_SOCKET_URL;
-  const token = localStorage.getItem('access_token');
+  const token = sessionStorage.getItem('access_token');
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
