@@ -18,7 +18,7 @@ public class GameRepository {
     private final RedisTemplate<String, Object> redisTemplate;
     private final PlayerRepository playerRepository;
     private static final int TOTAL_EXPERIENCE = 1000;
-    private static final int TOTAL_MILEAGE = 500;
+    private static final int TOTAL_MILEAGE = 5000;
     private static final int MAX_PLAYER = 8;
 
     public GameRepository(RedisTemplate<String, Object> redisTemplate, PlayerRepository playerRepository) {
