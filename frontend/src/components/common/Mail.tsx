@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { decreaseNotificationCount } from '../../redux/slices/notificationSlice';
 import { addFriend } from '../../redux/slices/friendSlice';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Modal from './Modal';
 import ProfileImg from './ProfileImg';
@@ -24,8 +25,8 @@ interface Notification {
   content: string;
 }
 
-// 알림 상세 조회
-interface requestInfo {
+// 친구 신청 알림 상세 조회
+interface friendRequestInfo {
   fromUserId: number;
   fromUserNickname: string;
   fromUserTierPoint: number;
@@ -42,8 +43,15 @@ interface Friend {
   online: boolean;
 }
 
+// 게임 초대 알림 상세 조회
+interface gameInviteInfo {
+  roomId: string;
+  senderNickname: string;
+}
+
 export default function Mail({ closeMail }: { closeMail: () => void }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const API_LINK = import.meta.env.VITE_API_URL;
   const userId = useSelector((state: RootState) => state.user.id);
@@ -53,9 +61,15 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [requestInfo, setRequestInfo] = useState<requestInfo>();
-  const [acceptModal, setAcceptModal] = useState<boolean>(false);
-  const [rejectModal, setRejectModal] = useState<boolean>(false);
+  const [friendRequestInfo, setFriendRequestInfo] =
+    useState<friendRequestInfo>();
+  const [gameInviteInfo, setGameInviteInfo] = useState<gameInviteInfo>();
+  const [gameInviteInfoNotificationId, setGameInviteInfoNotificationId] =
+    useState<string>();
+  const [acceptFriendModal, setAcceptFriendModal] = useState<boolean>(false);
+  const [rejectFriendModal, setRejectFriendModal] = useState<boolean>(false);
+  const [acceptGameModal, setAcceptGameModal] = useState<boolean>(false);
+  const [rejectGameModal, setRejectGameModal] = useState<boolean>(false);
 
   // 1. 알림 불러오기
   const getNotifications = async () => {
@@ -87,12 +101,16 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
   // 2. 알림 클릭 시 상세 요청 보기
   const handleNotificationClick = (notification: Notification) => {
     setSelectedNotification(notification); // 선택된 알림
-    getRequestInfo(notification.senderId); // 상세 요청 api
+    if (notification.notificationType === 'FREIND_REQUEST') {
+      getFriendRequestInfo(notification.senderId); // 친구 신청 상세 요청 api
+    } else {
+      getInviteRequestInfo(notification.id); // 게임 초대 상세 요청 api
+    }
     setShowModal(true); // 알림 오픈
   };
 
-  // 3. 친구 신청 상세
-  const getRequestInfo = async (senderId: number) => {
+  // 3-1. 친구 신청 상세
+  const getFriendRequestInfo = async (senderId: number) => {
     try {
       const response = await axios.get(`${API_LINK}/friend/request/detail`, {
         params: {
@@ -104,13 +122,27 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
         },
       });
       console.log(response.data.data);
-      setRequestInfo(response.data.data);
+      setFriendRequestInfo(response.data.data);
     } catch (error) {
       console.error(error);
     }
   };
 
-  // 4. 친구 요청 수락
+  // 3-2. 게임 초대 상세
+  const getInviteRequestInfo = async (notificationId: string) => {
+    try {
+      const response = await axios.get(
+        `${API_LINK}/notification/detail/${notificationId}`,
+      );
+      console.log(response.data.data);
+      setGameInviteInfo(response.data.data);
+      setGameInviteInfoNotificationId(notificationId); // 알림 id
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // 4-1. 친구 요청 수락
   const acceptFriendRequest = async (
     senderId: number,
     notificationId: string,
@@ -160,15 +192,42 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
       dispatch(addFriend(newFriend));
 
       // 확인 모달
-      setAcceptModal(true);
+      setAcceptFriendModal(true);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleAcceptModal = () => setAcceptModal(false);
+  // 4-2. 게임 초대 요청 수락
+  const acceptInviteRequest = async (UUID: string, notificationId: string) => {
+    {
+      /* gameInviteInfo.roomId 사용*/
+    }
+    await axios.post(`${API_LINK}/room/join/${UUID}`, {
+      playerId: userId,
+    });
+    setShowModal(false);
 
-  // 5. 친구 요청 거절
+    // 읽은 알림 화면에서 삭제
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== notificationId),
+    );
+
+    // 알림 수 변경
+    dispatch(decreaseNotificationCount());
+
+    // 알림 삭제(알림 아이디로)
+    await axios.delete(`${API_LINK}/notification/delete`, {
+      data: { id: notificationId, userId: userId },
+    });
+
+    navigate(`/wait/${UUID}`);
+  };
+
+  const handleAcceptFriendModal = () => setAcceptFriendModal(false);
+  const handleAcceptGameModal = () => setAcceptGameModal(false);
+
+  // 5-1. 친구 요청 거절
   const rejectFriendRequest = async (
     senderId: number,
     notificationId: string,
@@ -194,13 +253,31 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
       dispatch(decreaseNotificationCount());
 
       // 확인 모달
-      setRejectModal(true);
+      setRejectFriendModal(true);
     } catch (error) {
       console.log(error);
     }
   };
+  const handleRejectModal = () => setRejectFriendModal(false);
 
-  const handleRejectModal = () => setRejectModal(false);
+  // 5-2. 게임 초대 요청 거절
+  // 알림 삭제만 하자
+  const rejectInviteRequest = async (notificationId: string) => {
+    // 알림 삭제(알림 아이디로)
+    await axios.delete(`${API_LINK}/notification/delete`, {
+      data: { id: notificationId, userId: userId },
+    });
+
+    // 알림 수 변경
+    dispatch(decreaseNotificationCount());
+
+    // 화면에서 제거
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== notificationId),
+    );
+
+    setShowModal(false);
+  };
 
   return (
     <div className="yellow-box w-1/2 h-[470px] p-6 px-10 pb-10 border-[#36EAB5] bg-[#fffeee]">
@@ -244,27 +321,29 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
               <div className="mint-title mb-5">친구 요청</div>
               <div className="mb-5 flex justify-center items-center">
                 <div className="friend-search-box w-36 h-36 rounded-full mr-10 p-5">
-                  {requestInfo?.fromUserCharacterName && (
+                  {friendRequestInfo?.fromUserCharacterName && (
                     <ProfileImg
-                      characterName={requestInfo.fromUserCharacterName}
+                      characterName={friendRequestInfo.fromUserCharacterName}
                     />
                   )}
                 </div>
                 <div className="friend-search-box w-56 h-[100px] rounded-3xl flex items-center justify-center">
-                  {requestInfo?.fromUserNickname && (
+                  {friendRequestInfo?.fromUserNickname && (
                     <div>
                       <div className="flex justify-between items-center">
                         <div className="text-xl level-text mr-2">
                           <LevelText
-                            tierPoint={requestInfo.fromUserTierPoint}
+                            tierPoint={friendRequestInfo.fromUserTierPoint}
                           />
                         </div>
                         <div className="w-8 ">
-                          <LevelImg tierPoint={requestInfo.fromUserTierPoint} />
+                          <LevelImg
+                            tierPoint={friendRequestInfo.fromUserTierPoint}
+                          />
                         </div>
                       </div>
                       <div className="white-text text-2xl">
-                        {requestInfo.fromUserNickname}
+                        {friendRequestInfo.fromUserNickname}
                       </div>
                     </div>
                   )}
@@ -298,23 +377,57 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
               </div>
             </div>
           ) : (
-            <div>게임 초대..</div>
+            <div className="yellow-box w-1/2 h-[300px] p-6 border-[#36EAB5] bg-[#fffeee]">
+              <div className="mint-title mb-8 text-5xl">게임 초대</div>
+              <div className="white-text text-3xl mb-6">
+                {gameInviteInfo?.senderNickname} 님이 게임에 초대하였습니다.
+              </div>
+              <div className="level-text text-3xl">입장하시겠어요?</div>
+              <div className="mt-6">
+                <button
+                  className="mr-4"
+                  onClick={() => {
+                    if (
+                      gameInviteInfo?.roomId &&
+                      gameInviteInfoNotificationId
+                    ) {
+                      acceptInviteRequest(
+                        gameInviteInfo.roomId,
+                        gameInviteInfoNotificationId,
+                      );
+                    }
+                  }}
+                >
+                  <img src={confirm} alt="" />
+                </button>
+                <button
+                  className="ml-4"
+                  onClick={() => {
+                    if (gameInviteInfoNotificationId) {
+                      rejectInviteRequest(gameInviteInfoNotificationId);
+                    }
+                  }}
+                >
+                  <img src={cancel} alt="" />
+                </button>
+              </div>
+            </div>
           )}
         </Modal>
       )}
-      {acceptModal && (
+      {acceptFriendModal && (
         <Modal>
           <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
             <div className="white-text text-4xl p-6">
               친구 신청을 수락하였습니다!
             </div>
-            <button onClick={handleAcceptModal}>
+            <button onClick={handleAcceptFriendModal}>
               <img src={confirm} alt="" />
             </button>
           </div>
         </Modal>
       )}
-      {rejectModal && (
+      {rejectFriendModal && (
         <Modal>
           <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
             <div className="white-text text-4xl p-6">
