@@ -16,6 +16,7 @@ import {
 } from '../../redux/slices/userSlice';
 import { CheckNicknameDuplicate } from '../../utils/CheckNicknameDuplicate';
 import { CheckSetNickname } from '../../utils/CheckSetNickname';
+import AlertModal from '../common/AlertModal';
 
 import confirm from '../../assets/icon/confirm.png';
 import alterd from '../../assets/icon/expression_alerted.png';
@@ -89,6 +90,7 @@ export default function EditProfile() {
       // 유효성 검사
       const checkNickname = CheckSetNickname(nickname);
       if (checkNickname) {
+        console.log('dd');
         try {
           await axios.patch(`${API_LINK}/user-profile/nickname/update`, {
             userId: userId,
@@ -127,7 +129,7 @@ export default function EditProfile() {
   };
 
   // 마일리지 부족 모달
-  const closeMileageModal = () => setMileageModal(false);
+  const closeAlterModal = () => setMileageModal(false);
 
   return (
     <div>
@@ -238,15 +240,10 @@ export default function EditProfile() {
 
         {mileageModal && (
           <Modal>
-            <div className="yellow-box w-2/5 h-[180px] border-[#36EAB5] bg-[#FFFEEE] p-8">
-              <div className="flex white-text text-4xl mb-10 justify-center">
-                <img src={alterd} alt="" className="mr-4" />
-                <div>마일리지가 부족합니다</div>
-              </div>
-              <button onClick={closeMileageModal}>
-                <img src={confirm} alt="" />
-              </button>
-            </div>
+            <AlertModal
+              message="마일리지가 부족합니다."
+              closeAlterModal={closeAlterModal}
+            />
           </Modal>
         )}
       </div>

@@ -58,8 +58,13 @@ export default function FriendPlus({
   };
 
   const handleConfirm = async () => {
+    if (!searchedNickname) {
+      alert('친구를 검색해주세요!');
+      return;
+    }
+
     try {
-      const response = await axios.post(`${API_LINK}/friend/request`, {
+      await axios.post(`${API_LINK}/friend/request`, {
         fromUserId: userId,
         toUserId: id,
       });
