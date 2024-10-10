@@ -11,7 +11,7 @@ export default function Mileage() {
     <div className="flex justify-between items-center brown-box w-fit h-12 px-3">
       <div className="mileage-text text-xl mr-2">{formattedMileage}</div>
       <div>
-        <img src={mileage} alt="" />
+        <img src={mileage} alt="마일리지" />
       </div>
     </div>
   );

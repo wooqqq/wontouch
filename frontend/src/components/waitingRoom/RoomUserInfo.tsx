@@ -1,22 +1,14 @@
-import boy from '../../assets/background/characters/stand/boy.png';
-import girl from '../../assets/background/characters/stand/girl.png';
-import curlyhairBoy from '../../assets/background/characters/stand/curlyhair_boy.png';
-import flowerGirl from '../../assets/background/characters/stand/flower_girl.png';
-import goblin from '../../assets/background/characters/stand/goblin.png';
-import kingGoblin from '../../assets/background/characters/stand/king_goblin.png';
-import ninjaSkeleton from '../../assets/background/characters/stand/ninja_skeleton.png';
-import skeleton from '../../assets/background/characters/stand/skeleton.png';
-
 import LevelImg from '../common/LevelImg';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import ProfileImg from '../common/ProfileImg';
 
 interface UserInfoProps {
   isHost: boolean; // 방장 여부
   playerId: number; // 사용자
   nickname: string | undefined;
   isReady: boolean; // 준비 여부
-  character: string | undefined;
+  character: string;
   tierPoint: number;
 }
 
@@ -46,17 +38,6 @@ function RoomUserInfo({
     );
   }
 
-  const characterImages: { [key: string]: string } = {
-    boy: boy,
-    girl: girl,
-    curlyhair_boy: curlyhairBoy,
-    flower_girl: flowerGirl,
-    goblin: goblin,
-    king_goblin: kingGoblin,
-    ninja_skeleton: ninjaSkeleton,
-    skeleton: skeleton,
-  };
-
   if (!playerId) {
     // 유저가 없을 경우 (친구 초대 버튼)
     return (
@@ -75,18 +56,14 @@ function RoomUserInfo({
           <div className="w-7 absolute right-4 top-0">
             <LevelImg tierPoint={tierPoint ? Number(tierPoint) : 0} />
           </div>
-          <div className="w-[92%] mx-auto my-0">
-            <img
-              src={character ? characterImages[character] : ''}
-              alt="캐릭터"
-              className="w-[100%]"
-            />
+          <div className="w-[130%]">
+            <ProfileImg characterName={character} />
           </div>
           <div className="user-name">{nickname}</div>
           {isHost ? (
-            <div className="host-user absolute bottom-4 left-11">방장</div>
+            <div className="host-user absolute bottom-5 left-11">방장</div>
           ) : isReady ? (
-            <div className="ready-user absolute bottom-4 left-3">준비 완료</div>
+            <div className="ready-user absolute bottom-5 left-3">준비 완료</div>
           ) : null}
         </div>
       </div>

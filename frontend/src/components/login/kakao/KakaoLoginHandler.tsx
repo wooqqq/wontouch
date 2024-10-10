@@ -12,7 +12,7 @@ import {
 } from '../../../redux/slices/userSlice';
 import { jwtDecode } from 'jwt-decode';
 
-import flowerGirl from '../../../assets/background/characters/stand/flower_girl.png';
+import girlLogin from '../../../assets/background/characters/walk/girl_login_walk.gif';
 
 interface DecodedToken {
   userId: number;
@@ -93,11 +93,11 @@ function KakaoLoginHandler() {
   }, []);
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="mr-14 w-44">
-        <img src={flowerGirl} alt="" className="w-full" />
+    <div className="pt-60">
+      <div className="w-[500px] mx-auto pb-3">
+        <img src={girlLogin} alt="" className="w-full" />
       </div>
-      <div className="text-5xl">유저 정보 확인 중 . . .</div>
+      <div className="text-5xl white-title">유저 정보 확인 중 . . .</div>
     </div>
   );
 }
