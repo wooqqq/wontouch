@@ -29,7 +29,7 @@ export default function FindRoom({
   };
 
   return (
-    <div className="yellow-box w-1/2 h-[250px] border-[#36EAB5] bg-[#FFFEEE] p-8">
+    <div className="yellow-box min-w-[700px] w-1/2 h-[250px] border-[#36EAB5] bg-[#FFFEEE] p-8">
       <div className="relative">
         <div className="mint-title mb-8 text-5xl">빠른 입장</div>
         <button
@@ -43,7 +43,7 @@ export default function FindRoom({
         랜덤한 방에 바로 입장하시겠습니까?
       </div>
       <button onClick={enterRandomRoom}>
-        <img src={confirm} alt="" />
+        <img src={confirm} alt="확인" />
       </button>
     </div>
   );

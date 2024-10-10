@@ -39,7 +39,7 @@ export default function Friend() {
   };
 
   return (
-    <div className="yellow-box w-11/12 h-[208px] ml-6">
+    <div className="yellow-box min-w-[335px] w-11/12 h-[208px] ml-6">
       <div className="relative">
         <div className="flex justify-center mint-title my-1">친구 목록</div>
         <div
@@ -49,7 +49,7 @@ export default function Friend() {
           <button>+</button>
         </div>
       </div>
-      <div className="mx-8">
+      <div className="mx-7 pb-2 px-2 overflow-y-scroll h-32">
         {friends.map((friend) => (
           <FriendInfo
             key={friend.friendId} // friendId를 key로 사용

@@ -282,7 +282,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
   };
 
   return (
-    <div className="yellow-box w-1/2 h-[470px] p-6 px-10 pb-10 border-[#36EAB5] bg-[#fffeee]">
+    <div className="yellow-box min-w-[800px] w-1/2 h-[470px] p-6 px-10 pb-10 border-[#36EAB5] bg-[#fffeee]">
       <div className="relative mb-4">
         <div className="flex justify-center mint-title text-5xl">메일함</div>
         <button
@@ -319,7 +319,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
       {showModal && selectedNotification && (
         <Modal>
           {selectedNotification.notificationType === 'FRIEND_REQUEST' ? (
-            <div className="yellow-box w-1/2 h-[400px] p-6 border-[#36EAB5] bg-[#fffeee]">
+            <div className="yellow-box min-w-[800px] w-1/2 h-[400px] p-6 border-[#36EAB5] bg-[#fffeee]">
               <div className="mint-title mb-5">친구 요청</div>
               <div className="mb-5 flex justify-center items-center">
                 <div className="friend-search-box w-36 h-36 rounded-full mr-10 p-5">
@@ -355,7 +355,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
               <div className="white-text text-3xl mb-8">
                 친구 요청을 수락하시겠어요?
               </div>
-              <div className="flex justify-between px-60">
+              <div className="flex justify-center">
                 <button
                   onClick={() =>
                     rejectFriendRequest(
@@ -363,8 +363,9 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
                       selectedNotification.id,
                     )
                   }
+                  className="mr-32"
                 >
-                  <img src={cancel} alt="" />
+                  <img src={cancel} alt="취소" />
                 </button>
                 <button
                   onClick={() =>
@@ -374,12 +375,12 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
                     )
                   }
                 >
-                  <img src={confirm} alt="" />
+                  <img src={confirm} alt="취소" />
                 </button>
               </div>
             </div>
           ) : (
-            <div className="yellow-box w-1/2 h-[300px] p-6 border-[#36EAB5] bg-[#fffeee]">
+            <div className="yellow-box min-w-[800px] w-1/2 h-[300px] p-6 border-[#36EAB5] bg-[#fffeee]">
               <div className="mint-title mb-8 text-5xl">게임 초대</div>
               <div className="white-text text-3xl mb-6">
                 {gameInviteInfo?.senderNickname} 님이 게임에 초대하였습니다.
@@ -387,7 +388,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
               <div className="level-text text-3xl">입장하시겠어요?</div>
               <div className="mt-6">
                 <button
-                  className="mr-4"
+                  className="mr-32"
                   onClick={() => {
                     if (
                       gameInviteInfo?.roomId &&
@@ -402,7 +403,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
                     }
                   }}
                 >
-                  <img src={confirm} alt="" />
+                  <img src={confirm} alt="확인" />
                 </button>
                 <button
                   className="ml-4"
@@ -412,7 +413,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
                     }
                   }}
                 >
-                  <img src={cancel} alt="" />
+                  <img src={cancel} alt="취소" />
                 </button>
               </div>
             </div>
@@ -421,24 +422,24 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
       )}
       {acceptFriendModal && (
         <Modal>
-          <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
+          <div className="yellow-box min-w-[300px] w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
             <div className="white-text text-4xl p-6">
               친구 신청을 수락하였습니다!
             </div>
             <button onClick={handleAcceptFriendModal}>
-              <img src={confirm} alt="" />
+              <img src={confirm} alt="확인" />
             </button>
           </div>
         </Modal>
       )}
       {rejectFriendModal && (
         <Modal>
-          <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
+          <div className="yellow-box min-w-[300px] w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
             <div className="white-text text-4xl p-6">
               친구 신청을 거절하였습니다!
             </div>
             <button onClick={handleRejectModal}>
-              <img src={confirm} alt="" />
+              <img src={confirm} alt="확인" />
             </button>
           </div>
         </Modal>

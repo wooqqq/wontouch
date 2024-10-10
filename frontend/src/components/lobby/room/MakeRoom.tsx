@@ -117,7 +117,7 @@ export default function MakeRoomModal({
     setAlertModal({ isVisible: false, message: '' });
 
   return (
-    <div className="yellow-box w-1/2 h-[460px] border-[#36EAB5] bg-[#FFFEEE] p-8 px-20">
+    <div className="yellow-box min-w-[700px] w-1/2 h-[460px] border-[#36EAB5] bg-[#FFFEEE] p-8 px-20">
       <div className="mint-title mb-6">방 만들기</div>
       <div>
         <input

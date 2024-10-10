@@ -87,7 +87,7 @@ export default function FriendPlus({
     setAlertModal({ isVisible: false, message: '' });
 
   return (
-    <div className="yellow-box w-1/2 h-[470px] p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
+    <div className="yellow-box min-w-[700px] w-1/2 h-[470px] p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
       <div className="mint-title text-5xl mb-6">친구 추가</div>
       <div className="relative mb-6">
         <input
@@ -171,8 +171,8 @@ export default function FriendPlus({
           </div>
         </div>
       )}
-      <div className="flex justify-between px-60">
-        <button>
+      <div className="flex justify-center">
+        <button className="mr-36">
           <img src={cancel} alt="모달 닫기" onClick={closeFriend} />
         </button>
         <button>

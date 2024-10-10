@@ -33,7 +33,7 @@ function Lobby() {
     <div>
       <Header />
       <div className="flex justify-between">
-        <div className="yellow-box w-8/12 h-5/6 flex flex-col justify-center p-2 px-6 ml-10">
+        <section className="yellow-box w-8/12 min-w-[880px] h-5/6 flex flex-col justify-center p-2 px-6 ml-10">
           <div className="flex space-x-4 mb-4">
             <div>
               <button
@@ -64,15 +64,11 @@ function Lobby() {
             <RoomList key={reloadKey} />
             {/* reloadKey가 바뀔 때마다 RoomList가 재렌더링 */}
           </div>
-        </div>
-        <div className="ranking-container w-4/12 h-5/6 flex flex-col items-center">
-          <div className="w-11/12 ml-6 mb-6 h-[400px]">
-            <Ranking />
-          </div>
-          <div className="w-11/12 h-[218px] ml-6">
-            <Friend />
-          </div>
-        </div>
+        </section>
+        <section className="ranking-container w-4/12 h-5/6 flex flex-col items-center">
+          <Ranking />
+          <Friend />
+        </section>
       </div>
 
       {showMakeRoom && (
