@@ -4,8 +4,8 @@ import { createGameMap } from './GameMap';
 import { createPlayerMovement } from './PlayerMovement';
 import InteractionModal from './InteractionModal';
 import MapModal from './MapModal';
-import ResultModal from './ResultModal';
-import { useLocation, useParams } from 'react-router-dom';
+//import ResultModal from './ResultModal';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { setUserId } from '../../redux/slices/userSlice';
@@ -50,84 +50,29 @@ import chimneySmoke05Image from '../../assets/background/others/chimneysmoke_05_
 // 충돌 관련 이미지
 import collidesImage from '../../assets/background/collides.png';
 
-// 타이머 배경
-import timerBackgroundImage from '../../assets/background/round/timerBackground.png';
 import { addArticle, clearArticles } from '../../redux/slices/articleSlice';
 import { addArticleResult, clearArticleResults } from '../../redux/slices/articleResultSlice';
 import { clearCropPrices, updateCropPrices } from '../../redux/slices/cropResultSlice';
-
-interface GameParticipant {
-  userId: number;
-  email?: string;
-  nickname: string;
-  description: string | null;
-  characterName: string;
-  tierPoint: number;
-  mileage: number;
-}
-
-
-interface MapLayers {
-  backgroundLayer: Phaser.Tilemaps.TilemapLayer | null;
-  groundLayer: Phaser.Tilemaps.TilemapLayer | null;
-  animals_topLayer: Phaser.Tilemaps.TilemapLayer | null;
-  animals_bottomLayer: Phaser.Tilemaps.TilemapLayer | null;
-  collidesLayer: Phaser.Tilemaps.TilemapLayer | null;
-  shadow_seaLayer: Phaser.Tilemaps.TilemapLayer | null;
-  river_lakeLayer: Phaser.Tilemaps.TilemapLayer | null;
-  dropfruitsLayer: Phaser.Tilemaps.TilemapLayer | null;
-  fencesLayer: Phaser.Tilemaps.TilemapLayer | null;
-  plantLayer: Phaser.Tilemaps.TilemapLayer | null;
-  vegetableLayer: Phaser.Tilemaps.TilemapLayer | null;
-  shadow_topLayer: Phaser.Tilemaps.TilemapLayer | null;
-  house_bottom2Layer: Phaser.Tilemaps.TilemapLayer | null;
-  house_bottomLayer: Phaser.Tilemaps.TilemapLayer | null;
-  house_topLayer: Phaser.Tilemaps.TilemapLayer | null;
-  shadow_bottomLayer: Phaser.Tilemaps.TilemapLayer | null;
-
-  house1Layer: Phaser.Tilemaps.TilemapLayer | null;
-  house2Layer: Phaser.Tilemaps.TilemapLayer | null;
-  house3Layer: Phaser.Tilemaps.TilemapLayer | null;
-  house4Layer: Phaser.Tilemaps.TilemapLayer | null;
-  house5Layer: Phaser.Tilemaps.TilemapLayer | null;
-  house6Layer: Phaser.Tilemaps.TilemapLayer | null;
-  exchangeLayer: Phaser.Tilemaps.TilemapLayer | null;
-}
-
-interface DecodedToken {
-  userId: number;
-}
-
-interface Crop {
-  id: string;
-  type: string;
-  name: string;
-  price: number;
-  description: string;
-  imgUrl: string;
-}
-
-interface GameState {
-  roundDuration: number;
-  roundNumber: number;
-  crops: Crop[];
-}
+import { DecodedToken, GameParticipant, MapLayers } from './types';
+import TimerModal from './TimerModal';
+import { setPreparationStart, setRoundStart } from '../../redux/slices/timeSlice';
+import ResultModal from './ResultModal';
+import { updateCrop } from '../../redux/slices/cropQuantitySlice';
+import { setGameResult } from '../../redux/slices/gameResultSlice';
+import GameResultModal from './GameResultModal';
+import BalanceDisplay from './BalanceDisplay';
+import { updateBalance } from '../../redux/slices/balanceSlice';
 
 const PhaserGame = () => {
+  const navigation = useNavigate();
   const SOCKET_LINK = import.meta.env.VITE_SOCKET_URL;
-  //라운드 정보 가져오기
-  const location = useLocation();
-  const { roundDuration, roundNumber } = location.state || {} as GameState;
 
   const [houseNum, setHouseNum] = useState<number | null>(null);
   const [openMap, setOpenMap] = useState<boolean>(false);
   const houseNumRef = useRef<number | null>(houseNum);
 
   const [showModal, setShowModal] = useState(false);
-  const [round, setRound] = useState(roundNumber);
-  const timerRef = useRef<number>(roundDuration); // 타이머 값을 useRef로 관리
-  const timeTextRef = useRef<Phaser.GameObjects.Text | null>(null);
-  const roundTextRef = useRef<Phaser.GameObjects.Text | null>(null);
+  const showModalRef = useRef(showModal);
 
   //웹소켓 관련
   const { roomId } = useParams();
@@ -143,74 +88,45 @@ const PhaserGame = () => {
   //웹소켓 넘기기
   const gameSocketRef = useRef<WebSocket | null>(null);
 
-  //라운드 넘어가기..?
-  const readyPlayerRef = useRef<number>(0);
-  const nextTimerRef = useRef<number>(60);
-  const totalPlayerRef = useRef<number>(0);
-
   //모든 작물의 정보 불러오기
   const allCropList = useSelector((state: RootState) => state.crop.crops);
   console.log(allCropList);
+  //작물에 대한 수량 불러오기
+  const allCropsQuantityList = useSelector((state: RootState) => state.cropQuantity);
 
   //사람들 정보 불러오기?
   const roomData = useSelector((state: RootState) => state.room.gameParticipants);
-  console.log("룸데이터는 이거에용", roomData);
+
+  //라운드 정보 가져오기
+  const round = useSelector((state: RootState) => state.time.round);
+
 
   // 작물 리스트 응답을 저장할 상태
   const [cropList, setCropList] = useState(null);
   // 작물 차트를 저장할 상태
   const [dataChart, setDataChart] = useState(null);
 
-  let countdownInterval: number | null = null;
+  //게임 결과창
+  const [shwoResultModal, setShowResultModal] = useState(false);
 
-  // 타이머 카운트다운 함수
-  const startCountdown = () => {
-    if (countdownInterval) clearInterval(countdownInterval);
+  const handleGameResult = (message: any) => {
+    // message.content 안에 game-result가 있는지 확인
+    if (message.content && message.content['game-result']) {
+      const gameResult = message.content['game-result'];
 
-    nextTimerRef.current = 60; // 60초 타이머 초기화
-    countdownInterval = setInterval(() => {
-      if (nextTimerRef.current > 0) {
-        nextTimerRef.current--;
-        // console.log(`타이머: ${nextTimerRef.current}`);
-      } else {
-        console.log('60초 경과, 라운드를 넘깁니다.');
-        clearInterval(countdownInterval!); // 타이머 종료
-        proceedToNextRound(); // 강제로 라운드 넘기기
-      }
-    }, 1000);
-  };
+      const resultsArray = Object.keys(gameResult).map((key) => ({
+        playerId: key,
+        totalGold: gameResult[key].totalGold,
+        tierPoint: gameResult[key].tierPoint,
+        rank: gameResult[key].rank,
+        mileage: gameResult[key].mileage,
+      }));
 
-
-  let isRoundReadySent = false; // 메시지 전송 여부를 관리하는 변수
-
-  // ROUND_READY 메시지를 보내는 함수
-  const handleNextRound = () => {
-    if (isRoundReadySent) {
-      console.log("이미 ROUND_READY 메시지를 보냈습니다.");
-      return; // 이미 메시지를 보낸 경우 실행되지 않음
+      // Redux에 게임 결과 저장
+      dispatch(setGameResult(resultsArray));
+    } else {
+      console.error("Invalid GAME_RESULT message format: ", message);
     }
-
-    console.log("ROUND_READY 메시지 보내기 시작");
-
-    const roundReadyMessage = {
-      type: 'ROUND_READY',
-    };
-    gameSocketRef.current?.send(JSON.stringify(roundReadyMessage));
-
-    isRoundReadySent = true; // 메시지 보냈음을 표시
-
-    setTimeout(() => {
-      isRoundReadySent = false; // 재전송 가능하게 초기화
-      console.log("이번라운드에 완료버튼을 이미 눌렀어요.");
-    }, 60000); // 60초 후 초기화
-  };
-
-
-  const proceedToNextRound = () => {
-    // 라운드 진행 시 타이머와 준비 완료 인원 초기화
-    readyPlayerRef.current = 0; // 준비 완료 인원 초기화
-    nextTimerRef.current = 60; // 60초 제한 타이머 초기화
-    setShowModal(false); // 모달 닫기
   };
 
   // 캐릭터 텍스처 맵핑
@@ -252,6 +168,10 @@ const PhaserGame = () => {
     }
   };
 
+  useEffect(() => {
+    showModalRef.current = showModal;
+  }, [showModal])
+
   // 로컬스토리지에서 토큰 읽어오기
   useEffect(() => {
     if (token) {
@@ -278,30 +198,28 @@ const PhaserGame = () => {
             console.log('Received message:', message);
           } else {
             const data = JSON.parse(message);
-            console.log(data.type);
-            // console.log(data.content);
+
+            //움직임이 아닐때만..!
+            if (data.type !== "MOVE") {
+              console.log(data.type);
+            }
 
             if (data.type === 'ROUND_START') {
+              const { duration, round } = data.content;
               //보여줬던 정보를 전부 삭제, 라운드마다 초기화되어야하니까
               dispatch(clearArticles());
               dispatch(clearArticleResults());
               dispatch(clearCropPrices());
-
-              const { duration, round } = data.content;
-
-              // 서버에서 받은 새로운 duration 값으로 타이머 초기화
-              timerRef.current = duration;
-              nextTimerRef.current = 60; // 각 라운드마다 60초 제한 초기화
-              setRound(round); // 현재 라운드 설정
-              setShowModal(false); //모달 열려있으면 꺼줘야해.
-              roundTextRef.current?.setText(`${round}R`);
-
-              console.log(`새로운 라운드 ${round}, 타이머: ${duration}초`);
-
+              //시간과 라운드 설정
+              dispatch(setRoundStart({ duration: duration, round: round }));
+              //모달이 열려있으면 닫아야함
+              setShowModal(false);
             }
 
             if (data.type === 'ROUND_END') {
               console.log('ROUND_END 메시지 수신, 카운트다운 시작');
+              //모달 열려야해
+              setShowModal(true);
             }
 
             if (data.type === 'TOWN_CROP_LIST') {
@@ -322,10 +240,36 @@ const PhaserGame = () => {
 
             if (data.type === 'SELL_CROP') {
               console.log(data.content);
+              if (data.content.type === "SUCCESS") {
+                const crop = allCropsQuantityList.cropsQuantities.find(
+                  (crop) => crop.id === data.content.info.cropId
+                );
+                console.log(crop!.count);
+
+                dispatch(updateCrop({ id: crop!.id, newQuantity: data.content.info.townQuantity }));
+                dispatch(updateBalance(data.content.info.playerGold));
+                alert("판매 성공!");
+              }
+              else {
+                alert("판매 실패, 가진것 보다 많이 팔 수 없어요");
+              }
             }
 
             if (data.type === 'BUY_CROP') {
               console.log(data.content);
+              if (data.content.type === "SUCCESS") {
+                const crop = allCropsQuantityList.cropsQuantities.find(
+                  (crop) => crop.id === data.content.info.cropId
+                );
+                dispatch(updateCrop({ id: crop!.id, newQuantity: data.content.info.townQuantity }));
+                dispatch(updateBalance(data.content.info.playerGold));
+                alert("구매 성공!");
+              } else if (data.content.type === "INSUFFICIENT_STOCK") {
+                alert("재고를 확인해주세요. 구매하려는 수량보다 재고가 적습니다.");
+              }
+              else {
+                alert("금액이 부족합니다.");
+              }
             }
 
             if (data.type === "BUY_RANDOM_ARTICLE") {
@@ -338,22 +282,22 @@ const PhaserGame = () => {
 
 
             if (data.type === 'ROUND_READY') {
-              // 준비된 인원 수와 총 플레이어 수 업데이트
-              totalPlayerRef.current = data.content.totalPlayers;
-              readyPlayerRef.current = data.content.readyPlayers;
+              console.log(data.content);
 
-              // 모든 플레이어가 준비되었을 때만 다음 라운드로
-              if (readyPlayerRef.current === totalPlayerRef.current) {
-                console.log('모두 준비됨, 다음 라운드로 진행');
-                proceedToNextRound();  // 라운드 진행 함수 호출
-              } else {
-                console.log(`${readyPlayerRef.current}명이 준비됨 / 총 ${totalPlayerRef.current}명`);
+              const totalReadyPlayer = data.content.totalPlayers;
+              const readyReadyPlayer = data.content.readyPlayers;
+
+              //다 같으면 준비됐다는거니까
+              if (totalReadyPlayer === readyReadyPlayer) {
+                //바로 꺼버리고 다음으로!
+                setShowModal(false);
               }
+
             }
 
             if (data.type === "PREPARATION_START") {
-              console.log(data.content);
-              startCountdown();  // 60초 타이머를 실행하는 함수 호출
+              const { preparationTime } = data.content;
+              dispatch(setPreparationStart({ preparationTime: preparationTime }));
             }
 
             if (data.type === "ROUND_RESULT") {
@@ -418,6 +362,11 @@ const PhaserGame = () => {
               }
             }
 
+            if (data.type === "GAME_RESULT") {
+              handleGameResult(data);
+              setShowResultModal(true);  // 모달을 열기 위한 상태 관리
+            }
+
 
           }
         } catch (error) {
@@ -450,41 +399,6 @@ const PhaserGame = () => {
 
     connectWebSocket();
   }, [roomId, playerId]);
-
-  // 업데이트 함수를 밖으로 빼서 필요할 때 호출
-  const handleUpdate = (scene: Phaser.Scene, startTime: number, roundDuration: number) => {
-
-    scene.events.on('update', () => {
-      const elapsedTime = Date.now() - startTime;
-      const remainingTime = roundDuration - elapsedTime;
-
-      if (remainingTime > 0) {
-        const minutes = Math.floor(remainingTime / 60000);
-        const seconds = Math.floor((remainingTime % 60000) / 1000);
-        timeTextRef.current?.setText(`${minutes} : ${seconds < 10 ? '0' : ''}${seconds}`);
-      } else {
-        setShowModal(true);  // 모달 표시
-        scene.events.off('update'); // update 이벤트 해제
-      }
-    });
-  };
-
-  // Phaser에서 'create'나 'preload' 함수 내에서 이벤트를 등록하는 대신
-  useEffect(() => {
-    if (sceneRef.current) {
-      const scene = sceneRef.current;
-
-      // 업데이트 핸들러를 외부에서 등록
-      handleUpdate(scene, Date.now(), timerRef.current * 1000);
-
-      return () => {
-        // 컴포넌트 언마운트 시 이벤트 해제
-        scene.events.off('update');
-      };
-    }
-  }, [round]);
-
-
 
   // houseNum이 변경될 때마다 houseNumRef를 업데이트
   useEffect(() => {
@@ -565,7 +479,6 @@ const PhaserGame = () => {
     this.load.image('chimneysmoke_04_01_image', chimneySmoke04Image);
     this.load.image('chimneysmoke_05_01_image', chimneySmoke05Image);
     this.load.image('collides', collidesImage);
-    this.load.image('timerBackground', timerBackgroundImage);
   }
 
   //생성
@@ -617,7 +530,7 @@ const PhaserGame = () => {
       console.log(spriteKey, "떴냐!!!!!!!!!!!");
 
       // 스프라이트 생성
-      sprite = this.physics.add.sprite(4000, 300, spriteKey);
+      sprite = this.physics.add.sprite(2240, 1280, spriteKey);
       sprite.setScale(1);
       sprite.setCollideWorldBounds(true);
       playerSpritesRef.current[player.userId] = sprite;
@@ -649,77 +562,22 @@ const PhaserGame = () => {
       Phaser.Input.Keyboard.KeyCodes.SPACE,
     );
 
-    const { width, height } = this.scale;
-
-    //이미지
-    const timerBackground = this.add.image(
-      width / 2,
-      height / 2,
-      'timerBackground',
-    );
-    timerBackground.setDisplaySize(80, 30);
-    timerBackground.setScrollFactor(0);
-    //라운드 텍스트 생성
-    const roundText = this.add.text(width / 2, height / 2, `${round}R`, {
-      fontFamily: 'DNFBitBitv2',
-      color: '#FFEE00', // 텍스트 색상
-      fontSize: '14px',
-      stroke: '#000000', // 스토크 색상 (검정색)
-      strokeThickness: 4, // 스토크 두께
-    });
-
-    roundTextRef.current = roundText;
-
-    // 타이머 텍스트 생성 (화면 중앙에 배치)
-    const timeText = this.add.text(
-      width / 2,
-      height / 2,
-      `${Math.floor(timerRef.current / 60)} : ${timerRef.current % 60 < 10 ? '0' : ''}${timerRef.current % 60}`,
-      {
-        fontFamily: 'DNFBitBitv2',
-        fontSize: '14px',
-        color: '#ffffff', // 텍스트 색상
-        stroke: '#000000', // 스토크 색상 (검정색)
-        strokeThickness: 2, // 스토크 두께
-      },
-    );
-
-    //이미지 위치설정
-    timerBackground.setOrigin(0.5, 5.9);
-    timerBackground.setDepth(9);
-
-    //라운드 위치 설정
-    roundText.setOrigin(0.5, 8.3);
-    roundText.setScrollFactor(0);
-    roundText.setDepth(10);
-    //타이머 위치설정
-    timeText.setOrigin(0.5, 8.25);
-
-    // 타이머 텍스트를 화면에 고정
-    timeText.setScrollFactor(0);
-    timeText.setDepth(10); // 텍스트가 다른 객체 위에 표시되도록 설정
-
-    timeTextRef.current = timeText;
-
-
-
-
     //지도열기 설정
     mKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.M);
 
-    this.scale.on('resize', (gameSize: { width: number; height: number }) => {
-      const { width, height } = gameSize;
-      // 예시로 타이머와 라운드 텍스트 위치 조정
-      timerBackground.setPosition(width / 2, height / 2);
-      roundText.setPosition(width / 2, height / 2);
-      timeText.setPosition(width / 2, height / 2);
-    });
   }
 
 
 
   //업데이트
   function update(this: Phaser.Scene, delta: number) {
+
+    // showModal이 true일 때는 키 입력을 무시
+    if (showModalRef.current) {
+      playerRef.current?.setVelocity(0);
+      playerRef.current?.stop();
+      return; // 키 입력을 모두 무시하고 아무것도 하지 않음
+    }
 
     if (houseNumRef.current === null) {
       if (playerRef.current) {
@@ -793,9 +651,29 @@ const PhaserGame = () => {
     setOpenMap(!openMap);
   };
 
+  const handleNextRound = () => {
+    //준비됐다는 요청
+    const readyMessage = {
+      type: "ROUND_READY"
+    }
+
+    //메세지를 보내
+    gameSocketRef.current?.send(JSON.stringify(readyMessage));
+    console.log("갔을걸?");
+  }
+
+  //게임 다 했으니 로비로 나가!
+  const goToLobby = () => {
+    setShowResultModal(false);
+    navigation('/lobby');
+  }
+
+
   return (
     <div>
       <div id="phaser-game-container" />
+      <TimerModal /> {/* Phaser 화면 위에 타이머 모달 추가 */}
+      <BalanceDisplay />
       {houseNum !== null && (
         <InteractionModal
           houseNum={houseNum}
@@ -808,6 +686,7 @@ const PhaserGame = () => {
 
       {openMap && <MapModal closeMapModal={closeMapModal} />}
       {showModal && round <= 4 && <ResultModal round={round} onNextRound={handleNextRound} />}
+      {shwoResultModal && <GameResultModal onClose={goToLobby} />}
     </div>
   );
 };
