@@ -26,10 +26,6 @@ import WaitingRoomMusic from './assets/music/waitingRoom.mp3';
 import EditMusic from './assets/music/edit.mp3';
 import clickSound from './assets/music/click.wav';
 
-interface DecodedToken {
-  userId: number;
-}
-
 // 로그인 하지 않은 사용자의 접근 방지
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const navigate = useNavigate();
@@ -67,13 +63,13 @@ function AppRouter() {
     const handlePlaySound = () => {
       const sound = document.getElementById('clickSound') as HTMLAudioElement;
       if (sound) {
+        sound.volume = 0.5;
         sound.play();
       }
     };
 
     document.addEventListener('click', handlePlaySound);
 
-    // Clean up event listener on unmount to prevent memory leaks
     return () => {
       document.removeEventListener('click', handlePlaySound);
     };
