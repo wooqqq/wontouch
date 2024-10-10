@@ -69,7 +69,7 @@ const PlayerCropModal: React.FC<PlayerCropModalProps> = ({ onClose, gameSocket }
   };
 
   return (
-    <div className="fixed top-[150px] right-[50px] bg-[#f7e4c6] p-6 w-[280px] z-30 shadow-xl rounded-lg border-4 border-[#4e342e] pixel-art">
+    <div className="fixed top-[150px] right-[50px] bg-[#f7e4c6] p-6 w-[460px] z-30 shadow-xl rounded-lg border-4 border-[#4e342e] pixel-art">
       {/* 모서리 이미지 추가 */}
       <img src={bl} alt="left-bottom corner" className="absolute bottom-[-20px] left-[-20px]" />
       <img src={br} alt="right-bottom corner" className="absolute bottom-[-20px] right-[-20px]" />
@@ -85,7 +85,9 @@ const PlayerCropModal: React.FC<PlayerCropModalProps> = ({ onClose, gameSocket }
               className="flex justify-between items-center p-2 bg-[#f7f4e3] rounded-lg cursor-pointer hover:bg-gray-200 border-[2px] border-gray-400"
               onClick={() => handleCropClick(cropName)}
             >
-              <span className="flex-1 text-center whitespace-nowrap yellow-text2">{getCropNameInKorean(cropName)}</span>
+              <span className="flex-1 text-center whitespace-nowrap overflow-hidden text-ellipsis yellow-text2">
+                {getCropNameInKorean(cropName)}
+              </span>
               <span className="flex-1 text-center">{quantity}개</span>
             </div>
           ))}
@@ -127,6 +129,7 @@ const PlayerCropModal: React.FC<PlayerCropModalProps> = ({ onClose, gameSocket }
         <img src={cancel} />
       </button>
     </div>
+
   );
 };
 
