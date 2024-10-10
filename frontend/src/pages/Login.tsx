@@ -5,6 +5,8 @@ import GoogleLogin from '../components/login/google/GoogleLogin';
 import KakaoLogin from '../components/login/kakao/KakaoLogin';
 import LoginButton from '../components/login/LoginButton';
 import GoogleLoginTwo from '../components/login/google/GoogleLoginTwo';
+import BackgroundMusic from '../components/common/BGM';
+import bgm from '../assets/music/Espeluznante - Luna Cantina.mp3';
 
 function Login() {
   // useState로 로그인 버튼을 숨기고 로그인 옵션 보여주기
@@ -16,6 +18,7 @@ function Login() {
 
   return (
     <div className="flex flex-col items-center h-screen justify-center">
+      <BackgroundMusic src={bgm} />
       <div className="mb-24">
         <img src={wontouchLogo} alt="원터치 게임 로고" />
       </div>
