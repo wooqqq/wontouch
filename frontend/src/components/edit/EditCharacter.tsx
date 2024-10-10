@@ -111,7 +111,7 @@ function EditCharacter() {
       <h1 className="mint-title mb-6">캐릭터 수정</h1>
 
       {/* 아바타 상세보기 */}
-      <section className="yellow-box w-[45rem] mb-8 mx-auto p-8">
+      <section className="yellow-box w-[45rem] items-center mb-6 mx-auto p-8">
         {/* 선택된 아바타 정보를 props로 전달 */}
         {avatars.map(
           (avatar) =>

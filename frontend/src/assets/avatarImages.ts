@@ -12,6 +12,10 @@ import boyWalk from './background/characters/walk/boy.gif';
 import curlyhairBoyWalk from './background/characters/walk/curlyhair_boy.gif';
 import flowerGirlWalk from './background/characters/walk/flower_girl.gif';
 import girlWalk from './background/characters/walk/girl.gif';
+import goblinWalk from './background/characters/walk/goblin.gif';
+import kingGoblinWalk from './background/characters/walk/king_goblin.gif';
+import ninjaSkeletonWalk from './background/characters/walk/ninja_skeleton.gif';
+import skeletonWalk from './background/characters/walk/skeleton.gif';
 
 const characterImages: { [key: string]: string } = {
   boy: boy,
@@ -29,6 +33,10 @@ const walkImages: { [key: string]: string } = {
   curlyhair_boy: curlyhairBoyWalk,
   flower_girl: flowerGirlWalk,
   girl: girlWalk,
+  goblin: goblinWalk,
+  king_goblin: kingGoblinWalk,
+  skeleton: skeletonWalk,
+  ninja_skeleton: ninjaSkeletonWalk,
 };
 
 export { characterImages, walkImages };
