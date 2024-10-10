@@ -80,6 +80,8 @@ function AvatarInfo({
         },
       });
 
+      console.log(response.data.data);
+
       dispatch(setAvatars(response.data.data)); // Redux 상태 업데이트
       dispatch(setUserCharacterName(avatar.characterName));
       dispatch(updateAvatarEquipped(avatar.characterName));

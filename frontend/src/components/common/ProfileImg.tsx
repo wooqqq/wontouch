@@ -20,7 +20,7 @@ export default function ProfileImg({ characterName }: ProfileImgProps) {
   return (
     <div>
       {profileImgSrc ? (
-        <img src={profileImgSrc} className="p-1.5" />
+        <img src={profileImgSrc} className="p-0.5" />
       ) : (
         <div>캐릭터 이미지를 찾을 수 없습니다.</div>
       )}

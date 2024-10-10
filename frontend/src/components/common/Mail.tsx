@@ -91,7 +91,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
     setShowModal(true); // 알림 오픈
   };
 
-  // 3. 상세 요청 내용
+  // 3. 친구 신청 상세
   const getRequestInfo = async (senderId: number) => {
     try {
       const response = await axios.get(`${API_LINK}/friend/request/detail`, {

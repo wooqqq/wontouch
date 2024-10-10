@@ -13,7 +13,7 @@ function KakaoToSignup() {
       <div className="text-5xl mb-8 text-center mint-title">
         캐릭터 생성하러 가볼까요?
       </div>
-      <div className="ready-button w-3/5 my-0 mx-auto">
+      <div className="ready-button w-2/5 mx-auto">
         <button onClick={goToSignup}>캐릭터 생성</button>
       </div>
     </div>
