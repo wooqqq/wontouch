@@ -5,6 +5,9 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import Modal from '../../common/Modal';
 import AlertModal from '../../common/AlertModal';
+import { setPassword } from '../../../redux/slices/roomSlice';
+import { useDispatch } from 'react-redux';
+
 import map from '../../../assets/map/map.png';
 import lock from '../../../assets/icon/lock.png';
 import cancel from '../../../assets/icon/cancel.png';
@@ -13,11 +16,12 @@ export default function RoomList() {
   const API_LINK = import.meta.env.VITE_API_URL;
   const userId = useSelector((state: RootState) => state.user.id);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [roomList, setRoomList] = useState<any[]>([]); // 방 목록
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null); // 선택한 방 ID
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false); // 비밀번호 모달 표시 여부
-  const [password, setPassword] = useState<string>(''); // 입력된 비밀번호
+  const [enteredPassword, setEnteredPassword] = useState<string>(''); // 입력된 비밀번호
   const [alertModal, setAlertModal] = useState({
     isVisible: false,
     message: '',
@@ -67,7 +71,11 @@ export default function RoomList() {
       });
       console.log(response.data.data);
       setShowPasswordModal(false);
-      setPassword('');
+      setEnteredPassword('');
+
+      // store에 비밀번호 저장 -> waitingRoom에서 쓰임
+      dispatch(setPassword(password));
+
       // 방으로 이동
       navigate(`/wait/${roomId}`);
     } catch (error) {
@@ -82,7 +90,7 @@ export default function RoomList() {
   // 모달에서 비밀번호 입력 후 입장 버튼 클릭 시
   const clickEnter = () => {
     if (selectedRoomId) {
-      enterRoom(selectedRoomId, password);
+      enterRoom(selectedRoomId, enteredPassword);
     }
   };
 
@@ -203,7 +211,7 @@ export default function RoomList() {
                 className="absolute right-0"
                 onClick={() => {
                   setShowPasswordModal(false);
-                  setPassword('');
+                  setEnteredPassword('');
                 }}
               >
                 <img src={cancel} alt="" />
@@ -211,8 +219,8 @@ export default function RoomList() {
             </div>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={enteredPassword}
+              onChange={(e) => setEnteredPassword(e.target.value)}
               placeholder="비밀번호"
               className="input-tag font-['Galmuri11'] w-4/5 h-[60px] p-4 text-2xl"
             />
