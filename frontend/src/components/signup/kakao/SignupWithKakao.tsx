@@ -60,9 +60,9 @@ function SignupWithKakao() {
   };
 
   return (
-    <div className="flex flex-col items-center h-screen justify-center">
+    <div className="items-center h-screen justify-center pt-16">
       <div className="mint-title text-5xl mb-8">캐릭터생성</div>
-      <div className="yellow-box flex flex-col items-center w-[800px] h-[480px]">
+      <div className="yellow-box flex flex-col items-center w-[800px] h-[480px] my-0 mx-auto">
         <div className="profile-img w-[230px] h-[230px] flex items-center justify-center p-4">
           <img
             className="w-full h-full object-contain"

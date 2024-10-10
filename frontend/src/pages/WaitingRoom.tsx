@@ -210,37 +210,6 @@ function WaitingRoom() {
       event.preventDefault();
       event.returnValue = ''; // 경고창
 
-      // try {
-      //   // 방 퇴장 API 호출
-      //   const response = await axios.post(`${API_LINK}/room/exit/${roomId}`, {
-      //     playerId: userId,
-      //   });
-      //   if (response.status === 200) {
-      //     console.log('방 퇴장 완료');
-
-      //     // 방장 위임 처리 확인
-      //     if (response.data.data.hostId !== userId) {
-      //       dispatch(setHostId(response.data.data.hostId));
-      //       console.log('방장이 위임되었습니다:', response.data.data.hostId);
-      //     } else {
-      //       // 방장이 위임되지 않은 경우
-      //       alert('방장이 없습니다.');
-      //       navigate('/lobby');
-      //     }
-      //   }
-      // } catch (error: unknown) {
-      //   if (axios.isAxiosError(error)) {
-      //     if (error.response && error.response.status === 404) {
-      //       alert('방을 찾을 수 없습니다.');
-      //       navigate('/lobby');
-      //     } else {
-      //       console.error('방 정보 가져오는 중 에러 발생: ', error);
-      //     }
-      //   } else {
-      //     console.error('예상치 못한 오류 발생: ', error);
-      //   }
-      // }
-
       // 비동기 API 호출을 처리하기 전에 빠르게 퇴장 처리
       axios
         .post(`${API_LINK}/room/exit/${roomId}`, { playerId: userId })

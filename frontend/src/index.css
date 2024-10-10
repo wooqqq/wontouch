@@ -32,6 +32,7 @@ body {
   place-items: center;
   min-width: 720px;
   min-height: 100vh;
+  overflow: hidden;
 
   /* 드래그 방지 */
   -webkit-user-select: none;
@@ -62,12 +63,12 @@ button:active {
   width: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #adadad;
-  border-radius: 5px;
+  background: #36eab5;
+  border-radius: 20px;
 }
 ::-webkit-scrollbar-track {
   background-color: #d9d9d9;
-  border-radius: 5px;
+  border-radius: 20px;
 }
 
 @layer base {
@@ -451,7 +452,7 @@ button:active {
   background: #fff;
   color: #fff;
   text-align: center;
-  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-width: 1.5px;
   -webkit-text-stroke-color: #ff4242;
 }
 
@@ -461,7 +462,7 @@ button:active {
   background: #36eab5;
   color: #fff;
   text-align: center;
-  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: #10ab7d;
 }
 
@@ -469,4 +470,10 @@ button:active {
   color: #fff;
   -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: #10ab7d;
+}
+
+.yellow-text {
+  color: #fff;
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: #eba900;
 }
