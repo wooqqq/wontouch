@@ -9,7 +9,7 @@ interface GameChatProps {
 
 const GameChat: React.FC<GameChatProps> = ({ gameSocket, chatHistory }) => {
   const [message, setMessage] = useState('');
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   // 게임 참가자들
   const participants = useSelector((state: RootState) => state.room.gameParticipants);
@@ -46,22 +46,22 @@ const GameChat: React.FC<GameChatProps> = ({ gameSocket, chatHistory }) => {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 bg-[#e3d4b6] text-black p-4 rounded-lg shadow-lg w-[400px] h-auto z-50 border-[3px] border-[#8f6e3d]">
+    <div className="fixed bottom-4 left-4 bg-[#e3d4b6] text-black p-4 rounded-lg shadow-lg w-[400px] h-auto z-50 border-[3px] border-[#8f6e3d] bg-opacity-80">
       {/* 채팅창 접기/펼치기 버튼 */}
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center">
         <h3 className="text-lg font-bold">게임 채팅</h3>
         <button
           onClick={toggleChat}
-          className="bg-[#8f6e3d] text-white p-1 rounded-lg hover:bg-[#75532b]"
+          className={`bg-[#8f6e3d] text-white p-1 rounded-lg hover:bg-[#75532b] bg-opacity-80 px-2 ${isOpen ? 'mb-2' : ''}`}
         >
-          {isOpen ? '접기' : '펴기'}
+          {isOpen ? '닫기' : '열기'}
         </button>
       </div>
 
       {isOpen && (
         <div className="flex flex-col h-full">
           {/* 채팅 내역 표시 */}
-          <div className="flex-grow overflow-y-auto bg-[#f7e6c7] p-2 mb-2 rounded-lg h-[200px]">
+          <div className="flex-grow overflow-y-auto bg-[#f7e6c7] p-2 mb-2 rounded-lg h-[200px] bg-opacity-80">
             {chatHistory.map((chat, index) => (
               <div key={index} className="mb-1">
                 {/* playerId를 닉네임으로 변환하여 출력 */}

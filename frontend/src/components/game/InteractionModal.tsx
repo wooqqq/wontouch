@@ -215,14 +215,6 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
     }
   }, [houseNum, gameSocket]);
 
-  useEffect(() => {
-    //메세지를 보내봐
-    const req = {
-      type: "ARTICLE_SHOP"
-    }
-    gameSocket?.send(JSON.stringify(req));
-  }, [])
-
   const minusCount = () => {
     if (count > 0) {
       setCount(count - 1);
