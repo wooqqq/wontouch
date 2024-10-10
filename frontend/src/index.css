@@ -25,6 +25,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 body {
   margin: 0;
   display: flex;
