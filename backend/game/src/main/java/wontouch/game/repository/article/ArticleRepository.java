@@ -49,12 +49,15 @@ public class ArticleRepository {
         String articleKey = GAME_PREFIX + roomId + ARTICLE_SUFFIX + ":" + cropId;
         String playerArticleKey = PLAYER_PREFIX + playerId + ARTICLE_SUFFIX;
         String playerInfoKey = PLAYER_PREFIX + playerId + INFO_SUFFIX;
+        String cropInfoKey = GAME_PREFIX + roomId + CROP_INFIX + cropId + INFO_SUFFIX;
 
         int articlePrice = (Integer) redisTemplate.opsForHash().get(playerInfoKey, "articlePrice");
         Integer gold = (Integer) redisTemplate.opsForHash().get(playerInfoKey, "gold");
         if (gold == null || gold < articlePrice) {
-            return new ArticleTransactionResult(TransactionStatusType.INSUFFICIENT_GOLDS, null, gold);
+            return new ArticleTransactionResult(TransactionStatusType.INSUFFICIENT_GOLDS, null, null, gold);
         }
+
+        String town = cropRedisRepository.getCropTown(roomId, cropId);
 
         Set<Object> articleIds = redisTemplate.opsForSet().members(articleKey);
         log.debug("crop:{}, articleIds:{}", cropId, articleIds);
@@ -78,7 +81,7 @@ public class ArticleRepository {
                 Article article = getArticle(cropId, (String) articleId);
                 article.setFutureArticles(null);
                 int playerGold = playerRepository.getPlayerGold(playerId);
-                return new ArticleTransactionResult(TransactionStatusType.SUCCESS, article, playerGold);
+                return new ArticleTransactionResult(TransactionStatusType.SUCCESS, article, town, playerGold);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -134,6 +137,9 @@ public class ArticleRepository {
                     if (futureArticle != null) {
                         double changeRate = futureArticle.getChangeRate();
                         double updatedPrice = newPriceMap.get(cropId) + (priceMap.get(cropId) * changeRate / 100);
+                        if (updatedPrice < 0) {
+                            updatedPrice = 1;
+                        }
                         log.debug("crop:{}, updatedPrice: {}", cropId, updatedPrice);
                         newPriceMap.put((String) cropId, (int) updatedPrice);
 
