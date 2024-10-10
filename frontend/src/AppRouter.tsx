@@ -14,12 +14,17 @@ import KakaoLoginHandler from './components/login/kakao/KakaoLoginHandler';
 import KakaoToSignup from './components/login/kakao/KakaoToSignup';
 import SignupWithKakao from './components/signup/kakao/SignupWithKakao';
 import CommonBG from './components/common/CommonBG';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from './redux/store';
-import { setToken } from './redux/slices/authSlice';
-import { setUserId } from './redux/slices/userSlice';
-import { jwtDecode } from 'jwt-decode';
 import Edit from './pages/Edit';
+import BackgroundMusic from './components/common/BackGroundMusic';
+import LoginMusic from './assets/music/login.mp3';
+import LobbyMusic from './assets/music/lobby.mp3';
+import GameMusic from './assets/music/game.mp3';
+import SignupMusic from './assets/music/singup.mp3';
+import WaitingRoomMusic from './assets/music/waitingRoom.mp3';
+import EditMusic from './assets/music/edit.mp3';
+import clickSound from './assets/music/click.wav';
 
 interface DecodedToken {
   userId: number;
@@ -58,8 +63,35 @@ function SignupProtectedRoute({ children }: { children: JSX.Element }) {
 }
 
 function AppRouter() {
+  useEffect(() => {
+    const handlePlaySound = () => {
+      const sound = document.getElementById('clickSound') as HTMLAudioElement;
+      if (sound) {
+        sound.play();
+      }
+    };
+
+    document.addEventListener('click', handlePlaySound);
+
+    // Clean up event listener on unmount to prevent memory leaks
+    return () => {
+      document.removeEventListener('click', handlePlaySound);
+    };
+  }, []);
+
   return (
     <Router>
+      <BackgroundMusic
+        loginMusic={LoginMusic}
+        lobbyMusic={LobbyMusic}
+        waitingRoomMusic={WaitingRoomMusic}
+        gameMusic={GameMusic}
+        signupMusic={SignupMusic}
+        editMusic={EditMusic}
+      />
+
+      {/* 클릭 사운드 오디오 추가 */}
+      <audio id="clickSound" src={clickSound} preload="auto" />
       <Routes>
         <Route
           path="/"

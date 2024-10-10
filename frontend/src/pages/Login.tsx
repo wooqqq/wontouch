@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import wontouchLogo from '../assets/login/logo.gif';
-
 import KakaoLogin from '../components/login/kakao/KakaoLogin';
 import LoginButton from '../components/login/LoginButton';
 
 function Login() {
-  // useState로 로그인 버튼을 숨기고 로그인 옵션 보여주기
   const [showLoginOptions, setShowLoginOptions] = useState(false);
 
   const handleLoginClick = () => {
