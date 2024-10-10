@@ -1,7 +1,8 @@
 import LevelImg from '../common/LevelImg';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import ProfileImg from '../common/ProfileImg';
+import { characterImages } from '../../assets/avatarImages';
+// import ProfileImg from '../common/ProfileImg';
 
 interface UserInfoProps {
   isHost: boolean; // 방장 여부
@@ -50,15 +51,17 @@ function RoomUserInfo({
     return (
       <div className="text-center">
         <div
-          className={`w-[157px] h-[178px] rounded-[20px] border-[5px] bg-[#FFF2D1] px-[21px] py-[10px] relative
+          className={`flex flex-col justify-center items-center w-[157px] h-[178px] rounded-[20px] border-[5px] bg-[#FFF2D1] py-[5px] relative
             ${isHost ? 'border-[#FE0]' : isReady ? 'border-[#36eab5]' : 'border-[#FFF] '}`}
         >
           <div className="w-7 absolute right-4 top-0">
             <LevelImg tierPoint={tierPoint ? Number(tierPoint) : 0} />
           </div>
-          <div className="w-[130%]">
-            <ProfileImg characterName={character} />
-          </div>
+          <img
+            src={characterImages[character]}
+            alt="아바타"
+            className="h-full"
+          />
           <div className="user-name">{nickname}</div>
           {isHost ? (
             <div className="host-user absolute bottom-5 left-11">방장</div>

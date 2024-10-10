@@ -5,12 +5,6 @@ import Header from '../components/common/Header';
 import BackButton from '../components/common/BackButton';
 
 function Edit() {
-  const navigate = useNavigate();
-
-  // 뒤로 가기
-  const clickArrow = () => {
-    navigate('/lobby');
-  };
   return (
     <>
       <div className="flex justify-between items-center">
