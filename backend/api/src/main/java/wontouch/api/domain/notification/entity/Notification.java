@@ -23,5 +23,11 @@ public class Notification {
 
     private String content;
 
+    private String roomId;
+
+    private String roomName;
+
+    private String password;
+
     private NotificationType notificationType;
 }

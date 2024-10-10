@@ -1,5 +1,6 @@
 package wontouch.api.domain.user.model.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import wontouch.api.domain.friend.model.repository.jpa.FriendRepository;
 import wontouch.api.domain.user.dto.request.UserSearchRequestDto;
+import wontouch.api.domain.user.dto.response.GameHistoryResponseDto;
 import wontouch.api.domain.user.dto.response.UserResponseDto;
 import wontouch.api.domain.user.dto.response.UserSearchResponseDto;
 import wontouch.api.domain.user.entity.Avatar;
@@ -20,6 +22,8 @@ import wontouch.api.domain.user.model.repository.AvatarRepository;
 import wontouch.api.domain.user.model.repository.UserProfileRepository;
 import wontouch.api.global.exception.CustomException;
 import wontouch.api.global.exception.ExceptionResponse;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -154,6 +158,29 @@ public class UserService {
             }
         } catch (Exception e) {
             // 예외 처리
+            throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
+        }
+    }
+
+    /**
+     * 사용자 ID를 통한 게임 전적 조회
+     */
+    public List<GameHistoryResponseDto> getGameHistoryList(int userId) {
+        String url = String.format("%s/game-history/list/%d", mileageServerUrl, userId);
+
+        try {
+            // 외부 API 호출
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode jsonResponse = objectMapper.readTree(response.getBody());
+
+                JsonNode dataNode = jsonResponse.get("data");
+                return objectMapper.convertValue(dataNode, new TypeReference<List<GameHistoryResponseDto>>() {});
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
             throw new ExceptionResponse(CustomException.UNHANDLED_ERROR_EXCEPTION);
         }
     }

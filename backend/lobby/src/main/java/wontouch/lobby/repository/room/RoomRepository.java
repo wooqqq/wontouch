@@ -308,4 +308,11 @@ public class RoomRepository {
         String participantsKey = "game_lobby:" + roomId + ":participants";
         return redisTemplate.opsForSet().size(participantsKey);
     }
+
+    public RoomInviteResponseDto inviteFriend(String roomId) {
+        // 방 정보 찾기
+        Room room = getRoomById(roomId);
+
+        return new RoomInviteResponseDto(room);
+    }
 }

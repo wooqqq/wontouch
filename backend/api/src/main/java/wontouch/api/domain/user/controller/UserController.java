@@ -5,10 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wontouch.api.domain.user.dto.request.UserSearchRequestDto;
+import wontouch.api.domain.user.dto.response.GameHistoryResponseDto;
 import wontouch.api.domain.user.dto.response.UserResponseDto;
 import wontouch.api.domain.user.dto.response.UserSearchResponseDto;
 import wontouch.api.domain.user.model.service.UserService;
 import wontouch.api.global.dto.ResponseDto;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -45,6 +48,30 @@ public class UserController {
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/game-history/{userId}")
+    public ResponseEntity<?> getGameHistoryList(@PathVariable int userId) {
+        List<GameHistoryResponseDto> gameHistoryList = userService.getGameHistoryList(userId);
+
+        ResponseDto<Object> responseDto;
+        if (gameHistoryList == null || gameHistoryList.isEmpty()) {
+            responseDto = ResponseDto.<Object>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("게임 전적 없음")
+                    .data(null)
+                    .build();
+
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        } else {
+            responseDto = ResponseDto.<Object>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("게임 전적 조회 성공")
+                    .data(gameHistoryList)
+                    .build();
+
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }
     }
 
     @DeleteMapping("/delete/{userId}")
