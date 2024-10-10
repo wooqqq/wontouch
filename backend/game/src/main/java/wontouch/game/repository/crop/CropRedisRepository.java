@@ -8,8 +8,7 @@ import wontouch.game.entity.Crop;
 import java.util.Map;
 import java.util.Set;
 
-import static wontouch.game.domain.RedisKeys.CROP_INFIX;
-import static wontouch.game.domain.RedisKeys.GAME_PREFIX;
+import static wontouch.game.domain.RedisKeys.*;
 
 @Repository
 @Slf4j
@@ -83,7 +82,7 @@ public class CropRedisRepository {
 
     // 구매한 만큼 재고 감소
     public void updateCropQuantity(String roomId, Object cropId, int purchaseQuantity) {
-        String cropKey = GAME_PREFIX + roomId + CROP_INFIX + cropId;
+        String cropKey = GAME_PREFIX + roomId + CROP_INFIX + cropId + INFO_SUFFIX;
         redisTemplate.opsForHash().increment(cropKey, "quantity", purchaseQuantity); // 마을 보유 작물 수량 감소
     }
 

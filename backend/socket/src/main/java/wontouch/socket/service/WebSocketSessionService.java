@@ -2,8 +2,10 @@ package wontouch.socket.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -21,6 +23,13 @@ public class WebSocketSessionService {
     private final Map<String, ConcurrentHashMap<String, WebSocketSession>> roomSessions = new ConcurrentHashMap<>();
     private final Map<String, String> playerIdToRoomId = new ConcurrentHashMap<>(); // playerId -> roomId
     private final ObjectMapper mapper = new ObjectMapper();
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${lobby.server.name}:${lobby.server.path}")
+    private String lobbyServerUrl;
+
+    @Value("${game.server.name}:${game.server.path}")
+    private String gameServerUrl;
 
     public void addSession(String roomId, WebSocketSession session) {
         log.debug("Adding session to room: {}", roomId);
@@ -49,12 +58,15 @@ public class WebSocketSessionService {
         log.debug("Remaining sessions in room {}: {}", roomId, roomSessions.containsKey(roomId) ? roomSessions.get(roomId).size() : 0);
     }
 
-    public boolean isPlayerInAnotherRoom(String playerId, String currentRoomId) {
+    public boolean isPlayerInAnotherRoom(String currentRoomId, String playerId) {
         String roomId = playerIdToRoomId.get(playerId);
         return roomId != null && !roomId.equals(currentRoomId);
     }
 
-
+    public boolean isPlayerInCurrentRoom(String currentRoomId, String playerId) {
+        String roomId = playerIdToRoomId.get(playerId);
+        return roomId != null && roomId.equals(currentRoomId);
+    }
 
     public Map<String, WebSocketSession> getSessions(String roomId) {
         return roomSessions.getOrDefault(roomId, new ConcurrentHashMap<>());
@@ -94,14 +106,40 @@ public class WebSocketSessionService {
                 // 해당 플레이어에게만 메시지를 전송
 
                 session.sendMessage(new TextMessage(mapper.writeValueAsString(new MessageResponseDto(messageType, content))));
-                log.debug("Message sent to playerId {} in room {}", playerId, roomId);
+                log.debug("Message sent to playerId {} session: {}, in room {}", playerId, session.toString(), roomId);
                 break;  // 특정 플레이어에게만 전송 후 루프 종료
             }
         }
     }
 
+    public void closeExistingSessionInCurrentRoom(String roomId, String playerId) {
+        String existingRoomId = playerIdToRoomId.get(playerId);
+        Map<String, WebSocketSession> sessions = roomSessions.get(roomId);
+        // 해당 playerId와 일치하는 세션을 찾음
+        if (sessions != null) {
+            for (WebSocketSession session : sessions.values()) {
+                String sessionPlayerId = (String) session.getAttributes().get("playerId");
+
+                // 동일한 playerId로 연결된 세션을 찾아서 종료
+                if (playerId.equals(sessionPlayerId)) {
+                    try {
+                        // 기존 세션 종료
+                        session.close(CloseStatus.GOING_AWAY);
+                        log.info("닫아버리기 Player {}'s existing session in current room {} closed", playerId, roomId);
+                        // 세션 목록에서 제거
+                        removeSession(roomId, session);
+                        break;  // 동일한 플레이어의 세션을 찾았으므로 루프 종료
+                    } catch (IOException e) {
+                        log.error("Error while closing session for player {}: {}", playerId, e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+
     // 연결되어 있는 session 닫기
-    public void closeExistingSession(String playerId) {
+    public void closeExistingSessionInAnotherRoom(String roomId, String playerId) {
         // playerId가 연결된 방을 찾음
         String existingRoomId = playerIdToRoomId.get(playerId);
 
@@ -118,10 +156,27 @@ public class WebSocketSessionService {
                     if (playerId.equals(sessionPlayerId)) {
                         try {
                             session.close(CloseStatus.GOING_AWAY);  // 클라이언트에게 GOING_AWAY 상태를 보냄
-                            log.info("Player {}'s existing session in room {} closed", playerId, existingRoomId);
+                            log.info("한 곳에만 있거라 Player {}'s existing session in room {} closed", playerId, existingRoomId);
 
                             // 해당 세션을 방에서 제거
                             removeSession(existingRoomId, session);
+
+                            // 해당 정보 제거
+                            try {
+                                // session 정보를 로비 서버로 전송
+                                String lobbyTargetUrl = lobbyServerUrl + "/api/session/remove";
+                                Map<String, Object> sessionInfo = new ConcurrentHashMap<>();
+                                sessionInfo.put("roomId", roomId);
+                                sessionInfo.put("playerId", playerId);
+                                sessionInfo.put("sessionId", session.getId());
+                                restTemplate.postForObject(lobbyTargetUrl, sessionInfo, String.class);
+
+                                // session 정보를 게임 서버로 전송
+                                String gameTargetUrl = gameServerUrl + "/game/session/remove";
+                                restTemplate.postForObject(gameTargetUrl, sessionInfo, String.class);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             break;
                         } catch (IOException e) {
                             log.error("Error while closing session for player {}: {}", playerId, e.getMessage());
