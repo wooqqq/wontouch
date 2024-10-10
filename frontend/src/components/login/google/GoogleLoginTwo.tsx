@@ -17,7 +17,7 @@ function GoogleLoginTwo() {
     // 본인 구글 토큰 입력
     const accessToken = import.meta.env.VITE_GOOGLE_TOKEN_TWO;
 
-    localStorage.setItem('access_token', accessToken);
+    sessionStorage.setItem('access_token', accessToken);
     const decodedToken = jwtDecode<DecodedToken>(accessToken);
 
     // 상태 업데이트

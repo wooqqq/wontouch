@@ -39,6 +39,7 @@ interface Friend {
   description: string;
   characterName: string;
   tierPoint: number;
+  online: boolean;
 }
 
 export default function Mail({ closeMail }: { closeMail: () => void }) {
@@ -46,7 +47,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
 
   const API_LINK = import.meta.env.VITE_API_URL;
   const userId = useSelector((state: RootState) => state.user.id);
-  const accessToken = localStorage.getItem('access_token');
+  const accessToken = sessionStorage.getItem('access_token');
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedNotification, setSelectedNotification] =
@@ -142,6 +143,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
         description: response.data.data.description,
         characterName: response.data.data.characterName,
         tierPoint: response.data.data.tierPoint,
+        online: response.data.data.online,
       };
 
       setShowModal(false);
