@@ -53,6 +53,8 @@ public class MessageHandlerFactory {
                 return gameServerService.buyRandomArticle(roomId, playerId, msgMap);
             case BUY_CROP_ARTICLE:
                 return gameServerService.buyArticle(roomId, playerId, msgMap);
+            case ARTICLE_SHOP:
+                return "거래소에 서버를 거쳐 접근했습니다";
             default:
                 System.out.println("Unknown message type: " + messageType);
                 return null;
