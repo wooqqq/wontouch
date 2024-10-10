@@ -556,7 +556,6 @@ const PhaserGame = () => {
           gravity: { x: 0, y: 0 },
           fps: 60,
           tileBias: 16,
-          debug: true,
         },
       },
       scene: {
