@@ -61,7 +61,7 @@ function Lobby() {
             </button>
           </div>
           <div className="list-box overflow-auto flex flex-wrap justify-between p-2 w-full h-[530px]">
-            <RoomList key={reloadKey} />{' '}
+            <RoomList key={reloadKey} />
             {/* reloadKey가 바뀔 때마다 RoomList가 재렌더링 */}
           </div>
         </div>
