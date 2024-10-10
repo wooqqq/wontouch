@@ -233,7 +233,7 @@ export const createGameMap = (scene: Phaser.Scene) => {
   house_topLayer?.setDepth(1);
   shadow_topLayer?.setDepth(1);
   animals_topLayer?.setDepth(1);
-  collidesLayer?.setDepth(-1);
+  collidesLayer?.setDepth(-4);
 
 
   return {
