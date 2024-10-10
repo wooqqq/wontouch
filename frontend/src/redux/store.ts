@@ -18,6 +18,7 @@ import timeSlice from './slices/timeSlice';
 import cropQuantitySlice from './slices/cropQuantitySlice';
 import gameResultSlice from './slices/gameResultSlice';
 import avatarSlice from './slices/avatarSlice';
+import balanceSlice from './slices/balanceSlice';
 
 // persist 설정
 const persistConfig = {
@@ -42,6 +43,7 @@ const rootReducer = combineReducers({
   cropQuantity: cropQuantitySlice,
   gameResult: gameResultSlice,
   avatar: avatarSlice,
+  balance: balanceSlice,
 });
 
 // persistReducer로 rootReducer를 래핑
