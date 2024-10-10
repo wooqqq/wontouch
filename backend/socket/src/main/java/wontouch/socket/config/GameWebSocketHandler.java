@@ -149,6 +149,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             case CROP_CHART:
             case BUY_RANDOM_ARTICLE:
             case BUY_CROP_ARTICLE:
+            case ARTICLE_SHOP:
                 content = messageHandlerFactory.handleMessage(roomId, playerId ,messageType, msgMap);
                 sessionService.unicastMessage(roomId, playerId, messageType, content);
                 break;
