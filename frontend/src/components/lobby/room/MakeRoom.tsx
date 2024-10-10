@@ -10,6 +10,7 @@ import {
   setIsPrivate,
   setPassword,
 } from '../../../redux/slices/roomSlice';
+import Modal from '../../common/Modal';
 import AlertModal from '../../common/AlertModal';
 
 import cancel from '../../../assets/icon/cancel.png';
@@ -28,6 +29,11 @@ export default function MakeRoomModal({
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+
   // UUID 먼저 발급
   const getUUID = async () => {
     try {
@@ -35,7 +41,7 @@ export default function MakeRoomModal({
       const UUID = res.data.data;
       return UUID; // UUID 값을 반환
     } catch (error) {
-      console.error('UUID 발급 중 에러 발생', error);
+      setAlertModal({ isVisible: true, message: '다시 시도해주세요.' });
     }
   };
 
@@ -48,12 +54,18 @@ export default function MakeRoomModal({
 
   const handleMakeRoom = async () => {
     if (userId === null) {
-      alert('사용자 ID를 찾을 수 없습니다.');
+      setAlertModal({
+        isVisible: true,
+        message: '사용자 ID를 찾을 수 없습니다.',
+      });
       return;
     }
 
     if (!roomNameState) {
-      alert('방 제목을 입력하세요!');
+      setAlertModal({
+        isVisible: true,
+        message: '방 제목을 입력하세요!',
+      });
       return;
     }
 
@@ -61,7 +73,10 @@ export default function MakeRoomModal({
       // UUID 발급
       const UUID = await getUUID();
       if (!UUID) {
-        alert('UUID 발급에 실패했습니다.');
+        setAlertModal({
+          isVisible: true,
+          message: '다시 시도해주세요.',
+        });
         return;
       }
 
@@ -90,9 +105,16 @@ export default function MakeRoomModal({
       });
       navigate(`/wait/${createdRoomId}`);
     } catch (error) {
-      console.error('방 생성 중 에러 발생', error);
+      setAlertModal({
+        isVisible: true,
+        message: '다시 시도해주세요.',
+      });
     }
   };
+
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
 
   return (
     <div className="yellow-box w-1/2 h-[460px] border-[#36EAB5] bg-[#FFFEEE] p-8 px-20">
@@ -134,6 +156,15 @@ export default function MakeRoomModal({
           <img src={confirm} alt="방 생성하기" />
         </button>
       </div>
+
+      {alertModal.isVisible && (
+        <Modal>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
+        </Modal>
+      )}
     </div>
   );
 }

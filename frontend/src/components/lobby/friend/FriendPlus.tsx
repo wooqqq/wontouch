@@ -6,11 +6,12 @@ import { useState } from 'react';
 import LevelImg from '../../common/LevelImg';
 import LevelText from '../../common/LevelText';
 import ProfileImg from '../../common/ProfileImg';
+import Modal from '../../common/Modal';
+import AlertModal from '../../common/AlertModal';
 
 import search from '../../../assets/icon/search.png';
 import cancel from '../../../assets/icon/cancel.png';
 import confirm from '../../../assets/icon/confirm.png';
-import Modal from '../../common/Modal';
 
 export default function FriendPlus({
   closeFriend,
@@ -27,6 +28,10 @@ export default function FriendPlus({
     'init',
   );
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
 
   const userId = useSelector((state: RootState) => state.user.id);
 
@@ -59,7 +64,7 @@ export default function FriendPlus({
 
   const handleConfirm = async () => {
     if (!searchedNickname) {
-      alert('친구를 검색해주세요!');
+      setAlertModal({ isVisible: true, message: '친구를 검색해주세요!' });
       return;
     }
 
@@ -76,6 +81,10 @@ export default function FriendPlus({
     setOpenModal(false);
     closeFriend();
   };
+
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
 
   return (
     <div className="yellow-box w-1/2 h-[470px] p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
@@ -180,6 +189,15 @@ export default function FriendPlus({
               <img src={confirm} alt="" />
             </button>
           </div>
+        </Modal>
+      )}
+
+      {alertModal.isVisible && (
+        <Modal>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
         </Modal>
       )}
     </div>

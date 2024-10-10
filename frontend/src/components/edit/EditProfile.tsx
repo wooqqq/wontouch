@@ -65,7 +65,16 @@ export default function EditProfile() {
   const handleCheckNickname = async () => {
     if (userNickname !== nickname) {
       const availability = await CheckNicknameDuplicate(nickname);
-      setIsNicknameAvailable(availability);
+      if (availability === 'isOK') {
+        setIsNicknameAvailable(true);
+      } else if (!nickname) {
+        setAlertModal({ isVisible: true, message: '닉네임을 입력해주세요.' });
+      } else {
+        setAlertModal({
+          isVisible: true,
+          message: '닉네임 중복 확인이 불가능합니다.',
+        });
+      }
     }
   };
 

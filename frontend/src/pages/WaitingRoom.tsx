@@ -13,6 +13,7 @@ import {
 } from '../redux/slices/roomSlice';
 
 import Modal from '../components/common/Modal';
+import AlertModal from '../components/common/AlertModal';
 import FriendInvite from '../components/waitingRoom/FriendInvite';
 import MapInfo from '../components/waitingRoom/MapInfo';
 import ReadyButton from '../components/waitingRoom/ReadyButton';
@@ -64,6 +65,10 @@ function WaitingRoom() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAllReady, setIsAllReady] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
   const socket = useRef<WebSocket | null>(null);
 
   // ❗❗❗❗❗❗❗❗ roomId 저장 useEffect ❗❗❗❗❗❗❗❗
@@ -170,7 +175,10 @@ function WaitingRoom() {
                   state: { roundDuration: duration, roundNumber: round },
                 });
               } else {
-                alert('게임 시작에 필요한 정보가 부족합니다.');
+                setAlertModal({
+                  isVisible: true,
+                  message: '게임 시작에 필요한 정보가 부족합니다.',
+                });
               }
               break;
             }
@@ -241,7 +249,10 @@ function WaitingRoom() {
             dispatch(setHostId(response.data.data.hostId));
             console.log('방장이 위임되었습니다:', response.data.data.hostId);
           } else {
-            alert('방장이 없습니다.');
+            setAlertModal({
+              isVisible: true,
+              message: '방장이 없습니다.',
+            });
             navigate('/lobby');
           }
         })
@@ -348,6 +359,9 @@ function WaitingRoom() {
 
   const handleOpenModal = () => setIsModalOpen(true); // 모달 열기
   const handleCloseModal = () => setIsModalOpen(false); // 모달 닫기
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
 
   return (
     <>
@@ -382,6 +396,14 @@ function WaitingRoom() {
           </Modal>
         )}
       </div>
+      {alertModal.isVisible && (
+        <Modal>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
+        </Modal>
+      )}
     </>
   );
 }

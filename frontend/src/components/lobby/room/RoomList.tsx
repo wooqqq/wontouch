@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import Modal from '../../common/Modal';
+import AlertModal from '../../common/AlertModal';
 import map from '../../../assets/map/map.png';
 import lock from '../../../assets/icon/lock.png';
 import cancel from '../../../assets/icon/cancel.png';
@@ -17,6 +18,10 @@ export default function RoomList() {
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null); // 선택한 방 ID
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false); // 비밀번호 모달 표시 여부
   const [password, setPassword] = useState<string>(''); // 입력된 비밀번호
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
 
   // 방 목록 호출 api
   const getRoomList = async () => {
@@ -36,7 +41,10 @@ export default function RoomList() {
     currentPlayersCount: number,
   ) => {
     if (currentPlayersCount === 8) {
-      alert('인원이 꽉 찼습니다!');
+      setAlertModal({
+        isVisible: true,
+        message: '인원이 꽉찼습니다!',
+      });
       return;
     }
 
@@ -63,7 +71,10 @@ export default function RoomList() {
       // 방으로 이동
       navigate(`/wait/${roomId}`);
     } catch (error) {
-      alert('비밀번호를 다시 입력해주세요!');
+      setAlertModal({
+        isVisible: true,
+        message: '비밀번호를 다시 입력해주세요!',
+      });
       console.log(error);
     }
   };
@@ -74,6 +85,10 @@ export default function RoomList() {
       enterRoom(selectedRoomId, password);
     }
   };
+
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
 
   return (
     <div className="flex flex-col">
@@ -174,7 +189,7 @@ export default function RoomList() {
         <div className="white-title text-3xl mx-10 my-6">
           생성된 방이 없습니다.
         </div>
-      )}  
+      )}
 
       {/* Modal for entering password if the room is private */}
       {showPasswordModal && (
@@ -208,6 +223,15 @@ export default function RoomList() {
               입장하기
             </button>
           </div>
+        </Modal>
+      )}
+
+      {alertModal.isVisible && (
+        <Modal>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
         </Modal>
       )}
     </div>

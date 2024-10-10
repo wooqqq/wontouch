@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +12,8 @@ import {
   setUserTierPoint,
 } from '../../../redux/slices/userSlice';
 import { jwtDecode } from 'jwt-decode';
+import Modal from '../../common/Modal';
+import AlertModal from '../../common/AlertModal';
 
 import flowerGirl from '../../../assets/background/characters/stand/flower_girl.png';
 
@@ -24,6 +27,11 @@ function KakaoLoginHandler() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
 
   const getToken = async () => {
     const code = new URL(window.location.href).searchParams.get('code'); // 인가코드 추출
@@ -58,7 +66,10 @@ function KakaoLoginHandler() {
       }
     } catch (error) {
       console.log(error);
-      alert('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+      setAlertModal({
+        isVisible: true,
+        message: '로그인 중 오류가 발생했습니다. 다시 시도해주세요.',
+      });
     }
   };
 
@@ -71,9 +82,6 @@ function KakaoLoginHandler() {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-
-      console.log(response.data.data.mileage);
-
       dispatch(setUserNickname(response.data.data.nickname));
       dispatch(setUserDescription(response.data.data.description));
       dispatch(setUserCharacterName(response.data.data.characterName));
@@ -92,12 +100,24 @@ function KakaoLoginHandler() {
     getToken();
   }, []);
 
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
+
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="mr-14 w-44">
         <img src={flowerGirl} alt="" className="w-full" />
       </div>
       <div className="text-5xl">유저 정보 확인 중 . . .</div>
+      {alertModal.isVisible && (
+        <Modal>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
+        </Modal>
+      )}
     </div>
   );
 }

@@ -20,23 +20,23 @@ export const CheckSetNickname = (nickname: string) => {
 
   // 유효성 검사
   if (isKoreanConsonants) {
-    return '닉네임 변경 : 한글 자음만 입력할 수 없습니다.';
+    return '닉네임 변경 불가 : 한글 자음만 입력할 수 없습니다.';
   } else if (isKoreanVowels) {
-    return '닉네임 변경 : 한글 모음만 입력할 수 없습니다.';
+    return '닉네임 변경 불가 : 한글 모음만 입력할 수 없습니다.';
   } else if (totalLength > 6) {
-    return '닉네임 변경 : 한글은 최대 6자까지 입력할 수 있습니다.';
+    return '닉네임 변경 불가 : 한글은 최대 6자까지 입력할 수 있습니다.';
   } else if (isEnglish && nickname.length > 10) {
-    return '닉네임 변경 : 영어는 최대 10자까지 입력할 수 있습니다.';
+    return '닉네임 변경 불가 : 영어는 최대 10자까지 입력할 수 있습니다.';
   } else if (isNumeric && nickname.length > 10) {
-    return '닉네임 변경 : 숫자는 최대 10자까지 입력할 수 있습니다.';
+    return '닉네임 변경 불가 : 숫자는 최대 10자까지 입력할 수 있습니다.';
   } else if (isKoreanAndEnglish && nickname.length > 8) {
-    return '닉네임 변경 : 한글과 영어 조합은 최대 8자까지 입력할 수 있습니다.';
+    return '닉네임 변경 불가 : 한글과 영어 조합은 최대 8자까지 입력할 수 있습니다.';
   } else if (isKoreanAndNumeric && nickname.length > 8) {
-    return '닉네임 변경 : 한글과 숫자 조합은 최대 8자까지 입력할 수 있습니다.';
+    return '닉네임 변경 불가 : 한글과 숫자 조합은 최대 8자까지 입력할 수 있습니다.';
   } else if (isEnglishAndNumeric && nickname.length > 10) {
-    return '닉네임 변경 : 영어와 숫자 조합은 최대 10자까지 입력할 수 있습니다.';
+    return '닉네임 변경 불가 : 영어와 숫자 조합은 최대 10자까지 입력할 수 있습니다.';
   } else if (isValidNickname && nickname.length > 8) {
-    return '닉네임 변경 : 한글, 영어, 숫자 혼합은 최대 8자까지 입력할 수 있습니다.';
+    return '닉네임 변경 불가 : 한글, 영어, 숫자 혼합은 최대 8자까지 입력할 수 있습니다.';
   } else {
     return 'isOK';
   }
