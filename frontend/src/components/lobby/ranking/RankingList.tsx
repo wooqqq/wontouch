@@ -1,5 +1,3 @@
-import React from 'react';
-
 import LevelImg from '../../common/LevelImg';
 
 interface RankingInfoProps {

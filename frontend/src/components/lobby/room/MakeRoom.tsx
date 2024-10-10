@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,14 +18,14 @@ import confirm from '../../../assets/icon/confirm.png';
 import lock from '../../../assets/icon/lock.png';
 import unLock from '../../../assets/icon/unlock.png';
 
-// api 주소
-const API_LINK = import.meta.env.VITE_API_URL;
-
 export default function MakeRoomModal({
   closeMakeRoom,
 }: {
   closeMakeRoom: () => void;
 }) {
+  // api 주소
+  const API_LINK = import.meta.env.VITE_API_URL;
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 

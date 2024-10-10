@@ -1,5 +1,3 @@
-import React from 'react';
-
 function calculateLevel(tierPoint: number): number {
   if (tierPoint >= 150 && tierPoint <= 224) {
     return 225; // 레벨 02

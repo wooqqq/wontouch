@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -21,7 +21,6 @@ export default function FriendProfile({
   friendId: number;
 }) {
   const API_LINK = import.meta.env.VITE_API_URL;
-  const userId = useSelector((state: RootState) => state.user.id);
 
   const [nickname, setNickname] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -41,7 +40,6 @@ export default function FriendProfile({
 
   // 삭제 확인 모달
   const openDeleteModal = () => setDeleteModal(true);
-
   const closeDeleteModal = () => setDeleteModal(false);
 
   useEffect(() => {

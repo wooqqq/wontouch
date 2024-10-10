@@ -12,12 +12,9 @@ export const CheckNicknameDuplicate = async (
 
   // api로 중복체크
   try {
-    const response = await axios.post(
-      `${API_LINK}/user-profile/nickname/duplicate-check`,
-      {
-        nickname: nickname,
-      },
-    );
+    await axios.post(`${API_LINK}/user-profile/nickname/duplicate-check`, {
+      nickname: nickname,
+    });
     return 'isOK';
   } catch (error) {
     return '닉네임 중복 확인 불가';

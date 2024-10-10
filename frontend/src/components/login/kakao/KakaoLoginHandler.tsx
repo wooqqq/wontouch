@@ -65,7 +65,7 @@ function KakaoLoginHandler() {
         }, 1500);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       setAlertModal({
         isVisible: true,
         message: '로그인 중 오류가 발생했습니다. 다시 시도해주세요.',
@@ -91,7 +91,7 @@ function KakaoLoginHandler() {
       // 로비로 이동
       navigate('/lobby');
     } catch (error) {
-      console.log('Error fetching user data:', error);
+      // console.log('Error fetching user data:', error);
     }
   };
 
