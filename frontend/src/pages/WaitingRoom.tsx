@@ -70,7 +70,7 @@ function WaitingRoom() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAllReady, setIsAllReady] = useState(true);
+  const [isAllReady, setIsAllReady] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [alertModal, setAlertModal] = useState({
     isVisible: false,

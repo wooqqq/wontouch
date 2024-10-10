@@ -91,6 +91,7 @@ export default function RoomList() {
   const clickEnter = () => {
     if (selectedRoomId) {
       enterRoom(selectedRoomId, enteredPassword);
+      console.log();
     }
   };
 
