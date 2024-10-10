@@ -75,18 +75,18 @@ function RoomChat({ messages, socket }: RoomInfoProps) {
   };
 
   return (
-    <div className="waitingroom-brown-box py-0 pl-6 h-[200px]">
+    <div className="waitingroom-brown-box py-0 pl-6 h-[190px]">
       <img
         src={selectboxBL}
         alt="박스 왼쪽 하단"
-        className="absolute left-[-10px] bottom-[-11px]"
+        className="absolute left-[-10px] bottom-[-12px]"
       />
       <img
         src={selectboxTR}
         alt="박스 오른쪽 상단"
-        className="absolute right-[400px] bottom-[170px]"
+        className="absolute right-[400px] bottom-[155px]"
       />
-      <section className="font-galmuri11 h-[70%] mt-2 mr-2 pl-2 pb-2 overflow-scroll overflow-x-hidden">
+      <section className="font-galmuri11 h-[65%] mt-2 mr-2 pl-2 pb-2 overflow-scroll overflow-x-hidden">
         {messages.map((msg, index) => (
           <div key={index}>
             {msg.type == 'NOTIFY' ? (
@@ -100,7 +100,6 @@ function RoomChat({ messages, socket }: RoomInfoProps) {
           </div>
         ))}
       </section>
-
       <form onSubmit={handleSendMessage}>
         <input
           type="text"
