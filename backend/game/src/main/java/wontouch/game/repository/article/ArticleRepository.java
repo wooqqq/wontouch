@@ -35,7 +35,7 @@ public class ArticleRepository {
     // 기사 내용 획득
     public Article getArticle(String cropId, String articleId) {
         Optional<Crop> cropByArticleId = cropRepository.findCropByArticleId(cropId, articleId);
-        log.debug("cropByArticleId: {}", cropByArticleId);
+        //log.debug("cropByArticleId: {}", cropByArticleId);
         if (cropByArticleId.isEmpty() || cropByArticleId.get().getArticleList().isEmpty()) {
             throw new IllegalArgumentException("Article not found for crop: " + cropId);
         }
@@ -180,7 +180,7 @@ public class ArticleRepository {
         negativeRate = negativeRate / totalRate * 0.99;
         naturalRate = naturalRate / totalRate * 0.99;
 
-        log.debug("RANDOM VALUE: {}, positiveRate: {}, negativeRate: {}, naturalRate: {}", randomValue, positiveRate, negativeRate, naturalRate);
+        //log.debug("RANDOM VALUE: {}, positiveRate: {}, negativeRate: {}, naturalRate: {}", randomValue, positiveRate, negativeRate, naturalRate);
         if (randomValue < positiveRate) {
             log.debug("POSITIVE EVENT");
             return futureArticles.get(0);
