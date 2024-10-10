@@ -45,11 +45,14 @@ const BackgroundMusic = ({
       // 음악이 처음 생성될 때만 오디오 객체를 새로 생성
       const newAudio = new Audio(src);
       newAudio.loop = true; // 반복 재생 설정
+      newAudio.volume = 0.5;
       newAudio.play(); // 음악 재생
+
       setAudio(newAudio); // 오디오 객체 저장
     } else if (audio.src !== src) {
       // 새로운 src를 설정하고 음악이 바뀔 때만 다시 재생
       audio.src = src;
+      audio.volume = 0.5;
       audio.play();
     }
 
