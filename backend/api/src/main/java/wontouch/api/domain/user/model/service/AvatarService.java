@@ -153,7 +153,7 @@ public class AvatarService {
         // 모든 아바타의 장착 상태를 false 로 설정
         avatars.forEach(avatar -> avatar.setEquipped(false));
 
-        Avatar equipAvatar = avatarRepository.findById(requestDto.getAvatarId())
+        Avatar equipAvatar = avatarRepository.findByUserIdAndCharacterName(requestDto.getUserId(), requestDto.getCharacterName())
                 .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_AVATAR_EXCEPTION));
         
         // 해당 아바타의 장착 상태를 true 로 설정

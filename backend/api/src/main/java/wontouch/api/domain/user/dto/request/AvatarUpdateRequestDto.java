@@ -6,5 +6,5 @@ import lombok.Getter;
 public class AvatarUpdateRequestDto {
 
     private int userId;
-    private int avatarId;
+    private String characterName;
 }
