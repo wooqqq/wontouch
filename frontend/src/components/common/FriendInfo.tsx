@@ -37,7 +37,7 @@ export default function FriendInfo({
         onClick={openProfile}
       >
         <div>{nickname}</div>
-        <div className="w-6 h-6">
+        <div className="w-6">
           <LevelImg tierPoint={tierPoint} />
         </div>
       </button>

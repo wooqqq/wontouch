@@ -1,50 +1,50 @@
 import React from 'react';
 
 function calculateLevel(tierPoint: number): number {
-  if (tierPoint >= 100 && tierPoint <= 199) {
-    return 200; // 레벨 02
-  } else if (tierPoint >= 200 && tierPoint <= 299) {
-    return 300; // 레벨 03
-  } else if (tierPoint >= 300 && tierPoint <= 399) {
-    return 400; // 레벨 04
-  } else if (tierPoint >= 400 && tierPoint <= 499) {
-    return 500; // 레벨 05
-  } else if (tierPoint >= 500 && tierPoint <= 599) {
-    return 600; // 레벨 06
-  } else if (tierPoint >= 600 && tierPoint <= 699) {
-    return 700; // 레벨 07
-  } else if (tierPoint >= 700 && tierPoint <= 799) {
-    return 800; // 레벨 08
-  } else if (tierPoint >= 800 && tierPoint <= 899) {
-    return 900; // 레벨 09
-  } else if (tierPoint >= 900 && tierPoint <= 999) {
-    return 1000; // 레벨 10
-  } else if (tierPoint >= 1000 && tierPoint <= 1099) {
-    return 1100; // 레벨 11
-  } else if (tierPoint >= 1100 && tierPoint <= 1199) {
-    return 1200; // 레벨 12
-  } else if (tierPoint >= 1200 && tierPoint <= 1299) {
-    return 1300; // 레벨 13
-  } else if (tierPoint >= 1300 && tierPoint <= 1399) {
-    return 1400; // 레벨 14
-  } else if (tierPoint >= 1400 && tierPoint <= 1499) {
-    return 1500; // 레벨 15
-  } else if (tierPoint >= 1500 && tierPoint <= 1599) {
-    return 1600; // 레벨 16
-  } else if (tierPoint >= 1600 && tierPoint <= 1699) {
-    return 1700; // 레벨 17
-  } else if (tierPoint >= 1700 && tierPoint <= 1799) {
-    return 1800; // 레벨 18
-  } else if (tierPoint >= 1800 && tierPoint <= 1899) {
-    return 1900; // 레벨 19
-  } else if (tierPoint >= 1900 && tierPoint <= 1999) {
-    return 2000; // 레벨 20
-  } else if (tierPoint >= 2000 && tierPoint <= 2099) {
-    return 2100; // 레벨 21
-  } else if (tierPoint >= 2100) {
-    return 2200; // 레벨 22
+  if (tierPoint >= 150 && tierPoint <= 224) {
+    return 225; // 레벨 02
+  } else if (tierPoint >= 225 && tierPoint <= 336) {
+    return 337; // 레벨 03
+  } else if (tierPoint >= 337 && tierPoint <= 505) {
+    return 506; // 레벨 04
+  } else if (tierPoint >= 506 && tierPoint <= 758) {
+    return 759; // 레벨 05
+  } else if (tierPoint >= 759 && tierPoint <= 1138) {
+    return 1139; // 레벨 06
+  } else if (tierPoint >= 1139 && tierPoint <= 1707) {
+    return 1708; // 레벨 07
+  } else if (tierPoint >= 1708 && tierPoint <= 2561) {
+    return 2562; // 레벨 08
+  } else if (tierPoint >= 2562 && tierPoint <= 3843) {
+    return 3844; // 레벨 09
+  } else if (tierPoint >= 3844 && tierPoint <= 5765) {
+    return 5766; // 레벨 10
+  } else if (tierPoint >= 5766 && tierPoint <= 8648) {
+    return 8649; // 레벨 11
+  } else if (tierPoint >= 8649 && tierPoint <= 12973) {
+    return 12974; // 레벨 12
+  } else if (tierPoint >= 12974 && tierPoint <= 19460) {
+    return 19461; // 레벨 13
+  } else if (tierPoint >= 19461 && tierPoint <= 29191) {
+    return 29192; // 레벨 14
+  } else if (tierPoint >= 29192 && tierPoint <= 43788) {
+    return 43789; // 레벨 15
+  } else if (tierPoint >= 43789 && tierPoint <= 65683) {
+    return 65684; // 레벨 16
+  } else if (tierPoint >= 65684 && tierPoint <= 98525) {
+    return 98526; // 레벨 17
+  } else if (tierPoint >= 98526 && tierPoint <= 147788) {
+    return 147789; // 레벨 18
+  } else if (tierPoint >= 147789 && tierPoint <= 221682) {
+    return 221683; // 레벨 19
+  } else if (tierPoint >= 221683 && tierPoint <= 332524) {
+    return 332525; // 레벨 20
+  } else if (tierPoint >= 332525 && tierPoint <= 498787) {
+    return 498788; // 레벨 21
+  } else if (tierPoint >= 498788) {
+    return 7481828; // 레벨 22
   }
-  return 100; // 기본 값 (1 레벨)
+  return 150; // 기본 값 (1 레벨)
 }
 
 export default function Experience({ tierPoint }: { tierPoint: number }) {
