@@ -124,12 +124,12 @@ public class WebSocketSessionService {
                 if (playerId.equals(sessionPlayerId)) {
                     try {
                         // 기존 세션 종료
-                        session.close();
+                        //session.close();
                         log.info("닫아버리기 Player {}'s existing session in current room {} closed", playerId, roomId);
                         // 세션 목록에서 제거
                         removeSession(roomId, session);
                         break;  // 동일한 플레이어의 세션을 찾았으므로 루프 종료
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         log.error("Error while closing session for player {}: {}", playerId, e.getMessage());
                     }
                 }
@@ -155,7 +155,6 @@ public class WebSocketSessionService {
                     // 동일한 playerId로 연결된 세션을 찾아서 종료
                     if (playerId.equals(sessionPlayerId)) {
                         try {
-                            session.close();  // 클라이언트에게 GOING_AWAY 상태를 보냄
                             log.info("한 곳에만 있거라 Player {}'s existing session in room {} closed", playerId, existingRoomId);
 
                             // 해당 세션을 방에서 제거
@@ -172,7 +171,7 @@ public class WebSocketSessionService {
                                 e.printStackTrace();
                             }
                             break;
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             log.error("Error while closing session for player {}: {}", playerId, e.getMessage());
                         }
                     }
