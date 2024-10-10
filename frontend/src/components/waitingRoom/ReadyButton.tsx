@@ -6,7 +6,6 @@ import Modal from '../common/Modal';
 import AlertModal from '../common/AlertModal';
 import { useNavigate } from 'react-router-dom';
 import { setGameParticipants } from '../../redux/slices/roomSlice';
-import check from '../../assets/icon/confirm.png';
 
 interface GameParticipant {
   userId: number;
