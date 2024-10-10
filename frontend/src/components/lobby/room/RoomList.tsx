@@ -105,9 +105,9 @@ export default function RoomList() {
         roomList.reverse().map(
           (room, index) =>
             index % 2 === 0 && (
-              <div key={room.roomId} className="flex w-full m-1.5 mx-2">
-                {/* First room */}
-                <div className="w-1/2 p-2">
+              <div key={room.roomId} className="flex m-1.5 mx-2">
+                {/* 첫번째 방 */}
+                <div className="w-full p-2">
                   <button
                     className="room-box p-2"
                     onClick={() =>
@@ -148,9 +148,9 @@ export default function RoomList() {
                   </button>
                 </div>
 
-                {/* Second room (if it exists) */}
+                {/* 두번째 방 */}
                 {roomList[index + 1] && (
-                  <div className="w-1/2 p-2">
+                  <div className="w-full p-2">
                     <button
                       className="room-box p-2"
                       onClick={() =>
@@ -200,16 +200,15 @@ export default function RoomList() {
         </div>
       )}
 
-      {/* Modal for entering password if the room is private */}
       {showPasswordModal && (
         <Modal>
           <div className="yellow-box w-2/5 h-[250px] p-4 bg-[#fffeee] border-[#36EAB5]">
-            <div className="relative">
+            <div className="relative ">
               <div className="mint-title text-4xl mb-6">
                 비밀번호를 입력하세요.
               </div>
               <button
-                className="absolute right-0"
+                className="absolute right-0 top-1/2 transform -translate-y-1/2"
                 onClick={() => {
                   setShowPasswordModal(false);
                   setEnteredPassword('');
@@ -218,19 +217,21 @@ export default function RoomList() {
                 <img src={cancel} alt="" />
               </button>
             </div>
-            <input
-              type="password"
-              value={enteredPassword}
-              onChange={(e) => setEnteredPassword(e.target.value)}
-              placeholder="비밀번호"
-              className="input-tag font-['Galmuri11'] w-4/5 h-[60px] p-4 text-2xl"
-            />
-            <button
-              onClick={clickEnter}
-              className="ready-button w-4/12 h-[50px] text-2xl mt-4"
-            >
-              입장하기
-            </button>
+            <div className="flex flex-col items-center">
+              <input
+                type="password"
+                value={enteredPassword}
+                onChange={(e) => setEnteredPassword(e.target.value)}
+                placeholder="비밀번호"
+                className="input-tag font-['Galmuri11'] w-4/5 h-[60px] p-4 text-2xl"
+              />
+              <button
+                onClick={clickEnter}
+                className="ready-button w-4/12 h-[50px] text-2xl mt-4"
+              >
+                입장하기
+              </button>
+            </div>
           </div>
         </Modal>
       )}
