@@ -34,16 +34,19 @@ export default function Header() {
   );
 
   // SSE 연결
-  const setupSSE = async (userId: number, accessToken: string) => {
+  const setupSSE = async (userId: number) => {
     try {
-      console.log('알림 연결');
       const eventSource = new EventSource(
         `${API_LINK}/notification/subscribe/${userId}`,
       );
 
-      // 알림 수신 시 api 호출
+      // 친구 신청 알림 수신 시 api 호출
       eventSource.addEventListener('addFriendRequest', (event) => {
-        console.log(event.data);
+        dispatch(increaseNotificationCount());
+      });
+
+      // 게임 초대 알림 수신 시 api 호출
+      eventSource.addEventListener('addGameInvite', (event) => {
         dispatch(increaseNotificationCount());
       });
     } catch (error) {
@@ -52,10 +55,10 @@ export default function Header() {
   };
 
   useEffect(() => {
-    if (userId && accessToken) {
-      setupSSE(userId, accessToken);
+    if (userId) {
+      setupSSE(userId);
     }
-  }, [userId, accessToken]);
+  }, [userId]);
 
   // 메일함 모달
   const openMail = () => setShowMail(true);

@@ -1,8 +1,7 @@
-import FriendInfo from '../common/FriendInfo';
 import CancelIcon from '../../assets/icon/cancel.png';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { setFriends, setOnlineFriends } from '../../redux/slices/friendSlice';
+import { setOnlineFriends } from '../../redux/slices/friendSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import LevelImg from '../common/LevelImg';
@@ -82,14 +81,18 @@ function FriendInvite({ onClose }: { onClose: () => void }) {
           {onlineFriendsList && onlineFriendsList.length > 0 ? (
             onlineFriendsList.map((friend, index) => (
               <div
-                className="w-full mb-1 flex justify-between px-2"
+                className="w-full mb-1 flex justify-between px-2 items-center"
                 key={friend.friendId}
               >
-                <div>{friend.nickname}</div>
-                <LevelImg tierPoint={friend.tierPoint} />
+                <div className="ranking-box white-text text-2xl p-1 w-[260px] mb-1 flex justify-between px-2 overflow-hidden">
+                  {friend.nickname}
+                  <div className="w-6">
+                    <LevelImg tierPoint={friend.tierPoint} />
+                  </div>
+                </div>
                 <button
                   onClick={() => !invitedFriends[index] && toggleInvite(index)}
-                  className={`ml-2 rounded-xl px-4 min-w-[100px] text-white ${invitedFriends[index] ? 'bg-gray-400 cursor-default' : 'bg-[#896A65]'}`}
+                  className={`ml-2 rounded-xl px-4 py-3 min-w-[100px] text-white ${invitedFriends[index] ? 'bg-gray-400 cursor-default' : 'bg-[#896A65]'}`}
                   style={{
                     pointerEvents: invitedFriends[index] ? 'none' : 'auto',
                   }}
