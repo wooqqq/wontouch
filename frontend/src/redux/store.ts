@@ -11,6 +11,7 @@ import cropSlice from './slices/cropSlice';
 import notificationSlice from './slices/notificationSlice';
 import friendSlice from './slices/friendSlice';
 import chatSlice from './slices/chatSlice';
+import avatarSlice from './slices/avatarSlice';
 
 // persist 설정
 const persistConfig = {
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
   notification: notificationSlice,
   friend: friendSlice,
   chat: chatSlice,
+  avatar: avatarSlice,
 });
 
 // persistReducer로 rootReducer를 래핑
