@@ -8,8 +8,8 @@ import wontouch.api.global.exception.ExceptionResponse;
 @Getter
 @AllArgsConstructor
 public enum AvatarType {
-    BOY("boy", "남자아이", 100),
-    GIRL("girl", "여자아이", 100),
+    BOY("boy", "남자아이", 0),
+    GIRL("girl", "여자아이", 0),
     GOBLIN("goblin", "고블린", 1500),
     SKELETON("skeleton", "해골",  2500),
     CURLYHAIR_BOY("curlyhair_boy", "파마머리 남자", 2500),

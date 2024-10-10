@@ -110,13 +110,20 @@ public class AvatarService {
     // 회원가입 시 초기 아바타 설정
     @Transactional
     public void setInitialAvatar(int userId) {
-        Avatar initialAvatar = Avatar.builder()
+        Avatar boyAvatar = Avatar.builder()
                 .userId(userId)
                 .characterName("boy")
                 .isEquipped(true)
                 .build();
 
-        avatarRepository.save(initialAvatar);
+        Avatar girlAvatar = Avatar.builder()
+                .userId(userId)
+                .characterName("girl")
+                .isEquipped(false)
+                .build();
+
+        avatarRepository.save(boyAvatar);
+        avatarRepository.save(girlAvatar);
     }
 
     // 아바타 구매
