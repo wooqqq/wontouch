@@ -124,7 +124,7 @@ public class WebSocketSessionService {
                 if (playerId.equals(sessionPlayerId)) {
                     try {
                         // 기존 세션 종료
-                        session.close(CloseStatus.GOING_AWAY);
+                        session.close();
                         log.info("닫아버리기 Player {}'s existing session in current room {} closed", playerId, roomId);
                         // 세션 목록에서 제거
                         removeSession(roomId, session);
@@ -155,7 +155,7 @@ public class WebSocketSessionService {
                     // 동일한 playerId로 연결된 세션을 찾아서 종료
                     if (playerId.equals(sessionPlayerId)) {
                         try {
-                            session.close(CloseStatus.GOING_AWAY);  // 클라이언트에게 GOING_AWAY 상태를 보냄
+                            session.close();  // 클라이언트에게 GOING_AWAY 상태를 보냄
                             log.info("한 곳에만 있거라 Player {}'s existing session in room {} closed", playerId, existingRoomId);
 
                             // 해당 세션을 방에서 제거
@@ -164,13 +164,7 @@ public class WebSocketSessionService {
                             // 해당 정보 제거
                             try {
                                 // session 정보를 로비 서버로 전송
-                                String lobbyTargetUrl = lobbyServerUrl + "/api/session/remove";
                                 Map<String, Object> sessionInfo = new ConcurrentHashMap<>();
-                                sessionInfo.put("roomId", roomId);
-                                sessionInfo.put("playerId", playerId);
-                                sessionInfo.put("sessionId", session.getId());
-                                restTemplate.postForObject(lobbyTargetUrl, sessionInfo, String.class);
-
                                 // session 정보를 게임 서버로 전송
                                 String gameTargetUrl = gameServerUrl + "/game/session/remove";
                                 restTemplate.postForObject(gameTargetUrl, sessionInfo, String.class);

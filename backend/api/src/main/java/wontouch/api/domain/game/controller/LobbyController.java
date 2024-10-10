@@ -1,5 +1,6 @@
 package wontouch.api.domain.game.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/lobby")
+@Slf4j
 public class LobbyController {
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -42,7 +44,7 @@ public class LobbyController {
 
         // 로비 서버로 GET 요청 보내기
         ResponseDto response = restTemplate.getForObject(uri, ResponseDto.class);
-
+        log.debug("response: {}", response.toString());
         return ResponseEntity.ok(response);
     }
 
