@@ -226,7 +226,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   };
 
   const clearCount = () => {
-    setCount(0);
+    setCount(1);
   };
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
@@ -344,6 +344,23 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
     }
   }
 
+  const formatVillageNum = (houseNum: number) => {
+    switch (houseNum) {
+      case 1:
+        return "탱글숲";
+      case 2:
+        return "채밭골";
+      case 3:
+        return "약초골";
+      case 4:
+        return "과즙비";
+      case 5:
+        return "푸름채";
+      case 6:
+        return "황금들녘";
+    }
+  }
+
   return (
     <>
       {/* 모달 뒤에 어두운 배경 */}
@@ -372,7 +389,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                   className="text-gray-600 hover:text-gray-800"
                   onClick={closeModal}
                 >
-                  나가기
+                  <img src={cancle} />
                 </button>
               </div>
 
@@ -384,10 +401,10 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                   className="w-[20%] h-[20%] border border-black p-8 rounded-md"
                 />
                 <div className="ml-[5%]">
-                  <p className="text-[36px] font-semibold">{filteredCrops[currentCropIndex].name}</p> {/* 작물 이름 */}
-                  <p>{filteredCrops[currentCropIndex].description}</p>
-                  <p className="text-2xl text-gray-600">남은 수량: {currentCropQuantity} 상자</p> {/* 남은 수량 */}
-                  <p className="text-[32px] font-bold text-yellow-500">{chartArray[chartArray.length - 1] * count} 코인</p> {/* 가격은 임의 */}
+                  <p className="text-[36px] font-semibold white-text">{filteredCrops[currentCropIndex].name}</p> {/* 작물 이름 */}
+                  <p className='yellow-text text-[24px]'>{filteredCrops[currentCropIndex].description}</p>
+                  <p className="text-2xl">남은 수량: {currentCropQuantity} 상자</p> {/* 남은 수량 */}
+                  <p className="text-[32px] font-bold yellow-text2">{chartArray[chartArray.length - 1] * count} 코인</p> {/* 가격은 임의 */}
                   <p>현재 보유량 : {playerCropList[filteredCrops[currentCropIndex].id]}개</p>
                 </div>
 
@@ -409,7 +426,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                 <div>
                   <div className="flex justify-between">
                     <div className="flex-col">
-                      <div className="flex items-center space-x-2 justify-between ml-1">
+                      <div className="flex items-center space-x-2 justify-between">
                         <button
                           className="bg-gray-300 text-gray-600 px-3 rounded-full text-[32px] mr-3"
                           onClick={minusCount}
@@ -420,8 +437,15 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                           type="number"
                           className="text-[32px] w-[80px] text-center bg-transparent border-none focus:outline-none"
                           value={count}
-                          onChange={(e) => setCount(parseInt(e.target.value) || 0)} // 입력된 값을 count 상태에 반영
+                          onChange={(e) => {
+                            const newValue = parseInt(e.target.value) || 1;
+                            if (newValue <= 50) {
+                              setCount(newValue); // 50 이하일 때만 상태를 업데이트
+                            }
+                          }}
+                          max={50} // 입력을 위한 기본 최대값 설정
                         />
+
                         <button
                           className="bg-gray-300 text-gray-600 px-3 rounded-full text-[32px]"
                           onClick={plusCount}
@@ -429,7 +453,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                           +
                         </button>
                       </div>
-                      <div className="mt-4 flex items-center ml-1 mr-auto w-full">
+                      <div className="mt-4 flex items-center ml-1 mr-auto w-full white-text">
                         <button className="bg-blue-500 text-white py-1 px-3 rounded-2xl" onClick={sellCrop}>
                           매도
                         </button>
@@ -445,8 +469,8 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                       </div>
                     </div>
                     {/* 가격 변화 */}
-                    <div className="flex mt-4 px-2 py-4 bg-red-600 rounded-lg ml-[10%] w-[60%] items-center justify-center">
-                      <p className="text-white font-semibold text-[24px] text-end">
+                    <div className={`flex mt-4 px-2 py-4 ${((chartArray[chartArray.length - 1] - chartArray[chartArray.length - 2]) / chartArray[chartArray.length - 2] * 100).toFixed(1)} % ${chartArray[chartArray.length - 1] - chartArray[chartArray.length - 2] < 0 ? 'bg-blue-600' : 'bg-red-600'} rounded-lg ml-[10%] w-[60%] items-center justify-center`}>
+                      <p className="white-text font-semibold text-[24px] text-end">
                         전날에 비해
                         <span className="semi-bold text-[28px] ml-3">
                           {chartArray.length === 1
@@ -479,23 +503,28 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                   className="text-gray-600 hover:text-gray-800"
                   onClick={closeModal}
                 >
-                  나가기
+                  <img src={cancle} />
                 </button>
               </div>
 
-              <div className="relative bg-white p-6 rounded-lg shadow-lg w-[80%] h-auto z-30 mx-auto">
-                <h2 className="text-2xl font-bold text-center mb-6">구매한 기사 목록</h2>
+              <div className="relative bg-[#faf3e0] p-8 rounded-lg shadow-lg w-[100%] h-auto z-30 mx-auto border-2 border-[#b88c4a]">
+                <h2 className="text-3xl font-bold text-center mb-6 white-text">구매한 기사 목록</h2>
 
                 {currentArticles.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4">
                     {currentArticles.map((article, index) => (
-                      <div key={index} className="border border-gray-300 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
+                      <div
+                        key={index}
+                        className="border-2 border-[#d4b68b] rounded-lg p-4 bg-[#f9ecd3] shadow-md hover:bg-[#f4e3c1] transition-all"
+                      >
                         <button
                           onClick={() => showArticle(article)}
-                          className="text-lg font-semibold text-gray-500 hover:text-gray-700 flex flex-col"
+                          className="flex flex-col text-lg font-semibold text-gray-800 hover:text-[#ffa726]"
                         >
-                          <span className='font-bold text-blue-600'>({formatVillage(article.town)}마을)</span>
-                          <span className='text-[14px]'>
+                          <span className="font-bold white-text text-xl mb-2">
+                            ({formatVillage(article.town)}마을)
+                          </span>
+                          <span className="text-[18px] truncate yellow-text2">
                             {article.info?.title || "제목 없음"}
                           </span>
                         </button>
@@ -509,17 +538,23 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                 {/* 페이지네이션 버튼 */}
                 <div className="flex justify-between items-center mt-6">
                   <button
-                    className={`p-2 bg-gray-300 text-gray-700 rounded-lg ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-400'}`}
+                    className={`p-3 bg-gray-300 white-text rounded-lg transition-colors ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-400"
+                      }`}
                     onClick={prevPage}
                     disabled={currentPage === 1 || currentPage === 0}
                   >
                     이전
                   </button>
 
-                  {purchasedArticles.length === 0 ? '' : <span className="text-gray-600"> {currentPage} / {totalPages}</span>}
+                  {purchasedArticles.length > 0 && (
+                    <span className="white-text">
+                      {currentPage} / {totalPages}
+                    </span>
+                  )}
 
                   <button
-                    className={`p-2 bg-gray-300 text-gray-700 rounded-lg ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-400'}`}
+                    className={`p-3 bg-gray-300 white-text rounded-lg transition-colors ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-400"
+                      }`}
                     onClick={nextPage}
                     disabled={currentPage === totalPages}
                   >
@@ -527,16 +562,14 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                   </button>
                 </div>
 
-                {/* 랜덤 구매 버튼 */}
+                {/* 랜덤 기사 구매 버튼 */}
                 <button
-                  className="mt-6 p-3 bg-yellow-500 text-white rounded-lg w-full text-xl hover:bg-yellow-600 transition-colors"
+                  className="mt-6 p-4 bg-[#6f4e1c] white-text text-xl rounded-lg w-full hover:bg-[#523c1b] transition-colors font-semibold"
                   onClick={handleRandomPurchase}
                 >
                   랜덤 기사 구매
                 </button>
               </div>
-
-
             </div>
           </div>
         )}
@@ -545,8 +578,8 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
       {/* NPC 이미지 */}
       < div className="fixed top-[75%] z-40 flex items-end w-[95%] h-[20%] shadow-lg" >
         <div className="flex-col">
-          <p className="text-white text-[36px] text-center ml-[15%]">
-            {houseNum === 0 ? '거래소' : `${houseNum}번 마을 상점`}
+          <p className="text-white text-[36px] text-center ml-[15%] yellow-text3">
+            {houseNum === 0 ? '거래소' : `${formatVillageNum(houseNum)}마을 상점`}
           </p>
           <img
             src={npc}

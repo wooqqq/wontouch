@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import bl from '../../assets/icon/selectbox_bl.png';  // 모서리 이미지들
+import br from '../../assets/icon/selectbox_br.png';
+import tl from '../../assets/icon/selectbox_tl.png';
+import tr from '../../assets/icon/selectbox_tr.png';
+import cancel from '../../assets/icon/cancel.png';
 
 interface PlayerCropModalProps {
   onClose: () => void;
@@ -64,18 +69,23 @@ const PlayerCropModal: React.FC<PlayerCropModalProps> = ({ onClose, gameSocket }
   };
 
   return (
-    <div className="fixed top-[140px] right-4 bg-white p-6 rounded-lg shadow-lg w-full max-w-sm z-50">
+    <div className="fixed top-[150px] right-[50px] bg-[#f7e4c6] p-6 w-[280px] z-30 shadow-xl rounded-lg border-4 border-[#4e342e] pixel-art">
+      {/* 모서리 이미지 추가 */}
+      <img src={bl} alt="left-bottom corner" className="absolute bottom-[-20px] left-[-20px]" />
+      <img src={br} alt="right-bottom corner" className="absolute bottom-[-20px] right-[-20px]" />
+      <img src={tl} alt="left-top corner" className="absolute top-[-20px] left-[-20px]" />
+      <img src={tr} alt="right-top corner" className="absolute top-[-20px] right-[-20px]" />
+
       <h2 className="text-xl font-bold text-center mb-4">구매한 작물 목록</h2>
       {currentCrops.length > 0 ? (
-        <div className="space-y-2 grid grid-cols-2 gap-4 p-2">
+        <div className="grid grid-cols-2 gap-4 p-2">
           {currentCrops.map(([cropName, quantity]) => (
             <div
               key={cropName}
-              className="flex justify-between items-center p-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200"
-              style={{ minHeight: '60px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}  // 높이와 수직 정렬 추가
-              onClick={() => handleCropClick(cropName)}  // 클릭 시 CROP_CHART 요청
+              className="flex justify-between items-center p-2 bg-[#f7f4e3] rounded-lg cursor-pointer hover:bg-gray-200 border-[2px] border-gray-400"
+              onClick={() => handleCropClick(cropName)}
             >
-              <span className="flex-1 text-center whitespace-nowrap">{getCropNameInKorean(cropName)}</span>
+              <span className="flex-1 text-center whitespace-nowrap yellow-text2">{getCropNameInKorean(cropName)}</span>
               <span className="flex-1 text-center">{quantity}개</span>
             </div>
           ))}
@@ -89,31 +99,32 @@ const PlayerCropModal: React.FC<PlayerCropModalProps> = ({ onClose, gameSocket }
         <button
           onClick={goToPrevPage}
           disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg disabled:bg-gray-400"
+          className="px-4 py-2 bg-[#d9b48f] white-text border-4 border-[#4e342e] rounded-lg shadow-md pixel-font"
         >
           이전
         </button>
         <button
           onClick={goToNextPage}
           disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg disabled:bg-gray-400"
+          className="px-4 py-2 bg-[#d9b48f] white-text border-4 border-[#4e342e] rounded-lg shadow-md pixel-font"
         >
           다음
         </button>
       </div>
 
       {selectedCropId && (
-        <div className="mt-4 p-4 bg-blue-100 rounded-lg">
+        <div className="mt-4 p-4 rounded-lg bg-gray-100">
           <h3 className="text-lg font-semibold">{getCropNameInKorean(selectedCropId)} 가격 정보</h3>
-          <p>최신 가격: 개당 {getLatestPrice().toLocaleString()} 원</p>
+          <p>최신 가격: </p>
+          <p className='yellow-text2'>개당 {getLatestPrice().toLocaleString()} 원</p>
         </div>
       )}
 
       <button
-        className="mt-4 p-2 bg-red-500 text-white rounded-lg w-full hover:bg-red-600"
+        className="mt-4 p-2 text-white rounded-lg w-full flex justify-center"
         onClick={onClose}
       >
-        닫기
+        <img src={cancel} />
       </button>
     </div>
   );

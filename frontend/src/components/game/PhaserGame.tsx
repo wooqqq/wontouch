@@ -857,11 +857,12 @@ const PhaserGame = () => {
         chatHistory={chatHistory} // 채팅 내역도 넘겨줌
       />
       <button
-        className="fixed top-[75px] right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg"
+        className="fixed top-[85px] right-10 w-[90px] h-[40px] bg-[#d9b48f] text-black border-4 border-[#4e342e] rounded-lg shadow-md flex items-center justify-center font-extrabold pixel-font"
         onClick={openPlayerCropModal}
       >
-        작물
+        인벤토리
       </button>
+
       {houseNum !== null && (
         <InteractionModal
           houseNum={houseNum}
