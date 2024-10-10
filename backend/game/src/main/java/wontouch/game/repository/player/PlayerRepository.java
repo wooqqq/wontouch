@@ -18,6 +18,7 @@ public class PlayerRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final CropRedisRepository cropRepository;
+    private static final int DEFAULT_GOLD = 1000000;
 
     private static final int ARTICLE_DEFAULT_PRICE = 5000;
 
@@ -37,7 +38,7 @@ public class PlayerRepository {
     public void savePlayer(String roomId, Player player) {
         String playerKey = PLAYER_PREFIX + player.getId() + INFO_SUFFIX;
         redisTemplate.opsForHash().put(playerKey, "nickname", player.getNickname());
-        redisTemplate.opsForHash().put(playerKey, "gold", 15000);
+        redisTemplate.opsForHash().put(playerKey, "gold", DEFAULT_GOLD);
         redisTemplate.opsForHash().put(playerKey, "roomId", roomId);
     }
 
