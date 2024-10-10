@@ -15,6 +15,7 @@ import LevelText from './LevelText';
 import mail from '../../assets/icon/mail.png';
 import cancel from '../../assets/icon/cancel.png';
 import confirm from '../../assets/icon/confirm.png';
+import { setIsPrivate, setPassword } from '../../redux/slices/roomSlice';
 
 // 알림 전체 조회
 interface Notification {
@@ -47,6 +48,7 @@ interface Friend {
 interface gameInviteInfo {
   roomId: string;
   senderNickname: string;
+  password: string | null;
 }
 
 export default function Mail({ closeMail }: { closeMail: () => void }) {
@@ -68,8 +70,6 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
     useState<string>();
   const [acceptFriendModal, setAcceptFriendModal] = useState<boolean>(false);
   const [rejectFriendModal, setRejectFriendModal] = useState<boolean>(false);
-  const [acceptGameModal, setAcceptGameModal] = useState<boolean>(false);
-  const [rejectGameModal, setRejectGameModal] = useState<boolean>(false);
 
   // 1. 알림 불러오기
   const getNotifications = async () => {
@@ -101,7 +101,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
   // 2. 알림 클릭 시 상세 요청 보기
   const handleNotificationClick = (notification: Notification) => {
     setSelectedNotification(notification); // 선택된 알림
-    if (notification.notificationType === 'FREIND_REQUEST') {
+    if (notification.notificationType === 'FRIEND_REQUEST') {
       getFriendRequestInfo(notification.senderId); // 친구 신청 상세 요청 api
     } else {
       getInviteRequestInfo(notification.id); // 게임 초대 상세 요청 api
@@ -199,12 +199,16 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
   };
 
   // 4-2. 게임 초대 요청 수락
-  const acceptInviteRequest = async (UUID: string, notificationId: string) => {
-    {
-      /* gameInviteInfo.roomId 사용*/
-    }
+  const acceptInviteRequest = async (
+    UUID: string,
+    notificationId: string,
+    password: string,
+  ) => {
+    dispatch(setPassword(password));
+
     await axios.post(`${API_LINK}/room/join/${UUID}`, {
       playerId: userId,
+      password: password,
     });
     setShowModal(false);
 
@@ -223,9 +227,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
 
     navigate(`/wait/${UUID}`);
   };
-
   const handleAcceptFriendModal = () => setAcceptFriendModal(false);
-  const handleAcceptGameModal = () => setAcceptGameModal(false);
 
   // 5-1. 친구 요청 거절
   const rejectFriendRequest = async (
@@ -389,11 +391,13 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
                   onClick={() => {
                     if (
                       gameInviteInfo?.roomId &&
-                      gameInviteInfoNotificationId
+                      gameInviteInfoNotificationId &&
+                      gameInviteInfo.password
                     ) {
                       acceptInviteRequest(
                         gameInviteInfo.roomId,
                         gameInviteInfoNotificationId,
+                        gameInviteInfo.password,
                       );
                     }
                   }}
