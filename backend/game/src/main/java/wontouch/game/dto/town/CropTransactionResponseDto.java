@@ -7,6 +7,8 @@ import lombok.Data;
 public class CropTransactionResponseDto {
     // 작물 이름
     private String cropId;
+    // 마을 이름
+    private String town;
     // 마을에 남은 수량
     private int townQuantity;
     // 플레이어에게 남은 수량
