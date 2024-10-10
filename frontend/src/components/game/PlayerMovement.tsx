@@ -79,7 +79,7 @@ export const createPlayerMovement = (
 
   if (moving) {
     // 애니메이션을 실행할 때 playerKey를 사용하여 애니메이션을 찾음
-    if (!player.anims.isPlaying || player.anims.currentAnim?.key !== `walk_${playerKey}`) {
+    if (!player.anims?.isPlaying || player.anims.currentAnim?.key !== `walk_${playerKey}`) {
       player.anims.play(`walk_${playerKey}`, true);
     }
   } else {
