@@ -3,11 +3,6 @@ import axios from 'axios';
 import { RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-
-import cancel from '../../../assets/icon/cancel.png';
-import confirm from '../../../assets/icon/confirm.png';
-import lock from '../../../assets/icon/lock.png';
-import unLock from '../../../assets/icon/unlock.png';
 import {
   setHostId,
   setRoomId,
@@ -15,6 +10,12 @@ import {
   setIsPrivate,
   setPassword,
 } from '../../../redux/slices/roomSlice';
+import AlertModal from '../../common/AlertModal';
+
+import cancel from '../../../assets/icon/cancel.png';
+import confirm from '../../../assets/icon/confirm.png';
+import lock from '../../../assets/icon/lock.png';
+import unLock from '../../../assets/icon/unlock.png';
 
 // api 주소
 const API_LINK = import.meta.env.VITE_API_URL;
@@ -48,6 +49,11 @@ export default function MakeRoomModal({
   const handleMakeRoom = async () => {
     if (userId === null) {
       alert('사용자 ID를 찾을 수 없습니다.');
+      return;
+    }
+
+    if (!roomNameState) {
+      alert('방 제목을 입력하세요!');
       return;
     }
 

@@ -11,16 +11,14 @@ export default function AlertModal({
   closeAlterModal: () => void;
 }) {
   return (
-    <Modal>
-      <div className="yellow-box w-2/5 h-[180px] border-[#36EAB5] bg-[#FFFEEE] p-8">
-        <div className="flex white-text text-4xl mb-10 justify-center">
-          <img src={alterd} alt="" className="mr-4" />
-          <div>{message}</div>
-        </div>
-        <button>
-          <img src={confirm} alt="" />
-        </button>
+    <div className="yellow-box w-fit h-[200px] border-[#36EAB5] bg-[#FFFEEE] p-8 px-20">
+      <div className="flex white-text text-4xl mb-12 justify-center">
+        <img src={alterd} alt="" className="mr-6 h-[40px]" />
+        <div>{message}</div>
       </div>
-    </Modal>
+      <button onClick={closeAlterModal}>
+        <img src={confirm} alt="" />
+      </button>
+    </div>
   );
 }

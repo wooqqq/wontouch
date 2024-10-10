@@ -3,6 +3,7 @@ export const CheckSetNickname = (nickname: string) => {
   const isKoreanVowels = /^[ㅏ-ㅣ]+$/.test(nickname); // 한글 모음만
   const isEnglish = /^[a-zA-Z]+$/.test(nickname); // 영어만
   const isNumeric = /^[0-9]+$/.test(nickname); // 숫자만
+  const isKoreanAndEnglish = /^[가-힣a-zA-Z]+$/.test(nickname); // 한글 + 영어
   const isKoreanAndNumeric = /^[가-힣0-9]+$/.test(nickname); // 한글 + 숫자
   const isEnglishAndNumeric = /^[a-zA-Z0-9]+$/.test(nickname); // 영어 + 숫자
   const isValidNickname = /^[가-힣a-zA-Z0-9]+$/.test(nickname); // 한글, 영어, 숫자 혼합 가능
@@ -19,30 +20,24 @@ export const CheckSetNickname = (nickname: string) => {
 
   // 유효성 검사
   if (isKoreanConsonants) {
-    alert('한글 자음만 입력할 수 없습니다.');
-    return false;
+    return '닉네임 변경 : 한글 자음만 입력할 수 없습니다.';
   } else if (isKoreanVowels) {
-    alert('한글 모음만 입력할 수 없습니다.');
-    return false;
+    return '닉네임 변경 : 한글 모음만 입력할 수 없습니다.';
   } else if (totalLength > 6) {
-    alert('한글은 최대 6자까지 입력할 수 있습니다.');
-    return false;
+    return '닉네임 변경 : 한글은 최대 6자까지 입력할 수 있습니다.';
   } else if (isEnglish && nickname.length > 10) {
-    alert('영어는 최대 10자까지 입력할 수 있습니다.');
-    return false;
+    return '닉네임 변경 : 영어는 최대 10자까지 입력할 수 있습니다.';
   } else if (isNumeric && nickname.length > 10) {
-    alert('숫자는 최대 10자까지 입력할 수 있습니다.');
-    return false;
+    return '닉네임 변경 : 숫자는 최대 10자까지 입력할 수 있습니다.';
+  } else if (isKoreanAndEnglish && nickname.length > 8) {
+    return '닉네임 변경 : 한글과 영어 조합은 최대 8자까지 입력할 수 있습니다.';
   } else if (isKoreanAndNumeric && nickname.length > 8) {
-    alert('한글과 숫자 조합은 최대 8자까지 입력할 수 있습니다.');
-    return false;
+    return '닉네임 변경 : 한글과 숫자 조합은 최대 8자까지 입력할 수 있습니다.';
   } else if (isEnglishAndNumeric && nickname.length > 10) {
-    alert('영어와 숫자 조합은 최대 10자까지 입력할 수 있습니다.');
-    return false;
+    return '닉네임 변경 : 영어와 숫자 조합은 최대 10자까지 입력할 수 있습니다.';
   } else if (isValidNickname && nickname.length > 8) {
-    alert('한글, 영어, 숫자 혼합은 최대 8자까지 입력할 수 있습니다.');
-    return false;
+    return '닉네임 변경 : 한글, 영어, 숫자 혼합은 최대 8자까지 입력할 수 있습니다.';
   } else {
-    return true;
+    return 'isOK';
   }
 };
