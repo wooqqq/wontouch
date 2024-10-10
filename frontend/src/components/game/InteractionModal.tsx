@@ -18,7 +18,7 @@ import { updateCount } from '../../redux/slices/cropQuantitySlice';
 const cropImages = import.meta.glob('../../assets/crops/*.png');
 
 const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSocket, cropList, dataChart }) => {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(1);
   const countRef = useRef(count);
   const [purchaseModal, setPurchaseModal] = useState(false);
   const userId = useSelector((state: RootState) => state.user.id);
@@ -48,6 +48,8 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
 
   // 총 페이지 수 계산
   const totalPages = Math.ceil(purchasedArticles.length / articlesPerPage);
+
+  const playerCropList = useSelector((state: RootState) => state.playerCrop.crops);
 
   // 현재 페이지에 해당하는 기사들만 슬라이싱
   const currentArticles = purchasedArticles.slice(
@@ -121,6 +123,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   const handlePrev = () => {
     if (currentCropIndex > 0) {
       setCurrentCropIndex(currentCropIndex - 1);
+      setCount(1);
     }
   };
 
@@ -128,6 +131,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
     if (currentCropIndex < crops.length - 1) {
       // 마지막 작물에서 다음으로 가려면 첫 번째 작물로 이동
       setCurrentCropIndex(currentCropIndex + 1);
+      setCount(1);
     }
     console.log(currentCropIndex);
   };
@@ -210,6 +214,14 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
       }
     }
   }, [houseNum, gameSocket]);
+
+  useEffect(() => {
+    //메세지를 보내봐
+    const req = {
+      type: "ARTICLE_SHOP"
+    }
+    gameSocket?.send(JSON.stringify(req));
+  }, [])
 
   const minusCount = () => {
     if (count > 0) {
@@ -323,6 +335,23 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
     setSelectedArticle(null); // 선택된 기사 초기화
   }
 
+  const formatVillage = (town: string) => {
+    switch (town) {
+      case "DOMESTIC_FRUITS":
+        return "탱글숲";
+      case "VEGETABLES_1":
+        return "채밭골";
+      case "MUSHROOMS_MEDICINAL":
+        return "약초골";
+      case "IMPORTED_FRUITS":
+        return "과즙비";
+      case "VEGETABLES_2":
+        return "푸름채";
+      case "GRAINS_NUTS":
+        return "황금들녘";
+    }
+  }
+
   return (
     <>
       {/* 모달 뒤에 어두운 배경 */}
@@ -366,8 +395,10 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                   <p className="text-[36px] font-semibold">{filteredCrops[currentCropIndex].name}</p> {/* 작물 이름 */}
                   <p>{filteredCrops[currentCropIndex].description}</p>
                   <p className="text-2xl text-gray-600">남은 수량: {currentCropQuantity} 상자</p> {/* 남은 수량 */}
-                  <p className="text-[32px] font-bold text-yellow-500">{chartArray[chartArray.length - 1]} 코인</p> {/* 가격은 임의 */}
+                  <p className="text-[32px] font-bold text-yellow-500">{chartArray[chartArray.length - 1] * count} 코인</p> {/* 가격은 임의 */}
+                  <p>현재 보유량 : {playerCropList[filteredCrops[currentCropIndex].id]}개</p>
                 </div>
+
               </div>
 
               {/* 좌우 화살표 추가 */}
@@ -388,12 +419,17 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                     <div className="flex-col">
                       <div className="flex items-center space-x-2 justify-between ml-1">
                         <button
-                          className="bg-gray-300 text-gray-600 px-3 rounded-full text-[32px]"
+                          className="bg-gray-300 text-gray-600 px-3 rounded-full text-[32px] mr-3"
                           onClick={minusCount}
                         >
                           -
                         </button>
-                        <p className="text-[32px] ml-3 mr-3">{count}</p>
+                        <input
+                          type="number"
+                          className="text-[32px] w-[80px] text-center bg-transparent border-none focus:outline-none"
+                          value={count}
+                          onChange={(e) => setCount(parseInt(e.target.value) || 0)} // 입력된 값을 count 상태에 반영
+                        />
                         <button
                           className="bg-gray-300 text-gray-600 px-3 rounded-full text-[32px]"
                           onClick={plusCount}
@@ -464,9 +500,12 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
                       <div key={index} className="border border-gray-300 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
                         <button
                           onClick={() => showArticle(article)}
-                          className="text-lg font-semibold text-gray-500 hover:text-gray-700"
+                          className="text-lg font-semibold text-gray-500 hover:text-gray-700 flex flex-col"
                         >
-                          {article.info?.title || "제목 없음"}
+                          <span className='font-bold text-blue-600'>({formatVillage(article.town)}마을)</span>
+                          <span className='text-[14px]'>
+                            {article.info?.title || "제목 없음"}
+                          </span>
                         </button>
                       </div>
                     ))}
