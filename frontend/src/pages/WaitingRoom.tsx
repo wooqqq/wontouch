@@ -25,6 +25,7 @@ import { addChatParticipants } from '../redux/slices/chatSlice';
 import { setRoundStart } from '../redux/slices/timeSlice';
 import { Crop } from '../components/game/types';
 import { addCrop } from '../redux/slices/cropQuantitySlice';
+import { clearCropAmout } from '../redux/slices/playerCropSlice';
 
 interface GameParticipant {
   userId: number;
@@ -169,6 +170,7 @@ function WaitingRoom() {
 
               // 상태값이 잘 설정되었는지 확인
               console.log('Round Duration:', duration, 'Round Number:', round);
+              dispatch(clearCropAmout());
 
               // 페이지 이동 전 상태값 확인
               if (duration && round) {
@@ -178,6 +180,7 @@ function WaitingRoom() {
               }
               break;
             }
+
             // ✅ 작물 리스트
             case 'CROP_LIST': {
               const { cropList } = receivedMessage.content;

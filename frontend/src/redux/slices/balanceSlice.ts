@@ -16,8 +16,11 @@ const balanceSlice = createSlice({
     updateBalance: (state, action: PayloadAction<number>) => {
       state.balance = action.payload;
     },
+    clearBalance: (state) => {
+      state.balance = 1000000;
+    },
   },
 });
 
-export const { updateBalance } = balanceSlice.actions;
+export const { updateBalance, clearBalance } = balanceSlice.actions;
 export default balanceSlice.reducer;

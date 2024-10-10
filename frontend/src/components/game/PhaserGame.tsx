@@ -57,11 +57,14 @@ import { DecodedToken, GameParticipant, MapLayers } from './types';
 import TimerModal from './TimerModal';
 import { setPreparationStart, setRoundStart } from '../../redux/slices/timeSlice';
 import ResultModal from './ResultModal';
-import { updateCrop } from '../../redux/slices/cropQuantitySlice';
+import { clearCrops, updateCrop } from '../../redux/slices/cropQuantitySlice';
 import { setGameResult } from '../../redux/slices/gameResultSlice';
 import GameResultModal from './GameResultModal';
 import BalanceDisplay from './BalanceDisplay';
-import { updateBalance } from '../../redux/slices/balanceSlice';
+import { clearBalance, updateBalance } from '../../redux/slices/balanceSlice';
+import { clearCropAmout, setPlayerCrops, updateCropAmount } from '../../redux/slices/playerCropSlice';
+import PlayerCropModal from './PlayerCropModal';
+import { setChartData } from '../../redux/slices/chartSlice';
 
 const PhaserGame = () => {
   const navigation = useNavigate();
@@ -107,7 +110,15 @@ const PhaserGame = () => {
   const [dataChart, setDataChart] = useState(null);
 
   //게임 결과창
-  const [shwoResultModal, setShowResultModal] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
+
+  //플레이어 작물
+  const [showPlayerCrop, setShowPlayerCrop] = useState(false);
+
+  // Redux 상태에서 playerCrops 가져오기
+  const playerCrops = useSelector((state: RootState) => state.playerCrop.crops);
+  // 컴포넌트 내부에서
+  const noReConnectRef = useRef(false); // useRef로 noReConnect 상태 관리
 
   const handleGameResult = (message: any) => {
     // message.content 안에 game-result가 있는지 확인
@@ -187,6 +198,13 @@ const PhaserGame = () => {
 
       gameSocket.onopen = () => {
         console.log('게임 웹소켓 연결 성공');
+
+        // 웹소켓 연결 후 PLAYER_CROP_LIST 요청을 보냄
+        const cropListRequest = {
+          type: 'PLAYER_CROP_LIST',
+        };
+        gameSocket.send(JSON.stringify(cropListRequest));
+        console.log('PLAYER_CROP_LIST 요청을 보냈습니다.');
       };
 
       gameSocket.onmessage = (event) => {
@@ -209,7 +227,6 @@ const PhaserGame = () => {
               //보여줬던 정보를 전부 삭제, 라운드마다 초기화되어야하니까
               dispatch(clearArticles());
               dispatch(clearArticleResults());
-              dispatch(clearCropPrices());
               //시간과 라운드 설정
               dispatch(setRoundStart({ duration: duration, round: round }));
               //모달이 열려있으면 닫아야함
@@ -235,7 +252,12 @@ const PhaserGame = () => {
             if (data.type === 'CROP_CHART') {
               if (JSON.stringify(dataChart) !== JSON.stringify(data.content)) {
                 setDataChart(data.content);
+                dispatch(setChartData(data.content));
               }
+            }
+
+            if (data.type === "PLAYER_CROP_LIST") {
+              dispatch(setPlayerCrops(data.content));
             }
 
             if (data.type === 'SELL_CROP') {
@@ -248,6 +270,7 @@ const PhaserGame = () => {
 
                 dispatch(updateCrop({ id: crop!.id, newQuantity: data.content.info.townQuantity }));
                 dispatch(updateBalance(data.content.info.playerGold));
+                dispatch(updateCropAmount({ cropName: crop!.id, newQuantity: data.content.info.playerQuantity }));
                 alert("판매 성공!");
               }
               else {
@@ -263,6 +286,7 @@ const PhaserGame = () => {
                 );
                 dispatch(updateCrop({ id: crop!.id, newQuantity: data.content.info.townQuantity }));
                 dispatch(updateBalance(data.content.info.playerGold));
+                dispatch(updateCropAmount({ cropName: crop!.id, newQuantity: data.content.info.playerQuantity }));
                 alert("구매 성공!");
               } else if (data.content.type === "INSUFFICIENT_STOCK") {
                 alert("재고를 확인해주세요. 구매하려는 수량보다 재고가 적습니다.");
@@ -277,6 +301,10 @@ const PhaserGame = () => {
               if (data.content.type === "SUCCESS") {
                 //성공일때만..
                 dispatch(addArticle(data.content));
+                dispatch(updateBalance(data.content.playerGold));
+              }
+              else {
+                alert("잔액이 부족합니다...");
               }
             }
 
@@ -365,6 +393,7 @@ const PhaserGame = () => {
             if (data.type === "GAME_RESULT") {
               handleGameResult(data);
               setShowResultModal(true);  // 모달을 열기 위한 상태 관리
+
             }
 
 
@@ -375,10 +404,12 @@ const PhaserGame = () => {
       };
 
       gameSocket.onclose = () => {
-        console.log('WebSocket이 닫혔습니다. 재연결을 시도합니다.');
-        setTimeout(() => {
-          connectWebSocket(); // 재연결 시도
-        }, 1000); // 1초 후에 재연결 시도
+        if (!noReConnectRef.current) {
+          console.log('WebSocket이 닫혔습니다. 재연결을 시도합니다.');
+          setTimeout(() => {
+            connectWebSocket(); // 재연결 시도
+          }, 1000); // 1초 후에 재연결 시도
+        }
       };
 
       gameSocketRef.current = gameSocket; // WebSocket을 gameSocketRef에 저장
@@ -662,10 +693,29 @@ const PhaserGame = () => {
     console.log("갔을걸?");
   }
 
-  //게임 다 했으니 로비로 나가!
   const goToLobby = () => {
+    noReConnectRef.current = true; // 재연결을 막기 위한 플래그 설정
     setShowResultModal(false);
+
+    // 웹소켓이 열려 있는 경우 안전하게 종료
+    if (gameSocketRef.current) {
+      gameSocketRef.current.close(); // 웹소켓 연결 끊기
+      console.log('웹소켓 연결이 종료되었습니다.');
+    }
+
+    // 잔액 초기화
+    dispatch(clearBalance());
+
+    // 로비로 이동
     navigation('/lobby');
+  };
+
+
+  const openPlayerCropModal = () => {
+    setShowPlayerCrop(true);
+  };
+  const closePlayerCropModal = () => {
+    setShowPlayerCrop(false);
   }
 
 
@@ -674,6 +724,13 @@ const PhaserGame = () => {
       <div id="phaser-game-container" />
       <TimerModal /> {/* Phaser 화면 위에 타이머 모달 추가 */}
       <BalanceDisplay />
+      <button
+        className="fixed top-[75px] right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg"
+        onClick={openPlayerCropModal}
+      >
+        작물
+      </button>
+
       {houseNum !== null && (
         <InteractionModal
           houseNum={houseNum}
@@ -686,7 +743,8 @@ const PhaserGame = () => {
 
       {openMap && <MapModal closeMapModal={closeMapModal} />}
       {showModal && round <= 4 && <ResultModal round={round} onNextRound={handleNextRound} />}
-      {shwoResultModal && <GameResultModal onClose={goToLobby} />}
+      {showResultModal && <GameResultModal onClose={goToLobby} />}
+      {showPlayerCrop && <PlayerCropModal onClose={closePlayerCropModal} gameSocket={gameSocketRef.current} />}
     </div>
   );
 };
