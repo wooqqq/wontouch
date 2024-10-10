@@ -82,7 +82,7 @@ function WaitingRoom() {
 
   // ❗❗❗❗❗❗❗❗ roomId 저장 useEffect ❗❗❗❗❗❗❗❗
   useEffect(() => {
-    console.log(roomIdFromParams);
+    // console.log(roomIdFromParams);
     if (roomIdFromParams) {
       dispatch(setRoomId(roomIdFromParams));
     }
@@ -100,16 +100,16 @@ function WaitingRoom() {
 
     // ✅ 웹소켓 연결
     newSocket.onopen = async () => {
-      console.log(
-        '웹소켓 연결 성공 - roomId: ' + roomId + ', playerId: ' + userId,
-      );
+      // console.log(
+      //   '웹소켓 연결 성공 - roomId: ' + roomId + ', playerId: ' + userId,
+      // );
     };
 
     // ✅ 웹소켓 연결 오류 시 재연결 시도
     newSocket.onerror = (error) => {
-      console.error('웹소켓 연결 오류: ', error);
+      // console.error('웹소켓 연결 오류: ', error);
       setTimeout(() => {
-        console.log('재연결 시도 중...');
+        // console.log('재연결 시도 중...');
         socket.current = new WebSocket(
           `${SOCKET_LINK}/ws/game/${roomId}?playerId=${userId}`,
         );
@@ -125,14 +125,14 @@ function WaitingRoom() {
         password: password,
       })
       .then((response) => {
-        console.log('방 입장 완료', response);
+        // console.log('방 입장 완료', response);
         if (password) {
           dispatch(setIsPrivate(true));
         }
       })
       .catch((error) => {
-        console.error('방 입장 중 에러 발생: ', error);
-        console.log('대기방 password: ', password);
+        // console.error('방 입장 중 에러 발생: ', error);
+        // console.log('대기방 password: ', password);
         navigate('/lobby');
       });
 
@@ -142,7 +142,7 @@ function WaitingRoom() {
       if (event.data.startsWith('{') && event.data.endsWith('}')) {
         try {
           const receivedMessage = JSON.parse(event.data);
-          console.log(receivedMessage);
+          // console.log(receivedMessage);
 
           // 소켓에 수신된 메시지에 따라..
           switch (receivedMessage.type) {
@@ -154,7 +154,7 @@ function WaitingRoom() {
             case 'NOTIFY':
               // 🔵 방 정보 가져오기 함수 실행
               fetchRoomData();
-              console.log('입퇴장 시 방 정보 가져오기 함수 실행');
+              // console.log('입퇴장 시 방 정보 가져오기 함수 실행');
               break;
             // ✅ 준비 / 준비완료
             case 'READY': {
@@ -163,7 +163,7 @@ function WaitingRoom() {
               // 배열의 각 요소를 순회하면서 상태를 확인
               readyStateList.forEach((player: Player) => {
                 if (player.playerId !== hostId) {
-                  console.log('일반 유저 준비 상태: ', player.ready);
+                  // console.log('일반 유저 준비 상태: ', player.ready);
                   dispatch(
                     updateParticipantReadyState({
                       playerId: player.playerId,
@@ -171,11 +171,11 @@ function WaitingRoom() {
                     }),
                   );
                 } else {
-                  console.log('방장 준비 상태:', player.ready);
+                  // console.log('방장 준비 상태:', player.ready);
                 }
               });
               setIsAllReady(allReady);
-              console.log('모두 준비: ', allReady);
+              // console.log('모두 준비: ', allReady);
               break;
             }
             // ✅ 게임 시작
@@ -186,7 +186,7 @@ function WaitingRoom() {
               dispatch(setRoundStart({ duration: duration, round: round }));
 
               // 상태값이 잘 설정되었는지 확인
-              console.log('Round Duration:', duration, 'Round Number:', round);
+              // console.log('Round Duration:', duration, 'Round Number:', round);
               dispatch(clearCropAmout());
 
               // 페이지 이동 전 상태값 확인
@@ -208,9 +208,9 @@ function WaitingRoom() {
               // cropList가 존재하는지 확인 후 상태 업데이트
               if (cropList && Array.isArray(cropList)) {
                 dispatch(setCrops(cropList));
-                console.log('Crop List Received:', cropList); // 데이터가 올바르게 수신되었는지 확인
+                // console.log('Crop List Received:', cropList); // 데이터가 올바르게 수신되었는지 확인
               } else {
-                console.error('Invalid Crop List:', cropList);
+                // console.error('Invalid Crop List:', cropList);
               }
 
               //CROP_LIST에서 나온 작물들의 수량 초기화하기
@@ -221,7 +221,7 @@ function WaitingRoom() {
             }
           }
         } catch (error) {
-          console.error('JSON 파싱 오류:', error);
+          // console.error('JSON 파싱 오류:', error);
         }
       }
     };
@@ -237,10 +237,10 @@ function WaitingRoom() {
       axios
         .post(`${API_LINK}/room/exit/${roomId}`, { playerId: userId })
         .then((response) => {
-          console.log('방 퇴장 완료');
+          // console.log('방 퇴장 완료');
           if (response.data.data.hostId !== userId) {
             dispatch(setHostId(response.data.data.hostId));
-            console.log('방장이 위임되었습니다:', response.data.data.hostId);
+            // console.log('방장이 위임되었습니다:', response.data.data.hostId);
           } else {
             setAlertModal({
               isVisible: true,
@@ -250,7 +250,7 @@ function WaitingRoom() {
           }
         })
         .catch((error) => {
-          console.error('방 정보 가져오는 중 에러 발생: ', error);
+          // console.error('방 정보 가져오는 중 에러 발생: ', error);
         });
     };
 
@@ -274,7 +274,7 @@ function WaitingRoom() {
       ) {
         if (socket.current) {
           socket.current.close();
-          console.log('웹소켓 연결 닫기');
+          // console.log('웹소켓 연결 닫기');
         }
       }
       window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -289,7 +289,7 @@ function WaitingRoom() {
 
       if (response.data && response.data.data) {
         const gameParticipants = response.data.data.participants;
-        console.log('1번 - participants: ', gameParticipants);
+        // console.log('1번 - participants: ', gameParticipants);
 
         const formattedParticipants = Object.entries(gameParticipants).map(
           ([userId, isReady]) => ({
@@ -302,7 +302,7 @@ function WaitingRoom() {
             mileage: 0,
           }),
         );
-        console.log('2번 - formattedParticipants: ', formattedParticipants);
+        // console.log('2번 - formattedParticipants: ', formattedParticipants);
 
         const fetchUsers = await Promise.all(
           formattedParticipants.map(
@@ -341,12 +341,12 @@ function WaitingRoom() {
         dispatch(setGameParticipants(fetchUsers));
         dispatch(setRoomName(response.data.data.roomName));
         dispatch(setHostId(response.data.data.hostId));
-        console.log('3번 - GameParticipants에 저장할 fetchUsers: ', fetchUsers);
+        // console.log('3번 - GameParticipants에 저장할 fetchUsers: ', fetchUsers);
       } else {
-        console.error('응답 데이터에 participants가 없습니다.');
+        // console.error('응답 데이터에 participants가 없습니다.');
       }
     } catch (error) {
-      console.error('방 정보 가져오는 중 에러 발생: ', error);
+      // console.error('방 정보 가져오는 중 에러 발생: ', error);
     }
   };
 

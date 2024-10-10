@@ -123,10 +123,10 @@ export default function EditProfile() {
           // 닉네임 변경 시 10000 마일리지 차감
           dispatch(postUserMileage(10000));
         } catch (error) {
-          setNickname(userNickname); // Reset nickname if error
+          setNickname(userNickname);
           setIsNicknameAvailable(null);
-          setDescription(userDescription); // Reset description
-          isUpdateAllowed = false; // Prevent further updates
+          setDescription(userDescription);
+          isUpdateAllowed = false;
         }
       }
     }
@@ -141,7 +141,6 @@ export default function EditProfile() {
         isUpdateAllowed = false;
       }
 
-      // If nickname validation is successful, attempt to update the description
       if (isUpdateAllowed) {
         try {
           await axios.patch(`${API_LINK}/user-profile/description`, {
@@ -155,7 +154,6 @@ export default function EditProfile() {
       }
     }
 
-    // Show the completion modal only if both nickname and description were updated successfully
     if (isUpdateAllowed) {
       setComplete(true);
     }

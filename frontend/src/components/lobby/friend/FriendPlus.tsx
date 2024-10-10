@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
@@ -61,7 +60,7 @@ export default function FriendPlus({
       }
     } catch (error) {
       // 실패 시 상태 업데이트
-      console.log(error);
+      // console.log(error);
       setState('fail');
     }
   };

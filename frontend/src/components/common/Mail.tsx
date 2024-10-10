@@ -17,7 +17,7 @@ import LevelText from './LevelText';
 import mail from '../../assets/icon/mail.png';
 import cancel from '../../assets/icon/cancel.png';
 import confirm from '../../assets/icon/confirm.png';
-import { setIsPrivate, setPassword } from '../../redux/slices/roomSlice';
+import { setPassword } from '../../redux/slices/roomSlice';
 
 // 알림 전체 조회
 interface Notification {
@@ -101,12 +101,12 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
 
       // 데이터가 있으면 state 변경
       const data = response.data.data;
-      console.log(data);
+      // console.log(data);
       if (data) {
         setNotifications(data);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -137,10 +137,10 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log(response.data.data);
+      // console.log(response.data.data);
       setFriendRequestInfo(response.data.data);
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     }
   };
 
@@ -150,11 +150,11 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
       const response = await axios.get(
         `${API_LINK}/notification/detail/${notificationId}`,
       );
-      console.log(response.data.data);
+      // console.log(response.data.data);
       setGameInviteInfo(response.data.data);
       setGameInviteInfoNotificationId(notificationId); // 알림 id
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     }
   };
 
@@ -213,7 +213,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
         message: '친구 요청을 수락했습니다!',
       });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -278,7 +278,7 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
         message: '친구 요청을 거절했습니다!',
       });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
