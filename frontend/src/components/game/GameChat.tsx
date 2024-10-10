@@ -36,7 +36,6 @@ const GameChat: React.FC<GameChatProps> = ({ gameSocket, chatHistory }) => {
     }
   };
 
-  // 엔터 키로 메시지 전송 또는 채팅창 열기/닫기 처리
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       if (isOpen) {
@@ -46,8 +45,12 @@ const GameChat: React.FC<GameChatProps> = ({ gameSocket, chatHistory }) => {
         // 채팅창이 닫혀 있으면 엔터키로 열기
         setIsOpen(true);
       }
+    } else if (event.key === ' ') {
+      // 스페이스바 입력을 허용
+      setMessage((prevMessage) => prevMessage + ' ');
     }
   };
+
 
   // 채팅창 열림/닫힘 토글
   const toggleChat = () => {

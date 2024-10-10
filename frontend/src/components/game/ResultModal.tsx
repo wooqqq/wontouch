@@ -108,6 +108,7 @@ const ResultModal: React.FC<ResultModalProps> = ({ round, onNextRound }) => {
 
       {/* CropChangeModal 모달 표시 */}
       {isCropModalOpen && <CropChangeModal onClose={closeCropModal} />}
+
     </div>
   );
 };
