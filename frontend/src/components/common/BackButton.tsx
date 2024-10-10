@@ -6,7 +6,7 @@ export default function BackButton() {
   const navigate = useNavigate();
 
   const clickButton = () => {
-    navigate(-1);
+    navigate('/lobby');
   };
   return (
     <div>

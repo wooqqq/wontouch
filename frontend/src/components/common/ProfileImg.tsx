@@ -9,15 +9,13 @@ interface ProfileImgProps {
 }
 
 export default function ProfileImg({ characterName }: ProfileImgProps) {
-  const userCharacterName = useSelector(
-    (state: RootState) => state.user.characterName,
-  );
+  // const userCharacterName = useSelector(
+  //   (state: RootState) => state.user.characterName,
+  // );
 
   // userCharacterName이 string인지 확인 후 이미지 가져오기
   const profileImgSrc =
-    typeof userCharacterName === 'string'
-      ? characterImages[userCharacterName]
-      : null;
+    typeof characterName === 'string' ? characterImages[characterName] : null;
 
   return (
     <div>

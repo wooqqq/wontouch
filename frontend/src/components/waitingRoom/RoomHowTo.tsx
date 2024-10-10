@@ -1,8 +1,8 @@
 function RoomHowTo() {
   return (
-    <div className="yellow-box text-center my-3 px-5 pb-5">
-      <div className="mint-title my-2">게임 방법</div>
-      <p className="white-title mb-2">
+    <div className="yellow-box text-center my-[10px] px-5 pb-3">
+      <div className="mint-title my-1">게임 방법</div>
+      <p className="white-title">
         6라운드 동안 가장 많이
         <br /> 자산을 불리는 사람이 승리!
       </p>
