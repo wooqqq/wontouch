@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { characterImages, walkImages } from '../../assets/avatarImages';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { setAvatars } from '../../redux/slices/avatarSlice';
+import {
+  setAvatars,
+  updateAvatarEquipped,
+} from '../../redux/slices/avatarSlice';
 import Modal from '../common/Modal';
 import confirmImg from '../../assets/icon/confirm.png';
 import mileage from '../../assets/icon/coin_mint_mini.png';
 import { RootState } from '../../redux/store';
+import { setUserCharacterName } from '../../redux/slices/userSlice';
 
 interface Avatar {
   characterName: string;
@@ -75,7 +79,10 @@ function AvatarInfo({
           Authorization: `Bearer ${token}`,
         },
       });
+
       dispatch(setAvatars(response.data.data)); // Redux 상태 업데이트
+      dispatch(setUserCharacterName(avatar.characterName));
+      dispatch(updateAvatarEquipped(avatar.characterName));
 
       setIsEquitAvatarModal(true);
     } catch (error) {

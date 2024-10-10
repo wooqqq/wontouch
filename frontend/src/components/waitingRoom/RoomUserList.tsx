@@ -35,16 +35,16 @@ function RoomUserList({ onOpen, socket }: RoomUserListProps) {
   });
 
   return (
-    <div className="waitingroom-brown-box flex flex-wrap justify-center gap-9 mt-8 mb-6">
+    <div className="waitingroom-brown-box flex flex-wrap justify-center gap-8 mb-3 pt-9">
       <img
         src={selectboxBL}
         alt="박스 왼쪽 하단"
-        className="absolute left-[-10px] top-[460px]"
+        className="absolute left-[-10px] top-[423px]"
       />
       <img
         src={selectboxTR}
         alt="박스 오른쪽 상단"
-        className="absolute right-[400px] top-[18px]"
+        className="absolute right-[400px] top-[-11px]"
       />
       {userList.map((user, index) => (
         <div key={index} className="flex-shrink-0">

@@ -57,7 +57,7 @@ function EditCharacter() {
       }
     };
     fetchCharacterInfo();
-  }, [userId, dispatch, mileage]);
+  }, [userId, mileage]);
 
   const handleAvatarClick = (avatar: Avatar) => {
     setSelectedAvatar(avatar);
