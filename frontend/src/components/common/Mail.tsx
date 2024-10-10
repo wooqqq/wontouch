@@ -8,6 +8,8 @@ import { addFriend } from '../../redux/slices/friendSlice';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Modal from './Modal';
+import SuccessModal from './SuccessModal';
+import AlertModal from './AlertModal';
 import ProfileImg from './ProfileImg';
 import LevelImg from './LevelImg';
 import LevelText from './LevelText';
@@ -68,8 +70,22 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
   const [gameInviteInfo, setGameInviteInfo] = useState<gameInviteInfo>();
   const [gameInviteInfoNotificationId, setGameInviteInfoNotificationId] =
     useState<string>();
-  const [acceptFriendModal, setAcceptFriendModal] = useState<boolean>(false);
-  const [rejectFriendModal, setRejectFriendModal] = useState<boolean>(false);
+  const [successModal, setSuccessModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
+  // 성공 모달 닫기
+  const closeSuccessModal = () => {
+    setSuccessModal({ isVisible: false, message: '' });
+  };
 
   // 1. 알림 불러오기
   const getNotifications = async () => {
@@ -192,7 +208,10 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
       dispatch(addFriend(newFriend));
 
       // 확인 모달
-      setAcceptFriendModal(true);
+      setSuccessModal({
+        isVisible: true,
+        message: '친구 요청을 수락했습니다!',
+      });
     } catch (error) {
       console.log(error);
     }
@@ -227,7 +246,6 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
 
     navigate(`/wait/${UUID}`);
   };
-  const handleAcceptFriendModal = () => setAcceptFriendModal(false);
 
   // 5-1. 친구 요청 거절
   const rejectFriendRequest = async (
@@ -255,12 +273,14 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
       dispatch(decreaseNotificationCount());
 
       // 확인 모달
-      setRejectFriendModal(true);
+      setAlertModal({
+        isVisible: true,
+        message: '친구 요청을 거절했습니다!',
+      });
     } catch (error) {
       console.log(error);
     }
   };
-  const handleRejectModal = () => setRejectFriendModal(false);
 
   // 5-2. 게임 초대 요청 거절
   // 알림 삭제만 하자
@@ -419,28 +439,20 @@ export default function Mail({ closeMail }: { closeMail: () => void }) {
           )}
         </Modal>
       )}
-      {acceptFriendModal && (
+      {alertModal.isVisible && (
         <Modal>
-          <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
-            <div className="white-text text-4xl p-6">
-              친구 신청을 수락하였습니다!
-            </div>
-            <button onClick={handleAcceptFriendModal}>
-              <img src={confirm} alt="" />
-            </button>
-          </div>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
         </Modal>
       )}
-      {rejectFriendModal && (
+      {successModal.isVisible && (
         <Modal>
-          <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
-            <div className="white-text text-4xl p-6">
-              친구 신청을 거절하였습니다!
-            </div>
-            <button onClick={handleRejectModal}>
-              <img src={confirm} alt="" />
-            </button>
-          </div>
+          <SuccessModal
+            message={successModal.message}
+            closeSuccessModal={closeSuccessModal}
+          />
         </Modal>
       )}
     </div>
