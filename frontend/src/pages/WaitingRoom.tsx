@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import WaitingRoomMusic from '../components/common/WaitingRoomMusic';
 
 import { RootState } from '../redux/store';
 import {
@@ -359,7 +358,6 @@ function WaitingRoom() {
 
   return (
     <>
-      <WaitingRoomMusic />
       <div className="flex justify-between items-center">
         <BackButton />
         <Header />
