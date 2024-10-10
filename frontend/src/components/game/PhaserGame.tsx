@@ -109,6 +109,8 @@ const PhaserGame = () => {
     setSuccessModal({ isVisible: false, message: '' });
   };
 
+
+
   //웹소켓 관련
   const { roomId } = useParams();
   const playerId = useSelector((state: RootState) => state.user.id);
@@ -461,7 +463,7 @@ const PhaserGame = () => {
 
                   // 다른 플레이어가 이동할 때 애니메이션 재생
                   if (
-                    !otherPlayer.anims.isPlaying ||
+                    !otherPlayer.anims?.isPlaying ||
                     otherPlayer.anims.currentAnim?.key !== walkAnimationKey
                   ) {
                     otherPlayer.anims.play(walkAnimationKey, true);
