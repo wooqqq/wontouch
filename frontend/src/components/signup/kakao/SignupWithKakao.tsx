@@ -62,24 +62,29 @@ function SignupWithKakao() {
 
     // 닉네임 유효성 검사
     const checkNickname = CheckSetNickname(nickname);
-    if (checkNickname) {
-      try {
-        await axios.post(`${API_LINK}/user-profile/join`, {
-          userId: userId,
-          nickname: nickname,
-        });
-        sessionStorage.removeItem('access_token');
-        navigate('/');
-      } catch (error) {
-        console.error('회원가입 중 오류 발생:', error);
-        setAlertModal({
-          isVisible: true,
-          message: '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.',
-        });
-        navigate('/login');
-      }
-    } else {
+    if (checkNickname !== 'isOK') {
+      setAlertModal({
+        isVisible: true,
+        message: checkNickname,
+      });
       setIsNicknameAvailable(null);
+      return;
+    }
+
+    try {
+      await axios.post(`${API_LINK}/user-profile/join`, {
+        userId: userId,
+        nickname: nickname,
+      });
+      sessionStorage.removeItem('access_token');
+      navigate('/');
+    } catch (error) {
+      console.error('회원가입 중 오류 발생:', error);
+      setAlertModal({
+        isVisible: true,
+        message: '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.',
+      });
+      navigate('/login');
     }
   };
 

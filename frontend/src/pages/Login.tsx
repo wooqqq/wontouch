@@ -26,7 +26,7 @@ function Login() {
           <div className="flex flex-col items-center space-y-4">
             <KakaoLogin />
             {/* <GoogleLogin /> */}
-            <GoogleLoginTwo />
+            {/* <GoogleLoginTwo /> */}
           </div>
         )}
       </div>
