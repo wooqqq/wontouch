@@ -86,7 +86,7 @@ public class CropService {
         for (Crop crop : selectedCrops) {
             cropRedisRepository.addCropToGame(roomId, crop.getId());
             cropRedisRepository.addCropToTown(roomId, type, crop.getId());
-            cropRedisRepository.addCropDetails(roomId, crop);
+            cropRedisRepository.addCropDetails(roomId, crop, type);
         }
     }
 

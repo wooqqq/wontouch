@@ -34,6 +34,7 @@ public class TownService {
         Integer gold = playerRepository.getPlayerGold(playerId);
         Integer price = cropRedisRepository.getCropPrice(roomId, cropId);
         Integer availableQuantity = cropRedisRepository.getCropQuantity(roomId, cropId);
+        String town = cropRedisRepository.getCropTown(roomId, cropId);
 
         log.debug("gold: {}, price: {}, availableQuantity: {}", gold, price, availableQuantity);
         // 2. 총 거래 금액 계산
@@ -43,7 +44,7 @@ public class TownService {
         // 거래 응답 객체 초기화
         CropTransactionResponseDto responseDto = new CropTransactionResponseDto();
         responseDto.setCropId(cropId);
-
+        responseDto.setTown(town);
         // 3. 골드와 작물 수량이 충분한지 확인
         if (gold != null && gold >= totalPrice) {
             if (availableQuantity != null && availableQuantity >= purchaseQuantity) {
@@ -68,7 +69,7 @@ public class TownService {
                 return new CropTransactionResult(TransactionStatusType.SUCCESS, responseDto);
             } else {
                 // 3.2 상점에 충분한 수량이 없는 경우
-                return new CropTransactionResult(TransactionStatusType.INSUFFICIENT_STOCK, null);
+                return new CropTransactionResult(TransactionStatusType.INSUFFICIENT_STOCK, responseDto);
             }
         } else {
             // 3.3 골드가 부족한 경우

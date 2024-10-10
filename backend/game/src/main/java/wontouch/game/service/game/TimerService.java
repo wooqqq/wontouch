@@ -24,8 +24,8 @@ import static wontouch.game.domain.RedisKeys.PLAYER_SUFFIX;
 @Service
 @Slf4j
 public class TimerService {
-    private static final int ROUND_DURATION_SECONDS = 40;
-    private static final int PREPARATION_DURATION_SECONDS = 5;
+    private static final int ROUND_DURATION_SECONDS = 120;
+    private static final int PREPARATION_DURATION_SECONDS = 30;
     private static final int FINAL_ROUND = 5;
     private final GameService gameService;
 

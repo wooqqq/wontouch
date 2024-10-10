@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public class CropTransactionDto {
     private String cropId;
+    private String town;
     // 마을에 남은 수량
     private int townQuantity;
     // 플레이어에게 남은 수량
