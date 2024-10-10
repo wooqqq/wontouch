@@ -9,8 +9,14 @@ import authSlice from './slices/authSlice';
 import roomSlice from './slices/roomSlice';
 import cropSlice from './slices/cropSlice';
 import notificationSlice from './slices/notificationSlice';
+import articleSlice from './slices/articleSlice';
 import friendSlice from './slices/friendSlice';
 import chatSlice from './slices/chatSlice';
+import articleResultSlice from './slices/articleResultSlice';
+import cropResultSlice from './slices/cropResultSlice';
+import timeSlice from './slices/timeSlice';
+import cropQuantitySlice from './slices/cropQuantitySlice';
+import gameResultSlice from './slices/gameResultSlice';
 import avatarSlice from './slices/avatarSlice';
 
 // persist 설정
@@ -26,9 +32,15 @@ const rootReducer = combineReducers({
   user: userSlice,
   room: roomSlice,
   crop: cropSlice,
+  article: articleSlice,
   notification: notificationSlice,
   friend: friendSlice,
   chat: chatSlice,
+  articleResult: articleResultSlice,
+  cropResult: cropResultSlice,
+  time: timeSlice,
+  cropQuantity: cropQuantitySlice,
+  gameResult: gameResultSlice,
   avatar: avatarSlice,
 });
 

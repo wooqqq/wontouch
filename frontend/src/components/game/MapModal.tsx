@@ -1,10 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import map from '../../assets/map/map_origin.png';
 import { debounce } from 'lodash';
-
-interface MapProps {
-  closeMapModal: () => void;
-}
+import { MapProps } from './types';
 
 const MapModal: React.FC<MapProps> = ({ closeMapModal }) => {
   const handleKeyDown = useCallback(

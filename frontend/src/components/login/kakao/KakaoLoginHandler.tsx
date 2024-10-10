@@ -72,6 +72,8 @@ function KakaoLoginHandler() {
         },
       });
 
+      console.log(response.data.data.mileage);
+
       dispatch(setUserNickname(response.data.data.nickname));
       dispatch(setUserDescription(response.data.data.description));
       dispatch(setUserCharacterName(response.data.data.characterName));

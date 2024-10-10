@@ -2,8 +2,7 @@ import EditProfile from '../components/edit/EditProfile';
 import EditCharacter from '../components/edit/EditCharacter';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
-
-import arrow from '../assets/icon/arrow_left.png';
+import BackButton from '../components/common/BackButton';
 
 function Edit() {
   const navigate = useNavigate();
@@ -14,13 +13,9 @@ function Edit() {
   };
   return (
     <>
-      <div className="flex items-center justify-between">
-        <button onClick={clickArrow}>
-          <img src={arrow} alt="뒤로가기" />
-        </button>
-        <div>
-          <Header />
-        </div>
+      <div className="flex justify-between items-center">
+        <BackButton />
+        <Header />
       </div>
       <Routes>
         <Route path="profile" element={<EditProfile />} />

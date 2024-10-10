@@ -1,5 +1,5 @@
 let lastSendTime = 0; // 마지막으로 데이터를 전송한 시간
-let lastPosition = { x: 4000, y: 300 }; // 마지막으로 전송한 위치 정보
+let lastPosition = { x: 2240, y: 1280 }; // 마지막으로 전송한 위치 정보
 
 export const createPlayerMovement = (
   _scene: Phaser.Scene,
@@ -51,7 +51,7 @@ export const createPlayerMovement = (
   player.setVelocity(vx * clampedDelta, vy * clampedDelta);
 
   const currentTime = Date.now();
-  const sendInterval = 350; // 1초마다 데이터 전송
+  const sendInterval = 1000; // 1초마다 데이터 전송
   const positionThreshold = 16; // 최소 변화량 (16픽셀 이상 차이날 때만 전송)
 
   // 현재 좌표 정수화
@@ -74,6 +74,7 @@ export const createPlayerMovement = (
       gameSocketRef.current.send(JSON.stringify(playerPosition));
       lastSendTime = currentTime; // 전송 시간 업데이트
       lastPosition = currentPosition; // 마지막 위치 업데이트
+      console.log(currentPosition.x, currentPosition.y, "이것봐랑");
     }
   }
 

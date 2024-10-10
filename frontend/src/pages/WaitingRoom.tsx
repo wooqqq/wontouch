@@ -22,6 +22,9 @@ import RoomTitle from '../components/waitingRoom/RoomTitle';
 import RoomUserList from '../components/waitingRoom/RoomUserList';
 import { setCrops } from '../redux/slices/cropSlice';
 import { addChatParticipants } from '../redux/slices/chatSlice';
+import { setRoundStart } from '../redux/slices/timeSlice';
+import { Crop } from '../components/game/types';
+import { addCrop } from '../redux/slices/cropQuantitySlice';
 
 interface GameParticipant {
   userId: number;
@@ -136,7 +139,7 @@ function WaitingRoom() {
               console.log('입퇴장 시 방 정보 가져오기 함수 실행');
               break;
             // ✅ 준비 / 준비완료
-            case 'READY':
+            case 'READY': {
               const { readyStateList, allReady } = receivedMessage.content;
 
               // 배열의 각 요소를 순회하면서 상태를 확인
@@ -156,18 +159,20 @@ function WaitingRoom() {
               setIsAllReady(allReady);
               console.log('모두 준비: ', allReady);
               break;
+            }
             // ✅ 게임 시작
             case 'ROUND_START': {
               const { duration, round } = receivedMessage.content;
+
+              //시간과 라운드 설정
+              dispatch(setRoundStart({ duration: duration, round: round }));
 
               // 상태값이 잘 설정되었는지 확인
               console.log('Round Duration:', duration, 'Round Number:', round);
 
               // 페이지 이동 전 상태값 확인
               if (duration && round) {
-                navigate(`/game/${roomId}`, {
-                  state: { roundDuration: duration, roundNumber: round },
-                });
+                navigate(`/game/${roomId}`);
               } else {
                 alert('게임 시작에 필요한 정보가 부족합니다.');
               }
@@ -184,6 +189,11 @@ function WaitingRoom() {
               } else {
                 console.error('Invalid Crop List:', cropList);
               }
+
+              //CROP_LIST에서 나온 작물들의 수량 초기화하기
+              cropList.map((crop: Crop) => {
+                dispatch(addCrop({ id: crop.id }))
+              })
               break;
             }
           }
