@@ -49,7 +49,7 @@ export default function Friend() {
           <button>+</button>
         </div>
       </div>
-      <div className="mx-7 pb-2 px-2 overflow-y-scroll h-32">
+      <div className="mx-8 h-[130px] overflow-y-auto px-1">
         {friends.map((friend) => (
           <FriendInfo
             key={friend.friendId} // friendId를 key로 사용

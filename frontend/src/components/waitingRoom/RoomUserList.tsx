@@ -2,8 +2,6 @@ import { RoomUserInfo } from './RoomUserInfo';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import selectboxBL from '../../assets/icon/selectbox_bl.png';
-import selectboxBR from '../../assets/icon/selectbox_br.png';
-import selectboxTL from '../../assets/icon/selectbox_tl.png';
 import selectboxTR from '../../assets/icon/selectbox_tr.png';
 
 interface RoomUserListProps {

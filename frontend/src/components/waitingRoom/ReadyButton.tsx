@@ -3,9 +3,9 @@ import { RootState } from '../../redux/store';
 import { useRef, useState } from 'react';
 import axios from 'axios';
 import Modal from '../common/Modal';
+import AlertModal from '../common/AlertModal';
 import { useNavigate } from 'react-router-dom';
 import { setGameParticipants } from '../../redux/slices/roomSlice';
-import check from '../../assets/icon/confirm.png';
 
 interface GameParticipant {
   userId: number;
@@ -39,8 +39,14 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
   );
   const isReady = currentUser?.isReady || false;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAloneModalOpen, setIsAloneModalOpen] = useState(false);
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
 
   const readyStateRef = useRef(isReady); // useRef로 상태 참조
   readyStateRef.current = isReady; // 항상 최신 상태로 업데이트
@@ -56,7 +62,7 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
 
     socket.send(JSON.stringify(readyRequest));
 
-    console.log('준비완료~!!');
+    // console.log('준비완료~!!');
     const readyParticipants = gameParticipants.map((participant) => {
       if (participant.userId === userId) {
         return { ...participant, isReady: !participant.isReady };
@@ -73,18 +79,23 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
 
   // 게임 시작 버튼 클릭 시
   const handleStartGame = async () => {
-    console.log(isAllReady);
     if (!roomId || !gameParticipants) return;
 
     // 혼자일 때
     if (gameParticipants.length === 0) {
-      setIsAloneModalOpen(true);
+      setAlertModal({
+        isVisible: true,
+        message: '2명 이상 있어야 게임 시작이 가능합니다.',
+      });
       return;
     }
 
     // 모두 준비 X
     if (!isAllReady) {
-      setIsModalOpen(true);
+      setAlertModal({
+        isVisible: true,
+        message: '모두 준비 완료 상태에서만 시작합니다!',
+      });
       return;
     }
 
@@ -96,29 +107,19 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
       }),
     );
 
-    console.log(gameStartParticipants);
+    // console.log(gameStartParticipants);
 
     try {
       const response = await axios.post(
         `${API_LINK}/room/start/${roomId}`,
         gameStartParticipants,
       );
-      console.log('게임시작! : ', gameStartParticipants);
-      console.log('게임 시작 요청 성공: ', response.data);
+      // console.log('게임시작! : ', gameStartParticipants);
+      // console.log('게임 시작 요청 성공: ', response.data);
       navigate(`/game/${roomId}`);
     } catch (error) {
-      console.error('게임 시작 요청 중 오류 발생: ', error);
+      // console.error('게임 시작 요청 중 오류 발생: ', error);
     }
-  };
-
-  // 모두 준비 X
-  const closeModal = () => {
-    setIsModalOpen(false); // 모달 닫기
-  };
-
-  // 방에 혼자
-  const closeAloneModal = () => {
-    setIsAloneModalOpen(false); // 모달 닫기
   };
 
   return (
@@ -136,27 +137,13 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
           <p>준비 완료</p>
         </button>
       )}
-
       {/* 모달이 열릴 때만 렌더링 */}
-      {isModalOpen && (
+      {alertModal.isVisible && (
         <Modal>
-          <div className="yellow-box p-10">
-            <p className="mb-7">모두 준비 완료 상태에서만 시작 가능합니다.</p>
-            <button onClick={closeModal}>
-              <img src={check} alt="확인" />
-            </button>
-          </div>
-        </Modal>
-      )}
-      {/* 모달이 열릴 때만 렌더링 */}
-      {isAloneModalOpen && (
-        <Modal>
-          <div className="yellow-box p-10">
-            <p className="mb-7">2명 이상 있어야 게임 시작이 가능합니다.</p>
-            <button onClick={closeAloneModal}>
-              <img src={check} alt="확인" />
-            </button>
-          </div>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
         </Modal>
       )}
     </>

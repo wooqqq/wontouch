@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
@@ -8,6 +7,7 @@ import LevelText from '../../common/LevelText';
 import ProfileImg from '../../common/ProfileImg';
 import Modal from '../../common/Modal';
 import AlertModal from '../../common/AlertModal';
+import SuccessModal from '../../common/SuccessModal';
 
 import search from '../../../assets/icon/search.png';
 import cancel from '../../../assets/icon/cancel.png';
@@ -27,8 +27,11 @@ export default function FriendPlus({
   const [state, setState] = useState<'init' | 'success' | 'fail' | 'friend'>(
     'init',
   );
-  const [openModal, setOpenModal] = useState<boolean>(false);
   const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+  const [successModal, setSuccessModal] = useState({
     isVisible: false,
     message: '',
   });
@@ -57,7 +60,7 @@ export default function FriendPlus({
       }
     } catch (error) {
       // 실패 시 상태 업데이트
-      console.log(error);
+      // console.log(error);
       setState('fail');
     }
   };
@@ -73,18 +76,21 @@ export default function FriendPlus({
         fromUserId: userId,
         toUserId: id,
       });
-      setOpenModal(true);
+      setSuccessModal({
+        isVisible: true,
+        message: '친구 요청을 보냈습니다!',
+      });
     } catch {}
-  };
-
-  const handleMessage = () => {
-    setOpenModal(false);
-    closeFriend();
   };
 
   // 경고 모달 닫기
   const closeAlterModal = () =>
     setAlertModal({ isVisible: false, message: '' });
+  // 성공 모달 닫기
+  const closeSuccessModal = () => {
+    setSuccessModal({ isVisible: false, message: '' });
+    closeFriend();
+  };
 
   return (
     <div className="yellow-box min-w-[700px] w-1/2 h-[470px] p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
@@ -179,24 +185,19 @@ export default function FriendPlus({
           <img src={confirm} alt="친구 추가" onClick={handleConfirm} />
         </button>
       </div>
-      {openModal && (
-        <Modal>
-          <div className="yellow-box w-2/5 h-[150px] border-[#36EAB5] bg-[#FFFEEE]">
-            <div className="white-text text-4xl p-6">
-              친구 요청을 보냈습니다!
-            </div>
-            <button onClick={handleMessage}>
-              <img src={confirm} alt="" />
-            </button>
-          </div>
-        </Modal>
-      )}
-
       {alertModal.isVisible && (
         <Modal>
           <AlertModal
             message={alertModal.message}
             closeAlterModal={closeAlterModal}
+          />
+        </Modal>
+      )}
+      {successModal.isVisible && (
+        <Modal>
+          <SuccessModal
+            message={successModal.message}
+            closeSuccessModal={closeSuccessModal}
           />
         </Modal>
       )}

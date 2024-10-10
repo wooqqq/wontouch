@@ -7,12 +7,13 @@ import { CheckNicknameDuplicate } from '../../../utils/CheckNicknameDuplicate';
 import { CheckSetNickname } from '../../../utils/CheckSetNickname';
 import Modal from '../../common/Modal';
 import AlertModal from '../../common/AlertModal';
+import SuccessModal from '../../common/SuccessModal';
 
 import boy from '../../../assets/background/characters/stand/boy.png';
 
-const API_LINK = import.meta.env.VITE_API_URL;
-
 function SignupWithKakao() {
+  const API_LINK = import.meta.env.VITE_API_URL;
+
   const navigate = useNavigate();
 
   const [nickname, setNickname] = useState('');
@@ -20,6 +21,10 @@ function SignupWithKakao() {
     boolean | null
   >(null);
   const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+  const [successModal, setSuccessModal] = useState({
     isVisible: false,
     message: '',
   });
@@ -77,9 +82,11 @@ function SignupWithKakao() {
         nickname: nickname,
       });
       sessionStorage.removeItem('access_token');
-      navigate('/');
+      setSuccessModal({
+        isVisible: true,
+        message: '회원가입에 성공하였습니다!',
+      });
     } catch (error) {
-      console.error('회원가입 중 오류 발생:', error);
       setAlertModal({
         isVisible: true,
         message: '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.',
@@ -91,6 +98,11 @@ function SignupWithKakao() {
   // 경고 모달 닫기
   const closeAlterModal = () =>
     setAlertModal({ isVisible: false, message: '' });
+  // 성공 모달 닫기
+  const closeSuccessModal = () => {
+    setSuccessModal({ isVisible: false, message: '' });
+    navigate('/');
+  };
 
   return (
     <div className="items-center h-screen justify-center pt-16">
@@ -149,6 +161,14 @@ function SignupWithKakao() {
           <AlertModal
             message={alertModal.message}
             closeAlterModal={closeAlterModal}
+          />
+        </Modal>
+      )}
+      {successModal.isVisible && (
+        <Modal>
+          <SuccessModal
+            message={successModal.message}
+            closeSuccessModal={closeSuccessModal}
           />
         </Modal>
       )}

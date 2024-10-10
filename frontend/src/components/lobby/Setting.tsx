@@ -69,7 +69,7 @@ export default function Setting({
       // 로그인 화면으로 이동
       navigate('/');
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
   return (

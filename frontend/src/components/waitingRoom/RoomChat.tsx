@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import selectboxBL from '../../assets/icon/selectbox_bl.png';
-import selectboxBR from '../../assets/icon/selectbox_br.png';
-import selectboxTL from '../../assets/icon/selectbox_tl.png';
 import selectboxTR from '../../assets/icon/selectbox_tr.png';
 
 interface Message {
@@ -22,10 +20,6 @@ interface RoomInfoProps {
 
 function RoomChat({ messages, socket }: RoomInfoProps) {
   const userId = useSelector((state: RootState) => state.user.id);
-  const roomId = useSelector((state: RootState) => state.room.roomId);
-  const participants = useSelector(
-    (state: RootState) => state.room.gameParticipants,
-  );
   const chatUsers = useSelector(
     (state: RootState) => state.chat.chatParticipants,
   );

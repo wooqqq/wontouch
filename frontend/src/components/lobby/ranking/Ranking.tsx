@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import RankingList from './RankingList';
@@ -24,7 +24,7 @@ export default function Ranking() {
       });
       setRanking(response.data.data);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 

@@ -6,9 +6,9 @@ import { setAvatars } from '../../redux/slices/avatarSlice';
 import AvatarBox from './AvatarBox';
 import AvatarInfo from './AvatarInfo';
 import Modal from '../common/Modal';
+import AlertModal from '../common/AlertModal';
 import { postUserMileage } from '../../redux/slices/userSlice';
 import ConfirmPurchaseModal from './ConfirmPurchaseModal';
-import confirmImg from '../../assets/icon/confirm.png';
 
 interface Avatar {
   characterName: string;
@@ -30,8 +30,14 @@ function EditCharacter() {
   const [isWalkingAvatar, setIsWalkingAvatar] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 열림 상태
   const [priceToBuy, setPriceToBuy] = useState(0); // 구매할 가격 저장
-  const [isNotEnoughMilesModalOpen, setIsNotEnoughMilesModalOpen] =
-    useState(false); // 마일리지 부족 모달 상태
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
 
   useEffect(() => {
     const fetchCharacterInfo = async () => {
@@ -42,7 +48,7 @@ function EditCharacter() {
           },
         });
         const avatarsResponse = response.data.data;
-        console.log('캐릭터 정보', response.data.data);
+        // console.log('캐릭터 정보', response.data.data);
         dispatch(setAvatars(avatarsResponse));
 
         // 장착된 아바타를 찾고 설정
@@ -50,12 +56,12 @@ function EditCharacter() {
           (avatar: Avatar) => avatar.equipped,
         );
         if (equippedAvatar) {
-          console.log(equippedAvatar);
+          // console.log(equippedAvatar);
           // dispatch(setAvatars(equippedAvatar));
           setSelectedAvatar(equippedAvatar);
         }
       } catch (error) {
-        console.error('아바타 불러오는 중 오류 발생: ', error);
+        // console.error('아바타 불러오는 중 오류 발생: ', error);
       }
     };
     fetchCharacterInfo();
@@ -68,7 +74,10 @@ function EditCharacter() {
 
   const handlePurchaseClick = (price: number) => {
     if (mileage < price) {
-      setIsNotEnoughMilesModalOpen(true); // 마일리지 부족 모달 열기
+      setAlertModal({
+        isVisible: true,
+        message: '마일리지가 부족합니다..',
+      });
     } else {
       setPriceToBuy(price);
       setIsModalOpen(true); // 모달 열기
@@ -96,7 +105,7 @@ function EditCharacter() {
       setIsModalOpen(false); // 모달 닫기
       // 추가적인 로직: 구매 후 아바타 소유 상태 변경 등
     } catch (error) {
-      console.error('아바타 구매 중 오류 발생: ', error);
+      // console.error('아바타 구매 중 오류 발생: ', error);
     }
   };
 
@@ -157,17 +166,12 @@ function EditCharacter() {
         ''
       )}
 
-      {isNotEnoughMilesModalOpen && (
+      {alertModal.isVisible && (
         <Modal>
-          <div className="yellow-box yellow-box min-w-[500px] w-1/3 p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
-            <h2 className="mint-title text-red-500 mb-7">구매 불가</h2>
-            <p className="white-text mb-10 text-[1.4rem]">
-              마일리지가 부족합니다.
-            </p>
-            <button onClick={() => setIsNotEnoughMilesModalOpen(false)}>
-              <img src={confirmImg} alt="확인" />
-            </button>
-          </div>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
         </Modal>
       )}
     </div>

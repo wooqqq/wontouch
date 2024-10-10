@@ -15,6 +15,7 @@ interface ArticleInfo {
 interface Article {
   type: string;
   info: ArticleInfo | null; // info 속성 추가, null일 수 있으므로 | null 처리
+  town: string;
   playerGold: number;
 }
 
