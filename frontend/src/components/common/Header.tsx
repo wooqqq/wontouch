@@ -41,8 +41,14 @@ export default function Header() {
         `${API_LINK}/notification/subscribe/${userId}`,
       );
 
-      // 알림 수신 시 api 호출
+      // 친구 신청 알림 수신 시 api 호출
       eventSource.addEventListener('addFriendRequest', (event) => {
+        console.log(event.data);
+        dispatch(increaseNotificationCount());
+      });
+
+      // 게임 초대 알림 수신 시 api 호출
+      eventSource.addEventListener('addGameInvite', (event) => {
         console.log(event.data);
         dispatch(increaseNotificationCount());
       });
