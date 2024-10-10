@@ -50,6 +50,8 @@ function EditCharacter() {
           (avatar: Avatar) => avatar.equipped,
         );
         if (equippedAvatar) {
+          console.log(equippedAvatar);
+          // dispatch(setAvatars(equippedAvatar));
           setSelectedAvatar(equippedAvatar);
         }
       } catch (error) {
@@ -111,19 +113,24 @@ function EditCharacter() {
       {/* 아바타 상세보기 */}
       <section className="yellow-box w-[45rem] mb-8 mx-auto p-8">
         {/* 선택된 아바타 정보를 props로 전달 */}
-        {selectedAvatar && (
-          <AvatarInfo
-            avatar={selectedAvatar}
-            isWalkingAvatar={isWalkingAvatar}
-            setIsWalkingAvatar={setIsWalkingAvatar}
-            onPurchaseClick={handlePurchaseClick}
-          />
+        {avatars.map(
+          (avatar) =>
+            // avatar.characterName과 selectedAvatar.characterName이 일치할 때만 AvatarInfo를 호출
+            avatar.characterName === selectedAvatar?.characterName && (
+              <AvatarInfo
+                key={avatar.characterName}
+                avatar={avatar}
+                isWalkingAvatar={isWalkingAvatar}
+                setIsWalkingAvatar={setIsWalkingAvatar}
+                onPurchaseClick={handlePurchaseClick}
+              />
+            ),
         )}
       </section>
 
       {/* 아바타 목록 */}
       <section className="yellow-box w-[70rem] my-0 mx-auto overflow-x-scroll">
-        <div className="flex flex-nowrap px-10 py-6 justify-between">
+        <button className="flex flex-nowrap px-10 py-6 justify-between">
           {avatars.map((avatar) => (
             <AvatarBox
               key={avatar.characterName}
@@ -134,7 +141,7 @@ function EditCharacter() {
               onClick={() => handleAvatarClick(avatar)}
             />
           ))}
-        </div>
+        </button>
       </section>
 
       {isModalOpen ? (

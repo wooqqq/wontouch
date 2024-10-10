@@ -18,10 +18,10 @@ export default function FindRoom({
   // 랜덤 방 입장
   const enterRandomRoom = async () => {
     try {
-      const response = axios.post(`${API_LINK}/room/quick-join`, {
+      const response = await axios.post(`${API_LINK}/room/quick-join`, {
         playerId: userId,
       });
-      const roomId = (await response).data.data.roomId;
+      const roomId = response.data.data.roomId;
       navigate(`/wait/${roomId}`);
     } catch (error) {
       console.log(error);
@@ -32,12 +32,12 @@ export default function FindRoom({
     <div className="yellow-box w-1/2 h-[250px] border-[#36EAB5] bg-[#FFFEEE] p-8">
       <div className="relative">
         <div className="mint-title mb-8 text-5xl">빠른 입장</div>
-        <div
+        <button
           className="absolute right-0 top-1/2 transform -translate-y-1/2"
           onClick={closeFindRoom}
         >
           <img src={cancel} alt="메일함 닫기" />
-        </div>
+        </button>
       </div>
       <div className="white-text text-3xl mb-6">
         랜덤한 방에 바로 입장하시겠습니까?
