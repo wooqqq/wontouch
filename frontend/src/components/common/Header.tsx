@@ -14,9 +14,11 @@ import { increaseNotificationCount } from '../../redux/slices/notificationSlice'
 
 import mail from '../../assets/icon/mail.png';
 import setting from '../../assets/icon/setting.png';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const API_LINK = import.meta.env.VITE_API_URL;
 
@@ -68,12 +70,22 @@ export default function Header() {
   const openSetting = () => setShowSetting(true);
   const closeSetting = () => setShowSetting(false);
 
+  const navEditAvatar = () => {
+    navigate('/edit/character');
+  };
+
+  const navEditProfile = () => {
+    navigate('/edit/profile');
+  };
+
   return (
     <div className="flex items-center space-x-3 p-3 justify-end">
-      <div className="brown-box w-12 h-12">
+      <button onClick={navEditAvatar} className="brown-box w-12 h-12">
         <ProfileImg characterName={userCharacterName} />
-      </div>
-      <Nickname />
+      </button>
+      <button onClick={navEditProfile}>
+        <Nickname />
+      </button>
       <Mileage />
       <button onClick={openMail} className="brown-box w-12 h-12 p-1">
         <img src={mail} alt="" />
