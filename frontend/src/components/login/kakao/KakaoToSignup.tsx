@@ -8,9 +8,8 @@ function KakaoToSignup() {
   };
 
   return (
-    <div className="pt-52">
-      <div className="text-2xl mb-8 text-center">캐릭터가 없습니다!</div>
-      <div className="text-5xl mb-8 text-center mint-title">
+    <div className="flex flex-col justify-center items-center min-h-screen">
+      <div className="text-5xl mb-8 text-center white-text">
         캐릭터 생성하러 가볼까요?
       </div>
       <div className="ready-button w-2/5 mx-auto">

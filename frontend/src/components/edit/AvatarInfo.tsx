@@ -7,6 +7,8 @@ import {
   updateAvatarEquipped,
 } from '../../redux/slices/avatarSlice';
 import Modal from '../common/Modal';
+import AlertModal from '../common/AlertModal';
+import SuccessModal from '../common/SuccessModal';
 import confirmImg from '../../assets/icon/confirm.png';
 import mileage from '../../assets/icon/coin_mint_mini.png';
 import { RootState } from '../../redux/store';
@@ -40,6 +42,22 @@ function AvatarInfo({
 
   const [isEquitAvatarModal, setIsEquitAvatarModal] = useState(false);
   const [isNotEquitAvatarModal, setIsNotEquitAvatarModal] = useState(false);
+  const [alertModal, setAlertModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+  const [successModal, setSuccessModal] = useState({
+    isVisible: false,
+    message: '',
+  });
+
+  // 경고 모달 닫기
+  const closeAlterModal = () =>
+    setAlertModal({ isVisible: false, message: '' });
+  // 성공 모달 닫기
+  const closeSuccessModal = () => {
+    setSuccessModal({ isVisible: false, message: '' });
+  };
 
   // ✅ 걷는 모습
   const handleClickWalk = () => {
@@ -86,10 +104,16 @@ function AvatarInfo({
       dispatch(setUserCharacterName(avatar.characterName));
       dispatch(updateAvatarEquipped(avatar.characterName));
 
-      setIsEquitAvatarModal(true);
+      setSuccessModal({
+        isVisible: true,
+        message: '장착에 성공했습니다!',
+      });
     } catch (error) {
       console.error('아바타 변경 중 오류 발생: ', error);
-      setIsNotEquitAvatarModal(true);
+      setAlertModal({
+        isVisible: true,
+        message: '장착에 실패했습니다..',
+      });
     }
   };
 
@@ -150,30 +174,20 @@ function AvatarInfo({
           </div>
         </button> // 구매버튼
       )}
-      {isNotEquitAvatarModal && (
+      {alertModal.isVisible && (
         <Modal>
-          <div className="yellow-box yellow-box min-w-[500px] w-1/3 p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
-            <h2 className="mint-title text-red-500 mb-7">장착 실패</h2>
-            <div className="white-text mb-10 text-[1.4rem]">
-              장착에 실패했습니다.
-            </div>
-            <button onClick={clickConfirm}>
-              <img src={confirmImg} alt="확인" />
-            </button>
-          </div>
+          <AlertModal
+            message={alertModal.message}
+            closeAlterModal={closeAlterModal}
+          />
         </Modal>
       )}
-      {isEquitAvatarModal && (
+      {successModal.isVisible && (
         <Modal>
-          <div className="yellow-box yellow-box min-w-[500px] w-1/3 p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
-            <h2 className="mint-title mb-7">장착 성공</h2>
-            <div className="white-text mb-10 text-[1.4rem]">
-              장착을 저장했습니다.
-            </div>
-            <button onClick={clickConfirm}>
-              <img src={confirmImg} alt="확인" />
-            </button>
-          </div>
+          <SuccessModal
+            message={successModal.message}
+            closeSuccessModal={closeSuccessModal}
+          />
         </Modal>
       )}
     </>
