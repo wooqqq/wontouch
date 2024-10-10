@@ -169,7 +169,7 @@ export default function EditProfile() {
     <div>
       <div className="flex flex-col items-center px-10">
         <div className="mint-title mb-6">회원 정보 수정</div>
-        <div className="yellow-box w-8/12 h-[550px] p-10 px-20">
+        <div className="yellow-box min-w-[900px] w-8/12 h-[550px] p-10 px-20">
           <div className="flex justify-between items-center px-10 mb-10">
             <div className="profile-img w-[190px] h-[190px] flex items-center justify-center">
               <ProfileImg characterName={userCharacterName} />
@@ -261,7 +261,7 @@ export default function EditProfile() {
 
         {complete && (
           <Modal>
-            <div className="yellow-box w-2/5 h-[200px] border-[#36EAB5] bg-[#FFFEEE] p-8">
+            <div className="yellow-box min-w-[500px] w-2/5 h-[200px] border-[#36EAB5] bg-[#FFFEEE] p-8">
               <div className="white-text text-4xl mb-10">
                 수정이 완료되었습니다!
               </div>

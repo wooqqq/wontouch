@@ -49,7 +49,7 @@ export default function FriendProfile({
   }, []);
 
   return (
-    <div className="yellow-box w-1/2 h-[470px] p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
+    <div className="yellow-box min-w-[700px] w-1/2 h-[470px] p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
       <div className="flex justify-end" onClick={closeProfile}>
         <button>
           <img src={cancel} alt="프로필 창 닫기" />

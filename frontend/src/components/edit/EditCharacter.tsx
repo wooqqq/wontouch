@@ -159,7 +159,7 @@ function EditCharacter() {
 
       {isNotEnoughMilesModalOpen && (
         <Modal>
-          <div className="yellow-box yellow-box w-1/3 p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
+          <div className="yellow-box yellow-box min-w-[500px] w-1/3 p-6 px-10 border-[#36EAB5] bg-[#FFFEEE]">
             <h2 className="mint-title text-red-500 mb-7">구매 불가</h2>
             <p className="white-text mb-10 text-[1.4rem]">
               마일리지가 부족합니다.
