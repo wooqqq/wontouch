@@ -5,7 +5,7 @@ import backgroundImage from '../../assets/background.png';
 function CommonBG() {
   return (
     <div
-      className="w-screen h-screen bg-cover px-[60px]"
+      className="w-screen h-screen bg-cover"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       {/* 자식 라우트를 렌더링하기 위한 Outlet */}
