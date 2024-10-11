@@ -88,7 +88,7 @@ export default function Header() {
       <button onClick={openMail} className="brown-box w-12 h-12 p-1">
         <img src={mail} alt="" />
         {notificationCount > 0 && (
-          <span className="absolute top-3 right-32 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
+          <span className="absolute top-3 right-28 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
             {notificationCount}
           </span>
         )}
