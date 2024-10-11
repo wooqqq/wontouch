@@ -357,7 +357,7 @@ function WaitingRoom() {
     setAlertModal({ isVisible: false, message: '' });
 
   return (
-    <>
+    <div className="px-6">
       <div className="flex justify-between items-center">
         <BackButton />
         <Header />
@@ -404,7 +404,7 @@ function WaitingRoom() {
           />
         </Modal>
       )}
-    </>
+    </div>
   );
 }
 

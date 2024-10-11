@@ -82,7 +82,7 @@ function ReadyButton({ socket, isAllReady }: roomInfoProps) {
     if (!roomId || !gameParticipants) return;
 
     // 혼자일 때
-    if (gameParticipants.length === 0) {
+    if (gameParticipants.length === 1) {
       setAlertModal({
         isVisible: true,
         message: '2명 이상 있어야 게임 시작이 가능합니다.',

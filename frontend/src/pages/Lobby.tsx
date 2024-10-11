@@ -30,7 +30,7 @@ function Lobby() {
   };
 
   return (
-    <div>
+    <div className="px-6">
       <Header />
       <div className="flex justify-between">
         <section className="yellow-box w-8/12 min-w-[880px] h-5/6 flex flex-col justify-center p-2 px-6 ml-10">
