@@ -7,7 +7,7 @@ import BackButton from '../components/common/BackButton';
 function Edit() {
   return (
     <>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center px-6">
         <BackButton />
         <Header />
       </div>

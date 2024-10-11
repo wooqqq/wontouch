@@ -57,11 +57,11 @@ const ResultModal: React.FC<ResultModalProps> = ({ round, onNextRound }) => {
                     <span className="text-blue-600">{article?.change_rate}%</span>
                   )}
                 </p>
-                {article.sub_crops.length > 0 && (
+                {article?.sub_crops?.length > 0 && (
                   <div className="mt-2">
                     <h4 className="font-semibold white-text">관련 작물:</h4>
                     <ul className="list-disc list-inside">
-                      {article?.sub_crops.map((crop, cropIndex) => (
+                      {article?.sub_crops?.map((crop, cropIndex) => (
                         <li key={cropIndex}>
                           {crop.change_rate >= 0 ? (
                             <span className="text-red-600">{crop.name}: {crop.change_rate}%</span>
