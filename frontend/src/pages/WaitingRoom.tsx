@@ -83,7 +83,6 @@ function WaitingRoom() {
 
   // ❗❗❗❗❗❗❗❗ roomId 저장 useEffect ❗❗❗❗❗❗❗❗
   useEffect(() => {
-    console.log(roomIdFromParams);
     if (roomIdFromParams) {
       dispatch(setRoomId(roomIdFromParams));
     }
