@@ -292,9 +292,14 @@ const PhaserGame = () => {
             }
 
             if (data.type === 'TOWN_CROP_LIST') {
-              console.log('왔다이야이엉');
-              console.log(data.content);
+              const response = data.content as Record<string, number>;
               setCropList(data.content);
+
+              // cropData를 순회하면서 각각의 작물 수량을 업데이트
+              Object.entries(response).forEach(([cropId, quantity]) => {
+                dispatch(updateCrop({ id: cropId, newQuantity: quantity }));
+              });
+
             }
 
             if (data.type === 'CROP_LIST') {
