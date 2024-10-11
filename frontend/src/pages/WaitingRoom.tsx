@@ -83,7 +83,6 @@ function WaitingRoom() {
 
   // ❗❗❗❗❗❗❗❗ roomId 저장 useEffect ❗❗❗❗❗❗❗❗
   useEffect(() => {
-    console.log(roomIdFromParams);
     if (roomIdFromParams) {
       dispatch(setRoomId(roomIdFromParams));
     }
@@ -127,6 +126,7 @@ function WaitingRoom() {
       })
       .then((response) => {
         // console.log('방 입장 완료', response);
+        dispatch(setRoomId(roomId));
         if (password) {
           dispatch(setIsPrivate(true));
         }

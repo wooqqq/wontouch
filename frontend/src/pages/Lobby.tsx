@@ -10,11 +10,16 @@ import Friend from '../components/lobby/friend/Friend';
 import search from '../assets/icon/search.png';
 import hammer from '../assets/icon/hammer.png';
 import reload from '../assets/icon/reload.png';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 
 function Lobby() {
   const [showMakeRoom, setShowMakeRoom] = useState<boolean>(false);
   const [showFindRoom, setShowFindRoom] = useState<boolean>(false);
   const [reloadKey, setReloadKey] = useState<number>(0); // reloadKey 상태 추가
+
+  const roomId = useSelector((state: RootState) => state.room.roomId);
+  console.log('로비 roomId: ', roomId);
 
   // 방 생성 모달
   const openMakeRoom = () => setShowMakeRoom(true);

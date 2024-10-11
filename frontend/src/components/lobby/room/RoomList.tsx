@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import Modal from '../../common/Modal';
 import AlertModal from '../../common/AlertModal';
-import { setPassword } from '../../../redux/slices/roomSlice';
+import { setPassword, setRoomId } from '../../../redux/slices/roomSlice';
 import { useDispatch } from 'react-redux';
 
 import map from '../../../assets/map/map.png';
@@ -75,6 +75,7 @@ export default function RoomList() {
 
       // store에 비밀번호 저장 -> waitingRoom에서 쓰임
       dispatch(setPassword(password));
+      dispatch(setRoomId(roomId));
 
       // 방으로 이동
       navigate(`/wait/${roomId}`);
