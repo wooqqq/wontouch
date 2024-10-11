@@ -62,6 +62,9 @@ const roomSlice = createSlice({
         participant.isReady = isReady;
       }
     },
+    removeRoomId(state) {
+      state.roomId = '';
+    },
   },
 });
 
@@ -73,5 +76,6 @@ export const {
   setIsPrivate,
   setPassword,
   updateParticipantReadyState,
+  removeRoomId,
 } = roomSlice.actions;
 export default roomSlice.reducer;

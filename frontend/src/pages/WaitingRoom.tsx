@@ -11,6 +11,7 @@ import {
   setGameParticipants,
   updateParticipantReadyState,
   setIsPrivate,
+  removeRoomId,
 } from '../redux/slices/roomSlice';
 
 import Modal from '../components/common/Modal';
@@ -82,11 +83,11 @@ function WaitingRoom() {
 
   // ❗❗❗❗❗❗❗❗ roomId 저장 useEffect ❗❗❗❗❗❗❗❗
   useEffect(() => {
-    // console.log(roomIdFromParams);
+    console.log(roomIdFromParams);
     if (roomIdFromParams) {
       dispatch(setRoomId(roomIdFromParams));
     }
-  }, [roomIdFromParams, dispatch]);
+  }, [roomIdFromParams]);
 
   //❗❗❗❗❗❗❗❗useEffect❗❗❗❗❗❗❗❗
   useEffect(() => {
@@ -278,6 +279,8 @@ function WaitingRoom() {
         }
       }
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      dispatch(removeRoomId());
+      console.log(roomId);
     };
   }, [roomId, userId, hostId]);
 
