@@ -126,6 +126,7 @@ function WaitingRoom() {
       })
       .then((response) => {
         // console.log('방 입장 완료', response);
+        dispatch(setRoomId(roomId));
         if (password) {
           dispatch(setIsPrivate(true));
         }
