@@ -64,6 +64,12 @@ const roomSlice = createSlice({
     },
     removeRoomId(state) {
       state.roomId = '';
+      state.roomName = '';
+      state.hostId = null;
+      state.gameParticipants = [];
+      state.currentPlayerCount = 0;
+      state.isPrivate = false;
+      state.password = '';
     },
   },
 });
