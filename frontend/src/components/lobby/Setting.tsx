@@ -39,7 +39,7 @@ export default function Setting({
   const handleLogout = async () => {
     try {
       const accessToken = sessionStorage.getItem('access_token');
-      console.log(accessToken);
+      // console.log(accessToken);
       await axios.post(`${AUTH_LINK}/oauth/kakao/logout`, {
         accessToken: accessToken,
       });
@@ -49,7 +49,7 @@ export default function Setting({
 
     try {
       const kakaoAccessToken = sessionStorage.getItem('kakao_access_token');
-      console.log(kakaoAccessToken);
+      //console.log(kakaoAccessToken);
       await axios.post(
         'https://kapi.kakao.com/v1/user/logout',
         {},

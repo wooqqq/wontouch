@@ -73,7 +73,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
 
   useEffect(() => {
     countRef.current = count;
-    console.log(countRef.current);
+    //console.log(countRef.current);
   }, [count])
 
 
@@ -117,7 +117,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
   const currentCropQuantity = cropQuantities.find(crop => crop.id === currentCrop.id)?.quantity ?? 0;
 
   useEffect(() => {
-    console.log(currentCropIndex);
+    //console.log(currentCropIndex);
   }, [currentCropIndex]);
 
   const handlePrev = () => {
@@ -133,7 +133,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
       setCurrentCropIndex(currentCropIndex + 1);
       setCount(1);
     }
-    console.log(currentCropIndex);
+    //console.log(currentCropIndex);
   };
 
   const closePurchaseModal = () => {
@@ -168,7 +168,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
 
         gameSocket?.send(JSON.stringify(cropChart));
         sentCropChartRef.current = cropName;  // 요청 전송 후 상태 업데이트
-        console.log(sentCropChartRef.current);
+        //console.log(sentCropChartRef.current);
       }
 
       loadImage();
@@ -198,7 +198,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
           townName = "GRAINS_NUTS";
           break;
       }
-      console.log(townName);
+      //console.log(townName);
 
       // 모달이 열렸을 때, TOWN_CROP_LIST 요청 전송
       const townCropMessage = {
@@ -208,7 +208,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
 
       if (gameSocket?.readyState === WebSocket.OPEN) {
         gameSocket.send(JSON.stringify(townCropMessage));
-        console.log("내가 보낸 집은", houseNum);
+        //console.log("내가 보낸 집은", houseNum);
       } else {
         console.error("WebSocket이 연결되어 있지 않습니다.");
       }
@@ -284,7 +284,7 @@ const InteractionModal: React.FC<ModalProps> = ({ houseNum, closeModal, gameSock
       quantity: countRef.current,
       playerId: userId
     };
-    console.log(reqBuyCrop);
+    //console.log(reqBuyCrop);
 
     if (gameSocket?.readyState === WebSocket.OPEN) {
       dispatch(updateCount({ id: cropName, newCount: countRef.current }));

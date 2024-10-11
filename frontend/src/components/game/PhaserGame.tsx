@@ -128,8 +128,8 @@ const PhaserGame = () => {
   const gameSocketRef = useRef<WebSocket | null>(null);
 
   //모든 작물의 정보 불러오기
-  const allCropList = useSelector((state: RootState) => state.crop.crops);
-  console.log(allCropList);
+  // const allCropList = useSelector((state: RootState) => state.crop.crops);
+  // console.log(allCropList);
   //작물에 대한 수량 불러오기
   const allCropsQuantityList = useSelector(
     (state: RootState) => state.cropQuantity,
@@ -239,23 +239,23 @@ const PhaserGame = () => {
       );
 
       gameSocket.onopen = () => {
-        console.log('게임 웹소켓 연결 성공');
+        //console.log('게임 웹소켓 연결 성공');
 
         // 웹소켓 연결 후 PLAYER_CROP_LIST 요청을 보냄
         const cropListRequest = {
           type: 'PLAYER_CROP_LIST',
         };
         gameSocket.send(JSON.stringify(cropListRequest));
-        console.log('PLAYER_CROP_LIST 요청을 보냈습니다.');
+        // console.log('PLAYER_CROP_LIST 요청을 보냈습니다.');
       };
 
       gameSocket.onmessage = (event) => {
         try {
           const message = event.data;
-          console.log(message);
+          //console.log(message);
 
           if (typeof message === 'string' && message[0] !== '{') {
-            console.log('Received message:', message);
+            //console.log('Received message:', message);
           } else {
             const data = JSON.parse(message);
 
@@ -267,11 +267,6 @@ const PhaserGame = () => {
 
               // 새로운 메시지를 내역에 추가
               setChatHistory((prev) => [...prev, newMessage]);
-            }
-
-            //움직임이 아닐때만..!
-            if (data.type !== 'MOVE') {
-              console.log(data.type);
             }
 
             if (data.type === 'ROUND_START') {
@@ -286,7 +281,7 @@ const PhaserGame = () => {
             }
 
             if (data.type === 'ROUND_END') {
-              console.log('ROUND_END 메시지 수신, 카운트다운 시작');
+              //console.log('ROUND_END 메시지 수신, 카운트다운 시작');
               //모달 열려야해
               setShowModal(true);
             }
@@ -302,10 +297,6 @@ const PhaserGame = () => {
 
             }
 
-            if (data.type === 'CROP_LIST') {
-              console.log('왓쒀요');
-            }
-
             if (data.type === 'CROP_CHART') {
               if (JSON.stringify(dataChart) !== JSON.stringify(data.content)) {
                 setDataChart(data.content);
@@ -318,12 +309,12 @@ const PhaserGame = () => {
             }
 
             if (data.type === 'SELL_CROP') {
-              console.log(data.content);
+              //console.log(data.content);
               if (data.content.type === 'SUCCESS') {
                 const crop = allCropsQuantityList.cropsQuantities.find(
                   (crop) => crop.id === data.content.info.cropId,
                 );
-                console.log(crop!.count);
+                //console.log(crop!.count);
 
                 dispatch(
                   updateCrop({
@@ -351,7 +342,7 @@ const PhaserGame = () => {
             }
 
             if (data.type === 'BUY_CROP') {
-              console.log(data.content);
+              //console.log(data.content);
               if (data.content.type === 'SUCCESS') {
                 const crop = allCropsQuantityList.cropsQuantities.find(
                   (crop) => crop.id === data.content.info.cropId,
@@ -408,7 +399,7 @@ const PhaserGame = () => {
             }
 
             if (data.type === 'ROUND_READY') {
-              console.log(data.content);
+              //(data.content);
 
               const totalReadyPlayer = data.content.totalPlayers;
               const readyReadyPlayer = data.content.readyPlayers;
@@ -428,7 +419,7 @@ const PhaserGame = () => {
             }
 
             if (data.type === 'ROUND_RESULT') {
-              console.log(data.content);
+              //console.log(data.content);
               dispatch(
                 updateCropPrices({
                   originPriceMap: data.content.originPriceMap,
@@ -438,7 +429,7 @@ const PhaserGame = () => {
             }
 
             if (data.type === 'ARTICLE_RESULT') {
-              console.log(data.content);
+              //console.log(data.content);
               dispatch(addArticleResult(data.content)); // Redux로 결과값 저장
             }
 
@@ -520,7 +511,7 @@ const PhaserGame = () => {
 
       gameSocket.onclose = () => {
         if (!noReConnectRef.current) {
-          console.log('WebSocket이 닫혔습니다. 재연결을 시도합니다.');
+          //console.log('WebSocket이 닫혔습니다. 재연결을 시도합니다.');
           setTimeout(() => {
             connectWebSocket(); // 재연결 시도
           }, 1000); // 1초 후에 재연결 시도
@@ -549,7 +540,7 @@ const PhaserGame = () => {
   // houseNum이 변경될 때마다 houseNumRef를 업데이트
   useEffect(() => {
     houseNumRef.current = houseNum;
-    console.log(houseNum);
+    //console.log(houseNum);
   }, [houseNum]);
 
   useEffect(() => {
@@ -677,7 +668,7 @@ const PhaserGame = () => {
 
     roomData.forEach((player: GameParticipant) => {
       const spriteKey = `${player.characterName}_${player.userId}`;
-      console.log(spriteKey, '떴냐!!!!!!!!!!!');
+      //console.log(spriteKey, '떴냐!!!!!!!!!!!');
 
       // 스프라이트 생성
       sprite = this.physics.add.sprite(1150, 1400, spriteKey);
@@ -784,28 +775,20 @@ const PhaserGame = () => {
 
       if (house1Tile) {
         setHouseNum(1);
-        console.log('1번집입니다.');
       } else if (house2Tile) {
         setHouseNum(2);
-        console.log('2번집입니다.');
       } else if (house3Tile) {
         setHouseNum(3);
-        console.log('3번집입니다.');
       } else if (house4Tile) {
         setHouseNum(4);
-        console.log('4번집입니다.');
       } else if (house5Tile) {
         setHouseNum(5);
-        console.log('5번집입니다.');
       } else if (house6Tile) {
         setHouseNum(6);
-        console.log('6번집입니다.');
       } else if (exchangeTile) {
         setHouseNum(0);
-        console.log('거래소입니다.');
       } else {
         setHouseNum(null);
-        console.log('상호작용이 불가능한 위치입니다.');
       }
     }
   }
@@ -826,7 +809,6 @@ const PhaserGame = () => {
 
     //메세지를 보내
     gameSocketRef.current?.send(JSON.stringify(readyMessage));
-    console.log('갔을걸?');
   };
 
   const goToLobby = () => {
@@ -836,7 +818,7 @@ const PhaserGame = () => {
     // 웹소켓이 열려 있는 경우 안전하게 종료
     if (gameSocketRef.current) {
       gameSocketRef.current.close(); // 웹소켓 연결 끊기
-      console.log('웹소켓 연결이 종료되었습니다.');
+      // console.log('웹소켓 연결이 종료되었습니다.');
     }
 
     // 잔액 초기화
