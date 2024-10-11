@@ -30,10 +30,10 @@ function Lobby() {
   };
 
   return (
-    <div className="px-6">
+    <div className="px-10">
       <Header />
       <div className="flex justify-between">
-        <section className="yellow-box w-8/12 min-w-[880px] h-5/6 flex flex-col justify-center p-2 px-6 ml-10">
+        <section className="yellow-box w-7/12 min-w-[880px] h-5/6 flex flex-col justify-center p-2 px-6 ml-10 pl-6">
           <div className="flex space-x-4 mb-4">
             <div>
               <button
@@ -65,7 +65,7 @@ function Lobby() {
             {/* reloadKey가 바뀔 때마다 RoomList가 재렌더링 */}
           </div>
         </section>
-        <section className="ranking-container w-4/12 h-5/6 flex flex-col items-center">
+        <section className="ranking-container w-4/12 h-5/6 flex flex-col items-center pr-10">
           <Ranking />
           <Friend />
         </section>
