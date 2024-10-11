@@ -43,7 +43,7 @@ const PlayerCropModal: React.FC<PlayerCropModalProps> = ({ onClose, gameSocket }
         cropId,
       };
       gameSocket.send(JSON.stringify(requestData));
-      console.log(`CROP_CHART 요청 전송: ${cropId}`);
+      //console.log(`CROP_CHART 요청 전송: ${cropId}`);
     }
 
     setSelectedCropId(cropId);
