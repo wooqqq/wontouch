@@ -20,9 +20,7 @@ export default function RankingList({
       </div>
       <div className="ranking-box white-text text-2xl h-[40px] w-10/12 my-0.5 flex justify-between px-1">
         <div>{nickname}</div>
-        <div className="w-6 h-6 ">
-          <LevelImg tierPoint={tierPoint} />
-        </div>
+        <div className="w-6 h-6">{tierPoint}</div>
       </div>
     </div>
   );

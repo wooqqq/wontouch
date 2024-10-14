@@ -39,7 +39,7 @@ export default function Friend() {
   };
 
   return (
-    <div className="yellow-box min-w-[335px] w-11/12 h-[208px] ml-6">
+    <div className="yellow-box min-w-[335px] w-11/12 h-[218px] ml-6">
       <div className="relative">
         <div className="flex justify-center mint-title my-1">친구 목록</div>
         <div
