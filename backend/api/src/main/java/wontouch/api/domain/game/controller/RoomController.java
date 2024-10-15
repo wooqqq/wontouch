@@ -79,9 +79,10 @@ public class RoomController {
     @PostMapping("/join/{roomId}")
     public ResponseEntity<?> joinRoom(@PathVariable String roomId, @RequestBody RoomRequestDto roomRequestDto) {
         String url = String.format("%s/rooms/join/%s", lobbyServerUrl, roomId);
-        log.debug("roomRequestDto: {}", roomRequestDto);
+        log.debug("roomId: {}, roomRequestDto: {}, url: {}", roomId, roomRequestDto, url);
         try {
             ResponseEntity<ResponseDto> response = restTemplate.postForEntity(url, roomRequestDto, ResponseDto.class);
+            log.debug("Response:{}", response);
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         } catch (HttpClientErrorException.Unauthorized e) {
             e.printStackTrace();
