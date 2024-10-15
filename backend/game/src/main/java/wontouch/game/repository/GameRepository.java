@@ -115,7 +115,7 @@ public class GameRepository {
 
             rewardDistribution.put(playerId, playerRewards);
 
-            // 현재 플레이어의 골드를 기록하여 다음 플레이어와 비교
+            // 현재 플레이어의 gold를 기록하여 다음 플레이어와 비교
             previousGold = totalGold;
         }
 
