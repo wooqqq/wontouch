@@ -9,6 +9,7 @@ import wontouch.game.domain.PlayerStatus;
 import wontouch.game.dto.RoundResultDto;
 import wontouch.game.repository.GameRepository;
 import wontouch.game.repository.article.ArticleRepository;
+import wontouch.game.repository.crop.CropRedisRepository;
 import wontouch.game.repository.player.PlayerRepository;
 import wontouch.game.service.ArticleService;
 import wontouch.game.service.CropService;
@@ -28,6 +29,7 @@ public class TimerService {
     private static final int PREPARATION_DURATION_SECONDS = 30;
     private static final int FINAL_ROUND = 5;
     private final GameService gameService;
+    private final CropRedisRepository cropRedisRepository;
 
     @Value("${socket.server.name}:${socket.server.path}")
     private String socketServerUrl;
@@ -47,7 +49,7 @@ public class TimerService {
     private final RedisService redisService;
     private final CropService cropService;
 
-    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate, RedisService redisService, GameService gameService, CropService cropService) {
+    public TimerService(GameRepository gameRepository, PlayerRepository playerRepository, ArticleRepository articleRepository, ArticleService articleService, RedisTemplate<String, Object> redisTemplate, RedisService redisService, GameService gameService, CropService cropService, CropRedisRepository cropRedisRepository) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.articleRepository = articleRepository;
@@ -56,6 +58,7 @@ public class TimerService {
         this.redisService = redisService;
         this.gameService = gameService;
         this.cropService = cropService;
+        this.cropRedisRepository = cropRedisRepository;
     }
 
     // 라운드 시작 시 타이머 설정
@@ -80,7 +83,7 @@ public class TimerService {
         log.debug("end Timer for {}", roomId);
         // WebSocket 서버로 라운드 종료 알림 전송
         notifyClientsOfRoundEnd(roomId);
-
+        cropService.stockCrops(roomId);
         RoundResultDto roundResult = articleRepository.calculateArticleResult(roomId, round);
         // TODO 이번 라운드 결과 각자에게 유니캐스트?
         notifyRoundResult(roomId, roundResult);
