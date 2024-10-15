@@ -37,13 +37,14 @@ public class RoomController {
     // 방 입장
     @PostMapping("/join/{roomId}")
     public ResponseEntity<ResponseDto<RoomResponseDto>> joinGameRoom(@PathVariable String roomId, @RequestBody RoomRequestDto roomRequestDto) {
-        System.out.println(roomRequestDto);
+        log.debug("roomId: {}, {}", roomId, roomRequestDto);
         RoomResponseDto roomResponseDto = roomService.joinRoom(roomId, roomRequestDto);
         ResponseDto<RoomResponseDto> responseDto = ResponseDto.<RoomResponseDto>builder()
                 .status(HttpStatus.OK.value())
                 .message("방 입장 완료")
                 .data(roomResponseDto)
                 .build();
+        log.debug("입장 정보 전달: {}", responseDto);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 

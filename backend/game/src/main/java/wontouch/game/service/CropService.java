@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CropService {
 
     private static final int NUM_OF_CROPS_PER_TYPE = 3;
+    private static final int STOCK_QUANTITY= 10;
     private final CropRepository cropRepository;
     private final CropRedisRepository cropRedisRepository;
 
@@ -115,5 +116,12 @@ public class CropService {
             cropNameBasedPriceMap.put(cropName, priceMap.get(cropId));
         }
         return cropNameBasedPriceMap;
+    }
+
+    public void stockCrops(String roomId){
+        Set<Object> allCrops = cropRedisRepository.getAllCrops(roomId);
+        for (Object cropId : allCrops) {
+            cropRedisRepository.updateCropQuantity(roomId, cropId, STOCK_QUANTITY);
+        }
     }
 }

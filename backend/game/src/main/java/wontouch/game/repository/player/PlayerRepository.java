@@ -133,6 +133,9 @@ public class PlayerRepository {
     }
 
     public void freePlayerMemory(String roomId, String playerId) {
+        if (playerId == null) {
+            return;
+        }
         String infoKey = PLAYER_PREFIX + playerId + INFO_SUFFIX;
         redisTemplate.delete(infoKey);
         String cropKey = PLAYER_PREFIX + playerId + CROP_SUFFIX;
