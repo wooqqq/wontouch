@@ -17,7 +17,7 @@ public class GameRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final PlayerRepository playerRepository;
-    private static final int TOTAL_EXPERIENCE = 500;
+    private static final int TOTAL_EXPERIENCE = 1000;
     private static final int TOTAL_MILEAGE = 5000;
     private static final int MAX_PLAYER = 8;
 
@@ -77,9 +77,6 @@ public class GameRepository {
             totalGoldResponse.put(playerId.toString(), totalGold);
         }
 
-        // 평균 골드 계산
-        double averageGold = (double) totalGoldSum / actualPlayers;
-
         // 총 골드를 내림차순으로 정렬하여 등수 계산
         List<Map.Entry<String, Integer>> sortedGoldList = new ArrayList<>(totalGoldResponse.entrySet());
         sortedGoldList.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));  // 내림차순 정렬
@@ -93,6 +90,13 @@ public class GameRepository {
             String playerId = entry.getKey();
             int totalGold = entry.getValue();
 
+            // 플레이어가 차지하는 골드 비율 계산
+            double goldRatio = (double) totalGold / totalGoldSum;
+
+            // 비율에 따라 경험치와 마일리지 계산
+            int experienceEarned = (int) (adjustedTotalExperience * goldRatio);
+            int mileageEarned = (int) (adjustedTotalMileage * goldRatio);
+
             // 동점자 처리: 이전 플레이어의 골드와 비교하여 등수 할당
             if (totalGold == previousGold) {
                 playersWithSameRank++;
@@ -101,23 +105,6 @@ public class GameRepository {
                 rank += playersWithSameRank;
                 playersWithSameRank = 1;
             }
-
-            // 플레이어가 차지하는 골드 비율 계산
-            double goldRatio = (double) totalGold / totalGoldSum;
-
-            // 1. 순위에 따른 기본 가중치 (상위 순위일수록 더 큰 가중치)
-            double rankMultiplier = 1.0 + (actualPlayers - rank) * 0.1;
-
-            // 2. 경험치: 평균 골드 대비 성과 반영
-            double performance = (totalGold - averageGold) / averageGold; // 평균 대비 성과
-            double experienceMultiplier = rankMultiplier * (1 + performance);
-
-            // 비율에 따라 경험치와 마일리지 계산
-//            int experienceEarned = (int) (adjustedTotalExperience * goldRatio);
-            int mileageEarned = (int) (adjustedTotalMileage * goldRatio);
-
-            // 4. 최종 보상 계산
-            int experienceEarned = (int) (adjustedTotalExperience * experienceMultiplier);
 
             // 플레이어에게 보상 분배 및 등수 추가
             Map<String, Integer> playerRewards = new HashMap<>();
@@ -128,7 +115,7 @@ public class GameRepository {
 
             rewardDistribution.put(playerId, playerRewards);
 
-            // 현재 플레이어의 골드를 기록하여 다음 플레이어와 비교
+            // 현재 플레이어의 gold를 기록하여 다음 플레이어와 비교
             previousGold = totalGold;
         }
 
