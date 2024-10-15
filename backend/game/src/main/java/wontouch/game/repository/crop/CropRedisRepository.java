@@ -15,7 +15,7 @@ import static wontouch.game.domain.RedisKeys.*;
 public class CropRedisRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private static final int DEFAULT_QUANTITY = 50;
+    private static final int DEFAULT_QUANTITY = 30;
 
     public CropRedisRepository(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
